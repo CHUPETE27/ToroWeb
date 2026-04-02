@@ -14,13 +14,13 @@
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-top">
             <div class="close-btn" id="close-btn">✖</div>
-            <a href="#">👤 Perfil</a>
+            <a href="#" onclick="if(localStorage.getItem('toroHaxLoggedId')){ window.location.href='perfil.html'; } else { window.location.href='login.html'; } return false;">👤 Perfil</a>
             <a href="#">💎 VIP</a>
             <a href="#">🛒 Tienda</a>
             <a href="#">🏠 Menú principal</a>
         </div>
         <div class="sidebar-bottom">
-            <a href="#" class="logout-btn">🚪 Cerrar sesión</a>
+            <a href="#" class="logout-btn" onclick="localStorage.removeItem('toroHaxLoggedId'); window.location.href='index.html'; return false;">🚪 Cerrar sesión</a>
         </div>
     </nav>
 
@@ -71,12 +71,10 @@
         const closeBtn = document.getElementById('close-btn');
         const sidebar = document.getElementById('sidebar');
 
-        // Al hacer clic en las 3 barras, le añade la clase 'active' para que aparezca
         menuToggle.addEventListener('click', () => {
             sidebar.classList.add('active');
         });
 
-        // Al hacer clic en la X, le quita la clase 'active' para que se oculte
         closeBtn.addEventListener('click', () => {
             sidebar.classList.remove('active');
         });

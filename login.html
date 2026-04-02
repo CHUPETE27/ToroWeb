@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - ToroHax</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .login-container {
+            background: rgba(20, 20, 20, 0.9);
+            border: 1px solid #FFD342;
+            border-radius: 15px;
+            padding: 40px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin: auto;
+            margin-top: 10vh;
+        }
+
+        .login-container h2 {
+            color: #FFD342;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+        }
+
+        .login-input {
+            width: 90%;
+            padding: 15px;
+            margin-bottom: 20px;
+            background: #111;
+            border: 1px solid #333;
+            color: white;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            text-align: center;
+        }
+
+        .login-input:focus {
+            border-color: #5dc8e8;
+        }
+
+        .login-btn {
+            width: 100%;
+            background: #FFD342;
+            color: #111;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .login-btn:hover {
+            background: #e6bd35;
+            transform: translateY(-2px);
+        }
+
+        .login-status {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            color: #5dc8e8;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <a href="index.html" style="color: #7d7d7d; text-decoration: none; position: absolute; top: 20px; left: 20px; font-size: 1.2rem;">⬅ Volver</a>
+
+    <div class="login-container">
+        <h2>ToroHax Login</h2>
+        
+        <input type="number" id="hostIdInput" class="login-input" placeholder="Ingresa tu ID numérica (ej: 145)" required>
+        
+        <button id="loginBtn" class="login-btn">INICIAR SESIÓN</button>
+        
+        <p id="statusText" class="login-status">⏳ Revisa tu Discord. Tienes un nuevo canal temporal para confirmar tu identidad...</p>
+    </div>
+
+    <script>
+        const loginBtn = document.getElementById('loginBtn');
+        const hostIdInput = document.getElementById('hostIdInput');
+        const statusText = document.getElementById('statusText');
+        let checkInterval;
+
+        loginBtn.addEventListener('click', () => {
+            const numericId = hostIdInput.value.trim();
+            if (!numericId) return alert("⚠️ Debes ingresar una ID.");
+
+            loginBtn.disabled = true;
+            loginBtn.innerText = "PROCESANDO...";
+
+            fetch('https://torobot-izu5.onrender.com/api/web-login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ numericId: numericId })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) {
+                    if (data.reason === "not_registered") {
+                        alert("❌ ALERTA: Tu ID no está registrada en nuestra base de datos o no tienes un Discord vinculado. Por favor, entra a la sala de HaxBall y escribe '!registro' en el chat.");
+                    } else {
+                        alert("❌ Error: " + data.reason);
+                    }
+                    resetButton();
+                    return;
+                }
+
+                statusText.style.display = "block";
+                checkInterval = setInterval(() => checkLoginStatus(data.loginToken), 2000);
+
+            })
+            .catch(err => {
+                alert("❌ Error de conexión con el servidor.");
+                resetButton();
+            });
+        });
+
+        function checkLoginStatus(token) {
+            fetch(`https://torobot-izu5.onrender.com/api/check-web-login?token=${token}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'approved') {
+                    clearInterval(checkInterval);
+                    statusText.style.color = "#00AA00";
+                    statusText.innerText = "✅ ¡Autorizado! Redirigiendo a tu perfil...";
+                    
+                    localStorage.setItem('toroHaxLoggedId', data.numericId);
+                    
+                    setTimeout(() => {
+                        window.location.href = "perfil.html";
+                    }, 1500);
+                } 
+                else if (data.status === 'rejected') {
+                    clearInterval(checkInterval);
+                    alert("❌ Inicio de sesión denegado desde Discord.");
+                    resetButton();
+                    statusText.style.display = "none";
+                }
+                else if (data.status === 'timeout') {
+                    clearInterval(checkInterval);
+                    alert("⏳ El tiempo de verificación expiró (3 minutos). Inténtalo de nuevo.");
+                    resetButton();
+                    statusText.style.display = "none";
+                }
+            });
+        }
+
+        function resetButton() {
+            loginBtn.disabled = false;
+            loginBtn.innerText = "INICIAR SESIÓN";
+        }
+    </script>
+</body>
+</html>
