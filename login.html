@@ -17,7 +17,7 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             margin: auto;
             margin-top: 15vh;
-            box-sizing: border-box; /* Vital para que el padding no rompa el diseño en celular */
+            box-sizing: border-box;
         }
 
         .login-container h2 {
@@ -28,8 +28,8 @@
         }
 
         .login-input {
-            width: 100%; /* Ajustado al 100% del contenedor */
-            box-sizing: border-box; /* Mantiene el padding por dentro */
+            width: 70%;
+            box-sizing: border-box;
             padding: 15px;
             margin-bottom: 20px;
             background: #111;
@@ -45,7 +45,6 @@
             border-color: #5dc8e8;
         }
 
-        /* 👇 CÓDIGO PARA ELIMINAR LAS FLECHITAS DE SUBIR/BAJAR NÚMEROS 👇 */
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button {
             -webkit-appearance: none;
@@ -78,7 +77,6 @@
             display: none;
         }
 
-        /* 👇 AJUSTES PARA PANTALLAS DE CELULARES PEQUEÑOS 👇 */
         @media (max-width: 480px) {
             .login-container {
                 padding: 30px 20px;
@@ -94,9 +92,9 @@
     <a href="index.html" style="color: #7d7d7d; text-decoration: none; position: absolute; top: 20px; left: 20px; font-size: 1.2rem;">⬅ Volver</a>
 
     <div class="login-container">
-        <h2>ToroHax Login</h2>
+        <h2>Iniciar sesión</h2>
         
-        <input type="number" id="hostIdInput" class="login-input" placeholder="Ingresa tu ID numérica (ej: 145)" required>
+        <input type="number" id="hostIdInput" class="login-input" placeholder="Ingresa tu ID del host (ej: 123)" required>
         
         <button id="loginBtn" class="login-btn">INICIAR SESIÓN</button>
         
