@@ -5,22 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ToroHax Oficial Site</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="menu-toggle" id="menu-toggle">
-        ☰
+        <i class="fa-solid fa-bars"></i>
     </div>
 
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-top">
-            <div class="close-btn" id="close-btn">✖</div>
-            <a href="#" onclick="if(localStorage.getItem('toroHaxLoggedId')){ window.location.href='perfil.html'; } else { window.location.href='login.html'; } return false;">👤 Perfil</a>
-            <a href="#" onclick="checkLogin('vip.html')">💎 VIP</a>
-            <a href="#" onclick="checkLogin('tienda.html')">🛒 Tienda</a>
-            <a href="#">🏠 Menú principal</a>
+            <div class="close-btn" id="close-btn"><i class="fa-solid fa-xmark"></i></div>
+            <a href="#" onclick="if(localStorage.getItem('toroHaxLoggedId')){ window.location.href='perfil.html'; } else { window.location.href='login.html'; } return false;">
+                <i class="fa-solid fa-user"></i> Perfil
+            </a>
+            <a href="#" onclick="checkLogin('vip.html')">
+                <i class="fa-solid fa-gem"></i> VIP
+            </a>
+            <a href="#" onclick="checkLogin('tienda.html')">
+                <i class="fa-solid fa-cart-shopping"></i> Tienda
+            </a>
+            <a href="index.html">
+                <i class="fa-solid fa-house"></i> Menú principal
+            </a>
         </div>
         <div class="sidebar-bottom">
-            <a href="#" class="logout-btn" onclick="confirmarLogout()">🚪 Cerrar sesión</a>
+            <a href="#" class="logout-btn" onclick="confirmarLogout()">
+                <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
+            </a>
         </div>
     </nav>
 
@@ -55,10 +66,18 @@
         </div>
         
         <div class="social-links">
-            <a href="https://discord.gg/3kHXFtzXfn" target="_blank" rel="noopener noreferrer" class="social-btn discord">🔵 Discord</a>
-            <a href="https://www.instagram.com/torohax/" target="_blank" rel="noopener noreferrer" class="social-btn instagram">🟠 Instagram</a>
-            <a href="https://www.youtube.com/@ToroHax" target="_blank" rel="noopener noreferrer" class="social-btn youtube">🔴 YouTube</a>
-            <a href="https://www.tiktok.com/@jtconeltoro" target="_blank" rel="noopener noreferrer" class="social-btn tiktok">🟣 TikTok</a>
+            <a href="https://discord.gg/3kHXFtzXfn" target="_blank" rel="noopener noreferrer" class="social-btn discord">
+                <i class="fa-brands fa-discord"></i> Discord
+            </a>
+            <a href="https://www.instagram.com/torohax/" target="_blank" rel="noopener noreferrer" class="social-btn instagram">
+                <i class="fa-brands fa-instagram"></i> Instagram
+            </a>
+            <a href="https://www.youtube.com/@ToroHax" target="_blank" rel="noopener noreferrer" class="social-btn youtube">
+                <i class="fa-brands fa-youtube"></i> YouTube
+            </a>
+            <a href="https://www.tiktok.com/@jtconeltoro" target="_blank" rel="noopener noreferrer" class="social-btn tiktok">
+                <i class="fa-brands fa-tiktok"></i> TikTok
+            </a>
         </div>
     </main>
 
