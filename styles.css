@@ -207,3 +207,110 @@ footer {
         text-align: center;
     }
 }
+
+/* ========================================= */
+/* --- MENÚ LATERAL (SIDEBAR) Y BOTÓN --- */
+/* ========================================= */
+
+/* El botón de las 3 barras */
+.menu-toggle {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    font-size: 1.8rem;
+    color: #FFD342; /* Dorado ToroHax */
+    cursor: pointer;
+    z-index: 100;
+    background: rgba(20, 20, 20, 0.8);
+    padding: 5px 15px;
+    border-radius: 8px;
+    border: 1px solid #FFD342;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+
+.menu-toggle:hover {
+    background: #FFD342;
+    color: #111;
+    transform: scale(1.05);
+}
+
+/* El panel lateral oculto */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -300px; /* Escondido fuera de la pantalla por la izquierda */
+    width: 280px;
+    height: 100vh;
+    background-color: #01181C; /* Color base de ToroHax */
+    border-right: 2px solid #FFD342;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Empuja el top arriba y el bottom abajo */
+    transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1); /* Animación suave */
+    box-shadow: 5px 0 30px rgba(0,0,0,0.9);
+}
+
+/* Cuando se activa con JavaScript, se desliza al pixel 0 */
+.sidebar.active {
+    left: 0; 
+}
+
+/* Contenedor de arriba (Cerrar + Opciones) */
+.sidebar-top {
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0;
+}
+
+/* El botón de la 'X' para cerrar */
+.close-btn {
+    align-self: flex-end;
+    margin-right: 25px;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+    color: #7d7d7d;
+    cursor: pointer;
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.close-btn:hover {
+    color: #cc2a2a; /* Se pone rojo al pasar el mouse */
+    transform: rotate(90deg); /* Gira un poquito */
+}
+
+/* Los links de las opciones */
+.sidebar a {
+    padding: 15px 30px;
+    text-decoration: none;
+    color: white;
+    font-size: 1.1rem;
+    font-weight: 500;
+    border-left: 4px solid transparent; /* Borde invisible por defecto */
+    transition: all 0.3s ease;
+}
+
+/* Efecto al pasar el mouse por las opciones */
+.sidebar a:hover {
+    background-color: rgba(255, 211, 66, 0.1);
+    border-left: 4px solid #FFD342; /* Borde dorado */
+    color: #FFD342;
+}
+
+/* Contenedor de abajo (Cerrar sesión) */
+.sidebar-bottom {
+    padding: 20px 0;
+    border-top: 1px solid #333;
+}
+
+/* Botón especial para cerrar sesión */
+.logout-btn {
+    color: #cc2a2a !important; /* Rojo alerta */
+}
+
+.logout-btn:hover {
+    background-color: rgba(204, 42, 42, 0.1) !important;
+    border-left: 4px solid #cc2a2a !important;
+}
