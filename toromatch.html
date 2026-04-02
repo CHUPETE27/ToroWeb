@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Selección - ToroHax</title>
+    <title>ToroMatch - ToroHax</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -20,7 +20,7 @@
         .live-indicator { display: flex; align-items: center; gap: 8px; color: #2df2c1; font-weight: bold; margin-bottom: 15px; font-size: 1.1rem;}
         .status-circle.green { width: 12px; height: 12px; background-color: #2df2c1; border-radius: 50%; box-shadow: 0 0 10px rgba(45, 242, 193, 0.8); animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
-        .score-text { font-size: 2.5rem; font-weight: bold; color: white; letter-spacing: 2px; }
+        .score-text { font-size: 2.2rem; font-weight: bold; color: white; letter-spacing: 2px; }
 
         /* Pestañas Partidos */
         .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; }
@@ -31,26 +31,19 @@
         .tab-content.active { display: block; }
         
         .match-row { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px; font-size: 1.1rem; }
-        .match-result.w { color: #2df2c1; font-weight: bold; } /* Win */
-        .match-result.d { color: #FFD342; font-weight: bold; } /* Draw */
-        .match-result.l { color: #cc2a2a; font-weight: bold; } /* Loss */
         .match-date { color: #7d7d7d; font-size: 0.9rem; border-left: 1px solid #333; padding-left: 15px; }
 
         /* Botón Editar */
-        .edit-btn { position: absolute; bottom: 20px; right: 20px; background: transparent; color: #e6683c; border: 2px solid #e6683c; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: none; /* Oculto por defecto */ transition: 0.3s; }
+        .edit-btn { position: absolute; bottom: 20px; right: 20px; background: transparent; color: #e6683c; border: 2px solid #e6683c; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: none; transition: 0.3s; }
         .edit-btn:hover { background: #e6683c; color: white; }
 
         /* Columna Derecha */
         .right-col { display: flex; flex-direction: column; gap: 20px; }
         
-        /* Logo */
-        .logo-box { display: flex; justify-content: center; align-items: center; padding: 30px; }
-        .logo-box img { width: 150px; height: 150px; border-radius: 50%; border: 3px solid #ffffff; object-fit: cover; }
-        
-        /* Listas (Vitrina y Jugadores) */
+        /* Lista de Jugadores (Adaptada a nombre_rol - nombre_jugador) */
         .list-box ul { list-style-type: none; padding: 0; margin: 0; }
-        .list-box li { padding: 10px 0; border-bottom: 1px dashed #333; color: #bdc3c7; }
-        .list-box li::before { content: "• "; color: #FFD342; font-weight: bold; }
+        .list-box li { padding: 12px 0; border-bottom: 1px dashed #333; color: #bdc3c7; font-size: 0.95rem; }
+        .list-box li::before { content: "🥊 "; color: #FFD342; font-size: 1.1rem; }
         
         @media (max-width: 900px) { .seleccion-wrapper { grid-template-columns: 1fr; } }
     </style>
@@ -60,10 +53,10 @@
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-top">
             <div class="close-btn" id="close-btn"><i class="fa-solid fa-xmark"></i></div>
-            <a href="#" onclick="if(localStorage.getItem('toroHaxLoggedId')){ window.location.href='perfil.html'; } else { window.location.href='login.html'; } return false;"><i class="fa-solid fa-user"></i> | Perfil</a>
-            <a href="#" onclick="checkLogin('vip.html')"><i class="fa-solid fa-gem"></i> | VIP</a>
-            <a href="#" onclick="checkLogin('tienda.html')"><i class="fa-solid fa-cart-shopping"></i> | Tienda</a>
-            <a href="index.html"><i class="fa-solid fa-house"></i> | Menú principal</a>
+            <a href="#" onclick="if(localStorage.getItem('toroHaxLoggedId')){ window.location.href='perfil.html'; } else { window.location.href='login.html'; } return false;"><i class="fa-solid fa-user"></i> Perfil</a>
+            <a href="#" onclick="checkLogin('vip.html')"><i class="fa-solid fa-gem"></i> VIP</a>
+            <a href="#" onclick="checkLogin('tienda.html')"><i class="fa-solid fa-cart-shopping"></i> Tienda</a>
+            <a href="index.html"><i class="fa-solid fa-house"></i> Menú principal</a>
         </div>
         <div class="sidebar-bottom">
             <a href="#" class="logout-btn" onclick="confirmarLogout()"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
@@ -76,24 +69,22 @@
             <div class="box live-box">
                 <div id="liveIndicator" style="display: none;" class="live-indicator"><span class="status-circle green"></span> En vivo</div>
                 <div id="liveIndicatorOff" class="live-indicator" style="color: #7d7d7d;"><span class="status-circle" style="background:#cc2a2a;"></span> Offline</div>
-                <div class="score-text" id="liveScore">THX 0 - 0 VIS</div>
+                <div class="score-text" id="liveScore">Esperando conexión...</div>
             </div>
 
             <div class="box" style="padding-bottom: 60px;">
                 <div class="tabs">
-                    <div class="tab active" onclick="switchTab('proximos')">Próximos partidos</div>
+                    <div class="tab active" onclick="switchTab('proximos')">Próximo express</div>
                     <div class="tab" onclick="switchTab('historial')">Historial</div>
                 </div>
 
                 <div id="proximos" class="tab-content active">
-                    <div class="match-row">ToroHax vs Boca Juniors <span class="match-date">18/06/2026</span></div>
-                    <div class="match-row">ToroHax vs River Plate <span class="match-date">25/06/2026</span></div>
+                    <div class="match-row">Equipo A vs Equipo B <span class="match-date">20/06/2026</span></div>
                 </div>
 
                 <div id="historial" class="tab-content">
-                    <div class="match-row"><span class="match-result w">(W)</span> ToroHax 3 - 2 Univ. Católica <span class="match-date">04/05/2026</span></div>
-                    <div class="match-row"><span class="match-result d">(D)</span> ToroHax 1 - 1 Colo Colo <span class="match-date">28/04/2026</span></div>
-                    <div class="match-row"><span class="match-result l">(L)</span> ToroHax 0 - 2 U. de Chile <span class="match-date">21/04/2026</span></div>
+                    <div class="match-row">Rol1 3 - 2 Rol2 <span class="match-date">04/05/2026</span></div>
+                    <div class="match-row">Rol1 1 - 4 Rol2 <span class="match-date">28/04/2026</span></div>
                 </div>
 
                 <button id="btnEditar" class="edit-btn"><i class="fa-solid fa-pen"></i> Editar</button>
@@ -101,18 +92,9 @@
         </div>
 
         <div class="right-col">
-            <div class="box logo-box">
-                <img src="path1.png" alt="Logo Selección">
-            </div>
-
-            <div class="box list-box">
-                <h3>🏆 Vitrina</h3>
-                <ul id="listaVitrina"><li>Cargando trofeos...</li></ul>
-            </div>
-
-            <div class="box list-box">
+            <div class="box list-box" style="flex: 1;">
                 <h3>⚽ Jugadores</h3>
-                <ul id="listaJugadores"><li>Cargando plantilla...</li></ul>
+                <ul id="listaJugadores"><li>Cargando plantel...</li></ul>
             </div>
         </div>
     </div>
@@ -120,7 +102,6 @@
     <footer><p>© 2026 ToroHax. Todos los derechos reservados.</p></footer>
 
     <script>
-        // Funciones básicas
         const menuToggle = document.getElementById('menu-toggle');
         const closeBtn = document.getElementById('close-btn');
         const sidebar = document.getElementById('sidebar');
@@ -129,7 +110,6 @@
         function checkLogin(page) { if (localStorage.getItem('toroHaxLoggedId')) window.location.href = page; else window.location.href = 'login.html'; }
         function confirmarLogout() { if(confirm("⚠️ ¿Estás seguro que quieres cerrar sesión?")) { localStorage.removeItem('toroHaxLoggedId'); window.location.href = 'index.html'; } }
 
-        // Pestañas
         function switchTab(tabId) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -137,40 +117,28 @@
             document.getElementById(tabId).classList.add('active');
         }
 
-        // --- Carga de Datos desde el Bot ---
         const loggedId = localStorage.getItem('toroHaxLoggedId') || 'null';
 
-        // 1. Cargar Vitrina, Jugadores y Permisos
-        fetch(`https://torobot-izu5.onrender.com/api/seleccion/data?numericId=${loggedId}`)
+        // 1. Cargar Jugadores de ToroMatch y Permisos
+        fetch(`https://torobot-izu5.onrender.com/api/toromatch/data?numericId=${loggedId}`)
         .then(res => res.json())
         .then(data => {
             if(data.success) {
-                // Mostrar botón editar si tiene rol
                 if(data.canEdit) document.getElementById('btnEditar').style.display = 'block';
 
-                // Llenar Jugadores
                 const ulJugadores = document.getElementById('listaJugadores');
                 ulJugadores.innerHTML = '';
                 if(data.jugadores.length > 0) {
                     data.jugadores.forEach(jug => ulJugadores.innerHTML += `<li>${jug}</li>`);
                 } else {
-                    ulJugadores.innerHTML = '<li>No hay jugadores registrados.</li>';
-                }
-
-                // Llenar Vitrina
-                const ulVitrina = document.getElementById('listaVitrina');
-                ulVitrina.innerHTML = '';
-                if(data.trofeos.length > 0) {
-                    data.trofeos.forEach(trofeo => ulVitrina.innerHTML += `<li>${trofeo}</li>`);
-                } else {
-                    ulVitrina.innerHTML = '<li>Vitrina en construcción.</li>';
+                    ulJugadores.innerHTML = '<li>No hay jugadores registrados en ToroMatch.</li>';
                 }
             }
         });
 
-        // 2. Cargar Marcador en Vivo (Se actualiza cada 5 segundos)
+        // 2. Cargar Marcador en Vivo de ToroMatch
         function actualizarMarcador() {
-            fetch('https://torobot-izu5.onrender.com/api/seleccion/live')
+            fetch('https://torobot-izu5.onrender.com/api/toromatch/live')
             .then(res => res.json())
             .then(data => {
                 const indOn = document.getElementById('liveIndicator');
@@ -187,7 +155,7 @@
                     indOn.style.display = 'none';
                     indOff.style.display = 'flex';
                     document.querySelector('.live-box').style.borderColor = '#333';
-                    score.innerText = "THX 0 - 0 VIS"; // Resetea si está offline
+                    score.innerText = "ESPERANDO CONEXIÓN"; 
                 }
             });
         }
