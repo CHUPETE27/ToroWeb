@@ -8,6 +8,18 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+
+    -webkit-user-select: none; /* Safari/Chrome */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE/Edge */
+    user-select: none;
+}
+
+input {
+    -webkit-user-select: auto;
+    -moz-user-select: auto;
+    -ms-user-select: auto;
+    user-select: auto;
 }
 
 /* --- SECCIÓN SUPERIOR: BANNER (30%) --- */

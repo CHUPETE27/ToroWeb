@@ -15,12 +15,12 @@
         <div class="sidebar-top">
             <div class="close-btn" id="close-btn">✖</div>
             <a href="#" onclick="if(localStorage.getItem('toroHaxLoggedId')){ window.location.href='perfil.html'; } else { window.location.href='login.html'; } return false;">👤 Perfil</a>
-            <a href="#">💎 VIP</a>
-            <a href="#">🛒 Tienda</a>
+            <a href="#" onclick="checkLogin('vip.html')">💎 VIP</a>
+            <a href="#" onclick="checkLogin('tienda.html')">🛒 Tienda</a>
             <a href="#">🏠 Menú principal</a>
         </div>
         <div class="sidebar-bottom">
-            <a href="#" class="logout-btn" onclick="localStorage.removeItem('toroHaxLoggedId'); window.location.href='index.html'; return false;">🚪 Cerrar sesión</a>
+            <a href="#" class="logout-btn" onclick="confirmarLogout()">🚪 Cerrar sesión</a>
         </div>
     </nav>
 
@@ -78,6 +78,32 @@
         closeBtn.addEventListener('click', () => {
             sidebar.classList.remove('active');
         });
+
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const menuToggle = document.getElementById('menu-toggle');
+            
+            if (sidebar.classList.contains('active')) {
+                if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                }
+            }
+        });
+
+        function checkLogin(page) {
+            if (localStorage.getItem('toroHaxLoggedId')) { 
+                window.location.href = page; 
+            } else { 
+                window.location.href = 'login.html'; 
+            }
+        }
+
+        function confirmarLogout() {
+            if(confirm("⚠️ ¿Estás seguro que quieres cerrar sesión?")) {
+                localStorage.removeItem('toroHaxLoggedId');
+                window.location.href = 'index.html';
+            }
+        }
     </script>
 
 </body>

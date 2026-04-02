@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Perfil - ToroHax</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <script>
+        const loggedId = localStorage.getItem('toroHaxLoggedId');
+        if (!loggedId) {
+            window.location.href = 'login.html';
+        }
+    </script>
+
+    <style>
+        /* Estilos específicos para el perfil */
+        .profile-container {
+            width: 100%;
+            max-width: 1000px;
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-top: 20px;
+            display: none; /* Se oculta hasta que carguen los datos */
+        }
+
+        .profile-header {
+            text-align: center;
+            border-bottom: 2px solid #FFD342;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .profile-header h2 { margin: 0; color: #FFD342; font-size: 2rem; text-transform: uppercase; }
+        .profile-header p { margin: 5px 0 0; color: #5dc8e8; font-size: 1.1rem; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-box {
+            background: #111;
+            border: 1px solid #444;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .stat-box h3 { margin: 0 0 15px; color: #FFD342; font-size: 1.2rem; text-align: center; border-bottom: 1px solid #333; padding-bottom: 10px;}
+        .stat-box ul { list-style: none; padding: 0; margin: 0; }
+        .stat-box li { margin-bottom: 8px; color: #ccc; font-size: 0.95rem; }
+        .stat-box li strong { color: white; }
+
+        .chart-section {
+            text-align: center;
+            background: #111;
+            border: 1px solid #444;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .chart-section img { max-width: 100%; height: auto; margin-top: 15px;}
+        
+        .loading-text { text-align: center; font-size: 1.5rem; color: #FFD342; margin-top: 100px;}
+    </style>
+</head>
+<body>
+
+    <div class="menu-toggle" id="menu-toggle">☰</div>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-top">
+            <div class="close-btn" id="close-btn">✖</div>
+            <a href="perfil.html">👤 Perfil</a>
+            <a href="#" onclick="checkLogin('vip.html')">💎 VIP</a>
+            <a href="#" onclick="checkLogin('tienda.html')">🛒 Tienda</a>
+            <a href="index.html">🏠 Menú principal</a>
+        </div>
+        <div class="sidebar-bottom">
+            <a href="#" class="logout-btn" onclick="confirmarLogout()">🚪 Cerrar sesión</a>
+        </div>
+    </nav>
+
+    <header></header>
+
+    <main>
+        <h2 id="loading" class="loading-text">⏳ Cargando perfil desde el servidor...</h2>
+
+        <div class="profile-container" id="profileContainer">
+            <div class="profile-header">
+                <h2 id="playerName">Nombre</h2>
+                <p>ID: <strong id="playerID">#0</strong> | Rango: <strong id="playerRank">...</strong></p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <h3>📊 Totales</h3>
+                    <ul id="listTotales"></ul>
+                </div>
+                <div class="stat-box">
+                    <h3>⚽ Estadísticas</h3>
+                    <ul id="listEstadisticas"></ul>
+                </div>
+                <div class="stat-box">
+                    <h3>📈 Promedios</h3>
+                    <ul id="listPromedios"></ul>
+                </div>
+            </div>
+
+            <div class="chart-section" id="chartSection">
+                <h3 style="color:#FFD342; margin: 0 0 10px;">⚖️ Estilo de Juego: <span id="playerPosition" style="color:white;">...</span></h3>
+                <p style="margin:0; color:#ccc;">⚔️ <strong>Ataque:</strong> <span id="atkPct">0</span>% | 🛡️ <strong>Defensa:</strong> <span id="defPct">0</span>%</p>
+                <img id="playerChart" src="" alt="Gráfico de estilo de juego">
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>© 2026 ToroHax. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        document.getElementById('menu-toggle').addEventListener('click', () => document.getElementById('sidebar').classList.add('active'));
+        document.getElementById('close-btn').addEventListener('click', () => document.getElementById('sidebar').classList.remove('active'));
+
+        function checkLogin(page) {
+            if (localStorage.getItem('toroHaxLoggedId')) { window.location.href = page; } 
+            else { window.location.href = 'login.html'; }
+        }
+
+        function confirmarLogout() {
+            if(confirm("⚠️ ¿Estás seguro que quieres cerrar sesión?")) {
+                localStorage.removeItem('toroHaxLoggedId');
+                window.location.href = 'index.html';
+            }
+        }
+
+        function getRank(elo, partidos) {
+            if ((partidos || 0) < 10) return "⛔ Sin clasificar";
+            const currentElo = elo !== undefined ? elo : 200; 
+            if (currentElo < 360) return "🐓 Gallina";
+            if (currentElo < 810) return "🦙 Llama";
+            if (currentElo < 1400) return "🐑 Oveja";
+            if (currentElo < 2150) return "🐖 Cerdo";
+            if (currentElo < 3050) return "🐄 Vaca";
+            if (currentElo < 3950) return "🐎 Caballo";
+            if (currentElo < 5000) return "🐃 Búfalo";
+            return "🐂 Toro";
+        }
+
+        fetch(`https://torobot-izu5.onrender.com/get-player/${loggedId}`)
+        .then(res => res.json())
+        .then(player => {
+            if (player.message === "Nuevo" || player.error) {
+                alert("Error al cargar los datos del jugador.");
+                return;
+            }
+
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('profileContainer').style.display = 'block';
+
+            const partidos = player.partidos || 0;
+            const promPuntos = partidos > 0 ? (player.puntajeTotal / partidos).toFixed(1) : 0;
+            const promGoles = partidos > 0 ? (player.golesAnotados / partidos).toFixed(2) : 0;
+            const promAsist = partidos > 0 ? (player.asistencias / partidos).toFixed(2) : 0;
+            const promAtajadas = partidos > 0 ? (player.atajadas / partidos).toFixed(2) : 0;
+            const promDefensas = partidos > 0 ? (player.intercepciones / partidos).toFixed(2) : 0;
+            const winRate = partidos > 0 ? ((player.ganados / partidos)*100).toFixed(2) : 0;
+
+            document.getElementById('playerName').innerText = player.name;
+            document.getElementById('playerID').innerText = `#${player.numericId}`;
+            document.getElementById('playerRank').innerText = getRank(player.elo, partidos);
+
+            document.getElementById('listTotales').innerHTML = `
+                <li><strong>Partidos:</strong> ${partidos}</li>
+                <li><strong>Victorias:</strong> ${player.ganados || 0}</li>
+                <li><strong>MVPs:</strong> ${player.mvps || 0}</li>
+                <li><strong>WinRate:</strong> ${winRate}%</li>
+                <li><strong>Torocoins:</strong> 🪙 ${player.torocoins || 0}</li>
+            `;
+            document.getElementById('listEstadisticas').innerHTML = `
+                <li><strong>Puntos:</strong> ${player.puntajeTotal || 0}</li>
+                <li><strong>Goles:</strong> ${player.golesAnotados || 0}</li>
+                <li><strong>Asistencias:</strong> ${player.asistencias || 0}</li>
+                <li><strong>Atajadas:</strong> ${player.atajadas || 0}</li>
+                <li><strong>Recuperaciones:</strong> ${player.intercepciones || 0}</li>
+            `;
+            document.getElementById('listPromedios').innerHTML = `
+                <li><strong>Puntos:</strong> ${promPuntos} pts/p</li>
+                <li><strong>Goles:</strong> ${promGoles} g/p</li>
+                <li><strong>Asistencias:</strong> ${promAsist} a/p</li>
+                <li><strong>Atajadas:</strong> ${promAtajadas} at/p</li>
+                <li><strong>Recuperaciones:</strong> ${promDefensas} r/p</li>
+            `;
+
+            const pG_raw = parseFloat(promGoles);
+            const pA_raw = parseFloat(promAsist);
+            const pAt_raw = parseFloat(promAtajadas);
+            const pD_raw = parseFloat(promDefensas);
+
+            const pG = pG_raw * 12;
+            const pA = pA_raw * 10;
+            const pAt = pAt_raw * 8;
+            const pD = pD_raw * 1;
+            const totalPromedios = pG + pA + pAt + pD;
+
+            if (totalPromedios > 0) {
+                const ataquePct = (((pG + pA) / totalPromedios) * 100).toFixed(1);
+                const defensaPct = (((pAt + pD) / totalPromedios) * 100).toFixed(1);
+                
+                document.getElementById('atkPct').innerText = ataquePct;
+                document.getElementById('defPct').innerText = defensaPct;
+
+                const pctG = Math.round((pG / totalPromedios) * 100);
+                const pctA = Math.round((pA / totalPromedios) * 100);
+                const pctAt = Math.round((pAt / totalPromedios) * 100);
+                const pctD = Math.round((pD / totalPromedios) * 100);
+
+                const statsArray = [
+                    { name: "goles", value: pG },
+                    { name: "asistencias", value: pA },
+                    { name: "atajadas", value: pAt },
+                    { name: "intercepciones", value: pD }
+                ].sort((a, b) => b.value - a.value);
+                
+                const top1 = statsArray[0].name;
+                const top2 = statsArray[1].name;
+                let posicionJugador = "Sin definir";
+
+                if (top1 === "goles") {
+                    if (top2 === "asistencias") posicionJugador = "Puntero";
+                    else if (top2 === "intercepciones") posicionJugador = "Delantero";
+                    else if (top2 === "atajadas") posicionJugador = "Poli";
+                } else if (top1 === "asistencias") {
+                    if (top2 === "goles") posicionJugador = "Medio ofensivo";
+                    else if (top2 === "intercepciones") posicionJugador = "Pivote";
+                    else if (top2 === "atajadas") posicionJugador = "Poli";
+                } else if (top1 === "intercepciones") {
+                    if (top2 === "goles") posicionJugador = "Medio";
+                    else if (top2 === "asistencias") posicionJugador = "Defensa";
+                    else if (top2 === "atajadas") posicionJugador = "Defensa";
+                } else if (top1 === "atajadas") {
+                    if (top2 === "goles") posicionJugador = "Poli";
+                    else if (top2 === "asistencias") posicionJugador = "Arquero";
+                    else if (top2 === "intercepciones") posicionJugador = "Arquero";
+                }
+
+                document.getElementById('playerPosition').innerText = posicionJugador;
+
+                const chartConfig = {
+                    type: 'pie',
+                    data: {
+                        labels: ['Goles', 'Asistencias', 'Atajadas', 'Recuperaciones'],
+                        datasets: [{
+                            data: [pctG, pctA, pctAt, pctD],
+                            backgroundColor: ['#8b1515', '#10af10', '#611161', '#2222a7'],
+                            borderColor: '#727781',
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        legend: { position: 'right', labels: { fontColor: '#ffffff', fontSize: 14 } },
+                        plugins: {
+                            datalabels: {
+                                color: '#ffffff',
+                                font: { weight: 'bold', size: 14 },
+                                formatter: "function(value) { return value.toString().concat('%'); }",
+                                display: "function(context) { return context.dataset.data[context.dataIndex] > 0; }"
+                            }
+                        }
+                    }
+                };
+                document.getElementById('playerChart').src = `https://quickchart.io/chart?w=500&h=250&c=${encodeURIComponent(JSON.stringify(chartConfig))}&bkg=transparent`;
+            } else {
+                document.getElementById('chartSection').innerHTML = "<h3 style='color:#FFD342;'>⚖️ Estilo de Juego</h3><p style='color:#ccc;'>⚠️ Juega al menos un partido para ver tus estadísticas y gráfico.</p>";
+            }
+        })
+        .catch(err => {
+            document.getElementById('loading').innerText = "❌ Hubo un error al contactar al servidor.";
+            console.error(err);
+        });
+    </script>
+</body>
+</html>
