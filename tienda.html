@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tienda - ToroHax</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .tienda-wrapper {
+            width: 95%;
+            max-width: 1000px;
+            margin: 10vh auto 50px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .store-card {
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: 0.3s;
+        }
+
+        .store-card:hover {
+            border-color: #FFD342;
+            transform: translateY(-5px);
+        }
+
+        .store-card h2 {
+            color: #FFD342;
+            text-transform: uppercase;
+            margin-top: 0;
+            letter-spacing: 1px;
+            font-size: 1.8rem;
+        }
+
+        .store-icon {
+            font-size: 4rem;
+            margin: 20px 0;
+            color: #5dc8e8;
+            filter: drop-shadow(0 0 10px rgba(93, 200, 232, 0.4));
+        }
+
+        .vip-icon { color: #e6bd35; filter: drop-shadow(0 0 10px rgba(230, 189, 53, 0.4)); }
+
+        .store-btn {
+            background: #FFD342;
+            color: #111;
+            border: none;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.3s;
+            text-decoration: none;
+            display: block;
+            margin-top: 20px;
+        }
+
+        .store-btn:hover { background: #e6bd35; box-shadow: 0 0 15px rgba(255, 211, 66, 0.4); }
+
+        /* Calculadora ToroCoins */
+        .tc-calculator {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .calc-btn {
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .calc-btn:hover { background: #FFD342; color: #111; border-color: #FFD342; }
+
+        .tc-input {
+            width: 100px;
+            background: #111;
+            border: 1px solid #5dc8e8;
+            color: #FFD342;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        /* Quitar flechitas nativas del input number */
+        .tc-input::-webkit-inner-spin-button, .tc-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        .tc-input { -moz-appearance: textfield; }
+
+        .price-display {
+            font-size: 1.2rem;
+            color: #bdc3c7;
+            margin-bottom: 20px;
+        }
+
+        .price-display strong {
+            color: #2df2c1;
+            font-size: 1.5rem;
+        }
+
+        /* Opciones de regalo */
+        .gift-section {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+            text-align: left;
+        }
+
+        .gift-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            justify-content: center;
+        }
+
+        .gift-options label {
+            cursor: pointer;
+            color: #bdc3c7;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .gift-id-input {
+            width: 100%;
+            background: #111;
+            border: 1px solid #555;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            display: none; /* Oculto por defecto */
+            box-sizing: border-box;
+            outline: none;
+        }
+        .gift-id-input:focus { border-color: #FFD342; }
+
+        @media (max-width: 768px) {
+            .tienda-wrapper { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="menu-toggle" id="menu-toggle"><i class="fa-solid fa-bars"></i></div>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-top">
+            <div class="close-btn" id="close-btn"><i class="fa-solid fa-xmark"></i></div>
+            <a href="#" onclick="if(localStorage.getItem('toroHaxLoggedId')){ window.location.href='perfil.html'; } else { window.location.href='login.html'; } return false;"><i class="fa-solid fa-user"></i> Perfil</a>
+            <a href="vip.html"><i class="fa-solid fa-gem"></i> VIP</a>
+            <a href="tienda.html"><i class="fa-solid fa-cart-shopping"></i> Tienda</a>
+            <a href="index.html"><i class="fa-solid fa-house"></i> Menú principal</a>
+        </div>
+        <div class="sidebar-bottom">
+            <a href="#" class="logout-btn" onclick="confirmarLogout()"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
+        </div>
+    </nav>
+
+    <header></header>
+
+    <div class="logo-container">
+        <img src="logo_torohax.png" alt="ToroHax Logo">
+    </div>
+
+    <main>
+        <div class="tienda-wrapper">
+            
+            <div class="store-card">
+                <div>
+                    <h2>Membresía VIP</h2>
+                    <i class="fa-solid fa-crown store-icon vip-icon"></i>
+                    <p style="color: #bdc3c7;">Accede a ventajas exclusivas, comandos especiales, color en el chat y más torocoins.</p>
+                </div>
+                <a href="vip.html" class="store-btn"><i class="fa-solid fa-star"></i> VER OPCIONES VIP</a>
+            </div>
+
+            <div class="store-card">
+                <div>
+                    <h2>ToroCoins</h2>
+                    <i class="fa-solid fa-coins store-icon"></i>
+                    <p style="color: #bdc3c7;">Compra monedas para usar en la tienda del servidor (Ruleta, Fichas, etc).</p>
+                    
+                    <div class="tc-calculator">
+                        <button class="calc-btn" onclick="ajustarTC(-100)"><i class="fa-solid fa-minus"></i></button>
+                        <input type="number" id="tcCantidad" class="tc-input" value="1000" min="100" step="100" onchange="calcularPrecio()">
+                        <button class="calc-btn" onclick="ajustarTC(100)"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+
+                    <div class="price-display">
+                        Total a pagar: <strong>$<span id="clpTotal">200</span> CLP</strong>
+                    </div>
+
+                    <div class="gift-section">
+                        <div class="gift-options">
+                            <label><input type="radio" name="destino" value="self" checked onchange="toggleGift()"> Para mí</label>
+                            <label><input type="radio" name="destino" value="gift" onchange="toggleGift()"> Regalar</label>
+                        </div>
+                        <input type="number" id="giftId" class="gift-id-input" placeholder="ID del jugador a regalar (ej: 145)">
+                    </div>
+                </div>
+
+                <button id="btnPagar" class="store-btn" style="background: #2df2c1; color: #111;" onclick="procesarPago()">
+                    <i class="fa-solid fa-credit-card"></i> Pagar con PagoSeguro
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <footer><p>© 2026 ToroHax. Todos los derechos reservados.</p></footer>
+
+    <script>
+        // --- LÓGICA DEL MENÚ ---
+        const menuToggle = document.getElementById('menu-toggle');
+        const closeBtn = document.getElementById('close-btn');
+        const sidebar = document.getElementById('sidebar');
+        menuToggle.addEventListener('click', () => sidebar.classList.add('active'));
+        closeBtn.addEventListener('click', () => sidebar.classList.remove('active'));
+        document.addEventListener('click', function(event) {
+            if (sidebar.classList.contains('active') && !sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+                sidebar.classList.remove('active');
+            }
+        });
+        function confirmarLogout() { if(confirm("⚠️ ¿Estás seguro que quieres cerrar sesión?")) { localStorage.removeItem('toroHaxLoggedId'); window.location.href = 'index.html'; } }
+
+        // Redirigir si no está logueado y quiere entrar aquí (Seguridad extra)
+        const loggedId = localStorage.getItem('toroHaxLoggedId');
+        if (!loggedId) {
+            alert("Debes iniciar sesión para acceder a la tienda.");
+            window.location.href = 'login.html';
+        }
+
+        // --- LÓGICA DE LA CALCULADORA TOROCOINS ---
+        const tcInput = document.getElementById('tcCantidad');
+        const clpTotal = document.getElementById('clpTotal');
+        const giftIdInput = document.getElementById('giftId');
+
+        function calcularPrecio() {
+            let cantidad = parseInt(tcInput.value);
+            // Evitar números negativos o compras menores a 100 TC
+            if (isNaN(cantidad) || cantidad < 100) {
+                cantidad = 100;
+                tcInput.value = 100;
+            }
+            // 10 TC = $2 CLP (Multiplicador: 0.2)
+            const precioCLP = Math.round(cantidad * 0.2);
+            clpTotal.innerText = precioCLP;
+        }
+
+        function ajustarTC(valor) {
+            let actual = parseInt(tcInput.value) || 0;
+            actual += valor;
+            if(actual < 100) actual = 100; // Mínimo de compra: 100 TC ($20 CLP)
+            tcInput.value = actual;
+            calcularPrecio();
+        }
+
+        function toggleGift() {
+            const isGift = document.querySelector('input[name="destino"]:checked').value === 'gift';
+            giftIdInput.style.display = isGift ? 'block' : 'none';
+        }
+
+        // --- LÓGICA DE PAGO Y VERIFICACIÓN ---
+        async function procesarPago() {
+            const cantidadTC = parseInt(tcInput.value);
+            const precio = clpTotal.innerText;
+            const isGift = document.querySelector('input[name="destino"]:checked').value === 'gift';
+            let targetId = loggedId; // Por defecto va a la cuenta del usuario logueado
+
+            const btnPagar = document.getElementById('btnPagar');
+
+            if (isGift) {
+                targetId = giftIdInput.value.trim();
+                if (!targetId) {
+                    alert("⚠️ Debes ingresar la ID del jugador al que le quieres regalar los ToroCoins.");
+                    return;
+                }
+
+                // Deshabilitar botón mientras verifica
+                btnPagar.disabled = true;
+                btnPagar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verificando ID...';
+
+                try {
+                    // Consultamos tu bot para ver si la ID existe
+                    const response = await fetch(`https://torobot-izu5.onrender.com/get-player/${targetId}`);
+                    const data = await response.json();
+
+                    if (data.message === "Nuevo" || data.error || !data.numericId) {
+                        alert(`❌ La ID #${targetId} no existe en la base de datos de ToroHax.`);
+                        btnPagar.disabled = false;
+                        btnPagar.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pagar con PagoSeguro';
+                        return;
+                    }
+                    
+                    if (confirm(`¿Estás seguro de que quieres enviarle ${cantidadTC} ToroCoins al jugador ${data.name} (ID: #${targetId}) por $${precio} CLP?`)) {
+                        irAPagoSeguro(targetId, cantidadTC, precio);
+                    } else {
+                        btnPagar.disabled = false;
+                        btnPagar.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pagar con PagoSeguro';
+                    }
+
+                } catch (error) {
+                    alert("❌ Error al comunicarse con el servidor para verificar la ID.");
+                    btnPagar.disabled = false;
+                    btnPagar.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pagar con PagoSeguro';
+                }
+
+            } else {
+                // Si es para sí mismo, vamos directo al pago
+                if (confirm(`Estás a punto de comprar ${cantidadTC} ToroCoins para tu cuenta por $${precio} CLP. ¿Continuar?`)) {
+                    irAPagoSeguro(targetId, cantidadTC, precio);
+                }
+            }
+        }
+
+        function irAPagoSeguro(idDestino, cantidad, precio) {
+            // Aquí iría la lógica de redirección a tu pasarela de pagos.
+            // Ejemplo: window.location.href = `https://pagoseguro.com/checkout?item=Torocoins&amount=${precio}&ref=${idDestino}`;
+            
+            alert(`✅ REDIRIGIENDO A PAGOSEGURO...\n\nResumen de la orden:\n- Destino: ID #${idDestino}\n- Producto: ${cantidad} ToroCoins\n- Total: $${precio} CLP\n\n(Esto es una simulación visual del carrito)`);
+            
+            // Restablecer botón
+            const btnPagar = document.getElementById('btnPagar');
+            btnPagar.disabled = false;
+            btnPagar.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pagar con PagoSeguro';
+        }
+    </script>
+</body>
+</html>
