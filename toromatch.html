@@ -45,6 +45,15 @@
         .list-box li { padding: 12px 0; border-bottom: 1px dashed #333; color: #bdc3c7; font-size: 0.95rem; }
         .list-box li::before { content: "🥊 "; color: #FFD342; font-size: 1.1rem; }
         
+        /* 👇 NUEVO: SCROLL INTERNO PARA JUGADORES 👇 */
+        #listaJugadores { max-height: 500px; overflow-y: auto; padding-right: 5px; }
+
+        /* Diseño de la barra de Scroll */
+        #listaJugadores::-webkit-scrollbar { width: 6px; }
+        #listaJugadores::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
+        #listaJugadores::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
+        #listaJugadores::-webkit-scrollbar-thumb:hover { background: #FFD342; }
+
         @media (max-width: 900px) { .seleccion-wrapper { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -119,7 +128,6 @@
 
         const loggedId = localStorage.getItem('toroHaxLoggedId') || 'null';
 
-        // 1. Cargar Jugadores de ToroMatch y Permisos
         fetch(`https://torobot-izu5.onrender.com/api/toromatch/data?numericId=${loggedId}`)
         .then(res => res.json())
         .then(data => {
@@ -136,7 +144,6 @@
             }
         });
 
-        // 2. Cargar Marcador en Vivo de ToroMatch
         function actualizarMarcador() {
             fetch('https://torobot-izu5.onrender.com/api/toromatch/live')
             .then(res => res.json())
