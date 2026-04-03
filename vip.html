@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Membresía VIP - ToroHax</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .tienda-wrapper {
+            width: 95%;
+            max-width: 1000px;
+            margin: 10vh auto 50px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .store-card {
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid #333;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: 0.3s;
+        }
+
+        .store-card:hover { border-color: #FFD342; transform: translateY(-5px); }
+        .store-card h2 { color: #FFD342; text-transform: uppercase; margin-top: 0; letter-spacing: 1px; font-size: 1.8rem; }
+        
+        .vip-icon { font-size: 4rem; margin: 20px 0; color: #e6bd35; filter: drop-shadow(0 0 10px rgba(230, 189, 53, 0.4)); }
+
+        .perks-list { text-align: left; margin: 20px 0; padding: 0; list-style: none; color: #bdc3c7; line-height: 1.8; }
+        .perks-list li { border-bottom: 1px dashed #333; padding: 10px 0; }
+        .perks-list li i { color: #2df2c1; margin-right: 10px; width: 20px; text-align: center;}
+
+        /* Controles VIP */
+        .vip-type-select { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
+        .vip-type-select label { background: #111; border: 1px solid #555; padding: 10px 15px; border-radius: 8px; cursor: pointer; color: #bdc3c7; transition: 0.3s; font-weight: bold; width: 50%; }
+        .vip-type-select input[type="radio"] { display: none; }
+        .vip-type-select input[type="radio"]:checked + label { background: rgba(255, 211, 66, 0.2); border-color: #FFD342; color: #FFD342; }
+
+        .tc-calculator { display: flex; justify-content: center; align-items: center; gap: 15px; margin: 20px 0; transition: opacity 0.3s; }
+        .tc-calculator.disabled { opacity: 0.3; pointer-events: none; }
+
+        .calc-btn { background: #333; color: white; border: 1px solid #555; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
+        .calc-btn:hover { background: #FFD342; color: #111; border-color: #FFD342; }
+
+        .tc-input { width: 80px; background: #111; border: 1px solid #5dc8e8; color: #FFD342; font-size: 1.5rem; font-weight: bold; text-align: center; padding: 10px; border-radius: 8px; outline: none; }
+        .tc-input::-webkit-inner-spin-button, .tc-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        .tc-input { -moz-appearance: textfield; }
+
+        .price-display { font-size: 1.2rem; color: #bdc3c7; margin-bottom: 20px; }
+        .price-display strong { color: #2df2c1; font-size: 1.8rem; display: block; margin-top: 5px; }
+
+        .vip-alert { background: rgba(255, 211, 66, 0.1); border: 1px solid #FFD342; color: #FFD342; padding: 10px; border-radius: 8px; font-size: 0.9rem; margin-bottom: 20px; display: none; }
+
+        /* Opciones de regalo */
+        .gift-section { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #333; text-align: left; }
+        .gift-options { display: flex; gap: 15px; margin-bottom: 15px; justify-content: center; }
+        .gift-options label { cursor: pointer; color: #bdc3c7; font-size: 0.95rem; display: flex; align-items: center; gap: 5px; }
+        .gift-id-input { width: 100%; background: #111; border: 1px solid #555; color: white; padding: 10px; border-radius: 5px; text-align: center; display: none; box-sizing: border-box; outline: none; }
+        .gift-id-input:focus { border-color: #FFD342; }
+
+        .store-btn { width: 100%; background: #2df2c1; color: #111; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: 0.3s; margin-top: auto; }
+        .store-btn:hover { background: #24c29a; box-shadow: 0 0 15px rgba(45, 242, 193, 0.4); }
+
+        @media (max-width: 768px) { .tienda-wrapper { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="menu-toggle" id="menu-toggle"><i class="fa-solid fa-bars"></i></div>
+
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-top">
+            <div class="close-btn" id="close-btn"><i class="fa-solid fa-xmark"></i></div>
+            <a href="#" onclick="if(localStorage.getItem('toroHaxLoggedId')){ window.location.href='perfil.html'; } else { window.location.href='login.html'; } return false;"><i class="fa-solid fa-user"></i> Perfil</a>
+            <a href="vip.html"><i class="fa-solid fa-gem"></i> VIP</a>
+            <a href="tienda.html"><i class="fa-solid fa-cart-shopping"></i> Tienda</a>
+            <a href="index.html"><i class="fa-solid fa-house"></i> Menú principal</a>
+        </div>
+        <div class="sidebar-bottom">
+            <a href="#" class="logout-btn" onclick="confirmarLogout()"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
+        </div>
+    </nav>
+
+    <header></header>
+
+    <div class="logo-container">
+        <img src="logo_torohax.png" alt="ToroHax Logo">
+    </div>
+
+    <main>
+        <div class="tienda-wrapper">
+            
+            <div class="store-card">
+                <h2>Beneficios VIP</h2>
+                <i class="fa-solid fa-crown vip-icon"></i>
+                <ul class="perks-list">
+                    <li><i class="fa-solid fa-check"></i> Rol y color exclusivo en nuestro Discord.</li>
+                    <li><i class="fa-solid fa-check"></i> Estrella VIP y colores personalizados en el chat de HaxBall.</li>
+                    <li><i class="fa-solid fa-check"></i> Mensajes de entrada y de gol personalizables.</li>
+                    <li><i class="fa-solid fa-check"></i> Acceso a comandos exclusivos en la sala.</li>
+                    <li><i class="fa-solid fa-check"></i> Recompensas aumentadas de ToroCoins.</li>
+                </ul>
+            </div>
+
+            <div class="store-card">
+                <div>
+                    <h2>Comprar VIP</h2>
+                    
+                    <div class="vip-type-select">
+                        <input type="radio" id="vipMeses" name="tipoVip" value="mensual" checked onchange="actualizarModoVIP()">
+                        <label for="vipMeses">Por Meses</label>
+                        
+                        <input type="radio" id="vipPerm" name="tipoVip" value="permanente" onchange="actualizarModoVIP()">
+                        <label for="vipPerm">Permanente</label>
+                    </div>
+                    
+                    <div class="tc-calculator" id="calcMeses">
+                        <button class="calc-btn" onclick="ajustarMeses(-1)"><i class="fa-solid fa-minus"></i></button>
+                        <input type="number" id="mesesCantidad" class="tc-input" value="1" min="1" max="12" onchange="calcularPrecio()">
+                        <button class="calc-btn" onclick="ajustarMeses(1)"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                    <p id="mesesLabel" style="margin-top: -10px; margin-bottom: 20px; color: #7d7d7d; font-size: 0.9rem;">(Meses)</p>
+
+                    <div id="vipAlert" class="vip-alert">
+                        <i class="fa-solid fa-lightbulb"></i> ¡Te conviene más el <strong>VIP Permanente</strong>! Ahorrarás dinero.
+                    </div>
+
+                    <div class="price-display">
+                        Total a pagar: <strong>$<span id="clpTotal">690</span> CLP</strong>
+                    </div>
+
+                    <div class="gift-section">
+                        <div class="gift-options">
+                            <label><input type="radio" name="destino" value="self" checked onchange="toggleGift()"> Para mí</label>
+                            <label><input type="radio" name="destino" value="gift" onchange="toggleGift()"> Regalar</label>
+                        </div>
+                        <input type="number" id="giftId" class="gift-id-input" placeholder="ID del jugador a regalar (ej: 145)">
+                    </div>
+                </div>
+
+                <button id="btnPagar" class="store-btn" onclick="procesarPago()">
+                    <i class="fa-solid fa-credit-card"></i> Pagar con PagoSeguro
+                </button>
+            </div>
+
+        </div>
+    </main>
+
+    <footer><p>© 2026 ToroHax. Todos los derechos reservados.</p></footer>
+
+    <script>
+        // --- LÓGICA DE NAVEGACIÓN ---
+        const menuToggle = document.getElementById('menu-toggle');
+        const closeBtn = document.getElementById('close-btn');
+        const sidebar = document.getElementById('sidebar');
+        menuToggle.addEventListener('click', () => sidebar.classList.add('active'));
+        closeBtn.addEventListener('click', () => sidebar.classList.remove('active'));
+        document.addEventListener('click', function(event) {
+            if (sidebar.classList.contains('active') && !sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+                sidebar.classList.remove('active');
+            }
+        });
+        function confirmarLogout() { if(confirm("⚠️ ¿Estás seguro que quieres cerrar sesión?")) { localStorage.removeItem('toroHaxLoggedId'); window.location.href = 'index.html'; } }
+
+        const loggedId = localStorage.getItem('toroHaxLoggedId');
+        if (!loggedId) {
+            alert("Debes iniciar sesión para acceder a la tienda VIP.");
+            window.location.href = 'login.html';
+        }
+
+        // --- LÓGICA DEL PRECIO VIP ---
+        const precioMensual = 690;
+        const precioPermanente = 3990;
+        
+        const mesesInput = document.getElementById('mesesCantidad');
+        const clpTotal = document.getElementById('clpTotal');
+        const vipAlert = document.getElementById('vipAlert');
+        const calcDiv = document.getElementById('calcMeses');
+        const mesesLabel = document.getElementById('mesesLabel');
+
+        function actualizarModoVIP() {
+            const esPermanente = document.getElementById('vipPerm').checked;
+            if (esPermanente) {
+                calcDiv.classList.add('disabled');
+                mesesLabel.style.opacity = '0.3';
+                vipAlert.style.display = 'none';
+                clpTotal.innerText = precioPermanente;
+            } else {
+                calcDiv.classList.remove('disabled');
+                mesesLabel.style.opacity = '1';
+                calcularPrecio(); // Recalcula según los meses escritos
+            }
+        }
+
+        function calcularPrecio() {
+            if (document.getElementById('vipPerm').checked) return; // Si es permanente, no calcular
+
+            let meses = parseInt(mesesInput.value);
+            if (isNaN(meses) || meses < 1) meses = 1;
+            if (meses > 12) meses = 12;
+            
+            mesesInput.value = meses;
+            
+            const total = meses * precioMensual;
+            clpTotal.innerText = total;
+
+            // Upselling: Si compra 6 o más meses (6 * 690 = 4140), le sale más a cuenta el Permanente (3990)
+            if (meses >= 6) {
+                vipAlert.style.display = 'block';
+            } else {
+                vipAlert.style.display = 'none';
+            }
+        }
+
+        function ajustarMeses(valor) {
+            if (document.getElementById('vipPerm').checked) return;
+            let actual = parseInt(mesesInput.value) || 1;
+            actual += valor;
+            if(actual < 1) actual = 1;
+            if(actual > 12) actual = 12;
+            mesesInput.value = actual;
+            calcularPrecio();
+        }
+
+        // --- LÓGICA DE REGALO ---
+        const giftIdInput = document.getElementById('giftId');
+        function toggleGift() {
+            const isGift = document.querySelector('input[name="destino"]:checked').value === 'gift';
+            giftIdInput.style.display = isGift ? 'block' : 'none';
+        }
+
+        // --- PROCESAR PAGO ---
+        async function procesarPago() {
+            const esPermanente = document.getElementById('vipPerm').checked;
+            const meses = parseInt(mesesInput.value);
+            const precio = clpTotal.innerText;
+            const isGift = document.querySelector('input[name="destino"]:checked').value === 'gift';
+            
+            let targetId = loggedId;
+            let productoStr = esPermanente ? "VIP Permanente" : `VIP por ${meses} mes(es)`;
+
+            const btnPagar = document.getElementById('btnPagar');
+
+            if (isGift) {
+                targetId = giftIdInput.value.trim();
+                if (!targetId) {
+                    alert("⚠️ Debes ingresar la ID del jugador al que le quieres regalar el VIP.");
+                    return;
+                }
+
+                btnPagar.disabled = true;
+                btnPagar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verificando ID...';
+
+                try {
+                    const response = await fetch(`https://torobot-izu5.onrender.com/get-player/${targetId}`);
+                    const data = await response.json();
+
+                    if (data.message === "Nuevo" || data.error || !data.numericId) {
+                        alert(`❌ La ID #${targetId} no existe en la base de datos de ToroHax.`);
+                        btnPagar.disabled = false;
+                        btnPagar.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pagar con PagoSeguro';
+                        return;
+                    }
+                    
+                    if (confirm(`¿Estás seguro de que quieres regalarle [${productoStr}] al jugador ${data.name} (ID: #${targetId}) por $${precio} CLP?`)) {
+                        irAPagoSeguro(targetId, productoStr, precio);
+                    } else {
+                        btnPagar.disabled = false;
+                        btnPagar.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pagar con PagoSeguro';
+                    }
+
+                } catch (error) {
+                    alert("❌ Error al comunicarse con el servidor.");
+                    btnPagar.disabled = false;
+                    btnPagar.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pagar con PagoSeguro';
+                }
+
+            } else {
+                if (confirm(`Estás a punto de comprar [${productoStr}] para tu cuenta por $${precio} CLP. ¿Continuar?`)) {
+                    irAPagoSeguro(targetId, productoStr, precio);
+                }
+            }
+        }
+
+        function irAPagoSeguro(idDestino, producto, precio) {
+            alert(`✅ REDIRIGIENDO A PAGOSEGURO...\n\nResumen de la orden:\n- Destino: ID #${idDestino}\n- Producto: ${producto}\n- Total: $${precio} CLP\n\n(Simulación visual del carrito)`);
+            const btnPagar = document.getElementById('btnPagar');
+            btnPagar.disabled = false;
+            btnPagar.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pagar con PagoSeguro';
+        }
+    </script>
+</body>
+</html>
