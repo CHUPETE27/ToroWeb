@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Perfil - ToroHax</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script>
         const loggedId = localStorage.getItem('toroHaxLoggedId');
@@ -70,7 +71,9 @@
 </head>
 <body>
 
-    <div class="menu-toggle" id="menu-toggle">☰</div>
+    <div class="menu-toggle" id="menu-toggle">
+        <i class="fa-solid fa-bars"></i>
+    </div>
 
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-top">
@@ -136,6 +139,14 @@
     <script>
         document.getElementById('menu-toggle').addEventListener('click', () => document.getElementById('sidebar').classList.add('active'));
         document.getElementById('close-btn').addEventListener('click', () => document.getElementById('sidebar').classList.remove('active'));
+
+        document.addEventListener('click', function(event) {
+            if (sidebar.classList.contains('active')) {
+                if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                }
+            }
+        });
 
         function checkLogin(page) {
             if (localStorage.getItem('toroHaxLoggedId')) { window.location.href = page; } 

@@ -112,7 +112,7 @@
 
         <div class="right-col">
             <div class="box logo-box">
-                <img src="torohax_equipo.png" alt="Logo Selección">
+                <img src="path1.png" alt="Logo Selección">
             </div>
 
             <div class="box list-box">
@@ -137,6 +137,14 @@
         closeBtn.addEventListener('click', () => sidebar.classList.remove('active'));
         function checkLogin(page) { if (localStorage.getItem('toroHaxLoggedId')) window.location.href = page; else window.location.href = 'login.html'; }
         function confirmarLogout() { if(confirm("⚠️ ¿Estás seguro que quieres cerrar sesión?")) { localStorage.removeItem('toroHaxLoggedId'); window.location.href = 'index.html'; } }
+
+        document.addEventListener('click', function(event) {
+            if (sidebar.classList.contains('active')) {
+                if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+                    sidebar.classList.remove('active');
+                }
+            }
+        });
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
