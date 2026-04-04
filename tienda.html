@@ -7,159 +7,35 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .tienda-wrapper {
-            width: 95%;
-            max-width: 1000px;
-            margin: 10vh auto 50px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
+        .tienda-wrapper { width: 95%; max-width: 1000px; margin: 10vh auto 50px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
 
-        .store-card {
-            background: rgba(20, 20, 20, 0.8);
-            border: 1px solid #333;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: 0.3s;
-        }
+        .store-card { background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; display: flex; flex-direction: column; justify-content: space-between; transition: 0.3s; }
+        .store-card:hover { border-color: #FFD342; transform: translateY(-5px); }
 
-        .store-card:hover {
-            border-color: #FFD342;
-            transform: translateY(-5px);
-        }
-
-        .store-card h2 {
-            color: #FFD342;
-            text-transform: uppercase;
-            margin-top: 0;
-            letter-spacing: 1px;
-            font-size: 1.8rem;
-        }
-
-        .store-icon {
-            font-size: 4rem;
-            margin: 20px 0;
-            color: #5dc8e8;
-            filter: drop-shadow(0 0 10px rgba(93, 200, 232, 0.4));
-        }
-
+        .store-card h2 { color: #FFD342; text-transform: uppercase; margin-top: 0; letter-spacing: 1px; font-size: 1.8rem; }
+        .store-icon { font-size: 4rem; margin: 20px 0; color: #5dc8e8; filter: drop-shadow(0 0 10px rgba(93, 200, 232, 0.4)); }
         .vip-icon { color: #e6bd35; filter: drop-shadow(0 0 10px rgba(230, 189, 53, 0.4)); }
 
-        .store-btn {
-            background: #FFD342;
-            color: #111;
-            border: none;
-            padding: 15px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: 0.3s;
-            text-decoration: none;
-            display: block;
-            margin-top: 20px;
-        }
-
+        .store-btn { background: #FFD342; color: #111; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: 0.3s; text-decoration: none; display: block; margin-top: 20px; }
         .store-btn:hover { background: #e6bd35; box-shadow: 0 0 15px rgba(255, 211, 66, 0.4); }
 
-        /* Calculadora ToroCoins */
-        .tc-calculator {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 15px;
-            margin: 20px 0;
-        }
-
-        .calc-btn {
-            background: #333;
-            color: white;
-            border: 1px solid #555;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            font-size: 1.2rem;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
+        .tc-calculator { display: flex; justify-content: center; align-items: center; gap: 15px; margin: 20px 0; }
+        .calc-btn { background: #333; color: white; border: 1px solid #555; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
         .calc-btn:hover { background: #FFD342; color: #111; border-color: #FFD342; }
 
-        .tc-input {
-            width: 100px;
-            background: #111;
-            border: 1px solid #5dc8e8;
-            color: #FFD342;
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-align: center;
-            padding: 10px;
-            border-radius: 8px;
-            outline: none;
-        }
-
+        .tc-input { width: 100px; background: #111; border: 1px solid #5dc8e8; color: #FFD342; font-size: 1.5rem; font-weight: bold; text-align: center; padding: 10px; border-radius: 8px; outline: none; }
         .tc-input::-webkit-inner-spin-button, .tc-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 
-        .price-display {
-            font-size: 1.2rem;
-            color: #bdc3c7;
-            margin-bottom: 20px;
-        }
+        .price-display { font-size: 1.2rem; color: #bdc3c7; margin-bottom: 20px; }
+        .price-display strong { color: #2df2c1; font-size: 1.5rem; }
 
-        .price-display strong {
-            color: #2df2c1;
-            font-size: 1.5rem;
-        }
-
-        /* Opciones de regalo */
-        .gift-section {
-            background: rgba(0,0,0,0.3);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid #333;
-            text-align: left;
-        }
-
-        .gift-options {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-            justify-content: center;
-        }
-
-        .gift-options label {
-            cursor: pointer;
-            color: #bdc3c7;
-            font-size: 0.95rem;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .gift-id-input {
-            width: 100%;
-            background: #111;
-            border: 1px solid #555;
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            text-align: center;
-            display: none;
-            box-sizing: border-box;
-            outline: none;
-        }
+        .gift-section { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #333; text-align: left; }
+        .gift-options { display: flex; gap: 15px; margin-bottom: 15px; justify-content: center; }
+        .gift-options label { cursor: pointer; color: #bdc3c7; font-size: 0.95rem; display: flex; align-items: center; gap: 5px; }
+        .gift-id-input { width: 100%; background: #111; border: 1px solid #555; color: white; padding: 10px; border-radius: 5px; text-align: center; display: none; box-sizing: border-box; outline: none; }
         .gift-id-input:focus { border-color: #FFD342; }
 
-        @media (max-width: 768px) {
-            .tienda-wrapper { grid-template-columns: 1fr; }
-        }
+        @media (max-width: 768px) { .tienda-wrapper { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -200,11 +76,11 @@
                 <div>
                     <h2>ToroCoins</h2>
                     <i class="fa-solid fa-coins store-icon"></i>
-                    <p style="color: #bdc3c7;">Compra monedas para usar en la tienda del servidor (Máximo 3000 TC por compra).</p>
+                    <p style="color: #bdc3c7;">Compra monedas para usar en la tienda del servidor (Máximo 30000 TC por compra).</p>
                     
                     <div class="tc-calculator">
                         <button class="calc-btn" onclick="ajustarTC(-100)"><i class="fa-solid fa-minus"></i></button>
-                        <input type="number" id="tcCantidad" class="tc-input" value="1000" min="100" max="3000" step="100" onchange="calcularPrecio()">
+                        <input type="number" id="tcCantidad" class="tc-input" value="1000" min="100" max="3000" step="100" oninput="limitarTCEnTiempoReal()" onblur="aplicarMinimoTC()">
                         <button class="calc-btn" onclick="ajustarTC(100)"><i class="fa-solid fa-plus"></i></button>
                     </div>
 
@@ -254,25 +130,33 @@
         const clpTotal = document.getElementById('clpTotal');
         const giftIdInput = document.getElementById('giftId');
 
-        function calcularPrecio() {
+        function limitarTCEnTiempoReal() {
             let cantidad = parseInt(tcInput.value);
-            if (isNaN(cantidad) || cantidad < 100) { cantidad = 100; }
-            if (cantidad > 3000) { cantidad = 3000; }
-            
-            tcInput.value = cantidad;
-            const precioCLP = Math.round(cantidad * 0.2);
-            clpTotal.innerText = precioCLP;
+            if (cantidad > 30000) {
+                tcInput.value = 30000;
+                cantidad = 30000;
+            }
+            if (!isNaN(cantidad)) {
+                clpTotal.innerText = Math.round(cantidad * 0.2);
+            }
+        }
+
+        function aplicarMinimoTC() {
+            let cantidad = parseInt(tcInput.value);
+            if (isNaN(cantidad) || cantidad < 100) {
+                tcInput.value = 100;
+                cantidad = 100;
+            }
+            clpTotal.innerText = Math.round(cantidad * 0.2);
         }
 
         function ajustarTC(valor) {
             let actual = parseInt(tcInput.value) || 0;
             actual += valor;
-            
             if(actual < 100) actual = 100;
             if(actual > 30000) actual = 30000;
-            
             tcInput.value = actual;
-            calcularPrecio();
+            clpTotal.innerText = Math.round(actual * 0.2);
         }
 
         function toggleGift() {
@@ -281,10 +165,11 @@
         }
 
         async function procesarPago() {
+            aplicarMinimoTC(); // Barrera de seguridad final antes de leer el valor
             const cantidadTC = parseInt(tcInput.value);
             const precio = clpTotal.innerText;
             const isGift = document.querySelector('input[name="destino"]:checked').value === 'gift';
-            let targetId = loggedId;
+            let targetId = loggedId; 
 
             const btnPagar = document.getElementById('btnPagar');
 
@@ -311,15 +196,16 @@
                     return;
                 }
 
-                const torocoinsActuales = data.torocoins || 0;
+                // 👇 VALIDACIÓN MATEMÁTICA ESTRICTA 👇
+                const torocoinsActuales = parseInt(data.torocoins) || 0;
                 
-                if (torocoinsActuales + cantidadTC > 30000) {
+                if ((torocoinsActuales + cantidadTC) > 30000) {
                     const maxPermitido = 30000 - torocoinsActuales;
                     
                     if (maxPermitido <= 0) {
-                        alert(`❌ Compra rechazada. La cuenta destino ya tiene el máximo permitido de 30.000 ToroCoins.`);
+                        alert(`❌ Compra rechazada. La cuenta destino ya alcanzó el límite máximo de 30.000 ToroCoins en su inventario.`);
                     } else {
-                        alert(`❌ Límite excedido. La cuenta destino ya tiene ${torocoinsActuales} ToroCoins.\nEl límite máximo es 30.000, por lo que solo se pueden comprar un máximo de ${maxPermitido} ToroCoins adicionales.`);
+                        alert(`❌ Límite excedido. La cuenta destino ya tiene ${torocoinsActuales} ToroCoins guardados.\nEl límite global del servidor es 30.000 TC.\nSolo puedes comprar un máximo de ${maxPermitido} ToroCoins para esta cuenta.`);
                     }
                     
                     btnPagar.disabled = false;
@@ -346,10 +232,7 @@
         }
 
         function irAPagoSeguro(idDestino, cantidad, precio) {
-            // Aquí iría la lógica de redirección a tu pasarela de pagos.
             alert(`✅ REDIRIGIENDO A PAGOSEGURO...\n\nResumen de la orden:\n- Destino: ID #${idDestino}\n- Producto: ${cantidad} ToroCoins\n- Total: $${precio} CLP\n\n(Esto es una simulación visual del carrito)`);
-            
-            // Restablecer botón
             const btnPagar = document.getElementById('btnPagar');
             btnPagar.disabled = false;
             btnPagar.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pagar con PagoSeguro';
