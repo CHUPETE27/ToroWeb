@@ -196,27 +196,44 @@
         let isManager = false;
         let editingId = null;
 
-        fetch(`https://torobot-izu5.onrender.com/api/seleccion/data?numericId=${loggedId}`)
-        .then(res => res.json())
-        .then(data => {
-            if(data.success) {
-                if(data.canEdit) {
-                    isManager = true;
-                    document.getElementById('btnEditar').style.display = 'block';
-                }
-                const ulJugadores = document.getElementById('listaJugadores');
-                ulJugadores.innerHTML = '';
-                if(data.jugadores.length > 0) data.jugadores.forEach(jug => ulJugadores.innerHTML += `<li>${jug}</li>`);
-                else ulJugadores.innerHTML = '<li>No hay jugadores registrados.</li>';
+        function iniciarCarga() {
+            const ulJugadores = document.getElementById('listaJugadores');
+            const ulVitrina = document.getElementById('listaVitrina');
+            const proxDiv = document.getElementById('proximos-lista');
+            const histDiv = document.getElementById('historial-lista');
 
-                const ulVitrina = document.getElementById('listaVitrina');
-                ulVitrina.innerHTML = '';
-                if(data.trofeos.length > 0) data.trofeos.forEach(trofeo => ulVitrina.innerHTML += `<li>${trofeo}</li>`);
-                else ulVitrina.innerHTML = '<li>Vitrina en construcción.</li>';
-                
-                cargarPartidos(); 
-            }
-        });
+            ulJugadores.innerHTML = '<li><i class="fa-solid fa-spinner fa-spin"></i> Conectando al servidor...</li>';
+            ulVitrina.innerHTML = '<li><i class="fa-solid fa-spinner fa-spin"></i> Conectando al servidor...</li>';
+            proxDiv.innerHTML = '<p style="text-align:center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Despertando bot (puede tardar 50s)...</p>';
+            histDiv.innerHTML = '<p style="text-align:center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Despertando bot...</p>';
+
+            fetch(`https://torobot-izu5.onrender.com/api/seleccion/data?numericId=${loggedId}`)
+            .then(res => {
+                if(!res.ok) throw new Error("Servidor no responde");
+                return res.json();
+            })
+            .then(data => {
+                if(data.success) {
+                    if(data.canEdit) {
+                        isManager = true;
+                        document.getElementById('btnEditar').style.display = 'block';
+                    }
+                    ulJugadores.innerHTML = '';
+                    if(data.jugadores.length > 0) data.jugadores.forEach(jug => ulJugadores.innerHTML += `<li>${jug}</li>`);
+                    else ulJugadores.innerHTML = '<li>No hay jugadores registrados.</li>';
+
+                    ulVitrina.innerHTML = '';
+                    if(data.trofeos.length > 0) data.trofeos.forEach(trofeo => ulVitrina.innerHTML += `<li>${trofeo}</li>`);
+                    else ulVitrina.innerHTML = '<li>Vitrina en construcción.</li>';
+                    cargarPartidos(); 
+                }
+            })
+            .catch(err => {
+                ulJugadores.innerHTML = '<li><i class="fa-solid fa-spinner fa-spin"></i> El bot está despertando. Reintentando...</li>';
+                setTimeout(iniciarCarga, 5000); 
+            });
+        }
+        iniciarCarga();
 
         function cargarPartidos() {
             fetch('https://torobot-izu5.onrender.com/api/matches/seleccion')

@@ -205,45 +205,62 @@
         let isManager = false;
         let editingId = null;
 
-        fetch(`https://torobot-izu5.onrender.com/api/toromatch/data?numericId=${loggedId}`)
-        .then(res => res.json())
-        .then(data => {
-            if(data.success) {
-                if(data.canEdit) {
-                    isManager = true;
-                    document.getElementById('btnEditar').style.display = 'block';
-                }
+        function iniciarCarga() {
+            const ulJugadores = document.getElementById('listaJugadores');
+            const histDiv = document.getElementById('historial-lista');
+            const proxDiv = document.getElementById('proximos-lista');
 
-                const ulJugadores = document.getElementById('listaJugadores');
-                ulJugadores.innerHTML = '';
-                let equipoA = "Equipo 1", equipoB = "Equipo 2";
+            ulJugadores.innerHTML = '<li><i class="fa-solid fa-spinner fa-spin"></i> Conectando al servidor...</li>';
+            proxDiv.innerHTML = '<p style="text-align:center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Despertando bot (puede tardar 50s)...</p>';
+            histDiv.innerHTML = '<p style="text-align:center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Despertando bot...</p>';
 
-                if(data.jugadores.length > 0) {
-                    const roles = [...new Set(data.jugadores.map(j => j.split(' - ')[0]))];
-                    if(roles[0]) equipoA = roles[0];
-                    if(roles[1]) equipoB = roles[1];
-                    data.jugadores.forEach(jug => {
-                        const partes = jug.split(' - ');
-                        ulJugadores.innerHTML += `<li><span style="color:#5dc8e8; font-weight:bold;">${partes[0]}</span> - ${partes[1]}</li>`;
-                    });
-                } else {
-                    ulJugadores.innerHTML = '<li>No hay jugadores registrados.</li>';
-                }
+            fetch(`https://torobot-izu5.onrender.com/api/toromatch/data?numericId=${loggedId}`)
+            .then(res => {
+                if(!res.ok) throw new Error("Servidor no responde");
+                return res.json();
+            })
+            .then(data => {
+                if(data.success) {
+                    if(data.canEdit) {
+                        isManager = true;
+                        document.getElementById('btnEditar').style.display = 'block';
+                    }
 
-                document.getElementById('proximos-lista').innerHTML = `
-                    <div class="match-row" style="background: transparent;">
-                        <div class="match-teams" style="font-size: 1.2rem; color: #FFD342; font-weight: bold;">
-                            ${equipoA} <span style="color:white; margin: 0 10px;">vs</span> ${equipoB} 
+                    ulJugadores.innerHTML = '';
+                    let equipoA = "Equipo 1", equipoB = "Equipo 2";
+
+                    if(data.jugadores.length > 0) {
+                        const roles = [...new Set(data.jugadores.map(j => j.split(' - ')[0]))];
+                        if(roles[0]) equipoA = roles[0];
+                        if(roles[1]) equipoB = roles[1];
+                        data.jugadores.forEach(jug => {
+                            const partes = jug.split(' - ');
+                            ulJugadores.innerHTML += `<li><span style="color:#5dc8e8; font-weight:bold;">${partes[0]}</span> - ${partes[1]}</li>`;
+                        });
+                    } else {
+                        ulJugadores.innerHTML = '<li>No hay jugadores registrados.</li>';
+                    }
+
+                    proxDiv.innerHTML = `
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; padding: 30px 15px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-top: 15px;">
+                            <div style="font-size: 1.5rem; color: #FFD342; font-weight: bold; text-align: center;">
+                                ${equipoA} <span style="color:white; margin: 0 10px; font-size: 1.2rem;">vs</span> ${equipoB} 
+                            </div>
+                            <div style="color: #7d7d7d; font-size: 1.1rem; border-top: 1px dashed #444; padding-top: 15px; width: 80%; text-align: center;">
+                                <i class="fa-regular fa-clock" style="margin-right: 5px;"></i> Sábado ${getNextSaturday()}
+                            </div>
                         </div>
-                        <div class="match-date" style="border: none;">
-                            <i class="fa-regular fa-clock" style="margin-right: 5px;"></i> Sábado ${getNextSaturday()}
-                        </div>
-                    </div>
-                `;
-                
-                cargarHistorial();
-            }
-        });
+                    `;
+                    
+                    cargarHistorial();
+                }
+            })
+            .catch(err => {
+                ulJugadores.innerHTML = '<li><i class="fa-solid fa-spinner fa-spin"></i> El bot está despertando. Reintentando...</li>';
+                setTimeout(iniciarCarga, 5000);
+            });
+        }
+        iniciarCarga();
 
         function cargarHistorial() {
             fetch('https://torobot-izu5.onrender.com/api/matches/toromatch')
