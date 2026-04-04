@@ -26,15 +26,17 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* 👇 Scroll corregido para las listas de partidos 👇 */
         .match-list-container { max-height: 300px; overflow-y: auto; padding-right: 5px; }
         .match-list-container::-webkit-scrollbar { width: 6px; }
         .match-list-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
         .match-list-container::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
         .match-list-container::-webkit-scrollbar-thumb:hover { background: #FFD342; }
         
-        .match-row { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px; font-size: 1.1rem; flex-wrap: wrap;}
-        .match-date { color: #7d7d7d; font-size: 0.9rem; border-left: 1px solid #333; padding-left: 15px; }
+        /* 👇 NUEVO DISEÑO EN COLUMNAS 👇 */
+        .match-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 1.05rem; background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 8px;}
+        .match-teams { flex: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .match-date { width: 140px; text-align: center; color: #7d7d7d; font-size: 0.9rem; border-left: 1px solid #444; }
+        .action-icons { width: 50px; display: flex; gap: 10px; justify-content: center; margin-left: 0; }
 
         .edit-btn { position: absolute; bottom: 20px; right: 20px; background: transparent; color: #2df2c1; border: 2px solid #2df2c1; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: none; transition: 0.3s; }
         .edit-btn:hover { background: #2df2c1; color: #111; }
@@ -62,19 +64,20 @@
         .modal-btn { background: #2df2c1; color: #111; padding: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
         .modal-btn.cancel { background: #cc2a2a; color: white; margin-top: 10px;}
         
-        .action-icons { display: flex; gap: 10px; margin-left: 15px; }
         .delete-icon { color: #cc2a2a; cursor: pointer; }
         .delete-icon:hover { color: #ff4d4d; }
         .edit-action-icon { color: #3498db; cursor: pointer; }
         .edit-action-icon:hover { color: #5dade2; }
 
         @media (max-width: 900px) { .seleccion-wrapper { grid-template-columns: 1fr; } }
+        
+        /* 👇 COLUMNAS SE APILAN EN MÓVIL 👇 */
         @media (max-width: 600px) { 
             .score-text { font-size: 1.8rem; }
-            .match-row { font-size: 0.95rem; gap: 8px; flex-direction: column; text-align: center; border-bottom: 1px dashed #333; padding-bottom: 10px;}
-            .match-date { border-left: none; padding-left: 0; border-top: 1px solid #333; padding-top: 5px; width: 100%;}
-            .action-icons { margin-left: 0; justify-content: center; width: 100%; margin-top: 5px;}
-            .box { padding-bottom: 70px; }
+            .match-row { flex-direction: column; gap: 8px; padding: 15px; }
+            .match-teams, .match-date, .action-icons { width: 100%; border-left: none; }
+            .match-date { border-top: 1px dashed #444; padding-top: 8px; }
+            .box { padding-bottom: 70px; } 
         }
     </style>
 </head>
@@ -228,15 +231,16 @@
                 }
 
                 document.getElementById('proximos-lista').innerHTML = `
-                    <div class="match-row" style="font-size: 1.2rem; color: #FFD342; font-weight: bold;">
-                        ${equipoA} <span style="color:white; margin: 0 10px;">vs</span> ${equipoB} 
-                    </div>
-                    <div class="match-row" style="color: #7d7d7d;">
-                        <i class="fa-regular fa-clock" style="margin-right: 5px;"></i> Sábado ${getNextSaturday()}
+                    <div class="match-row" style="background: transparent;">
+                        <div class="match-teams" style="font-size: 1.2rem; color: #FFD342; font-weight: bold;">
+                            ${equipoA} <span style="color:white; margin: 0 10px;">vs</span> ${equipoB} 
+                        </div>
+                        <div class="match-date" style="border: none;">
+                            <i class="fa-regular fa-clock" style="margin-right: 5px;"></i> Sábado ${getNextSaturday()}
+                        </div>
                     </div>
                 `;
                 
-                // 👇 NUEVO: Cargar historial DESPUÉS de validar mánager
                 cargarHistorial();
             }
         });
@@ -270,8 +274,8 @@
 
                             histDiv.innerHTML += `
                                 <div class="match-row">
-                                    <span>${m.matchType} ${scoreText} ${m.rival}</span>
-                                    <span class="match-date">${formatFecha(m.date)}</span>
+                                    <div class="match-teams">${m.matchType} ${scoreText} ${m.rival}</div>
+                                    <div class="match-date">${formatFecha(m.date)}</div>
                                     ${acciones}
                                 </div>
                             `;
@@ -390,7 +394,7 @@
                 } else {
                     indOn.style.display = 'none'; indOff.style.display = 'flex';
                     document.querySelector('.live-box').style.borderColor = '#333';
-                    score.innerText = "ESPERANDO CONEXIÓN"; 
+                    score.innerText = "No hay partido en vivo"; 
                 }
             });
         }
