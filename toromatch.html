@@ -8,12 +8,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .seleccion-wrapper { width: 95%; max-width: 1200px; margin: 10vh auto 50px; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
-        
         .box { background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); position: relative; }
         .box h3 { margin-top: 0; color: #FFD342; border-bottom: 1px solid #333; padding-bottom: 10px; text-transform: uppercase; text-align: center; font-size: 1.2rem;}
         
         .left-col { display: flex; flex-direction: column; gap: 20px; }
-        
         .live-box { text-align: center; min-height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-color: #2df2c1; box-shadow: 0 0 15px rgba(45, 242, 193, 0.1); }
         .live-indicator { display: flex; align-items: center; gap: 8px; color: #2df2c1; font-weight: bold; margin-bottom: 15px; font-size: 1.1rem;}
         .status-circle.green { width: 12px; height: 12px; background-color: #2df2c1; border-radius: 50%; box-shadow: 0 0 10px rgba(45, 242, 193, 0.8); animation: pulse 1.5s infinite; }
@@ -30,11 +28,10 @@
         .match-row { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px; font-size: 1.1rem; }
         .match-date { color: #7d7d7d; font-size: 0.9rem; border-left: 1px solid #333; padding-left: 15px; }
 
-        .edit-btn { position: absolute; bottom: 20px; right: 20px; background: transparent; color: #e6683c; border: 2px solid #e6683c; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: none; transition: 0.3s; }
-        .edit-btn:hover { background: #e6683c; color: white; }
+        .edit-btn { position: absolute; bottom: 20px; right: 20px; background: transparent; color: #2df2c1; border: 2px solid #2df2c1; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: none; transition: 0.3s; }
+        .edit-btn:hover { background: #2df2c1; color: #111; }
 
         .right-col { display: flex; flex-direction: column; gap: 20px; }
-        
         .list-box ul { list-style-type: none; padding: 0; margin: 0; }
         .list-box li { padding: 12px 0; border-bottom: 1px dashed #333; color: #bdc3c7; font-size: 0.95rem; }
         
@@ -44,7 +41,7 @@
         #listaJugadores::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
         #listaJugadores::-webkit-scrollbar-thumb:hover { background: #FFD342; }
 
-        /* Modal */
+        /* MODAL */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .modal-content { background: #111; border: 1px solid #FFD342; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; color: white; }
         .modal-content h3 { color: #FFD342; margin-top: 0; text-align: center; }
@@ -53,10 +50,15 @@
         .modal-form input:focus { border-color: #FFD342; }
         .form-row { display: flex; gap: 10px; }
         .form-row input { flex: 1; }
+        .penalties-section { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border: 1px dashed #555;}
         .modal-btn { background: #2df2c1; color: #111; padding: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
         .modal-btn.cancel { background: #cc2a2a; color: white; margin-top: 10px;}
-        .delete-icon { color: #cc2a2a; cursor: pointer; margin-left: 10px; }
+        
+        .action-icons { display: flex; gap: 10px; margin-left: 15px; }
+        .delete-icon { color: #cc2a2a; cursor: pointer; }
         .delete-icon:hover { color: #ff4d4d; }
+        .edit-action-icon { color: #3498db; cursor: pointer; }
+        .edit-action-icon:hover { color: #5dade2; }
 
         @media (max-width: 900px) { .seleccion-wrapper { grid-template-columns: 1fr; } }
     </style>
@@ -99,7 +101,7 @@
                     <p style="text-align:center; color:#7d7d7d;">Cargando historial...</p>
                 </div>
 
-                <button id="btnEditar" class="edit-btn" onclick="abrirModal()"><i class="fa-solid fa-pen"></i> Editar Historial</button>
+                <button id="btnEditar" class="edit-btn" onclick="abrirModalNuevo()"><i class="fa-solid fa-plus"></i> Añadir Resultado</button>
             </div>
         </div>
 
@@ -113,24 +115,31 @@
 
     <div class="modal-overlay" id="editModal">
         <div class="modal-content">
-            <h3><i class="fa-solid fa-pen-to-square"></i> Añadir al Historial</h3>
+            <h3 id="modalTitle"><i class="fa-solid fa-plus"></i> Añadir al Historial</h3>
             
             <div class="modal-form">
                 <div class="form-row">
-                    <input type="text" id="m_eq1" placeholder="Nombre Equipo 1">
-                    <input type="text" id="m_eq2" placeholder="Nombre Equipo 2">
+                    <input type="text" id="m_eq1" placeholder="Nombre Eq 1">
+                    <input type="text" id="m_eq2" placeholder="Nombre Eq 2">
                 </div>
                 <div class="form-row">
-                    <input type="number" id="m_goles1" placeholder="Goles Eq 1">
-                    <input type="number" id="m_goles2" placeholder="Goles Eq 2">
+                    <input type="number" id="m_goles1" placeholder="Goles Eq 1" oninput="checkPenales()">
+                    <input type="number" id="m_goles2" placeholder="Goles Eq 2" oninput="checkPenales()">
                 </div>
+                
+                <div class="penalties-section" id="penales_div" style="display: none;">
+                    <p style="margin-top:0; margin-bottom: 10px; color:#FFD342; font-size: 0.9rem; text-align: center;">Tanda de Penales</p>
+                    <div class="form-row">
+                        <input type="number" id="m_pen1" placeholder="Penales Eq 1">
+                        <input type="number" id="m_pen2" placeholder="Penales Eq 2">
+                    </div>
+                </div>
+
                 <input type="date" id="m_date">
                 
-                <button class="modal-btn" onclick="guardarPartido()">Guardar Resultado</button>
-                <button class="modal-btn cancel" onclick="cerrarModal()">Cerrar</button>
+                <button class="modal-btn" id="modalSubmitBtn" onclick="guardarPartido()">Guardar Resultado</button>
+                <button class="modal-btn cancel" onclick="cerrarModal()">Cancelar</button>
             </div>
-            <hr style="border-color: #333; margin-bottom: 15px;">
-            <h4 style="text-align: center; color: #7d7d7d;">Para borrar, usa la basurita en la lista del historial.</h4>
         </div>
     </div>
 
@@ -158,30 +167,22 @@
             document.getElementById(tabId).classList.add('active');
         }
 
-        // --- CALCULAR PRÓXIMO SÁBADO 20:30 ---
         function getNextSaturday() {
             const now = new Date();
             const dayOfWeek = now.getDay();
             const daysUntilSaturday = (6 - dayOfWeek + 7) % 7;
-            
             let nextSat = new Date(now);
-            // Si es sábado pero ya pasaron las 20:30, buscar el de la próxima semana
-            if (daysUntilSaturday === 0 && now.getHours() >= 20) {
-                nextSat.setDate(now.getDate() + 7);
-            } else {
-                nextSat.setDate(now.getDate() + daysUntilSaturday);
-            }
-            
+            if (daysUntilSaturday === 0 && now.getHours() >= 20) { nextSat.setDate(now.getDate() + 7); } 
+            else { nextSat.setDate(now.getDate() + daysUntilSaturday); }
             const dd = String(nextSat.getDate()).padStart(2, '0');
             const mm = String(nextSat.getMonth() + 1).padStart(2, '0');
-            const yyyy = nextSat.getFullYear();
-            return `${dd}/${mm}/${yyyy} a las 20:30`;
+            return `${dd}/${mm}/${nextSat.getFullYear()} a las 20:30`;
         }
 
         const loggedId = localStorage.getItem('toroHaxLoggedId') || 'null';
         let isManager = false;
+        let editingId = null;
 
-        // 1. Cargar Jugadores y Auto-generar el "Próximo Express"
         fetch(`https://torobot-izu5.onrender.com/api/toromatch/data?numericId=${loggedId}`)
         .then(res => res.json())
         .then(data => {
@@ -193,26 +194,20 @@
 
                 const ulJugadores = document.getElementById('listaJugadores');
                 ulJugadores.innerHTML = '';
-                
-                let equipoA = "Equipo 1";
-                let equipoB = "Equipo 2";
+                let equipoA = "Equipo 1", equipoB = "Equipo 2";
 
                 if(data.jugadores.length > 0) {
-                    // Extraer nombres de los roles para los equipos
                     const roles = [...new Set(data.jugadores.map(j => j.split(' - ')[0]))];
                     if(roles[0]) equipoA = roles[0];
                     if(roles[1]) equipoB = roles[1];
-
                     data.jugadores.forEach(jug => {
-                        // Formateamos visualmente para que el rol tenga un color distinto
                         const partes = jug.split(' - ');
                         ulJugadores.innerHTML += `<li><span style="color:#5dc8e8; font-weight:bold;">${partes[0]}</span> - ${partes[1]}</li>`;
                     });
                 } else {
-                    ulJugadores.innerHTML = '<li>No hay jugadores registrados en ToroMatch.</li>';
+                    ulJugadores.innerHTML = '<li>No hay jugadores registrados.</li>';
                 }
 
-                // Generar cuadro de "Próximo Express" bloqueado a edición
                 document.getElementById('proximos').innerHTML = `
                     <div class="match-row" style="font-size: 1.2rem; color: #FFD342; font-weight: bold;">
                         ${equipoA} <span style="color:white; margin: 0 10px;">vs</span> ${equipoB} 
@@ -224,7 +219,6 @@
             }
         });
 
-        // 2. Cargar Historial de ToroMatch desde BD
         function cargarHistorial() {
             fetch('https://torobot-izu5.onrender.com/api/matches/toromatch')
             .then(res => res.json())
@@ -234,20 +228,30 @@
                     histDiv.innerHTML = '';
 
                     const formatFecha = (dateStr) => {
+                        if(!dateStr) return '';
                         const parts = dateStr.split('-');
                         return `${parts[2]}/${parts[1]}/${parts[0]}`;
                     };
 
                     data.matches.forEach(m => {
-                        // Solo mostramos historial en esta página
                         if (m.isHistory) {
-                            const btnBorrar = isManager ? `<i class="fa-solid fa-trash delete-icon" onclick="borrarPartido('${m._id}')"></i>` : '';
+                            const acciones = isManager ? `
+                            <div class="action-icons">
+                                <i class="fa-solid fa-pen edit-action-icon" onclick="abrirModalEditar('${m._id}', '${m.matchType}', '${m.rival}', ${m.golesLocal}, ${m.golesVisita}, ${m.penalesLocal}, ${m.penalesVisita}, '${m.date}')"></i>
+                                <i class="fa-solid fa-trash delete-icon" onclick="borrarPartido('${m._id}')"></i>
+                            </div>` : '';
                             
+                            // Mostrar penales si existen
+                            let scoreText = `${m.golesLocal} - ${m.golesVisita}`;
+                            if (m.penalesLocal > 0 || m.penalesVisita > 0) {
+                                scoreText = `<span style="color:#7d7d7d; font-size:0.9rem;">(${m.penalesLocal})</span> ${scoreText} <span style="color:#7d7d7d; font-size:0.9rem;">(${m.penalesVisita})</span>`;
+                            }
+
                             histDiv.innerHTML += `
                                 <div class="match-row">
-                                    ${m.matchType} ${m.golesLocal} - ${m.golesVisita} ${m.rival} 
+                                    ${m.matchType} ${scoreText} ${m.rival} 
                                     <span class="match-date">${formatFecha(m.date)}</span>
-                                    ${btnBorrar}
+                                    ${acciones}
                                 </div>
                             `;
                         }
@@ -258,8 +262,49 @@
         }
         cargarHistorial();
 
-        // 3. Funciones de la Modal (Solo Historial)
-        function abrirModal() { document.getElementById('editModal').style.display = 'flex'; }
+        // Detecta si es empate para mostrar la sección de penales
+        function checkPenales() {
+            const g1 = document.getElementById('m_goles1').value;
+            const g2 = document.getElementById('m_goles2').value;
+            if (g1 !== "" && g2 !== "" && g1 === g2) {
+                document.getElementById('penales_div').style.display = 'block';
+            } else {
+                document.getElementById('penales_div').style.display = 'none';
+                document.getElementById('m_pen1').value = '';
+                document.getElementById('m_pen2').value = '';
+            }
+        }
+
+        function abrirModalNuevo() { 
+            editingId = null;
+            document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-plus"></i> Añadir al Historial';
+            document.getElementById('modalSubmitBtn').innerText = 'Guardar Resultado';
+            document.getElementById('m_eq1').value = '';
+            document.getElementById('m_eq2').value = '';
+            document.getElementById('m_goles1').value = '';
+            document.getElementById('m_goles2').value = '';
+            document.getElementById('m_pen1').value = '';
+            document.getElementById('m_pen2').value = '';
+            document.getElementById('m_date').value = '';
+            checkPenales();
+            document.getElementById('editModal').style.display = 'flex'; 
+        }
+
+        function abrirModalEditar(id, eq1, eq2, g1, g2, p1, p2, date) {
+            editingId = id;
+            document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen"></i> Editar Resultado';
+            document.getElementById('modalSubmitBtn').innerText = 'Actualizar Resultado';
+            document.getElementById('m_eq1').value = eq1;
+            document.getElementById('m_eq2').value = eq2;
+            document.getElementById('m_goles1').value = g1;
+            document.getElementById('m_goles2').value = g2;
+            document.getElementById('m_pen1').value = p1 || '';
+            document.getElementById('m_pen2').value = p2 || '';
+            document.getElementById('m_date').value = date;
+            checkPenales();
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
         function cerrarModal() { document.getElementById('editModal').style.display = 'none'; }
 
         async function guardarPartido() {
@@ -268,28 +313,28 @@
             const date = document.getElementById('m_date').value;
             const goles1 = parseInt(document.getElementById('m_goles1').value) || 0;
             const goles2 = parseInt(document.getElementById('m_goles2').value) || 0;
+            const pen1 = parseInt(document.getElementById('m_pen1').value) || 0;
+            const pen2 = parseInt(document.getElementById('m_pen2').value) || 0;
 
             if(!equipo1 || !equipo2 || !date) return alert("Debes llenar los nombres de los equipos y la fecha.");
 
+            const url = editingId ? `https://torobot-izu5.onrender.com/api/matches/${editingId}` : 'https://torobot-izu5.onrender.com/api/matches';
+            const method = editingId ? 'PUT' : 'POST';
+
             try {
-                const res = await fetch('https://torobot-izu5.onrender.com/api/matches', {
-                    method: 'POST',
+                const res = await fetch(url, {
+                    method: method,
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        numericId: loggedId,
-                        team: 'toromatch',
-                        isHistory: true, 
-                        rival: equipo2, // Usamos 'rival' para guardar Equipo 2
-                        matchType: equipo1, // Usamos 'matchType' para guardar Equipo 1
-                        golesLocal: goles1, 
-                        golesVisita: goles2, 
-                        date: date
+                        numericId: loggedId, team: 'toromatch',
+                        isHistory: true, rival: equipo2, matchType: equipo1, 
+                        golesLocal: goles1, golesVisita: goles2, 
+                        penalesLocal: pen1, penalesVisita: pen2, date: date
                     })
                 });
                 const data = await res.json();
                 
                 if (data.success) {
-                    alert("¡Resultado guardado!");
                     cerrarModal();
                     cargarHistorial(); 
                 } else {
@@ -312,7 +357,6 @@
             } catch (err) { alert("Error de conexión."); }
         }
 
-        // 4. Marcador en vivo
         function actualizarMarcador() {
             fetch('https://torobot-izu5.onrender.com/api/toromatch/live')
             .then(res => res.json())
@@ -320,16 +364,12 @@
                 const indOn = document.getElementById('liveIndicator');
                 const indOff = document.getElementById('liveIndicatorOff');
                 const score = document.getElementById('liveScore');
-                
                 score.innerText = data.text;
-                
                 if (data.active) {
-                    indOn.style.display = 'flex';
-                    indOff.style.display = 'none';
+                    indOn.style.display = 'flex'; indOff.style.display = 'none';
                     document.querySelector('.live-box').style.borderColor = '#2df2c1';
                 } else {
-                    indOn.style.display = 'none';
-                    indOff.style.display = 'flex';
+                    indOn.style.display = 'none'; indOff.style.display = 'flex';
                     document.querySelector('.live-box').style.borderColor = '#333';
                     score.innerText = "ESPERANDO CONEXIÓN"; 
                 }
