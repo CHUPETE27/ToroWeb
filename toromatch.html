@@ -12,17 +12,14 @@
         .box { background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); position: relative; }
         .box h3 { margin-top: 0; color: #FFD342; border-bottom: 1px solid #333; padding-bottom: 10px; text-transform: uppercase; text-align: center; font-size: 1.2rem;}
         
-        /* Columna Izquierda */
         .left-col { display: flex; flex-direction: column; gap: 20px; }
         
-        /* Marcador en vivo */
         .live-box { text-align: center; min-height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-color: #2df2c1; box-shadow: 0 0 15px rgba(45, 242, 193, 0.1); }
         .live-indicator { display: flex; align-items: center; gap: 8px; color: #2df2c1; font-weight: bold; margin-bottom: 15px; font-size: 1.1rem;}
         .status-circle.green { width: 12px; height: 12px; background-color: #2df2c1; border-radius: 50%; box-shadow: 0 0 10px rgba(45, 242, 193, 0.8); animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
         .score-text { font-size: 2.2rem; font-weight: bold; color: white; letter-spacing: 2px; }
 
-        /* Pestañas Partidos */
         .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; }
         .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #7d7d7d; font-weight: bold; transition: 0.3s; }
         .tab.active { border-bottom: 2px solid #FFD342; color: #FFD342; }
@@ -33,26 +30,33 @@
         .match-row { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px; font-size: 1.1rem; }
         .match-date { color: #7d7d7d; font-size: 0.9rem; border-left: 1px solid #333; padding-left: 15px; }
 
-        /* Botón Editar */
         .edit-btn { position: absolute; bottom: 20px; right: 20px; background: transparent; color: #e6683c; border: 2px solid #e6683c; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: none; transition: 0.3s; }
         .edit-btn:hover { background: #e6683c; color: white; }
 
-        /* Columna Derecha */
         .right-col { display: flex; flex-direction: column; gap: 20px; }
         
-        /* Lista de Jugadores (Adaptada a nombre_rol - nombre_jugador) */
         .list-box ul { list-style-type: none; padding: 0; margin: 0; }
         .list-box li { padding: 12px 0; border-bottom: 1px dashed #333; color: #bdc3c7; font-size: 0.95rem; }
-        .list-box li::before { content: "🥊 "; color: #FFD342; font-size: 1.1rem; }
         
-        /* 👇 NUEVO: SCROLL INTERNO PARA JUGADORES 👇 */
         #listaJugadores { max-height: 500px; overflow-y: auto; padding-right: 5px; }
-
-        /* Diseño de la barra de Scroll */
         #listaJugadores::-webkit-scrollbar { width: 6px; }
         #listaJugadores::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
         #listaJugadores::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
         #listaJugadores::-webkit-scrollbar-thumb:hover { background: #FFD342; }
+
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { background: #111; border: 1px solid #FFD342; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; color: white; }
+        .modal-content h3 { color: #FFD342; margin-top: 0; text-align: center; }
+        .modal-form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
+        .modal-form input { padding: 10px; background: #222; border: 1px solid #444; color: white; border-radius: 5px; outline: none; }
+        .modal-form input:focus { border-color: #FFD342; }
+        .form-row { display: flex; gap: 10px; }
+        .form-row input { flex: 1; }
+        .modal-btn { background: #2df2c1; color: #111; padding: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .modal-btn.cancel { background: #cc2a2a; color: white; margin-top: 10px;}
+        .delete-icon { color: #cc2a2a; cursor: pointer; margin-left: 10px; }
+        .delete-icon:hover { color: #ff4d4d; }
 
         @media (max-width: 900px) { .seleccion-wrapper { grid-template-columns: 1fr; } }
     </style>
@@ -88,15 +92,14 @@
                 </div>
 
                 <div id="proximos" class="tab-content active">
-                    <div class="match-row">Equipo A vs Equipo B <span class="match-date">20/06/2026</span></div>
+                    <p style="text-align:center; color:#7d7d7d;">Calculando fecha...</p>
                 </div>
 
                 <div id="historial" class="tab-content">
-                    <div class="match-row">Rol1 3 - 2 Rol2 <span class="match-date">04/05/2026</span></div>
-                    <div class="match-row">Rol1 1 - 4 Rol2 <span class="match-date">28/04/2026</span></div>
+                    <p style="text-align:center; color:#7d7d7d;">Cargando historial...</p>
                 </div>
 
-                <button id="btnEditar" class="edit-btn"><i class="fa-solid fa-pen"></i> Editar</button>
+                <button id="btnEditar" class="edit-btn" onclick="abrirModal()"><i class="fa-solid fa-pen"></i> Editar Historial</button>
             </div>
         </div>
 
@@ -105,6 +108,29 @@
                 <h3>⚽ Jugadores</h3>
                 <ul id="listaJugadores"><li>Cargando plantel...</li></ul>
             </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-content">
+            <h3><i class="fa-solid fa-pen-to-square"></i> Añadir al Historial</h3>
+            
+            <div class="modal-form">
+                <div class="form-row">
+                    <input type="text" id="m_eq1" placeholder="Nombre Equipo 1">
+                    <input type="text" id="m_eq2" placeholder="Nombre Equipo 2">
+                </div>
+                <div class="form-row">
+                    <input type="number" id="m_goles1" placeholder="Goles Eq 1">
+                    <input type="number" id="m_goles2" placeholder="Goles Eq 2">
+                </div>
+                <input type="date" id="m_date">
+                
+                <button class="modal-btn" onclick="guardarPartido()">Guardar Resultado</button>
+                <button class="modal-btn cancel" onclick="cerrarModal()">Cerrar</button>
+            </div>
+            <hr style="border-color: #333; margin-bottom: 15px;">
+            <h4 style="text-align: center; color: #7d7d7d;">Para borrar, usa la basurita en la lista del historial.</h4>
         </div>
     </div>
 
@@ -119,6 +145,12 @@
         function checkLogin(page) { if (localStorage.getItem('toroHaxLoggedId')) window.location.href = page; else window.location.href = 'login.html'; }
         function confirmarLogout() { if(confirm("⚠️ ¿Estás seguro que quieres cerrar sesión?")) { localStorage.removeItem('toroHaxLoggedId'); window.location.href = 'index.html'; } }
 
+        document.addEventListener('click', function(event) {
+            if (sidebar.classList.contains('active') && !sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+                sidebar.classList.remove('active');
+            }
+        });
+
         function switchTab(tabId) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -126,32 +158,161 @@
             document.getElementById(tabId).classList.add('active');
         }
 
-        document.addEventListener('click', function(event) {
-            if (sidebar.classList.contains('active')) {
-                if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
-                    sidebar.classList.remove('active');
-                }
+        // --- CALCULAR PRÓXIMO SÁBADO 20:30 ---
+        function getNextSaturday() {
+            const now = new Date();
+            const dayOfWeek = now.getDay();
+            const daysUntilSaturday = (6 - dayOfWeek + 7) % 7;
+            
+            let nextSat = new Date(now);
+            // Si es sábado pero ya pasaron las 20:30, buscar el de la próxima semana
+            if (daysUntilSaturday === 0 && now.getHours() >= 20) {
+                nextSat.setDate(now.getDate() + 7);
+            } else {
+                nextSat.setDate(now.getDate() + daysUntilSaturday);
             }
-        });
+            
+            const dd = String(nextSat.getDate()).padStart(2, '0');
+            const mm = String(nextSat.getMonth() + 1).padStart(2, '0');
+            const yyyy = nextSat.getFullYear();
+            return `${dd}/${mm}/${yyyy} a las 20:30`;
+        }
 
         const loggedId = localStorage.getItem('toroHaxLoggedId') || 'null';
+        let isManager = false;
 
+        // 1. Cargar Jugadores y Auto-generar el "Próximo Express"
         fetch(`https://torobot-izu5.onrender.com/api/toromatch/data?numericId=${loggedId}`)
         .then(res => res.json())
         .then(data => {
             if(data.success) {
-                if(data.canEdit) document.getElementById('btnEditar').style.display = 'block';
+                if(data.canEdit) {
+                    isManager = true;
+                    document.getElementById('btnEditar').style.display = 'block';
+                }
 
                 const ulJugadores = document.getElementById('listaJugadores');
                 ulJugadores.innerHTML = '';
+                
+                let equipoA = "Equipo 1";
+                let equipoB = "Equipo 2";
+
                 if(data.jugadores.length > 0) {
-                    data.jugadores.forEach(jug => ulJugadores.innerHTML += `<li>${jug}</li>`);
+                    // Extraer nombres de los roles para los equipos
+                    const roles = [...new Set(data.jugadores.map(j => j.split(' - ')[0]))];
+                    if(roles[0]) equipoA = roles[0];
+                    if(roles[1]) equipoB = roles[1];
+
+                    data.jugadores.forEach(jug => {
+                        // Formateamos visualmente para que el rol tenga un color distinto
+                        const partes = jug.split(' - ');
+                        ulJugadores.innerHTML += `<li><span style="color:#5dc8e8; font-weight:bold;">${partes[0]}</span> - ${partes[1]}</li>`;
+                    });
                 } else {
                     ulJugadores.innerHTML = '<li>No hay jugadores registrados en ToroMatch.</li>';
                 }
+
+                // Generar cuadro de "Próximo Express" bloqueado a edición
+                document.getElementById('proximos').innerHTML = `
+                    <div class="match-row" style="font-size: 1.2rem; color: #FFD342; font-weight: bold;">
+                        ${equipoA} <span style="color:white; margin: 0 10px;">vs</span> ${equipoB} 
+                    </div>
+                    <div class="match-row" style="color: #7d7d7d;">
+                        <i class="fa-regular fa-clock" style="margin-right: 5px;"></i> Sábado ${getNextSaturday()}
+                    </div>
+                `;
             }
         });
 
+        // 2. Cargar Historial de ToroMatch desde BD
+        function cargarHistorial() {
+            fetch('https://torobot-izu5.onrender.com/api/matches/toromatch')
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    const histDiv = document.getElementById('historial');
+                    histDiv.innerHTML = '';
+
+                    const formatFecha = (dateStr) => {
+                        const parts = dateStr.split('-');
+                        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+                    };
+
+                    data.matches.forEach(m => {
+                        // Solo mostramos historial en esta página
+                        if (m.isHistory) {
+                            const btnBorrar = isManager ? `<i class="fa-solid fa-trash delete-icon" onclick="borrarPartido('${m._id}')"></i>` : '';
+                            
+                            histDiv.innerHTML += `
+                                <div class="match-row">
+                                    ${m.matchType} ${m.golesLocal} - ${m.golesVisita} ${m.rival} 
+                                    <span class="match-date">${formatFecha(m.date)}</span>
+                                    ${btnBorrar}
+                                </div>
+                            `;
+                        }
+                    });
+                    if (histDiv.innerHTML === '') histDiv.innerHTML = '<p style="text-align:center; color:#7d7d7d;">El historial está vacío.</p>';
+                }
+            });
+        }
+        cargarHistorial();
+
+        // 3. Funciones de la Modal (Solo Historial)
+        function abrirModal() { document.getElementById('editModal').style.display = 'flex'; }
+        function cerrarModal() { document.getElementById('editModal').style.display = 'none'; }
+
+        async function guardarPartido() {
+            const equipo1 = document.getElementById('m_eq1').value.trim();
+            const equipo2 = document.getElementById('m_eq2').value.trim();
+            const date = document.getElementById('m_date').value;
+            const goles1 = parseInt(document.getElementById('m_goles1').value) || 0;
+            const goles2 = parseInt(document.getElementById('m_goles2').value) || 0;
+
+            if(!equipo1 || !equipo2 || !date) return alert("Debes llenar los nombres de los equipos y la fecha.");
+
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/matches', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        numericId: loggedId,
+                        team: 'toromatch',
+                        isHistory: true, 
+                        rival: equipo2, // Usamos 'rival' para guardar Equipo 2
+                        matchType: equipo1, // Usamos 'matchType' para guardar Equipo 1
+                        golesLocal: goles1, 
+                        golesVisita: goles2, 
+                        date: date
+                    })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    alert("¡Resultado guardado!");
+                    cerrarModal();
+                    cargarHistorial(); 
+                } else {
+                    alert("Error: No tienes permisos.");
+                }
+            } catch (err) { alert("Error de conexión."); }
+        }
+
+        async function borrarPartido(id) {
+            if(!confirm("¿Seguro que quieres borrar este resultado?")) return;
+            try {
+                const res = await fetch(`https://torobot-izu5.onrender.com/api/matches/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ numericId: loggedId, team: 'toromatch' })
+                });
+                const data = await res.json();
+                if(data.success) cargarHistorial();
+                else alert("Error al borrar.");
+            } catch (err) { alert("Error de conexión."); }
+        }
+
+        // 4. Marcador en vivo
         function actualizarMarcador() {
             fetch('https://torobot-izu5.onrender.com/api/toromatch/live')
             .then(res => res.json())

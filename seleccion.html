@@ -8,21 +8,16 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .seleccion-wrapper { width: 95%; max-width: 1200px; margin: 10vh auto 50px; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
-        
         .box { background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); position: relative; }
         .box h3 { margin-top: 0; color: #FFD342; border-bottom: 1px solid #333; padding-bottom: 10px; text-transform: uppercase; text-align: center; font-size: 1.2rem;}
         
-        /* Columna Izquierda */
         .left-col { display: flex; flex-direction: column; gap: 20px; }
-        
-        /* Marcador en vivo */
         .live-box { text-align: center; min-height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-color: #2df2c1; box-shadow: 0 0 15px rgba(45, 242, 193, 0.1); }
         .live-indicator { display: flex; align-items: center; gap: 8px; color: #2df2c1; font-weight: bold; margin-bottom: 15px; font-size: 1.1rem;}
         .status-circle.green { width: 12px; height: 12px; background-color: #2df2c1; border-radius: 50%; box-shadow: 0 0 10px rgba(45, 242, 193, 0.8); animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
         .score-text { font-size: 2.5rem; font-weight: bold; color: white; letter-spacing: 2px; }
 
-        /* Pestañas Partidos */
         .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; }
         .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #7d7d7d; font-weight: bold; transition: 0.3s; }
         .tab.active { border-bottom: 2px solid #FFD342; color: #FFD342; }
@@ -31,36 +26,42 @@
         .tab-content.active { display: block; }
         
         .match-row { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px; font-size: 1.1rem; }
-        .match-result.w { color: #2df2c1; font-weight: bold; } /* Win */
-        .match-result.d { color: #FFD342; font-weight: bold; } /* Draw */
-        .match-result.l { color: #cc2a2a; font-weight: bold; } /* Loss */
+        .match-result.w { color: #2df2c1; font-weight: bold; } 
+        .match-result.d { color: #FFD342; font-weight: bold; } 
+        .match-result.l { color: #cc2a2a; font-weight: bold; } 
         .match-date { color: #7d7d7d; font-size: 0.9rem; border-left: 1px solid #333; padding-left: 15px; }
+        .match-type { font-size: 0.8rem; background: #333; padding: 2px 6px; border-radius: 4px; color: white; }
 
-        /* Botón Editar */
         .edit-btn { position: absolute; bottom: 20px; right: 20px; background: transparent; color: #e6683c; border: 2px solid #e6683c; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: none; transition: 0.3s; }
         .edit-btn:hover { background: #e6683c; color: white; }
 
-        /* Columna Derecha */
         .right-col { display: flex; flex-direction: column; gap: 20px; }
-        
-        /* Logo */
         .logo-box { display: flex; justify-content: center; align-items: center; padding: 30px; }
         .logo-box img { width: 150px; height: 150px; border-radius: 50%; border: 3px solid #3498db; object-fit: cover; }
-        
-        /* Listas (Vitrina y Jugadores) */
         .list-box ul { list-style-type: none; padding: 0; margin: 0; }
         .list-box li { padding: 10px 0; border-bottom: 1px dashed #333; color: #bdc3c7; }
         .list-box li::before { content: "• "; color: #FFD342; font-weight: bold; }
         
-        /* 👇 NUEVO: SCROLL INTERNO PARA LISTAS 👇 */
         #listaVitrina { max-height: 180px; overflow-y: auto; padding-right: 5px; }
         #listaJugadores { max-height: 250px; overflow-y: auto; padding-right: 5px; }
-
-        /* Diseño de la barra de Scroll */
         #listaVitrina::-webkit-scrollbar, #listaJugadores::-webkit-scrollbar { width: 6px; }
         #listaVitrina::-webkit-scrollbar-track, #listaJugadores::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
         #listaVitrina::-webkit-scrollbar-thumb, #listaJugadores::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
         #listaVitrina::-webkit-scrollbar-thumb:hover, #listaJugadores::-webkit-scrollbar-thumb:hover { background: #FFD342; }
+
+        /* 👇 ESTILOS DE LA VENTANA MODAL (POPUP) 👇 */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { background: #111; border: 1px solid #FFD342; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; color: white; }
+        .modal-content h3 { color: #FFD342; margin-top: 0; text-align: center; }
+        .modal-form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
+        .modal-form input, .modal-form select { padding: 10px; background: #222; border: 1px solid #444; color: white; border-radius: 5px; outline: none; }
+        .modal-form input:focus, .modal-form select:focus { border-color: #FFD342; }
+        .form-row { display: flex; gap: 10px; }
+        .form-row input { flex: 1; }
+        .modal-btn { background: #2df2c1; color: #111; padding: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .modal-btn.cancel { background: #cc2a2a; color: white; margin-top: 10px;}
+        .delete-icon { color: #cc2a2a; cursor: pointer; margin-left: 10px; }
+        .delete-icon:hover { color: #ff4d4d; }
 
         @media (max-width: 900px) { .seleccion-wrapper { grid-template-columns: 1fr; } }
     </style>
@@ -70,13 +71,13 @@
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-top">
             <div class="close-btn" id="close-btn"><i class="fa-solid fa-xmark"></i></div>
-            <a href="#" onclick="if(localStorage.getItem('toroHaxLoggedId')){ window.location.href='perfil.html'; } else { window.location.href='login.html'; } return false;"><i class="fa-solid fa-user"></i> Perfil</a>
-            <a href="#" onclick="checkLogin('vip.html')"><i class="fa-solid fa-gem"></i> VIP</a>
-            <a href="#" onclick="checkLogin('tienda.html')"><i class="fa-solid fa-cart-shopping"></i> Tienda</a>
-            <a href="index.html"><i class="fa-solid fa-house"></i> Menú principal</a>
+            <a href="#" onclick="if(localStorage.getItem('toroHaxLoggedId')){ window.location.href='perfil.html'; } else { window.location.href='login.html'; } return false;"><i class="fa-solid fa-user"></i> | Perfil</a>
+            <a href="#" onclick="checkLogin('vip.html')"><i class="fa-solid fa-gem"></i> | VIP</a>
+            <a href="#" onclick="checkLogin('tienda.html')"><i class="fa-solid fa-cart-shopping"></i> | Tienda</a>
+            <a href="index.html"><i class="fa-solid fa-house"></i> | Menú principal</a>
         </div>
         <div class="sidebar-bottom">
-            <a href="#" class="logout-btn" onclick="confirmarLogout()"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
+            <a href="#" class="logout-btn" onclick="confirmarLogout()"><i class="fa-solid fa-right-from-bracket"></i> | Cerrar sesión</a>
         </div>
     </nav>
     <header></header>
@@ -96,23 +97,20 @@
                 </div>
 
                 <div id="proximos" class="tab-content active">
-                    <div class="match-row">ToroHax vs Boca Juniors <span class="match-date">18/06/2026</span></div>
-                    <div class="match-row">ToroHax vs River Plate <span class="match-date">25/06/2026</span></div>
+                    <p style="text-align:center; color:#7d7d7d;">Cargando partidos...</p>
                 </div>
 
                 <div id="historial" class="tab-content">
-                    <div class="match-row"><span class="match-result w">(W)</span> ToroHax 3 - 2 Univ. Católica <span class="match-date">04/05/2026</span></div>
-                    <div class="match-row"><span class="match-result d">(D)</span> ToroHax 1 - 1 Colo Colo <span class="match-date">28/04/2026</span></div>
-                    <div class="match-row"><span class="match-result l">(L)</span> ToroHax 0 - 2 U. de Chile <span class="match-date">21/04/2026</span></div>
+                    <p style="text-align:center; color:#7d7d7d;">Cargando historial...</p>
                 </div>
 
-                <button id="btnEditar" class="edit-btn"><i class="fa-solid fa-pen"></i> Editar</button>
+                <button id="btnEditar" class="edit-btn" onclick="abrirModal()"><i class="fa-solid fa-pen"></i> Editar Partidos</button>
             </div>
         </div>
 
         <div class="right-col">
             <div class="box logo-box">
-                <img src="path1.png" alt="Logo Selección">
+                <img src="torohax_equipo.png" alt="Logo Selección">
             </div>
 
             <div class="box list-box">
@@ -127,6 +125,40 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-content">
+            <h3><i class="fa-solid fa-pen-to-square"></i> Gestión de Partidos</h3>
+            
+            <div class="modal-form">
+                <select id="m_target" onchange="toggleGoles()">
+                    <option value="proximo">Añadir a: Próximos Partidos</option>
+                    <option value="historial">Añadir a: Historial (Ya jugado)</option>
+                </select>
+                
+                <input type="text" id="m_rival" placeholder="Nombre del Rival (Ej: Boca Juniors)">
+                
+                <div class="form-row" id="goles_inputs" style="display: none;">
+                    <input type="number" id="m_golesT" placeholder="Goles THX">
+                    <input type="number" id="m_golesR" placeholder="Goles Rival">
+                </div>
+
+                <select id="m_type">
+                    <option value="Amistoso">Amistoso</option>
+                    <option value="Liga">Liga</option>
+                    <option value="Eliminatoria">Eliminatoria</option>
+                </select>
+
+                <input type="date" id="m_date">
+                
+                <button class="modal-btn" onclick="guardarPartido()">Guardar Partido</button>
+                <button class="modal-btn cancel" onclick="cerrarModal()">Cerrar</button>
+            </div>
+            
+            <hr style="border-color: #333; margin-bottom: 15px;">
+            <h4 style="text-align: center; color: #7d7d7d;">Para borrar partidos, elimínalos desde la lista principal haciendo clic en la basurita que aparecerá.</h4>
+        </div>
+    </div>
+
     <footer><p>© 2026 ToroHax. Todos los derechos reservados.</p></footer>
 
     <script>
@@ -137,12 +169,10 @@
         closeBtn.addEventListener('click', () => sidebar.classList.remove('active'));
         function checkLogin(page) { if (localStorage.getItem('toroHaxLoggedId')) window.location.href = page; else window.location.href = 'login.html'; }
         function confirmarLogout() { if(confirm("⚠️ ¿Estás seguro que quieres cerrar sesión?")) { localStorage.removeItem('toroHaxLoggedId'); window.location.href = 'index.html'; } }
-
+        
         document.addEventListener('click', function(event) {
-            if (sidebar.classList.contains('active')) {
-                if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
-                    sidebar.classList.remove('active');
-                }
+            if (sidebar.classList.contains('active') && !sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
+                sidebar.classList.remove('active');
             }
         });
 
@@ -154,31 +184,143 @@
         }
 
         const loggedId = localStorage.getItem('toroHaxLoggedId') || 'null';
+        let isManager = false;
 
+        // Cargar Roles y Listas
         fetch(`https://torobot-izu5.onrender.com/api/seleccion/data?numericId=${loggedId}`)
         .then(res => res.json())
         .then(data => {
             if(data.success) {
-                if(data.canEdit) document.getElementById('btnEditar').style.display = 'block';
+                if(data.canEdit) {
+                    isManager = true;
+                    document.getElementById('btnEditar').style.display = 'block';
+                }
 
                 const ulJugadores = document.getElementById('listaJugadores');
                 ulJugadores.innerHTML = '';
-                if(data.jugadores.length > 0) {
-                    data.jugadores.forEach(jug => ulJugadores.innerHTML += `<li>${jug}</li>`);
-                } else {
-                    ulJugadores.innerHTML = '<li>No hay jugadores registrados.</li>';
-                }
+                if(data.jugadores.length > 0) data.jugadores.forEach(jug => ulJugadores.innerHTML += `<li>${jug}</li>`);
+                else ulJugadores.innerHTML = '<li>No hay jugadores registrados.</li>';
 
                 const ulVitrina = document.getElementById('listaVitrina');
                 ulVitrina.innerHTML = '';
-                if(data.trofeos.length > 0) {
-                    data.trofeos.forEach(trofeo => ulVitrina.innerHTML += `<li>${trofeo}</li>`);
-                } else {
-                    ulVitrina.innerHTML = '<li>Vitrina en construcción.</li>';
-                }
+                if(data.trofeos.length > 0) data.trofeos.forEach(trofeo => ulVitrina.innerHTML += `<li>${trofeo}</li>`);
+                else ulVitrina.innerHTML = '<li>Vitrina en construcción.</li>';
             }
         });
 
+        // --- SISTEMA DE PARTIDOS (Base de Datos) ---
+        function cargarPartidos() {
+            fetch('https://torobot-izu5.onrender.com/api/matches/seleccion')
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    const proxDiv = document.getElementById('proximos');
+                    const histDiv = document.getElementById('historial');
+                    proxDiv.innerHTML = '';
+                    histDiv.innerHTML = '';
+
+                    const formatFecha = (dateStr) => {
+                        const parts = dateStr.split('-'); // Viene como YYYY-MM-DD
+                        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+                    };
+
+                    data.matches.forEach(m => {
+                        const btnBorrar = isManager ? `<i class="fa-solid fa-trash delete-icon" onclick="borrarPartido('${m._id}')"></i>` : '';
+                        
+                        if (m.isHistory) {
+                            // Calcular W / D / L
+                            let resultClass = "d"; let resultText = "D";
+                            if (m.golesLocal > m.golesVisita) { resultClass = "w"; resultText = "W"; }
+                            else if (m.golesLocal < m.golesVisita) { resultClass = "l"; resultText = "L"; }
+
+                            histDiv.innerHTML += `
+                                <div class="match-row">
+                                    <span class="match-result ${resultClass}">(${resultText})</span> 
+                                    ToroHax ${m.golesLocal} - ${m.golesVisita} ${m.rival} 
+                                    <span class="match-type">${m.matchType}</span>
+                                    <span class="match-date">${formatFecha(m.date)}</span>
+                                    ${btnBorrar}
+                                </div>
+                            `;
+                        } else {
+                            proxDiv.innerHTML += `
+                                <div class="match-row">
+                                    ToroHax vs ${m.rival} 
+                                    <span class="match-type">${m.matchType}</span>
+                                    <span class="match-date">${formatFecha(m.date)}</span>
+                                    ${btnBorrar}
+                                </div>
+                            `;
+                        }
+                    });
+
+                    if (proxDiv.innerHTML === '') proxDiv.innerHTML = '<p style="text-align:center; color:#7d7d7d;">No hay partidos programados.</p>';
+                    if (histDiv.innerHTML === '') histDiv.innerHTML = '<p style="text-align:center; color:#7d7d7d;">El historial está vacío.</p>';
+                }
+            });
+        }
+        
+        cargarPartidos(); // Cargar al abrir la página
+
+        // Funciones de la Modal
+        function abrirModal() { document.getElementById('editModal').style.display = 'flex'; }
+        function cerrarModal() { document.getElementById('editModal').style.display = 'none'; }
+        function toggleGoles() {
+            const esHistorial = document.getElementById('m_target').value === 'historial';
+            document.getElementById('goles_inputs').style.display = esHistorial ? 'flex' : 'none';
+        }
+
+        async function guardarPartido() {
+            const isHistory = document.getElementById('m_target').value === 'historial';
+            const rival = document.getElementById('m_rival').value.trim();
+            const matchType = document.getElementById('m_type').value;
+            const date = document.getElementById('m_date').value;
+            let golesLocal = 0, golesVisita = 0;
+
+            if (isHistory) {
+                golesLocal = parseInt(document.getElementById('m_golesT').value) || 0;
+                golesVisita = parseInt(document.getElementById('m_golesR').value) || 0;
+            }
+
+            if(!rival || !date) return alert("Debes ingresar el nombre del rival y la fecha.");
+
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/matches', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        numericId: loggedId,
+                        team: 'seleccion',
+                        isHistory, rival, golesLocal, golesVisita, matchType, date
+                    })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    alert("¡Partido guardado con éxito!");
+                    cerrarModal();
+                    cargarPartidos(); // Recargar las listas visualmente
+                } else {
+                    alert("Error: No tienes permisos o falló el servidor.");
+                }
+            } catch (err) { alert("Error de conexión."); }
+        }
+
+        async function borrarPartido(id) {
+            if(!confirm("¿Seguro que quieres borrar este partido para siempre?")) return;
+            try {
+                const res = await fetch(`https://torobot-izu5.onrender.com/api/matches/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ numericId: loggedId, team: 'seleccion' }) // Envía la ID para validar permisos
+                });
+                const data = await res.json();
+                if(data.success) cargarPartidos();
+                else alert("Error al borrar.");
+            } catch (err) { alert("Error de conexión."); }
+        }
+
+        // Marcador en vivo
         function actualizarMarcador() {
             fetch('https://torobot-izu5.onrender.com/api/seleccion/live')
             .then(res => res.json())
@@ -186,16 +328,12 @@
                 const indOn = document.getElementById('liveIndicator');
                 const indOff = document.getElementById('liveIndicatorOff');
                 const score = document.getElementById('liveScore');
-                
                 score.innerText = data.text;
-                
                 if (data.active) {
-                    indOn.style.display = 'flex';
-                    indOff.style.display = 'none';
+                    indOn.style.display = 'flex'; indOff.style.display = 'none';
                     document.querySelector('.live-box').style.borderColor = '#2df2c1';
                 } else {
-                    indOn.style.display = 'none';
-                    indOff.style.display = 'flex';
+                    indOn.style.display = 'none'; indOff.style.display = 'flex';
                     document.querySelector('.live-box').style.borderColor = '#333';
                     score.innerText = "THX 0 - 0 VIS";
                 }
