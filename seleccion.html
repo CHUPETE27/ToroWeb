@@ -16,16 +16,22 @@
         .live-indicator { display: flex; align-items: center; gap: 8px; color: #2df2c1; font-weight: bold; margin-bottom: 15px; font-size: 1.1rem;}
         .status-circle.green { width: 12px; height: 12px; background-color: #2df2c1; border-radius: 50%; box-shadow: 0 0 10px rgba(45, 242, 193, 0.8); animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
-        .score-text { font-size: 2.5rem; font-weight: bold; color: white; letter-spacing: 2px; }
+        .score-text { font-size: 2.5rem; font-weight: bold; color: white; letter-spacing: 2px; text-align: center;}
 
         .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; }
         .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #7d7d7d; font-weight: bold; transition: 0.3s; }
         .tab.active { border-bottom: 2px solid #FFD342; color: #FFD342; }
         .tab:hover:not(.active) { color: white; }
-        .tab-content { display: none; min-height: 200px; }
-        .tab-content.active { display: block; }
         
-        .match-row { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px; font-size: 1.1rem; }
+        /* 👇 NUEVO: Scroll en las pestañas 👇 */
+        .tab-content { display: none; min-height: 200px; max-height: 350px; overflow-y: auto; padding-right: 5px;}
+        .tab-content.active { display: block; }
+        .tab-content::-webkit-scrollbar { width: 6px; }
+        .tab-content::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
+        .tab-content::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
+        .tab-content::-webkit-scrollbar-thumb:hover { background: #FFD342; }
+        
+        .match-row { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px; font-size: 1.1rem; flex-wrap: wrap;}
         .match-result.w { color: #2df2c1; font-weight: bold; } 
         .match-result.d { color: #FFD342; font-weight: bold; } 
         .match-result.l { color: #cc2a2a; font-weight: bold; } 
@@ -61,14 +67,23 @@
         .modal-btn { background: #2df2c1; color: #111; padding: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
         .modal-btn.cancel { background: #cc2a2a; color: white; margin-top: 10px;}
         
-        /* Iconos de acción */
         .action-icons { display: flex; gap: 10px; margin-left: 15px; }
         .delete-icon { color: #cc2a2a; cursor: pointer; }
         .delete-icon:hover { color: #ff4d4d; }
         .edit-action-icon { color: #3498db; cursor: pointer; }
         .edit-action-icon:hover { color: #5dade2; }
 
-        @media (max-width: 900px) { .seleccion-wrapper { grid-template-columns: 1fr; } }
+        /* 👇 AJUSTES PARA MÓVILES 👇 */
+        @media (max-width: 900px) { 
+            .seleccion-wrapper { grid-template-columns: 1fr; } 
+        }
+        @media (max-width: 600px) { 
+            .score-text { font-size: 1.8rem; }
+            .match-row { font-size: 0.95rem; gap: 8px; flex-direction: column; text-align: center; border-bottom: 1px dashed #333; padding-bottom: 10px;}
+            .match-date { border-left: none; padding-left: 0; border-top: 1px solid #333; padding-top: 5px; width: 100%;}
+            .action-icons { margin-left: 0; justify-content: center; width: 100%; margin-top: 5px;}
+            .box { padding-bottom: 70px; } /* Más espacio para el botón editar abajo */
+        }
     </style>
 </head>
 <body>
@@ -95,18 +110,18 @@
                 <div class="score-text" id="liveScore">THX 0 - 0 VIS</div>
             </div>
 
-            <div class="box" style="padding-bottom: 60px;">
+            <div class="box">
                 <div class="tabs">
                     <div class="tab active" onclick="switchTab('proximos')">Próximos partidos</div>
                     <div class="tab" onclick="switchTab('historial')">Historial</div>
                 </div>
 
                 <div id="proximos" class="tab-content active">
-                    <p style="text-align:center; color:#7d7d7d;">Cargando partidos...</p>
+                    <div id="proximos-lista"><p style="text-align:center; color:#7d7d7d;">Cargando partidos...</p></div>
                 </div>
 
                 <div id="historial" class="tab-content">
-                    <p style="text-align:center; color:#7d7d7d;">Cargando historial...</p>
+                    <div id="historial-lista"><p style="text-align:center; color:#7d7d7d;">Cargando historial...</p></div>
                 </div>
 
                 <button id="btnEditar" class="edit-btn" onclick="abrirModalNuevo()"><i class="fa-solid fa-plus"></i> Añadir Partido</button>
@@ -179,7 +194,7 @@
 
         const loggedId = localStorage.getItem('toroHaxLoggedId') || 'null';
         let isManager = false;
-        let editingId = null; // Guardará la ID si estamos editando
+        let editingId = null;
 
         fetch(`https://torobot-izu5.onrender.com/api/seleccion/data?numericId=${loggedId}`)
         .then(res => res.json())
@@ -206,8 +221,8 @@
             .then(res => res.json())
             .then(data => {
                 if(data.success) {
-                    const proxDiv = document.getElementById('proximos');
-                    const histDiv = document.getElementById('historial');
+                    const proxDiv = document.getElementById('proximos-lista');
+                    const histDiv = document.getElementById('historial-lista');
                     proxDiv.innerHTML = ''; histDiv.innerHTML = '';
 
                     const formatFecha = (dateStr) => {
@@ -231,7 +246,7 @@
                             histDiv.innerHTML += `
                                 <div class="match-row">
                                     <span class="match-result ${resultClass}">(${resultText})</span> 
-                                    ToroHax ${m.golesLocal} - ${m.golesVisita} ${m.rival} 
+                                    <span>ToroHax ${m.golesLocal} - ${m.golesVisita} ${m.rival}</span>
                                     <span class="match-type">${m.matchType}</span>
                                     <span class="match-date">${formatFecha(m.date)}</span>
                                     ${acciones}
@@ -240,7 +255,7 @@
                         } else {
                             proxDiv.innerHTML += `
                                 <div class="match-row">
-                                    ToroHax vs ${m.rival} 
+                                    <span>ToroHax vs ${m.rival}</span>
                                     <span class="match-type">${m.matchType}</span>
                                     <span class="match-date">${formatFecha(m.date)}</span>
                                     ${acciones}

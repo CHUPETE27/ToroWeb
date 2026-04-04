@@ -16,16 +16,21 @@
         .live-indicator { display: flex; align-items: center; gap: 8px; color: #2df2c1; font-weight: bold; margin-bottom: 15px; font-size: 1.1rem;}
         .status-circle.green { width: 12px; height: 12px; background-color: #2df2c1; border-radius: 50%; box-shadow: 0 0 10px rgba(45, 242, 193, 0.8); animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
-        .score-text { font-size: 2.2rem; font-weight: bold; color: white; letter-spacing: 2px; }
+        .score-text { font-size: 2.2rem; font-weight: bold; color: white; letter-spacing: 2px; text-align: center;}
 
         .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; }
         .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #7d7d7d; font-weight: bold; transition: 0.3s; }
         .tab.active { border-bottom: 2px solid #FFD342; color: #FFD342; }
         .tab:hover:not(.active) { color: white; }
-        .tab-content { display: none; min-height: 200px; }
-        .tab-content.active { display: block; }
         
-        .match-row { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px; font-size: 1.1rem; }
+        .tab-content { display: none; min-height: 200px; max-height: 350px; overflow-y: auto; padding-right: 5px; }
+        .tab-content.active { display: block; }
+        .tab-content::-webkit-scrollbar { width: 6px; }
+        .tab-content::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
+        .tab-content::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
+        .tab-content::-webkit-scrollbar-thumb:hover { background: #FFD342; }
+        
+        .match-row { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px; font-size: 1.1rem; flex-wrap: wrap;}
         .match-date { color: #7d7d7d; font-size: 0.9rem; border-left: 1px solid #333; padding-left: 15px; }
 
         .edit-btn { position: absolute; bottom: 20px; right: 20px; background: transparent; color: #2df2c1; border: 2px solid #2df2c1; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: none; transition: 0.3s; }
@@ -61,6 +66,13 @@
         .edit-action-icon:hover { color: #5dade2; }
 
         @media (max-width: 900px) { .seleccion-wrapper { grid-template-columns: 1fr; } }
+        @media (max-width: 600px) { 
+            .score-text { font-size: 1.8rem; }
+            .match-row { font-size: 0.95rem; gap: 8px; flex-direction: column; text-align: center; border-bottom: 1px dashed #333; padding-bottom: 10px;}
+            .match-date { border-left: none; padding-left: 0; border-top: 1px solid #333; padding-top: 5px; width: 100%;}
+            .action-icons { margin-left: 0; justify-content: center; width: 100%; margin-top: 5px;}
+            .box { padding-bottom: 70px; }
+        }
     </style>
 </head>
 <body>
@@ -87,7 +99,7 @@
                 <div class="score-text" id="liveScore">Esperando conexión...</div>
             </div>
 
-            <div class="box" style="padding-bottom: 60px;">
+            <div class="box">
                 <div class="tabs">
                     <div class="tab active" onclick="switchTab('proximos')">Próximo express</div>
                     <div class="tab" onclick="switchTab('historial')">Historial</div>
@@ -98,7 +110,7 @@
                 </div>
 
                 <div id="historial" class="tab-content">
-                    <p style="text-align:center; color:#7d7d7d;">Cargando historial...</p>
+                    <div id="historial-lista"><p style="text-align:center; color:#7d7d7d;">Cargando historial...</p></div>
                 </div>
 
                 <button id="btnEditar" class="edit-btn" onclick="abrirModalNuevo()"><i class="fa-solid fa-plus"></i> Añadir Resultado</button>
@@ -224,7 +236,7 @@
             .then(res => res.json())
             .then(data => {
                 if(data.success) {
-                    const histDiv = document.getElementById('historial');
+                    const histDiv = document.getElementById('historial-lista');
                     histDiv.innerHTML = '';
 
                     const formatFecha = (dateStr) => {
@@ -241,7 +253,6 @@
                                 <i class="fa-solid fa-trash delete-icon" onclick="borrarPartido('${m._id}')"></i>
                             </div>` : '';
                             
-                            // Mostrar penales si existen
                             let scoreText = `${m.golesLocal} - ${m.golesVisita}`;
                             if (m.penalesLocal > 0 || m.penalesVisita > 0) {
                                 scoreText = `<span style="color:#7d7d7d; font-size:0.9rem;">(${m.penalesLocal})</span> ${scoreText} <span style="color:#7d7d7d; font-size:0.9rem;">(${m.penalesVisita})</span>`;
@@ -249,7 +260,7 @@
 
                             histDiv.innerHTML += `
                                 <div class="match-row">
-                                    ${m.matchType} ${scoreText} ${m.rival} 
+                                    <span>${m.matchType} ${scoreText} ${m.rival}</span>
                                     <span class="match-date">${formatFecha(m.date)}</span>
                                     ${acciones}
                                 </div>
@@ -262,7 +273,6 @@
         }
         cargarHistorial();
 
-        // Detecta si es empate para mostrar la sección de penales
         function checkPenales() {
             const g1 = document.getElementById('m_goles1').value;
             const g2 = document.getElementById('m_goles2').value;
@@ -277,7 +287,7 @@
 
         function abrirModalNuevo() { 
             editingId = null;
-            document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-plus"></i> Añadir al Historial';
+            document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-plus"></i> Añadir Resultado';
             document.getElementById('modalSubmitBtn').innerText = 'Guardar Resultado';
             document.getElementById('m_eq1').value = '';
             document.getElementById('m_eq2').value = '';
@@ -371,7 +381,7 @@
                 } else {
                     indOn.style.display = 'none'; indOff.style.display = 'flex';
                     document.querySelector('.live-box').style.borderColor = '#333';
-                    score.innerText = "ESPERANDO CONEXIÓN"; 
+                    score.innerText = "No hay partido en vivo"; 
                 }
             });
         }
