@@ -104,7 +104,6 @@
             outline: none;
         }
 
-        /* Quitar flechitas nativas del input number */
         .tc-input::-webkit-inner-spin-button, .tc-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
 
         .price-display {
@@ -152,7 +151,7 @@
             padding: 10px;
             border-radius: 5px;
             text-align: center;
-            display: none; /* Oculto por defecto */
+            display: none;
             box-sizing: border-box;
             outline: none;
         }
@@ -201,11 +200,11 @@
                 <div>
                     <h2>ToroCoins</h2>
                     <i class="fa-solid fa-coins store-icon"></i>
-                    <p style="color: #bdc3c7;">Compra monedas para usar en la tienda del servidor (Ruleta, Fichas, etc).</p>
+                    <p style="color: #bdc3c7;">Compra monedas para usar en la tienda del servidor (Máximo 3000 TC por compra).</p>
                     
                     <div class="tc-calculator">
                         <button class="calc-btn" onclick="ajustarTC(-100)"><i class="fa-solid fa-minus"></i></button>
-                        <input type="number" id="tcCantidad" class="tc-input" value="1000" min="100" step="100" onchange="calcularPrecio()">
+                        <input type="number" id="tcCantidad" class="tc-input" value="1000" min="100" max="3000" step="100" onchange="calcularPrecio()">
                         <button class="calc-btn" onclick="ajustarTC(100)"><i class="fa-solid fa-plus"></i></button>
                     </div>
 
@@ -233,7 +232,6 @@
     <footer><p>© 2026 ToroHax. Todos los derechos reservados.</p></footer>
 
     <script>
-        // --- LÓGICA DEL MENÚ ---
         const menuToggle = document.getElementById('menu-toggle');
         const closeBtn = document.getElementById('close-btn');
         const sidebar = document.getElementById('sidebar');
@@ -246,26 +244,22 @@
         });
         function confirmarLogout() { if(confirm("⚠️ ¿Estás seguro que quieres cerrar sesión?")) { localStorage.removeItem('toroHaxLoggedId'); window.location.href = 'index.html'; } }
 
-        // Redirigir si no está logueado y quiere entrar aquí (Seguridad extra)
         const loggedId = localStorage.getItem('toroHaxLoggedId');
         if (!loggedId) {
             alert("Debes iniciar sesión para acceder a la tienda.");
             window.location.href = 'login.html';
         }
 
-        // --- LÓGICA DE LA CALCULADORA TOROCOINS ---
         const tcInput = document.getElementById('tcCantidad');
         const clpTotal = document.getElementById('clpTotal');
         const giftIdInput = document.getElementById('giftId');
 
         function calcularPrecio() {
             let cantidad = parseInt(tcInput.value);
-            // Evitar números negativos o compras menores a 100 TC
-            if (isNaN(cantidad) || cantidad < 100) {
-                cantidad = 100;
-                tcInput.value = 100;
-            }
-            // 10 TC = $2 CLP (Multiplicador: 0.2)
+            if (isNaN(cantidad) || cantidad < 100) { cantidad = 100; }
+            if (cantidad > 3000) { cantidad = 3000; }
+            
+            tcInput.value = cantidad;
             const precioCLP = Math.round(cantidad * 0.2);
             clpTotal.innerText = precioCLP;
         }
@@ -273,7 +267,10 @@
         function ajustarTC(valor) {
             let actual = parseInt(tcInput.value) || 0;
             actual += valor;
-            if(actual < 100) actual = 100; // Mínimo de compra: 100 TC ($20 CLP)
+            
+            if(actual < 100) actual = 100;
+            if(actual > 30000) actual = 30000;
+            
             tcInput.value = actual;
             calcularPrecio();
         }
@@ -283,12 +280,11 @@
             giftIdInput.style.display = isGift ? 'block' : 'none';
         }
 
-        // --- LÓGICA DE PAGO Y VERIFICACIÓN ---
         async function procesarPago() {
             const cantidadTC = parseInt(tcInput.value);
             const precio = clpTotal.innerText;
             const isGift = document.querySelector('input[name="destino"]:checked').value === 'gift';
-            let targetId = loggedId; // Por defecto va a la cuenta del usuario logueado
+            let targetId = loggedId;
 
             const btnPagar = document.getElementById('btnPagar');
 
@@ -298,48 +294,59 @@
                     alert("⚠️ Debes ingresar la ID del jugador al que le quieres regalar los ToroCoins.");
                     return;
                 }
+            }
 
-                // Deshabilitar botón mientras verifica
-                btnPagar.disabled = true;
-                btnPagar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verificando ID...';
+            btnPagar.disabled = true;
+            btnPagar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verificando cuenta...';
 
-                try {
-                    // Consultamos tu bot para ver si la ID existe
-                    const response = await fetch(`https://torobot-izu5.onrender.com/get-player/${targetId}`);
-                    const data = await response.json();
+            try {
+                const response = await fetch(`https://torobot-izu5.onrender.com/get-player/${targetId}`);
+                const data = await response.json();
 
-                    if (data.message === "Nuevo" || data.error || !data.numericId) {
-                        alert(`❌ La ID #${targetId} no existe en la base de datos de ToroHax.`);
-                        btnPagar.disabled = false;
-                        btnPagar.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pagar con PagoSeguro';
-                        return;
+                if (data.message === "Nuevo" || data.error || !data.numericId) {
+                    const msgError = isGift ? `❌ La ID #${targetId} no existe en ToroHax.` : `❌ Error al encontrar tu cuenta.`;
+                    alert(msgError);
+                    btnPagar.disabled = false;
+                    btnPagar.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pagar con PagoSeguro';
+                    return;
+                }
+
+                const torocoinsActuales = data.torocoins || 0;
+                
+                if (torocoinsActuales + cantidadTC > 30000) {
+                    const maxPermitido = 30000 - torocoinsActuales;
+                    
+                    if (maxPermitido <= 0) {
+                        alert(`❌ Compra rechazada. La cuenta destino ya tiene el máximo permitido de 30.000 ToroCoins.`);
+                    } else {
+                        alert(`❌ Límite excedido. La cuenta destino ya tiene ${torocoinsActuales} ToroCoins.\nEl límite máximo es 30.000, por lo que solo se pueden comprar un máximo de ${maxPermitido} ToroCoins adicionales.`);
                     }
                     
-                    if (confirm(`¿Estás seguro de que quieres enviarle ${cantidadTC} ToroCoins al jugador ${data.name} (ID: #${targetId}) por $${precio} CLP?`)) {
-                        irAPagoSeguro(targetId, cantidadTC, precio);
-                    } else {
-                        btnPagar.disabled = false;
-                        btnPagar.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pagar con PagoSeguro';
-                    }
+                    btnPagar.disabled = false;
+                    btnPagar.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pagar con PagoSeguro';
+                    return;
+                }
+                
+                let mensajeConfirmacion = isGift 
+                    ? `¿Estás seguro de que quieres enviarle ${cantidadTC} ToroCoins al jugador ${data.name} (ID: #${targetId}) por $${precio} CLP?`
+                    : `Estás a punto de comprar ${cantidadTC} ToroCoins para tu cuenta por $${precio} CLP. ¿Continuar?`;
 
-                } catch (error) {
-                    alert("❌ Error al comunicarse con el servidor para verificar la ID.");
+                if (confirm(mensajeConfirmacion)) {
+                    irAPagoSeguro(targetId, cantidadTC, precio);
+                } else {
                     btnPagar.disabled = false;
                     btnPagar.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pagar con PagoSeguro';
                 }
 
-            } else {
-                // Si es para sí mismo, vamos directo al pago
-                if (confirm(`Estás a punto de comprar ${cantidadTC} ToroCoins para tu cuenta por $${precio} CLP. ¿Continuar?`)) {
-                    irAPagoSeguro(targetId, cantidadTC, precio);
-                }
+            } catch (error) {
+                alert("❌ Error al comunicarse con el servidor para verificar la cuenta.");
+                btnPagar.disabled = false;
+                btnPagar.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pagar con PagoSeguro';
             }
         }
 
         function irAPagoSeguro(idDestino, cantidad, precio) {
             // Aquí iría la lógica de redirección a tu pasarela de pagos.
-            // Ejemplo: window.location.href = `https://pagoseguro.com/checkout?item=Torocoins&amount=${precio}&ref=${idDestino}`;
-            
             alert(`✅ REDIRIGIENDO A PAGOSEGURO...\n\nResumen de la orden:\n- Destino: ID #${idDestino}\n- Producto: ${cantidad} ToroCoins\n- Total: $${precio} CLP\n\n(Esto es una simulación visual del carrito)`);
             
             // Restablecer botón

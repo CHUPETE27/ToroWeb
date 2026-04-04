@@ -10,18 +10,16 @@
     <style>
         .rooms-section { width: 90%; max-width: 1200px; margin: auto; margin-top: 10vh; text-align: center; margin-bottom: 50px; }
         .rooms-title { color: #FFD342; text-transform: uppercase; letter-spacing: 2px; font-size: 2.2rem; margin-bottom: 40px; }
-        
-        /* 👇 Cambiado a 3 columnas para hacer las tarjetas más anchas 👇 */
+
         .rooms-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; }
         
-        .room-card { background: rgba(20, 20, 20, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px; padding: 25px; text-align: left; position: relative; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: space-between; }
+        .room-card { background: rgba(20, 20, 20, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px; padding: 25px; text-align: left; position: relative; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box;}
         .room-card:hover { transform: translateY(-5px); border-color: #FFD342; box-shadow: 0 10px 25px rgba(255, 211, 66, 0.2); }
         .room-status { position: absolute; top: 15px; right: 15px; display: flex; align-items: center; gap: 5px; font-size: 0.8rem; color: #bdc3c7; background: rgba(0,0,0,0.5); padding: 4px 10px; border-radius: 12px;}
         .status-circle { width: 10px; height: 10px; border-radius: 50%; }
         .status-circle.green { background-color: #2df2c1; box-shadow: 0 0 10px rgba(45, 242, 193, 0.5); }
         .status-circle.red { background-color: #cc2a2a; box-shadow: 0 0 10px rgba(204, 42, 42, 0.5); }
         
-        /* 👇 Ajustes para que el nombre quede en 1 línea 👇 */
         .room-name { 
             color: #FFD342; 
             font-size: 0.95rem; /* Letra un poco más chica */
@@ -35,8 +33,9 @@
             padding-right: 60px; /* Deja espacio para que no choque con el 18/30 */
         }
         
-        /* 👇 Nuevo diseño del contenedor de link con botón de copia 👇 */
         .room-link-container { 
+            width: 100%;
+            box-sizing: border-box;
             font-size: 0.8rem; 
             margin-bottom: 20px; 
             display: flex;
@@ -59,7 +58,12 @@
         .room-jugar-btn.offline { color: #cc2a2a; border-color: #cc2a2a; background: rgba(204, 42, 42, 0.05); pointer-events: none; }
         
         @media (max-width: 900px) { .rooms-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 600px) { .rooms-title { font-size: 1.8rem; } .rooms-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 600px) { 
+            .rooms-title { font-size: 1.8rem; margin-top: 20px;} 
+            .rooms-grid { grid-template-columns: 1fr; gap: 15px;} 
+            .room-card { padding: 20px 15px; }
+            .room-name { padding-right: 50px; font-size: 0.9rem; }
+        }
     </style>
 </head>
 <body>
