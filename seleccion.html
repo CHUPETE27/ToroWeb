@@ -23,14 +23,16 @@
         .tab.active { border-bottom: 2px solid #FFD342; color: #FFD342; }
         .tab:hover:not(.active) { color: white; }
         
-        /* 👇 NUEVO: Scroll en las pestañas 👇 */
-        .tab-content { display: none; min-height: 200px; max-height: 350px; overflow-y: auto; padding-right: 5px;}
+        .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .tab-content::-webkit-scrollbar { width: 6px; }
-        .tab-content::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
-        .tab-content::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
-        .tab-content::-webkit-scrollbar-thumb:hover { background: #FFD342; }
         
+        /* 👇 Scroll corregido para las listas de partidos 👇 */
+        .match-list-container { max-height: 300px; overflow-y: auto; padding-right: 5px; }
+        .match-list-container::-webkit-scrollbar { width: 6px; }
+        .match-list-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
+        .match-list-container::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
+        .match-list-container::-webkit-scrollbar-thumb:hover { background: #FFD342; }
+
         .match-row { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px; font-size: 1.1rem; flex-wrap: wrap;}
         .match-result.w { color: #2df2c1; font-weight: bold; } 
         .match-result.d { color: #FFD342; font-weight: bold; } 
@@ -73,16 +75,13 @@
         .edit-action-icon { color: #3498db; cursor: pointer; }
         .edit-action-icon:hover { color: #5dade2; }
 
-        /* 👇 AJUSTES PARA MÓVILES 👇 */
-        @media (max-width: 900px) { 
-            .seleccion-wrapper { grid-template-columns: 1fr; } 
-        }
+        @media (max-width: 900px) { .seleccion-wrapper { grid-template-columns: 1fr; } }
         @media (max-width: 600px) { 
             .score-text { font-size: 1.8rem; }
             .match-row { font-size: 0.95rem; gap: 8px; flex-direction: column; text-align: center; border-bottom: 1px dashed #333; padding-bottom: 10px;}
             .match-date { border-left: none; padding-left: 0; border-top: 1px solid #333; padding-top: 5px; width: 100%;}
             .action-icons { margin-left: 0; justify-content: center; width: 100%; margin-top: 5px;}
-            .box { padding-bottom: 70px; } /* Más espacio para el botón editar abajo */
+            .box { padding-bottom: 70px; } 
         }
     </style>
 </head>
@@ -110,18 +109,18 @@
                 <div class="score-text" id="liveScore">THX 0 - 0 VIS</div>
             </div>
 
-            <div class="box">
+            <div class="box" style="padding-bottom: 70px;">
                 <div class="tabs">
                     <div class="tab active" onclick="switchTab('proximos')">Próximos partidos</div>
                     <div class="tab" onclick="switchTab('historial')">Historial</div>
                 </div>
 
                 <div id="proximos" class="tab-content active">
-                    <div id="proximos-lista"><p style="text-align:center; color:#7d7d7d;">Cargando partidos...</p></div>
+                    <div id="proximos-lista" class="match-list-container"><p style="text-align:center; color:#7d7d7d;">Cargando partidos...</p></div>
                 </div>
 
                 <div id="historial" class="tab-content">
-                    <div id="historial-lista"><p style="text-align:center; color:#7d7d7d;">Cargando historial...</p></div>
+                    <div id="historial-lista" class="match-list-container"><p style="text-align:center; color:#7d7d7d;">Cargando historial...</p></div>
                 </div>
 
                 <button id="btnEditar" class="edit-btn" onclick="abrirModalNuevo()"><i class="fa-solid fa-plus"></i> Añadir Partido</button>
@@ -213,6 +212,9 @@
                 ulVitrina.innerHTML = '';
                 if(data.trofeos.length > 0) data.trofeos.forEach(trofeo => ulVitrina.innerHTML += `<li>${trofeo}</li>`);
                 else ulVitrina.innerHTML = '<li>Vitrina en construcción.</li>';
+                
+                // 👇 NUEVO: Cargamos los partidos DESPUÉS de saber si somos mánagers
+                cargarPartidos(); 
             }
         });
 
@@ -269,13 +271,11 @@
                 }
             });
         }
-        cargarPartidos(); 
 
         function abrirModalNuevo() {
             editingId = null;
             document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-plus"></i> Añadir Partido';
             document.getElementById('modalSubmitBtn').innerText = 'Guardar Partido';
-            
             document.getElementById('m_target').value = 'proximo';
             document.getElementById('m_rival').value = '';
             document.getElementById('m_golesT').value = '';
@@ -283,7 +283,6 @@
             document.getElementById('m_type').value = 'Amistoso';
             document.getElementById('m_date').value = '';
             toggleGoles();
-            
             document.getElementById('editModal').style.display = 'flex';
         }
 
@@ -291,7 +290,6 @@
             editingId = id;
             document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen"></i> Editar Partido';
             document.getElementById('modalSubmitBtn').innerText = 'Actualizar Partido';
-
             document.getElementById('m_target').value = isHistory ? 'historial' : 'proximo';
             document.getElementById('m_rival').value = rival;
             document.getElementById('m_golesT').value = golesT;
@@ -299,7 +297,6 @@
             document.getElementById('m_type').value = type;
             document.getElementById('m_date').value = date;
             toggleGoles();
-
             document.getElementById('editModal').style.display = 'flex';
         }
 

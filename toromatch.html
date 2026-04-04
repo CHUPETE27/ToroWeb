@@ -23,12 +23,15 @@
         .tab.active { border-bottom: 2px solid #FFD342; color: #FFD342; }
         .tab:hover:not(.active) { color: white; }
         
-        .tab-content { display: none; min-height: 200px; max-height: 350px; overflow-y: auto; padding-right: 5px; }
+        .tab-content { display: none; }
         .tab-content.active { display: block; }
-        .tab-content::-webkit-scrollbar { width: 6px; }
-        .tab-content::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
-        .tab-content::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
-        .tab-content::-webkit-scrollbar-thumb:hover { background: #FFD342; }
+
+        /* 👇 Scroll corregido para las listas de partidos 👇 */
+        .match-list-container { max-height: 300px; overflow-y: auto; padding-right: 5px; }
+        .match-list-container::-webkit-scrollbar { width: 6px; }
+        .match-list-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
+        .match-list-container::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
+        .match-list-container::-webkit-scrollbar-thumb:hover { background: #FFD342; }
         
         .match-row { display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 15px; font-size: 1.1rem; flex-wrap: wrap;}
         .match-date { color: #7d7d7d; font-size: 0.9rem; border-left: 1px solid #333; padding-left: 15px; }
@@ -99,18 +102,22 @@
                 <div class="score-text" id="liveScore">Esperando conexión...</div>
             </div>
 
-            <div class="box">
+            <div class="box" style="padding-bottom: 70px;">
                 <div class="tabs">
                     <div class="tab active" onclick="switchTab('proximos')">Próximo express</div>
                     <div class="tab" onclick="switchTab('historial')">Historial</div>
                 </div>
 
                 <div id="proximos" class="tab-content active">
-                    <p style="text-align:center; color:#7d7d7d;">Calculando fecha...</p>
+                    <div class="match-list-container" id="proximos-lista">
+                        <p style="text-align:center; color:#7d7d7d;">Calculando fecha...</p>
+                    </div>
                 </div>
 
                 <div id="historial" class="tab-content">
-                    <div id="historial-lista"><p style="text-align:center; color:#7d7d7d;">Cargando historial...</p></div>
+                    <div class="match-list-container" id="historial-lista">
+                        <p style="text-align:center; color:#7d7d7d;">Cargando historial...</p>
+                    </div>
                 </div>
 
                 <button id="btnEditar" class="edit-btn" onclick="abrirModalNuevo()"><i class="fa-solid fa-plus"></i> Añadir Resultado</button>
@@ -220,7 +227,7 @@
                     ulJugadores.innerHTML = '<li>No hay jugadores registrados.</li>';
                 }
 
-                document.getElementById('proximos').innerHTML = `
+                document.getElementById('proximos-lista').innerHTML = `
                     <div class="match-row" style="font-size: 1.2rem; color: #FFD342; font-weight: bold;">
                         ${equipoA} <span style="color:white; margin: 0 10px;">vs</span> ${equipoB} 
                     </div>
@@ -228,6 +235,9 @@
                         <i class="fa-regular fa-clock" style="margin-right: 5px;"></i> Sábado ${getNextSaturday()}
                     </div>
                 `;
+                
+                // 👇 NUEVO: Cargar historial DESPUÉS de validar mánager
+                cargarHistorial();
             }
         });
 
@@ -271,7 +281,6 @@
                 }
             });
         }
-        cargarHistorial();
 
         function checkPenales() {
             const g1 = document.getElementById('m_goles1').value;
@@ -381,7 +390,7 @@
                 } else {
                     indOn.style.display = 'none'; indOff.style.display = 'flex';
                     document.querySelector('.live-box').style.borderColor = '#333';
-                    score.innerText = "No hay partido en vivo"; 
+                    score.innerText = "ESPERANDO CONEXIÓN"; 
                 }
             });
         }
