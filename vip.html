@@ -7,31 +7,10 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .tienda-wrapper {
-            width: 95%;
-            max-width: 1000px;
-            margin: 10vh auto 50px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-        }
-
-        .store-card {
-            background: rgba(20, 20, 20, 0.8);
-            border: 1px solid #333;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            transition: 0.3s;
-        }
-
+        .tienda-wrapper { width: 95%; max-width: 1000px; margin: 10vh auto 50px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .store-card { background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; display: flex; flex-direction: column; justify-content: space-between; transition: 0.3s; }
         .store-card:hover { border-color: #FFD342; transform: translateY(-5px); }
         .store-card h2 { color: #FFD342; text-transform: uppercase; margin-top: 0; letter-spacing: 1px; font-size: 1.8rem; }
-        
         .vip-icon { font-size: 4rem; margin: 20px 0; color: #e6bd35; filter: drop-shadow(0 0 10px rgba(230, 189, 53, 0.4)); }
 
         .perks-list { text-align: left; margin: 20px 0; padding: 0; list-style: none; color: #bdc3c7; line-height: 1.8; }
@@ -46,7 +25,6 @@
 
         .tc-calculator { display: flex; justify-content: center; align-items: center; gap: 15px; margin: 20px 0; transition: opacity 0.3s; }
         .tc-calculator.disabled { opacity: 0.3; pointer-events: none; }
-
         .calc-btn { background: #333; color: white; border: 1px solid #555; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
         .calc-btn:hover { background: #FFD342; color: #111; border-color: #FFD342; }
 
@@ -55,7 +33,6 @@
 
         .price-display { font-size: 1.2rem; color: #bdc3c7; margin-bottom: 20px; }
         .price-display strong { color: #2df2c1; font-size: 1.8rem; display: block; margin-top: 5px; }
-
         .vip-alert { background: rgba(255, 211, 66, 0.1); border: 1px solid #FFD342; color: #FFD342; padding: 10px; border-radius: 8px; font-size: 0.9rem; margin-bottom: 20px; display: none; }
 
         /* Opciones de regalo */
@@ -65,8 +42,8 @@
         .gift-id-input { width: 100%; background: #111; border: 1px solid #555; color: white; padding: 10px; border-radius: 5px; text-align: center; display: none; box-sizing: border-box; outline: none; }
         .gift-id-input:focus { border-color: #FFD342; }
 
-        .store-btn { width: 100%; background: #2df2c1; color: #111; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: 0.3s; margin-top: auto; }
-        .store-btn:hover { background: #24c29a; box-shadow: 0 0 15px rgba(45, 242, 193, 0.4); }
+        .store-btn { width: 100%; background: #009ee3; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: 0.3s; margin-top: auto; }
+        .store-btn:hover { background: #007eb5; box-shadow: 0 0 15px rgba(0, 158, 227, 0.4); }
 
         @media (max-width: 768px) { .tienda-wrapper { grid-template-columns: 1fr; } }
     </style>
@@ -122,7 +99,7 @@
                     
                     <div class="tc-calculator" id="calcMeses">
                         <button class="calc-btn" onclick="ajustarMeses(-1)"><i class="fa-solid fa-minus"></i></button>
-                        <input type="number" id="mesesCantidad" class="tc-input" value="1" min="1" max="12" onchange="calcularPrecio()">
+                        <input type="number" id="mesesCantidad" class="tc-input" value="1" min="1" max="12" oninput="limitarMesesTiempoReal()" onblur="aplicarMinimoMeses()">
                         <button class="calc-btn" onclick="ajustarMeses(1)"><i class="fa-solid fa-plus"></i></button>
                     </div>
                     <p id="mesesLabel" style="margin-top: -10px; margin-bottom: 20px; color: #7d7d7d; font-size: 0.9rem;">(Meses)</p>
@@ -145,7 +122,7 @@
                 </div>
 
                 <button id="btnPagar" class="store-btn" onclick="procesarPago()">
-                    <i class="fa-solid fa-credit-card"></i> Pagar con PagoSeguro
+                    <i class="fa-solid fa-handshake"></i> Pagar con Mercado Pago
                 </button>
             </div>
 
@@ -194,28 +171,31 @@
             } else {
                 calcDiv.classList.remove('disabled');
                 mesesLabel.style.opacity = '1';
-                calcularPrecio(); // Recalcula según los meses escritos
+                calcularPrecio(); 
+            }
+        }
+
+        function limitarMesesTiempoReal() {
+            let meses = parseInt(mesesInput.value);
+            if (meses > 12) { mesesInput.value = 12; meses = 12; }
+            if (!isNaN(meses) && !document.getElementById('vipPerm').checked) {
+                clpTotal.innerText = meses * precioMensual;
+                vipAlert.style.display = (meses >= 6) ? 'block' : 'none';
+            }
+        }
+
+        function aplicarMinimoMeses() {
+            let meses = parseInt(mesesInput.value);
+            if (isNaN(meses) || meses < 1) { mesesInput.value = 1; meses = 1; }
+            if (!document.getElementById('vipPerm').checked) {
+                clpTotal.innerText = meses * precioMensual;
+                vipAlert.style.display = (meses >= 6) ? 'block' : 'none';
             }
         }
 
         function calcularPrecio() {
-            if (document.getElementById('vipPerm').checked) return; // Si es permanente, no calcular
-
-            let meses = parseInt(mesesInput.value);
-            if (isNaN(meses) || meses < 1) meses = 1;
-            if (meses > 12) meses = 12;
-            
-            mesesInput.value = meses;
-            
-            const total = meses * precioMensual;
-            clpTotal.innerText = total;
-
-            // Upselling: Si compra 6 o más meses (6 * 690 = 4140), le sale más a cuenta el Permanente (3990)
-            if (meses >= 6) {
-                vipAlert.style.display = 'block';
-            } else {
-                vipAlert.style.display = 'none';
-            }
+            if (document.getElementById('vipPerm').checked) return; 
+            aplicarMinimoMeses();
         }
 
         function ajustarMeses(valor) {
@@ -238,7 +218,8 @@
         // --- PROCESAR PAGO ---
         async function procesarPago() {
             const esPermanente = document.getElementById('vipPerm').checked;
-            const meses = parseInt(mesesInput.value);
+            aplicarMinimoMeses();
+            const meses = esPermanente ? 999 : parseInt(mesesInput.value);
             const precio = clpTotal.innerText;
             const isGift = document.querySelector('input[name="destino"]:checked').value === 'gift';
             
@@ -253,46 +234,70 @@
                     alert("⚠️ Debes ingresar la ID del jugador al que le quieres regalar el VIP.");
                     return;
                 }
+            }
 
-                btnPagar.disabled = true;
-                btnPagar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verificando ID...';
+            btnPagar.disabled = true;
+            btnPagar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verificando ID...';
 
-                try {
-                    const response = await fetch(`https://torobot-izu5.onrender.com/get-player/${targetId}`);
-                    const data = await response.json();
+            try {
+                const response = await fetch(`https://torobot-izu5.onrender.com/get-player/${targetId}`);
+                const data = await response.json();
 
-                    if (data.message === "Nuevo" || data.error || !data.numericId) {
-                        alert(`❌ La ID #${targetId} no existe en la base de datos de ToroHax.`);
-                        btnPagar.disabled = false;
-                        btnPagar.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pagar con PagoSeguro';
-                        return;
-                    }
-                    
-                    if (confirm(`¿Estás seguro de que quieres regalarle [${productoStr}] al jugador ${data.name} (ID: #${targetId}) por $${precio} CLP?`)) {
-                        irAPagoSeguro(targetId, productoStr, precio);
-                    } else {
-                        btnPagar.disabled = false;
-                        btnPagar.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pagar con PagoSeguro';
-                    }
-
-                } catch (error) {
-                    alert("❌ Error al comunicarse con el servidor.");
+                if (data.message === "Nuevo" || data.error || !data.numericId) {
+                    alert(`❌ La ID #${targetId} no existe en la base de datos de ToroHax.`);
                     btnPagar.disabled = false;
-                    btnPagar.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pagar con PagoSeguro';
+                    btnPagar.innerHTML = '<i class="fa-solid fa-handshake"></i> Pagar con Mercado Pago';
+                    return;
+                }
+                
+                let mensaje = isGift 
+                    ? `¿Quieres regalar [${productoStr}] al jugador ${data.name} (ID: #${targetId}) por $${precio} CLP?`
+                    : `Vas a comprar [${productoStr}] para tu cuenta por $${precio} CLP. ¿Continuar?`;
+
+                if (confirm(mensaje)) {
+                    irAMercadoPago(targetId, meses, precio);
+                } else {
+                    btnPagar.disabled = false;
+                    btnPagar.innerHTML = '<i class="fa-solid fa-handshake"></i> Pagar con Mercado Pago';
                 }
 
-            } else {
-                if (confirm(`Estás a punto de comprar [${productoStr}] para tu cuenta por $${precio} CLP. ¿Continuar?`)) {
-                    irAPagoSeguro(targetId, productoStr, precio);
-                }
+            } catch (error) {
+                alert("❌ Error al comunicarse con el servidor.");
+                btnPagar.disabled = false;
+                btnPagar.innerHTML = '<i class="fa-solid fa-handshake"></i> Pagar con Mercado Pago';
             }
         }
 
-        function irAPagoSeguro(idDestino, producto, precio) {
-            alert(`✅ REDIRIGIENDO A PAGOSEGURO...\n\nResumen de la orden:\n- Destino: ID #${idDestino}\n- Producto: ${producto}\n- Total: $${precio} CLP\n\n(Simulación visual del carrito)`);
+        async function irAMercadoPago(idDestino, amountMeses, precio) {
             const btnPagar = document.getElementById('btnPagar');
-            btnPagar.disabled = false;
-            btnPagar.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pagar con PagoSeguro';
+            btnPagar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando orden segura...';
+
+            try {
+                const response = await fetch('https://torobot-izu5.onrender.com/api/create-preference', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        type: 'VIP',
+                        targetId: parseInt(idDestino), 
+                        amount: parseInt(amountMeses), 
+                        priceCLP: parseInt(precio) 
+                    })
+                });
+                
+                const data = await response.json();
+
+                if (data.success && data.redirectUrl) {
+                    window.location.href = data.redirectUrl;
+                } else {
+                    alert("❌ Error al generar el cobro. Intenta de nuevo.");
+                    btnPagar.disabled = false;
+                    btnPagar.innerHTML = '<i class="fa-solid fa-handshake"></i> Pagar con Mercado Pago';
+                }
+            } catch (error) {
+                alert("❌ Error de conexión al intentar generar el pago.");
+                btnPagar.disabled = false;
+                btnPagar.innerHTML = '<i class="fa-solid fa-handshake"></i> Pagar con Mercado Pago';
+            }
         }
     </script>
 </body>
