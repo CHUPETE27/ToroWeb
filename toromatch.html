@@ -227,7 +227,8 @@
                     }
 
                     ulJugadores.innerHTML = '';
-                    let equipoA = "Equipo 1", equipoB = "Equipo 2";
+                    let equipoA = data.equipoA || "Equipo 1";
+                    let equipoB = data.equipoB || "Equipo 2";
 
                     if(data.jugadores.length > 0) {
                         const roles = [...new Set(data.jugadores.map(j => j.split(' - ')[0]))];
