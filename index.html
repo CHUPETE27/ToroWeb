@@ -6,6 +6,55 @@
     <title>ToroHax Oficial Site</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        main { 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            width: 90%; 
+            max-width: 1200px;
+            margin: 10vh auto 50px; 
+        }
+
+        .card-grid { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px; 
+            width: 100%; 
+            margin-bottom: 40px; 
+        }
+
+        .card { 
+            background: rgba(20, 20, 20, 0.7); 
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 15px; 
+            padding: 30px; 
+            text-align: center; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .card:hover { transform: translateY(-5px); border-color: #FFD342; box-shadow: 0 10px 25px rgba(255, 211, 66, 0.2); }
+        .card-icon { font-size: 3.5rem; display: block; margin-bottom: 15px; }
+        .card h3 { color: #FFD342; margin-bottom: 10px; text-transform: uppercase; font-size: 1.4rem; letter-spacing: 1px;}
+        .card p { color: #bdc3c7; font-size: 1rem; margin: 0; }
+        .social-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; width: 100%; }
+
+        @media (max-width: 950px) {
+            .card-grid { 
+                grid-template-columns: repeat(2, 1fr); 
+            }
+        }
+
+        @media (max-width: 600px) {
+            .card-grid { 
+                grid-template-columns: 1fr; 
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="menu-toggle" id="menu-toggle">
@@ -54,7 +103,7 @@
             <div class="card" onclick="window.location.href='rankings.html'">
                 <span class="card-icon">🏆</span>
                 <h3>Rankings</h3>
-                <p>Top de los mejores jugadores.</p>
+                <p>Top de jugadores.</p>
             </div>
 
             <div class="card" onclick="window.location.href='seleccion.html'">
