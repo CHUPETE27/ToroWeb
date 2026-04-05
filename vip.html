@@ -132,7 +132,6 @@
     <footer><p>© 2026 ToroHax. Todos los derechos reservados.</p></footer>
 
     <script>
-        // --- LÓGICA DE NAVEGACIÓN ---
         const menuToggle = document.getElementById('menu-toggle');
         const closeBtn = document.getElementById('close-btn');
         const sidebar = document.getElementById('sidebar');
@@ -151,7 +150,6 @@
             window.location.href = 'login.html';
         }
 
-        // --- LÓGICA DEL PRECIO VIP ---
         const precioMensual = 690;
         const precioPermanente = 3990;
         
@@ -208,14 +206,12 @@
             calcularPrecio();
         }
 
-        // --- LÓGICA DE REGALO ---
         const giftIdInput = document.getElementById('giftId');
         function toggleGift() {
             const isGift = document.querySelector('input[name="destino"]:checked').value === 'gift';
             giftIdInput.style.display = isGift ? 'block' : 'none';
         }
 
-        // --- PROCESAR PAGO ---
         async function procesarPago() {
             const esPermanente = document.getElementById('vipPerm').checked;
             aplicarMinimoMeses();
