@@ -7,7 +7,7 @@ body {
     flex-direction: column;
     min-height: 100vh;
 
-    background: linear-gradient(135deg, #01181C 0%, #c033b4 50%, #27b355 100%);
+    background: linear-gradient(135deg, #044436 0%, #093738 50%, #012e2c 100%);
     background-size: 300% 300%;
     animation: movimientoFondo 15s ease infinite;
 
