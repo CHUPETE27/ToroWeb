@@ -15,7 +15,6 @@
     </script>
 
     <style>
-        /* Estilos específicos para el perfil */
         .profile-container {
             width: 100%;
             max-width: 1000px;
@@ -25,18 +24,58 @@
             padding: 30px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             margin-top: 20px;
-            display: none; /* Se oculta hasta que carguen los datos */
+            display: none;
         }
 
         .profile-header {
             text-align: center;
             border-bottom: 2px solid #FFD342;
-            padding-bottom: 20px;
+            padding-bottom: 25px;
             margin-bottom: 20px;
         }
 
         .profile-header h2 { margin: 0; color: #FFD342; font-size: 2rem; text-transform: uppercase; }
-        .profile-header p { margin: 5px 0 0; color: #5dc8e8; font-size: 1.1rem; }
+        .profile-header p { margin: 5px 0 15px; color: #5dc8e8; font-size: 1.1rem; }
+
+        .rank-progress-container {
+            width: 80%;
+            max-width: 500px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #333;
+        }
+        
+        .rank-progress-info {
+            display: flex;
+            justify-content: space-between;
+            color: #bdc3c7;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .rank-progress-info .current-rank { color: #FFD342; }
+        .rank-progress-info .next-rank { color: #5dc8e8; }
+
+        .rank-progress-bar {
+            background: #111;
+            border: 1px solid #444;
+            border-radius: 10px;
+            height: 14px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .rank-progress-fill {
+            background: linear-gradient(90deg, #FFD342, #ff7e5f);
+            height: 100%;
+            border-radius: 10px;
+            width: 0%;
+            transition: width 1.5s ease-in-out;
+            box-shadow: 0 0 10px rgba(255, 211, 66, 0.5);
+        }
 
         .stats-grid {
             display: grid;
@@ -107,6 +146,18 @@
             <div class="profile-header">
                 <h2 id="playerName">Nombre</h2>
                 <p>ID: <strong id="playerID">#0</strong> | Rango: <strong id="playerRank">...</strong></p>
+
+                <div class="rank-progress-container" id="rankContainer">
+                    <div class="rank-progress-info">
+                        <span class="current-rank" id="rankMinText">0</span>
+                        <span id="eloCenterText">0 / 0 Elo (0%)</span>
+                        <span class="next-rank" id="rankMaxText">0</span>
+                    </div>
+                    <div class="rank-progress-bar">
+                        <div class="rank-progress-fill" id="rankProgressBar"></div>
+                    </div>
+                </div>
+
             </div>
 
             <div class="stats-grid">
@@ -160,17 +211,29 @@
             }
         }
 
-        function getRank(elo, partidos) {
-            if ((partidos || 0) < 10) return "⛔ Sin clasificar";
-            const currentElo = elo !== undefined ? elo : 200; 
-            if (currentElo < 360) return "🐓 Gallina";
-            if (currentElo < 810) return "🦙 Llama";
-            if (currentElo < 1400) return "🐑 Oveja";
-            if (currentElo < 2150) return "🐖 Cerdo";
-            if (currentElo < 3050) return "🐄 Vaca";
-            if (currentElo < 3950) return "🐎 Caballo";
-            if (currentElo < 5000) return "🐃 Búfalo";
-            return "🐂 Toro";
+        const rankThresholds = [
+            { min: 0, max: 360, name: "🐓 Gallina" },
+            { min: 360, max: 810, name: "🦙 Llama" },
+            { min: 810, max: 1400, name: "🐑 Oveja" },
+            { min: 1400, max: 2150, name: "🐖 Cerdo" },
+            { min: 2150, max: 3050, name: "🐄 Vaca" },
+            { min: 3050, max: 3950, name: "🐎 Caballo" },
+            { min: 3950, max: 5000, name: "🐃 Búfalo" },
+            { min: 5000, max: 99999, name: "🐂 Toro" }
+        ];
+
+        function processRankData(elo, partidos) {
+            if ((partidos || 0) < 10) return null;
+            const currentElo = elo !== undefined ? elo : 200;
+            
+            let currentRankInfo = rankThresholds[0];
+            for (let rank of rankThresholds) {
+                if (currentElo >= rank.min && currentElo < rank.max) {
+                    currentRankInfo = rank;
+                    break;
+                }
+            }
+            return { elo: currentElo, info: currentRankInfo };
         }
 
         fetch(`https://torobot-izu5.onrender.com/get-player/${loggedId}`)
@@ -185,6 +248,40 @@
             document.getElementById('profileContainer').style.display = 'block';
 
             const partidos = player.partidos || 0;
+            const elo = player.elo || 200;
+            
+            const rankData = processRankData(elo, partidos);
+            
+            if (!rankData) {
+                document.getElementById('playerRank').innerText = "⛔ Sin clasificar";
+                document.getElementById('rankContainer').style.display = 'none';
+            } else {
+                document.getElementById('playerRank').innerText = rankData.info.name;
+                
+                if (rankData.info.name === "🐂 Toro") {
+                    document.getElementById('rankMinText').innerText = "🐂";
+                    document.getElementById('rankMaxText').innerText = "Máximo";
+                    document.getElementById('eloCenterText').innerText = `${elo} Elo (Rango Máximo)`;
+                    setTimeout(() => { document.getElementById('rankProgressBar').style.width = '100%'; }, 100);
+                } else {
+                    const minElo = rankData.info.min;
+                    const maxElo = rankData.info.max;
+                    const eloProgress = elo - minElo;
+                    const eloRange = maxElo - minElo;
+                    let percentage = (eloProgress / eloRange) * 100;
+                    if (percentage < 0) percentage = 0;
+                    if (percentage > 100) percentage = 100;
+
+                    document.getElementById('rankMinText').innerText = rankData.info.name.split(" ")[0];
+                    document.getElementById('rankMaxText').innerText = "Siguiente";
+                    document.getElementById('eloCenterText').innerText = `${elo} / ${maxElo} Elo (${Math.floor(percentage)}%)`;
+                    
+                    setTimeout(() => {
+                        document.getElementById('rankProgressBar').style.width = `${percentage}%`;
+                    }, 300);
+                }
+            }
+
             const promPuntos = partidos > 0 ? (player.puntajeTotal / partidos).toFixed(1) : 0;
             const promGoles = partidos > 0 ? (player.golesAnotados / partidos).toFixed(2) : 0;
             const promAsist = partidos > 0 ? (player.asistencias / partidos).toFixed(2) : 0;
@@ -194,7 +291,6 @@
 
             document.getElementById('playerName').innerText = player.name;
             document.getElementById('playerID').innerText = `#${player.numericId}`;
-            document.getElementById('playerRank').innerText = getRank(player.elo, partidos);
 
             document.getElementById('listTotales').innerHTML = `
                 <li><strong>Partidos:</strong> ${partidos}</li>
