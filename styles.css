@@ -1,9 +1,8 @@
-/* --- ESTILOS GENERALES --- */
 body {
     margin: 0;
     padding: 0;
     font-family: 'Segoe UI', Roboto, sans-serif;
-    background-color: #01181C; /* Fondo base ToroHax */
+    background-color: #01181C;
     color: white;
     display: flex;
     flex-direction: column;
@@ -23,15 +22,14 @@ input {
     user-select: auto;
 }
 
-/* --- SECCIÓN SUPERIOR: BANNER (30%) --- */
 header {
     height: 30vh;
-    background-image: url('banner_thx.png'); /* Asegúrate de que este archivo exista */
+    background-image: url('banner_thx.png');
     background-size: cover;
     background-position: center;
     position: relative;
     z-index: 1;
-    border-bottom: 2px solid #FFD342; /* Línea dorada divisora */
+    border-bottom: 2px solid #FFD342;
 }
 
 header::after {
@@ -44,7 +42,6 @@ header::after {
     background: linear-gradient(to bottom, rgba(1,24,28,0), rgba(1,24,28,0.9));
 }
 
-/* --- LOGO CENTRAL DIVISOR (Estático) --- */
 .logo-container {
     position: absolute;
     top: 30vh;
@@ -62,25 +59,23 @@ header::after {
     object-fit: cover;
     background-color: #141414;
     border: 3px solid #FFD342;
-    box-shadow: 0 0 25px rgba(33, 222, 215, 0.3); /* Brillo cyan constante */
+    box-shadow: 0 0 25px rgba(33, 222, 215, 0.3);
 }
 
-/* --- SECCIÓN PRINCIPAL: CONTENIDO (70%) --- */
 main {
     flex: 1;
     padding: 100px 20px 60px;
     display: flex;
-    flex-direction: column; /* Apila el grid y las redes verticalmente */
-    align-items: center; /* Centra todo horizontalmente */
-    background: radial-gradient(circle, #093738 0%, #01181C 100%);
+    flex-direction: column;
+    align-items: center;
+    background: transparent;
     position: relative;
     z-index: 2;
 }
 
-/* --- GRILLA DE BLOQUES --- */
 .card-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3 columnas en PC */
+    grid-template-columns: repeat(3, 1fr);
     gap: 30px;
     max-width: 1000px;
     width: 100%;
