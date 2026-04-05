@@ -24,7 +24,7 @@
             padding: 30px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             margin-top: 20px;
-            display: none;
+            display: none; 
         }
 
         .profile-header {
@@ -37,75 +37,51 @@
         .profile-header h2 { margin: 0; color: #FFD342; font-size: 2rem; text-transform: uppercase; }
         .profile-header p { margin: 5px 0 15px; color: #5dc8e8; font-size: 1.1rem; }
 
-        .rank-progress-container {
-            width: 80%;
-            max-width: 500px;
-            margin: 0 auto;
-            background: rgba(0, 0, 0, 0.4);
-            padding: 15px;
-            border-radius: 10px;
-            border: 1px solid #333;
-        }
-        
-        .rank-progress-info {
-            display: flex;
-            justify-content: space-between;
-            color: #bdc3c7;
-            font-size: 0.9rem;
-            margin-bottom: 8px;
-            font-weight: bold;
-        }
-
+        .rank-progress-container { width: 80%; max-width: 500px; margin: 0 auto; background: rgba(0, 0, 0, 0.4); padding: 15px; border-radius: 10px; border: 1px solid #333; }
+        .rank-progress-info { display: flex; justify-content: space-between; color: #bdc3c7; font-size: 0.9rem; margin-bottom: 8px; font-weight: bold; }
         .rank-progress-info .current-rank { color: #FFD342; }
         .rank-progress-info .next-rank { color: #5dc8e8; }
+        .rank-progress-bar { background: #111; border: 1px solid #444; border-radius: 10px; height: 14px; overflow: hidden; position: relative; }
+        .rank-progress-fill { background: linear-gradient(90deg, #FFD342, #ff7e5f); height: 100%; border-radius: 10px; width: 0%; transition: width 1.5s ease-in-out; box-shadow: 0 0 10px rgba(255, 211, 66, 0.5); }
 
-        .rank-progress-bar {
-            background: #111;
-            border: 1px solid #444;
-            border-radius: 10px;
-            height: 14px;
-            overflow: hidden;
-            position: relative;
-        }
+        .profile-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap;}
+        .tab-btn { background: rgba(0,0,0,0.5); color: #bdc3c7; border: 1px solid #333; padding: 12px 25px; border-radius: 8px; cursor: pointer; transition: 0.3s; font-weight: bold; flex-grow: 1; max-width: 250px; font-size: 1.05rem;}
+        .tab-btn:hover { background: rgba(255, 211, 66, 0.1); border-color: #FFD342; color: #FFD342; }
+        .tab-btn.active { background: #FFD342; color: #111; border-color: #FFD342; box-shadow: 0 0 15px rgba(255, 211, 66, 0.4); }
 
-        .rank-progress-fill {
-            background: linear-gradient(90deg, #FFD342, #ff7e5f);
-            height: 100%;
-            border-radius: 10px;
-            width: 0%;
-            transition: width 1.5s ease-in-out;
-            box-shadow: 0 0 10px rgba(255, 211, 66, 0.5);
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-box {
-            background: #111;
-            border: 1px solid #444;
-            border-radius: 10px;
-            padding: 20px;
-        }
-
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-box { background: #111; border: 1px solid #444; border-radius: 10px; padding: 20px; }
         .stat-box h3 { margin: 0 0 15px; color: #FFD342; font-size: 1.2rem; text-align: center; border-bottom: 1px solid #333; padding-bottom: 10px;}
         .stat-box ul { list-style: none; padding: 0; margin: 0; }
         .stat-box li { margin-bottom: 8px; color: #ccc; font-size: 0.95rem; }
         .stat-box li strong { color: white; }
-
-        .chart-section {
-            text-align: center;
-            background: #111;
-            border: 1px solid #444;
-            border-radius: 10px;
-            padding: 20px;
-        }
+        .chart-section { text-align: center; background: #111; border: 1px solid #444; border-radius: 10px; padding: 20px; }
         .chart-section img { max-width: 100%; height: auto; margin-top: 15px;}
+
+        .vip-upsell { text-align: center; padding: 40px 20px; background: rgba(255, 211, 66, 0.05); border: 1px dashed #FFD342; border-radius: 15px; margin-top: 20px; }
+        .vip-upsell h3 { color: #FFD342; font-size: 1.8rem; margin-bottom: 10px; }
+        .vip-upsell p { color: #bdc3c7; margin-bottom: 20px; }
+        .btn-buy-vip { display: inline-block; background: #FFD342; color: #111; padding: 12px 30px; border-radius: 8px; font-weight: bold; text-decoration: none; font-size: 1.1rem; transition: 0.3s; }
+        .btn-buy-vip:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(255, 211, 66, 0.5); }
+
+        .vip-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; }
+        .form-group { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border: 1px solid #333; }
+        .form-group label { display: block; color: #2df2c1; margin-bottom: 8px; font-weight: bold; }
+        .form-control { width: 100%; background: #111; color: white; border: 1px solid #555; padding: 12px; border-radius: 5px; box-sizing: border-box; font-family: inherit; }
+        .form-control:focus { border-color: #FFD342; outline: none; }
         
+        input[type="color"].form-control { padding: 5px; cursor: pointer; height: 45px; }
+        
+        .save-btn { grid-column: span 2; background: #2df2c1; color: #111; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.2rem; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .save-btn:hover { background: #24c29a; box-shadow: 0 0 15px rgba(45, 242, 193, 0.4); }
+
         .loading-text { text-align: center; font-size: 1.5rem; color: #FFD342; margin-top: 100px;}
+
+        @media (max-width: 768px) {
+            .vip-form-grid { grid-template-columns: 1fr; }
+            .save-btn { grid-column: span 1; }
+            .tab-btn { max-width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -157,28 +133,89 @@
                         <div class="rank-progress-fill" id="rankProgressBar"></div>
                     </div>
                 </div>
-
             </div>
 
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <h3>📊 Totales</h3>
-                    <ul id="listTotales"></ul>
+            <div class="profile-tabs">
+                <button class="tab-btn active" id="btn-stats" onclick="cambiarPestana('stats')"><i class="fa-solid fa-chart-pie"></i> Estadísticas</button>
+                <button class="tab-btn" id="btn-vip" onclick="cambiarPestana('vip')"><i class="fa-solid fa-crown"></i> Configuración VIP</button>
+            </div>
+
+            <div id="section-stats">
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <h3>📊 Totales</h3>
+                        <ul id="listTotales"></ul>
+                    </div>
+                    <div class="stat-box">
+                        <h3>⚽ Estadísticas</h3>
+                        <ul id="listEstadisticas"></ul>
+                    </div>
+                    <div class="stat-box">
+                        <h3>📈 Promedios</h3>
+                        <ul id="listPromedios"></ul>
+                    </div>
                 </div>
-                <div class="stat-box">
-                    <h3>⚽ Estadísticas</h3>
-                    <ul id="listEstadisticas"></ul>
-                </div>
-                <div class="stat-box">
-                    <h3>📈 Promedios</h3>
-                    <ul id="listPromedios"></ul>
+
+                <div class="chart-section" id="chartSection">
+                    <h3 style="color:#FFD342; margin: 0 0 10px;">⚖️ Estilo de Juego: <span id="playerPosition" style="color:white;">...</span></h3>
+                    <p style="margin:0; color:#ccc;">⚔️ <strong>Ataque:</strong> <span id="atkPct">0</span>% | 🛡️ <strong>Defensa:</strong> <span id="defPct">0</span>%</p>
+                    <img id="playerChart" src="" alt="Gráfico de estilo de juego">
                 </div>
             </div>
 
-            <div class="chart-section" id="chartSection">
-                <h3 style="color:#FFD342; margin: 0 0 10px;">⚖️ Estilo de Juego: <span id="playerPosition" style="color:white;">...</span></h3>
-                <p style="margin:0; color:#ccc;">⚔️ <strong>Ataque:</strong> <span id="atkPct">0</span>% | 🛡️ <strong>Defensa:</strong> <span id="defPct">0</span>%</p>
-                <img id="playerChart" src="" alt="Gráfico de estilo de juego">
+            <div id="section-vip" style="display: none;">
+                
+                <div class="vip-upsell" id="vipUpsellBlock">
+                    <i class="fa-solid fa-lock" style="font-size: 3rem; color: #555; margin-bottom: 15px;"></i>
+                    <h3>Acceso Restringido</h3>
+                    <p>Debes adquirir una membresía VIP para poder personalizar los colores, íconos y mensajes de tu perfil en el servidor de HaxBall.</p>
+                    <a href="vip.html" class="btn-buy-vip"><i class="fa-solid fa-gem"></i> Adquirir VIP</a>
+                </div>
+
+                <div id="vipFormBlock" style="display: none;">
+                    <div class="vip-form-grid">
+                        <div class="form-group">
+                            <label for="vipIcon"><i class="fa-solid fa-face-smile"></i> Ícono del Chat (Emoji)</label>
+                            <input type="text" id="vipIcon" class="form-control" maxlength="2" placeholder="Ej: ⭐, 🚀, 💀">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="vipColor"><i class="fa-solid fa-palette"></i> Color de tu nombre</label>
+                            <input type="color" id="vipColor" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="vipJoin"><i class="fa-solid fa-door-open"></i> Mensaje de Entrada</label>
+                            <input type="text" id="vipJoin" class="form-control" maxlength="50" placeholder="Llegó el rey de la cancha...">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="vipExit"><i class="fa-solid fa-door-closed"></i> Mensaje de Salida</label>
+                            <input type="text" id="vipExit" class="form-control" maxlength="50" placeholder="Me voy a descansar...">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="vipGoal"><i class="fa-solid fa-futbol"></i> Grito de Gol</label>
+                            <input type="text" id="vipGoal" class="form-control" maxlength="60" placeholder="¡GOLAZO SEÑORES!">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="vipSize"><i class="fa-solid fa-expand"></i> Tamaño del texto (Gol)</label>
+                            <select id="vipSize" class="form-control">
+                                <option value="small">Pequeño (Mini)</option>
+                                <option value="normal">Normal</option>
+                                <option value="big">Gigante (Big)</option>
+                                <option value="random">Aleatorio</option>
+                                <option value="crazy">Locura</option>
+                            </select>
+                        </div>
+
+                        <button class="save-btn" onclick="guardarConfiguracionVip()" id="btnSaveVip">
+                            <i class="fa-solid fa-floppy-disk"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </div>
+
             </div>
         </div>
     </main>
@@ -209,6 +246,14 @@
                 localStorage.removeItem('toroHaxLoggedId');
                 window.location.href = 'index.html';
             }
+        }
+
+        function cambiarPestana(pestana) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-' + pestana).classList.add('active');
+            
+            document.getElementById('section-stats').style.display = pestana === 'stats' ? 'block' : 'none';
+            document.getElementById('section-vip').style.display = pestana === 'vip' ? 'block' : 'none';
         }
 
         const rankThresholds = [
@@ -247,17 +292,32 @@
             document.getElementById('loading').style.display = 'none';
             document.getElementById('profileContainer').style.display = 'block';
 
+            if (player.isVip) {
+                document.getElementById('vipUpsellBlock').style.display = 'none';
+                document.getElementById('vipFormBlock').style.display = 'block';
+
+                document.getElementById('vipIcon').value = player.vipIcon || '⭐';
+                document.getElementById('vipJoin').value = player.vipJoinMessage || '';
+                document.getElementById('vipExit').value = player.vipExitMessage || '';
+                document.getElementById('vipGoal').value = player.vipGoalMessage || '';
+                document.getElementById('vipSize').value = player.vipGoalSize || 'normal';
+
+                let hexColor = "#ffffff";
+                if (player.vipColor) {
+                    hexColor = "#" + player.vipColor.toString(16).padStart(6, '0');
+                }
+                document.getElementById('vipColor').value = hexColor;
+            }
+
             const partidos = player.partidos || 0;
             const elo = player.elo || 200;
             
             const rankData = processRankData(elo, partidos);
-            
             if (!rankData) {
                 document.getElementById('playerRank').innerText = "⛔ Sin clasificar";
                 document.getElementById('rankContainer').style.display = 'none';
             } else {
                 document.getElementById('playerRank').innerText = rankData.info.name;
-                
                 if (rankData.info.name === "🐂 Toro") {
                     document.getElementById('rankMinText').innerText = "🐂";
                     document.getElementById('rankMaxText').innerText = "Máximo";
@@ -276,9 +336,7 @@
                     document.getElementById('rankMaxText').innerText = "Siguiente";
                     document.getElementById('eloCenterText').innerText = `${elo} / ${maxElo} Elo (${Math.floor(percentage)}%)`;
                     
-                    setTimeout(() => {
-                        document.getElementById('rankProgressBar').style.width = `${percentage}%`;
-                    }, 300);
+                    setTimeout(() => { document.getElementById('rankProgressBar').style.width = `${percentage}%`; }, 300);
                 }
             }
 
@@ -337,58 +395,15 @@
                 const pctAt = Math.round((pAt / totalPromedios) * 100);
                 const pctD = Math.round((pD / totalPromedios) * 100);
 
-                const statsArray = [
-                    { name: "goles", value: pG },
-                    { name: "asistencias", value: pA },
-                    { name: "atajadas", value: pAt },
-                    { name: "intercepciones", value: pD }
-                ].sort((a, b) => b.value - a.value);
-                
-                const top1 = statsArray[0].name;
-                const top2 = statsArray[1].name;
-                let posicionJugador = "Sin definir";
-
-                if (top1 === "goles") {
-                    if (top2 === "asistencias") posicionJugador = "Puntero";
-                    else if (top2 === "intercepciones") posicionJugador = "Delantero";
-                    else if (top2 === "atajadas") posicionJugador = "Poli";
-                } else if (top1 === "asistencias") {
-                    if (top2 === "goles") posicionJugador = "Medio ofensivo";
-                    else if (top2 === "intercepciones") posicionJugador = "Pivote";
-                    else if (top2 === "atajadas") posicionJugador = "Poli";
-                } else if (top1 === "intercepciones") {
-                    if (top2 === "goles") posicionJugador = "Medio";
-                    else if (top2 === "asistencias") posicionJugador = "Defensa";
-                    else if (top2 === "atajadas") posicionJugador = "Defensa";
-                } else if (top1 === "atajadas") {
-                    if (top2 === "goles") posicionJugador = "Poli";
-                    else if (top2 === "asistencias") posicionJugador = "Arquero";
-                    else if (top2 === "intercepciones") posicionJugador = "Arquero";
-                }
-
-                document.getElementById('playerPosition').innerText = posicionJugador;
-
                 const chartConfig = {
                     type: 'pie',
                     data: {
                         labels: ['Goles', 'Asistencias', 'Atajadas', 'Recuperaciones'],
-                        datasets: [{
-                            data: [pctG, pctA, pctAt, pctD],
-                            backgroundColor: ['#8b1515', '#10af10', '#611161', '#2222a7'],
-                            borderColor: '#727781',
-                            borderWidth: 2
-                        }]
+                        datasets: [{ data: [pctG, pctA, pctAt, pctD], backgroundColor: ['#8b1515', '#10af10', '#611161', '#2222a7'], borderColor: '#727781', borderWidth: 2 }]
                     },
                     options: {
                         legend: { position: 'right', labels: { fontColor: '#ffffff', fontSize: 14 } },
-                        plugins: {
-                            datalabels: {
-                                color: '#ffffff',
-                                font: { weight: 'bold', size: 14 },
-                                formatter: "function(value) { return value.toString().concat('%'); }",
-                                display: "function(context) { return context.dataset.data[context.dataIndex] > 0; }"
-                            }
-                        }
+                        plugins: { datalabels: { color: '#ffffff', font: { weight: 'bold', size: 14 }, formatter: "function(value) { return value.toString().concat('%'); }", display: "function(context) { return context.dataset.data[context.dataIndex] > 0; }" } }
                     }
                 };
                 document.getElementById('playerChart').src = `https://quickchart.io/chart?w=500&h=250&c=${encodeURIComponent(JSON.stringify(chartConfig))}&bkg=transparent`;
@@ -400,6 +415,50 @@
             document.getElementById('loading').innerText = "❌ Hubo un error al contactar al servidor.";
             console.error(err);
         });
+
+        async function guardarConfiguracionVip() {
+            const btn = document.getElementById('btnSaveVip');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+            btn.disabled = true;
+
+            const icon = document.getElementById('vipIcon').value;
+            if (icon === "👑") {
+                alert("❌ La corona 👑 es exclusiva para los admins. Elige otro emoji.");
+                btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar Cambios';
+                btn.disabled = false;
+                return;
+            }
+
+            const payload = {
+                numericId: loggedId,
+                vipIcon: icon,
+                vipColor: document.getElementById('vipColor').value,
+                vipJoin: document.getElementById('vipJoin').value,
+                vipExit: document.getElementById('vipExit').value,
+                vipGoal: document.getElementById('vipGoal').value,
+                vipSize: document.getElementById('vipSize').value
+            };
+
+            try {
+                const response = await fetch('https://torobot-izu5.onrender.com/api/update-vip', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    alert("✅ " + data.message);
+                } else {
+                    alert("❌ Error: " + data.message);
+                }
+            } catch (error) {
+                alert("❌ Error de red al intentar guardar la configuración.");
+            }
+
+            btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar Cambios';
+            btn.disabled = false;
+        }
     </script>
 </body>
 </html>
