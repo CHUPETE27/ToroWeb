@@ -85,34 +85,6 @@
     </style>
 </head>
 <body>
-
-    <div class="menu-toggle" id="menu-toggle">
-        <i class="fa-solid fa-bars"></i>
-    </div>
-
-    <nav class="sidebar" id="sidebar">
-        <div class="sidebar-top">
-            <div class="close-btn" id="close-btn"><i class="fa-solid fa-xmark"></i></div>
-            <a href="#" onclick="if(localStorage.getItem('toroHaxLoggedId')){ window.location.href='perfil.html'; } else { window.location.href='login.html'; } return false;">
-                <i class="fa-solid fa-user"></i> | Perfil
-            </a>
-            <a href="#" onclick="checkLogin('vip.html')">
-                <i class="fa-solid fa-gem"></i> | VIP
-            </a>
-            <a href="#" onclick="checkLogin('tienda.html')">
-                <i class="fa-solid fa-cart-shopping"></i> | Tienda
-            </a>
-            <a href="index.html">
-                <i class="fa-solid fa-house"></i> | Menú principal
-            </a>
-        </div>
-        <div class="sidebar-bottom">
-            <a href="#" class="logout-btn" onclick="confirmarLogout()">
-                <i class="fa-solid fa-right-from-bracket"></i> | Cerrar sesión
-            </a>
-        </div>
-    </nav>
-
     <header></header>
 
     <main>
@@ -180,7 +152,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="vipColor"><i class="fa-solid fa-palette"></i> Color de tu nombre</label>
+                            <label for="vipColor"><i class="fa-solid fa-palette"></i> Color</label>
                             <input type="color" id="vipColor" class="form-control">
                         </div>
 
@@ -190,7 +162,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="vipExit"><i class="fa-solid fa-door-closed"></i> Mensaje de Salida</label>
+                            <label for="vipExit"><i class="fa-solid fa-door-closed"></i> Mensaje de Salida (!bb)</label>
                             <input type="text" id="vipExit" class="form-control" maxlength="50" placeholder="Me voy a descansar...">
                         </div>
 
@@ -200,7 +172,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="vipSize"><i class="fa-solid fa-expand"></i> Tamaño del texto (Gol)</label>
+                            <label for="vipSize"><i class="fa-solid fa-expand"></i> Tamaño (Gol)</label>
                             <select id="vipSize" class="form-control">
                                 <option value="small">Pequeño (Mini)</option>
                                 <option value="normal">Normal</option>
@@ -224,38 +196,9 @@
         <p>© 2026 ToroHax. Todos los derechos reservados.</p>
     </footer>
 
+    <script src="sidebar.js"></script>
+
     <script>
-        document.getElementById('menu-toggle').addEventListener('click', () => document.getElementById('sidebar').classList.add('active'));
-        document.getElementById('close-btn').addEventListener('click', () => document.getElementById('sidebar').classList.remove('active'));
-
-        document.addEventListener('click', function(event) {
-            if (sidebar.classList.contains('active')) {
-                if (!sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
-                    sidebar.classList.remove('active');
-                }
-            }
-        });
-
-        function checkLogin(page) {
-            if (localStorage.getItem('toroHaxLoggedId')) { window.location.href = page; } 
-            else { window.location.href = 'login.html'; }
-        }
-
-        function confirmarLogout() {
-            if(confirm("⚠️ ¿Estás seguro que quieres cerrar sesión?")) {
-                localStorage.removeItem('toroHaxLoggedId');
-                window.location.href = 'index.html';
-            }
-        }
-
-        function cambiarPestana(pestana) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('btn-' + pestana).classList.add('active');
-            
-            document.getElementById('section-stats').style.display = pestana === 'stats' ? 'block' : 'none';
-            document.getElementById('section-vip').style.display = pestana === 'vip' ? 'block' : 'none';
-        }
-
         const rankThresholds = [
             { min: 0, max: 360, name: "🐓 Gallina" },
             { min: 360, max: 810, name: "🦙 Llama" },

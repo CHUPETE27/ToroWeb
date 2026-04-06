@@ -34,7 +34,6 @@
         .price-display strong { color: #2df2c1; font-size: 1.8rem; display: block; margin-top: 5px; }
         .vip-alert { background: rgba(255, 211, 66, 0.1); border: 1px solid #FFD342; color: #FFD342; padding: 10px; border-radius: 8px; font-size: 0.9rem; margin-bottom: 20px; display: none; }
 
-        /* Opciones de regalo */
         .gift-section { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #333; text-align: left; }
         .gift-options { display: flex; gap: 15px; margin-bottom: 15px; justify-content: center; }
         .gift-options label { cursor: pointer; color: #bdc3c7; font-size: 0.95rem; display: flex; align-items: center; gap: 5px; }
@@ -48,21 +47,6 @@
     </style>
 </head>
 <body>
-    <div class="menu-toggle" id="menu-toggle"><i class="fa-solid fa-bars"></i></div>
-
-    <nav class="sidebar" id="sidebar">
-        <div class="sidebar-top">
-            <div class="close-btn" id="close-btn"><i class="fa-solid fa-xmark"></i></div>
-            <a href="#" onclick="if(localStorage.getItem('toroHaxLoggedId')){ window.location.href='perfil.html'; } else { window.location.href='login.html'; } return false;"><i class="fa-solid fa-user"></i> | Perfil</a>
-            <a href="vip.html"><i class="fa-solid fa-gem"></i> | VIP</a>
-            <a href="tienda.html"><i class="fa-solid fa-cart-shopping"></i> | Tienda</a>
-            <a href="index.html"><i class="fa-solid fa-house"></i> | Menú principal</a>
-        </div>
-        <div class="sidebar-bottom">
-            <a href="#" class="logout-btn" onclick="confirmarLogout()"><i class="fa-solid fa-right-from-bracket"></i> | Cerrar sesión</a>
-        </div>
-    </nav>
-
     <header></header>
 
     <div class="logo-container">
@@ -130,19 +114,9 @@
 
     <footer><p>© 2026 ToroHax. Todos los derechos reservados.</p></footer>
 
-    <script>
-        const menuToggle = document.getElementById('menu-toggle');
-        const closeBtn = document.getElementById('close-btn');
-        const sidebar = document.getElementById('sidebar');
-        menuToggle.addEventListener('click', () => sidebar.classList.add('active'));
-        closeBtn.addEventListener('click', () => sidebar.classList.remove('active'));
-        document.addEventListener('click', function(event) {
-            if (sidebar.classList.contains('active') && !sidebar.contains(event.target) && !menuToggle.contains(event.target)) {
-                sidebar.classList.remove('active');
-            }
-        });
-        function confirmarLogout() { if(confirm("⚠️ ¿Estás seguro que quieres cerrar sesión?")) { localStorage.removeItem('toroHaxLoggedId'); window.location.href = 'index.html'; } }
+    <script src="sidebar.js"></script>
 
+    <script>
         const loggedId = localStorage.getItem('toroHaxLoggedId');
         if (!loggedId) {
             alert("Debes iniciar sesión para acceder a la tienda VIP.");
