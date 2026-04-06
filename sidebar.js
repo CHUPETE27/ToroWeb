@@ -11,6 +11,7 @@ document.addEventListener("DOMContentLoaded", function() {
             <div class="sidebar-top">
                 <div class="close-btn" id="close-btn"><i class="fa-solid fa-xmark"></i></div>
                 <a href="#" onclick="checkLogin('perfil.html')"><i class="fa-solid fa-user"></i> | Perfil</a>
+                <a href="#" onclick="checkLogin('amigos.html')"><i class="fa-solid fa-user-group"></i> | Amigos</a>
                 <a href="#" onclick="checkLogin('vip.html')"><i class="fa-solid fa-gem"></i> | VIP</a>
                 <a href="#" onclick="checkLogin('tienda.html')"><i class="fa-solid fa-cart-shopping"></i> | Tienda</a>
                 <a href="index.html"><i class="fa-solid fa-house"></i> | Menú principal</a>
