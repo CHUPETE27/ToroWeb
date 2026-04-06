@@ -199,6 +199,19 @@
     <script src="sidebar.js"></script>
 
     <script>
+        function checkLogin(page) {
+            if (localStorage.getItem('toroHaxLoggedId')) { window.location.href = page; } 
+            else { window.location.href = 'login.html'; }
+        }
+
+        function cambiarPestana(pestana) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-' + pestana).classList.add('active');
+            
+            document.getElementById('section-stats').style.display = pestana === 'stats' ? 'block' : 'none';
+            document.getElementById('section-vip').style.display = pestana === 'vip' ? 'block' : 'none';
+        }
+
         const rankThresholds = [
             { min: 0, max: 360, name: "🐓 Gallina" },
             { min: 360, max: 810, name: "🦙 Llama" },
