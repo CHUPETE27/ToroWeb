@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - ToroHax</title>
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
         .login-container {
             background: rgba(20, 20, 20, 0.9);
@@ -77,6 +79,21 @@
             display: none;
         }
 
+        .back-btn {
+            color: #bdc3c7;
+            text-decoration: none;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover {
+            color: #FFD342;
+        }
+
         @media (max-width: 480px) {
             .login-container {
                 padding: 30px 20px;
@@ -89,7 +106,7 @@
 </head>
 <body>
 
-    <a href="index.html" style="color: #7d7d7d; text-decoration: none; position: absolute; top: 20px; left: 20px; font-size: 1.2rem;">⬅ Volver</a>
+    <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Volver</a>
 
     <div class="login-container">
         <h2>Iniciar sesión</h2>

@@ -20,14 +20,12 @@
         .panel { background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .panel h3 { color: #5dc8e8; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 20px;}
 
-        /* Controles Agregar Amigo */
         .add-friend-box { display: flex; gap: 10px; margin-bottom: 20px;}
         .add-friend-box input { flex-grow: 1; background: #111; color: white; border: 1px solid #555; padding: 12px; border-radius: 8px; outline: none; text-align: center;}
         .add-friend-box input:focus { border-color: #FFD342; }
         .add-friend-box button { background: #2df2c1; color: #111; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;}
         .add-friend-box button:hover { background: #24c29a; box-shadow: 0 0 15px rgba(45, 242, 193, 0.4); }
 
-        /* Listas */
         .list-container { display: flex; flex-direction: column; gap: 15px; max-height: 500px; overflow-y: auto; padding-right: 10px;}
         .list-container::-webkit-scrollbar { width: 8px; }
         .list-container::-webkit-scrollbar-thumb { background: #555; border-radius: 10px; }
@@ -59,14 +57,14 @@
     </div>
 
     <main>
-        <h2 class="page-title"><i class="fa-solid fa-user-group"></i> Red ToroHax</h2>
+        <h2 class="page-title"><i class="fa-solid fa-user-group"></i> Tus amigos</h2>
 
         <div class="friends-grid">
             
             <div>
                 <div class="panel" style="margin-bottom: 25px;">
                     <h3><i class="fa-solid fa-user-plus"></i> Añadir Amigo</h3>
-                    <p style="color:#bdc3c7; font-size:0.9rem; margin-bottom: 15px;">Ingresa la ID numérica del jugador.</p>
+                    <p style="color:#bdc3c7; font-size:0.9rem; margin-bottom: 15px;">Ingresa la ID de sala del jugador.</p>
                     <div class="add-friend-box">
                         <input type="number" id="newFriendId" placeholder="Ej: 145">
                         <button onclick="enviarSolicitud()" id="btnAdd"><i class="fa-solid fa-paper-plane"></i></button>
@@ -143,7 +141,6 @@
 
             container.innerHTML = '';
             
-            // Ordenar: Conectados primero
             friends.sort((a, b) => (b.currentRoom ? 1 : 0) - (a.currentRoom ? 1 : 0));
 
             friends.forEach(f => {
@@ -204,13 +201,11 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ userId: parseInt(loggedId), requesterId: parseInt(requesterId), action: action })
                 });
-                cargarDatos(); // Recargar la página automáticamente
+                cargarDatos();
             } catch (e) {
                 console.error(e);
             }
         }
-
-        // Iniciar
         cargarDatos();
     </script>
 </body>
