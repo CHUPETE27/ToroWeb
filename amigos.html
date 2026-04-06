@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Amigos - ToroHax</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        const loggedId = localStorage.getItem('toroHaxLoggedId');
+        if (!loggedId) window.location.href = 'login.html';
+    </script>
+
+    <style>
+        main { display: flex; flex-direction: column; align-items: center; width: 95%; max-width: 1100px; margin: 5vh auto 50px; }
+        .page-title { color: #FFD342; text-transform: uppercase; letter-spacing: 2px; font-size: 2.2rem; margin-bottom: 30px; text-align: center; }
+
+        .friends-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 25px; width: 100%; align-items: start; }
+        .panel { background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .panel h3 { color: #5dc8e8; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 20px;}
+
+        /* Controles Agregar Amigo */
+        .add-friend-box { display: flex; gap: 10px; margin-bottom: 20px;}
+        .add-friend-box input { flex-grow: 1; background: #111; color: white; border: 1px solid #555; padding: 12px; border-radius: 8px; outline: none; text-align: center;}
+        .add-friend-box input:focus { border-color: #FFD342; }
+        .add-friend-box button { background: #2df2c1; color: #111; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;}
+        .add-friend-box button:hover { background: #24c29a; box-shadow: 0 0 15px rgba(45, 242, 193, 0.4); }
+
+        /* Listas */
+        .list-container { display: flex; flex-direction: column; gap: 15px; max-height: 500px; overflow-y: auto; padding-right: 10px;}
+        .list-container::-webkit-scrollbar { width: 8px; }
+        .list-container::-webkit-scrollbar-thumb { background: #555; border-radius: 10px; }
+        .empty-msg { color: #7d7d7d; text-align: center; font-style: italic; padding: 20px; }
+
+        .friend-card { background: #111; border: 1px solid #444; border-radius: 10px; padding: 15px; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; }
+        .friend-card:hover { border-color: #FFD342; transform: translateY(-3px); }
+        .friend-info h4 { margin: 0 0 5px 0; color: #fff; font-size: 1.1rem;}
+        .friend-info span.id-tag { color: #7d7d7d; font-size: 0.85rem; }
+        
+        .status-online { color: #2df2c1; font-size: 0.9rem; font-weight: bold;}
+        .status-offline { color: #7d7d7d; font-size: 0.9rem;}
+
+        .btn-action { padding: 8px 15px; border-radius: 5px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.9rem;}
+        .btn-join { background: #FFD342; color: #111; text-decoration: none;}
+        .btn-join:hover { box-shadow: 0 0 15px rgba(255, 211, 66, 0.5); }
+        .btn-accept { background: #2df2c1; color: #111; }
+        .btn-reject { background: #ff4757; color: white; margin-left: 5px;}
+
+        @media (max-width: 768px) { .friends-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <header></header>
+
+    <div class="logo-container">
+        <img src="logo_torohax.png" alt="ToroHax Logo">
+    </div>
+
+    <main>
+        <h2 class="page-title"><i class="fa-solid fa-user-group"></i> Red ToroHax</h2>
+
+        <div class="friends-grid">
+            
+            <div>
+                <div class="panel" style="margin-bottom: 25px;">
+                    <h3><i class="fa-solid fa-user-plus"></i> Añadir Amigo</h3>
+                    <p style="color:#bdc3c7; font-size:0.9rem; margin-bottom: 15px;">Ingresa la ID numérica del jugador.</p>
+                    <div class="add-friend-box">
+                        <input type="number" id="newFriendId" placeholder="Ej: 145">
+                        <button onclick="enviarSolicitud()" id="btnAdd"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+
+                <div class="panel">
+                    <h3><i class="fa-solid fa-bell"></i> Solicitudes Pendientes</h3>
+                    <div class="list-container" id="requestsList">
+                        <div class="empty-msg"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h3><i class="fa-solid fa-address-book"></i> Mis Amigos</h3>
+                <div class="list-container" id="friendsList">
+                    <div class="empty-msg"><i class="fa-solid fa-spinner fa-spin"></i> Cargando lista de amigos...</div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer><p>© 2026 ToroHax. Todos los derechos reservados.</p></footer>
+
+    <script src="sidebar.js"></script>
+
+    <script>
+        async function cargarDatos() {
+            try {
+                const res = await fetch(`https://torobot-izu5.onrender.com/api/friends/${loggedId}`);
+                const data = await res.json();
+                
+                if(data.success) {
+                    dibujarSolicitudes(data.requests);
+                    dibujarAmigos(data.friends);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        function dibujarSolicitudes(requests) {
+            const container = document.getElementById('requestsList');
+            if (requests.length === 0) {
+                container.innerHTML = '<div class="empty-msg">No tienes solicitudes pendientes.</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            requests.forEach(req => {
+                container.innerHTML += `
+                    <div class="friend-card">
+                        <div class="friend-info">
+                            <h4>${req.name}</h4>
+                            <span class="id-tag">ID: #${req.numericId}</span>
+                        </div>
+                        <div>
+                            <button class="btn-action btn-accept" onclick="responderSolicitud(${req.numericId}, 'accept')"><i class="fa-solid fa-check"></i></button>
+                            <button class="btn-action btn-reject" onclick="responderSolicitud(${req.numericId}, 'reject')"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function dibujarAmigos(friends) {
+            const container = document.getElementById('friendsList');
+            if (friends.length === 0) {
+                container.innerHTML = '<div class="empty-msg">Aún no tienes amigos agregados. ¡Envía una solicitud!</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            
+            // Ordenar: Conectados primero
+            friends.sort((a, b) => (b.currentRoom ? 1 : 0) - (a.currentRoom ? 1 : 0));
+
+            friends.forEach(f => {
+                const isOnline = f.currentRoom !== null;
+                const statusHtml = isOnline 
+                    ? `<div class="status-online"><i class="fa-solid fa-circle"></i> Jugando en: ${f.currentRoom}</div>` 
+                    : `<div class="status-offline"><i class="fa-regular fa-circle"></i> Desconectado</div>`;
+                
+                const btnHtml = isOnline 
+                    ? `<a href="salas.html" class="btn-action btn-join"><i class="fa-solid fa-right-to-bracket"></i> Unirse</a>`
+                    : ``;
+
+                const vipBadge = f.isVip ? `<span style="color:#FFD342;" title="VIP">${f.vipIcon || '⭐'}</span>` : '';
+
+                container.innerHTML += `
+                    <div class="friend-card" style="${isOnline ? 'border-color: #2df2c1;' : ''}">
+                        <div class="friend-info">
+                            <h4>${vipBadge} ${f.name} <span class="id-tag">#${f.numericId}</span></h4>
+                            ${statusHtml}
+                        </div>
+                        <div>${btnHtml}</div>
+                    </div>
+                `;
+            });
+        }
+
+        async function enviarSolicitud() {
+            const input = document.getElementById('newFriendId');
+            const toId = input.value.trim();
+            const btn = document.getElementById('btnAdd');
+
+            if(!toId) return;
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/friends/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fromId: parseInt(loggedId), toId: parseInt(toId) })
+                });
+                const data = await res.json();
+                alert(data.message);
+                input.value = '';
+            } catch (e) {
+                alert("❌ Error al conectar con el servidor.");
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i>';
+        }
+
+        async function responderSolicitud(requesterId, action) {
+            try {
+                await fetch('https://torobot-izu5.onrender.com/api/friends/respond', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: parseInt(loggedId), requesterId: parseInt(requesterId), action: action })
+                });
+                cargarDatos(); // Recargar la página automáticamente
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // Iniciar
+        cargarDatos();
+    </script>
+</body>
+</html>
