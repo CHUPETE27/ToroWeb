@@ -15,23 +15,10 @@
     </script>
 
     <style>
-        .profile-container {
-            width: 100%;
-            max-width: 1100px;
-            background: rgba(20, 20, 20, 0.8);
-            border: 1px solid #333;
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            margin-top: 20px;
-            display: none; 
-        }
-
+        .profile-container { width: 100%; max-width: 1100px; background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-top: 20px; display: none; }
         .profile-header { text-align: center; border-bottom: 2px solid #FFD342; padding-bottom: 25px; margin-bottom: 20px; }
         .profile-header h2 { margin: 0; color: #FFD342; font-size: 2rem; text-transform: uppercase; }
         .profile-header p { margin: 5px 0 15px; color: #5dc8e8; font-size: 1.1rem; }
-
-        .discord-avatar { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #FFD342; object-fit: cover; margin-bottom: 15px; box-shadow: 0 0 15px rgba(255, 211, 66, 0.4); }
 
         .rank-progress-container { width: 80%; max-width: 500px; margin: 0 auto; background: rgba(0, 0, 0, 0.4); padding: 15px; border-radius: 10px; border: 1px solid #333; }
         .rank-progress-info { display: flex; justify-content: space-between; color: #bdc3c7; font-size: 0.9rem; margin-bottom: 8px; font-weight: bold; }
@@ -76,14 +63,11 @@
 
         .loading-text { text-align: center; font-size: 1.5rem; color: #FFD342; margin-top: 100px;}
 
-        @media (max-width: 768px) {
-            .vip-form-grid { grid-template-columns: 1fr; }
-            .save-btn { grid-column: span 1; }
-            .tab-btn { max-width: 100%; }
-        }
+        @media (max-width: 768px) { .vip-form-grid { grid-template-columns: 1fr; } .save-btn { grid-column: span 1; } .tab-btn { max-width: 100%; } }
     </style>
 </head>
 <body>
+
     <header></header>
 
     <main>
@@ -288,7 +272,7 @@
             
             const perdidos = player.perdidos || 0;
             const ganados = player.ganados || 0;
-            const empates = Math.max(0, partidos - ganados - perdidos);
+            const mvps = player.mvps || 0;
             const winRate = partidos > 0 ? ((ganados / partidos)*100).toFixed(2) : 0;
 
             document.getElementById('playerName').innerText = player.name;
@@ -297,9 +281,8 @@
             document.getElementById('listTotales').innerHTML = `
                 <li><strong>Partidos:</strong> ${partidos}</li>
                 <li><strong>Victorias:</strong> ${ganados}</li>
-                <li><strong>Empates:</strong> ${empates}</li>
                 <li><strong>Derrotas:</strong> ${perdidos}</li>
-                <li><strong>MVPs:</strong> ${player.mvps || 0}</li>
+                <li><strong>MVPs:</strong> ${mvps}</li>
             `;
             document.getElementById('listEstadisticas').innerHTML = `
                 <li><strong>Puntos:</strong> ${player.puntajeTotal || 0}</li>
@@ -323,8 +306,8 @@
                 const chartDoughnutData = {
                     type: 'doughnut',
                     data: {
-                        labels: ['Victorias', 'Empates', 'Derrotas'],
-                        datasets: [{ data: [ganados, empates, perdidos], backgroundColor: ['#10af10', '#bdc3c7', '#8b1515'], borderColor: '#111', borderWidth: 3 }]
+                        labels: ['Victorias', 'Derrotas', 'MVPs'],
+                        datasets: [{ data: [ganados, perdidos, mvps], backgroundColor: ['#10af10', '#8b1515', '#FFD342'], borderColor: '#111', borderWidth: 3 }]
                     },
                     options: { legend: { position: 'bottom', labels: { fontColor: '#fff' } }, plugins: { datalabels: { color: '#fff', font: { weight: 'bold' } } } }
                 };
@@ -334,15 +317,19 @@
                 const radarCreacion = Math.min(100, (parseFloat(promAsist) / 1.0) * 100);
                 const radarDefensa = Math.min(100, (parseFloat(promDefensas) / 2.5) * 100);
                 const radarPorteria = Math.min(100, (parseFloat(promAtajadas) / 1.5) * 100);
-                const radarUtilidad = Math.min(100, ((player.mvps || 0) / partidos) * 300);
+                const radarUtilidad = Math.min(100, (mvps / partidos) * 300);
 
                 const chartRadarData = {
                     type: 'radar',
                     data: {
                         labels: ['Ataque', 'Creación', 'Defensa', 'Portería', 'Utilidad'],
                         datasets: [{
-                            label: 'Atributos', data: [radarAtaque, radarCreacion, radarDefensa, radarPorteria, radarUtilidad],
-                            backgroundColor: 'rgba(45, 242, 193, 0.4)', borderColor: '#2df2c1', pointBackgroundColor: '#FFD342'
+                            label: 'Atributos', 
+                            data: [radarAtaque, radarCreacion, radarDefensa, radarPorteria, radarUtilidad],
+                            backgroundColor: 'rgba(45, 242, 193, 0.5)',
+                            borderColor: '#2df2c1', 
+                            borderWidth: 2,
+                            pointBackgroundColor: '#FFD342'
                         }]
                     },
                     options: {
