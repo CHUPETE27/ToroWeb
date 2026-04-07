@@ -89,46 +89,48 @@
 <body>
     <header></header>
 
-    <div class="seleccion-wrapper">
-        <div class="left-col">
-            <div class="box live-box">
-                <div id="liveIndicator" style="display: none;" class="live-indicator"><span class="status-circle green"></span> En vivo</div>
-                <div id="liveIndicatorOff" class="live-indicator" style="color: #7d7d7d;"><span class="status-circle" style="background:#cc2a2a;"></span> Offline</div>
-                <div class="score-text" id="liveScore">THX 0 - 0 VIS</div>
+    <main>
+        <div class="seleccion-wrapper">
+            <div class="left-col">
+                <div class="box live-box">
+                    <div id="liveIndicator" style="display: none;" class="live-indicator"><span class="status-circle green"></span> En vivo</div>
+                    <div id="liveIndicatorOff" class="live-indicator" style="color: #7d7d7d;"><span class="status-circle" style="background:#cc2a2a;"></span> Offline</div>
+                    <div class="score-text" id="liveScore">THX 0 - 0 VIS</div>
+                </div>
+
+                <div class="box" style="padding-bottom: 70px;">
+                    <div class="tabs">
+                        <div class="tab active" onclick="switchTab('proximos')">Próximos partidos</div>
+                        <div class="tab" onclick="switchTab('historial')">Historial</div>
+                    </div>
+
+                    <div id="proximos" class="tab-content active">
+                        <div id="proximos-lista" class="match-list-container"><p style="text-align:center; color:#7d7d7d;">Cargando partidos...</p></div>
+                    </div>
+
+                    <div id="historial" class="tab-content">
+                        <div id="historial-lista" class="match-list-container"><p style="text-align:center; color:#7d7d7d;">Cargando historial...</p></div>
+                    </div>
+
+                    <button id="btnEditar" class="edit-btn" onclick="abrirModalNuevo()"><i class="fa-solid fa-plus"></i> Añadir Partido</button>
+                </div>
             </div>
 
-            <div class="box" style="padding-bottom: 70px;">
-                <div class="tabs">
-                    <div class="tab active" onclick="switchTab('proximos')">Próximos partidos</div>
-                    <div class="tab" onclick="switchTab('historial')">Historial</div>
+            <div class="right-col">
+                <div class="box logo-box">
+                    <img src="path1.png" alt="Logo Selección">
                 </div>
-
-                <div id="proximos" class="tab-content active">
-                    <div id="proximos-lista" class="match-list-container"><p style="text-align:center; color:#7d7d7d;">Cargando partidos...</p></div>
+                <div class="box list-box">
+                    <h3>🏆 Vitrina</h3>
+                    <ul id="listaVitrina"><li>Cargando trofeos...</li></ul>
                 </div>
-
-                <div id="historial" class="tab-content">
-                    <div id="historial-lista" class="match-list-container"><p style="text-align:center; color:#7d7d7d;">Cargando historial...</p></div>
+                <div class="box list-box">
+                    <h3>⚽ Jugadores</h3>
+                    <ul id="listaJugadores"><li>Cargando plantilla...</li></ul>
                 </div>
-
-                <button id="btnEditar" class="edit-btn" onclick="abrirModalNuevo()"><i class="fa-solid fa-plus"></i> Añadir Partido</button>
             </div>
         </div>
-
-        <div class="right-col">
-            <div class="box logo-box">
-                <img src="path1.png" alt="Logo Selección">
-            </div>
-            <div class="box list-box">
-                <h3>🏆 Vitrina</h3>
-                <ul id="listaVitrina"><li>Cargando trofeos...</li></ul>
-            </div>
-            <div class="box list-box">
-                <h3>⚽ Jugadores</h3>
-                <ul id="listaJugadores"><li>Cargando plantilla...</li></ul>
-            </div>
-        </div>
-    </div>
+    </main>
 
     <div class="modal-overlay" id="editModal">
         <div class="modal-content">

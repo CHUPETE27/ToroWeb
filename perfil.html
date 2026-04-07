@@ -115,7 +115,7 @@
                     
                     <div class="chart-box">
                         <h3><i class="fa-solid fa-spider"></i> Atributos</h3>
-                        <p>Perfil técnico del jugador.</p>
+                        <p>Perfil técnico</p>
                         <img id="chartRadar" src="" alt="Gráfico Radar">
                     </div>
 
@@ -282,6 +282,7 @@
                 <li><strong>Partidos:</strong> ${partidos}</li>
                 <li><strong>Victorias:</strong> ${ganados}</li>
                 <li><strong>Derrotas:</strong> ${perdidos}</li>
+                <li><strong>WinRate:</strong> ${winRate}%</li>
                 <li><strong>MVPs:</strong> ${mvps}</li>
             `;
             document.getElementById('listEstadisticas').innerHTML = `
@@ -292,11 +293,11 @@
                 <li><strong>Recuperaciones:</strong> ${player.intercepciones || 0}</li>
             `;
             document.getElementById('listPromedios').innerHTML = `
-                <li><strong>WinRate:</strong> ${winRate}%</li>
+                <li><strong>Puntos:</strong> ${promPuntos} p/p</li>
                 <li><strong>Goles:</strong> ${promGoles} g/p</li>
                 <li><strong>Asistencias:</strong> ${promAsist} a/p</li>
                 <li><strong>Atajadas:</strong> ${promAtajadas} at/p</li>
-                <li><strong>Recup:</strong> ${promDefensas} r/p</li>
+                <li><strong>Recuperaciones:</strong> ${promDefensas} r/p</li>
             `;
 
             if (partidos > 0) {
@@ -394,7 +395,7 @@
                     const chartPieData = {
                         type: 'pie',
                         data: {
-                            labels: ['Goles', 'Asistencias', 'Atajadas', 'Recup.'],
+                            labels: ['Goles', 'Asistencias', 'Atajadas', 'Recuperaciones'],
                             datasets: [{ data: [Math.round((pG/totalPromedios)*100), Math.round((pA/totalPromedios)*100), Math.round((pAt/totalPromedios)*100), Math.round((pD/totalPromedios)*100)], backgroundColor: ['#8b1515', '#10af10', '#611161', '#2222a7'], borderColor: '#111', borderWidth: 2 }]
                         },
                         options: { legend: { position: 'bottom', labels: { fontColor: '#fff' } }, plugins: { datalabels: { color: '#fff', font: { weight: 'bold'}, formatter: "function(value) { return value.toString().concat('%'); }", display: "function(context) { return context.dataset.data[context.dataIndex] > 0; }" } } }
