@@ -1,3 +1,7 @@
+html {
+    background-color: #01181C; 
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -9,6 +13,9 @@ body {
 
     background: linear-gradient(135deg, #044235 0%, #073535 50%, #023b3a 100%);
     background-size: 300% 300%;
+
+    background-attachment: fixed; 
+    overscroll-behavior: none;
     animation: movimientoFondo 15s ease infinite;
 
     -webkit-user-select: none; /* Safari/Chrome */

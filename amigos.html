@@ -20,10 +20,10 @@
         .panel { background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         .panel h3 { color: #5dc8e8; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 20px;}
 
-        .add-friend-box { display: flex; gap: 10px; margin-bottom: 20px;}
-        .add-friend-box input { flex-grow: 1; background: #111; color: white; border: 1px solid #555; padding: 12px; border-radius: 8px; outline: none; text-align: center;}
+        .add-friend-box { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; box-sizing: border-box;}
+        .add-friend-box input { flex-grow: 1; width: 100%; background: #111; color: white; border: 1px solid #555; padding: 12px; border-radius: 8px; outline: none; text-align: center;}
         .add-friend-box input:focus { border-color: #FFD342; }
-        .add-friend-box button { background: #2df2c1; color: #111; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s;}
+        .add-friend-box button { background: #2df2c1; color: #111; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; flex-shrink: 0;}
         .add-friend-box button:hover { background: #24c29a; box-shadow: 0 0 15px rgba(45, 242, 193, 0.4); }
 
         .list-container { display: flex; flex-direction: column; gap: 15px; max-height: 500px; overflow-y: auto; padding-right: 10px;}
@@ -31,30 +31,38 @@
         .list-container::-webkit-scrollbar-thumb { background: #555; border-radius: 10px; }
         .empty-msg { color: #7d7d7d; text-align: center; font-style: italic; padding: 20px; }
 
-        .friend-card { background: #111; border: 1px solid #444; border-radius: 10px; padding: 15px; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; }
+        .friend-card { background: #111; border: 1px solid #444; border-radius: 10px; padding: 15px; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; flex-wrap: wrap; gap: 10px;}
         .friend-card:hover { border-color: #FFD342; transform: translateY(-3px); }
+        .friend-info { flex-grow: 1; }
         .friend-info h4 { margin: 0 0 5px 0; color: #fff; font-size: 1.1rem;}
         .friend-info span.id-tag { color: #7d7d7d; font-size: 0.85rem; }
         
         .status-online { color: #2df2c1; font-size: 0.9rem; font-weight: bold;}
         .status-offline { color: #7d7d7d; font-size: 0.9rem;}
 
-        .btn-action { padding: 8px 15px; border-radius: 5px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.9rem;}
+        .card-actions { display: flex; gap: 5px; }
+        .btn-action { padding: 8px 15px; border-radius: 5px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.9rem; text-align: center;}
         .btn-join { background: #FFD342; color: #111; text-decoration: none;}
         .btn-join:hover { box-shadow: 0 0 15px rgba(255, 211, 66, 0.5); }
         .btn-accept { background: #2df2c1; color: #111; }
-        .btn-reject { background: #ff4757; color: white; margin-left: 5px;}
+        .btn-reject { background: #ff4757; color: white;}
 
-        @media (max-width: 768px) { .friends-grid { grid-template-columns: 1fr; } }
+        @media (max-width: 850px) { 
+            .friends-grid { grid-template-columns: 1fr; } 
+        }
+
+        @media (max-width: 480px) {
+            .page-title { font-size: 1.8rem; }
+            .panel { padding: 15px; }
+            .friend-card { flex-direction: column; align-items: stretch; text-align: center; }
+            .card-actions { width: 100%; justify-content: center; }
+            .btn-action { flex-grow: 1; }
+        }
     </style>
 </head>
 <body>
 
     <header></header>
-
-    <div class="logo-container">
-        <img src="logo_torohax.png" alt="ToroHax Logo">
-    </div>
 
     <main>
         <h2 class="page-title"><i class="fa-solid fa-user-group"></i> Tus amigos</h2>
@@ -64,7 +72,7 @@
             <div>
                 <div class="panel" style="margin-bottom: 25px;">
                     <h3><i class="fa-solid fa-user-plus"></i> Añadir Amigo</h3>
-                    <p style="color:#bdc3c7; font-size:0.9rem; margin-bottom: 15px;">Ingresa la ID de sala del jugador.</p>
+                    <p style="color:#bdc3c7; font-size:0.9rem; margin-bottom: 15px;">Ingresa la ID de la sala del jugador.</p>
                     <div class="add-friend-box">
                         <input type="number" id="newFriendId" placeholder="Ej: 145">
                         <button onclick="enviarSolicitud()" id="btnAdd"><i class="fa-solid fa-paper-plane"></i></button>
@@ -91,6 +99,7 @@
 
     <footer><p>© 2026 ToroHax. Todos los derechos reservados.</p></footer>
 
+    <script src="header.js"></script>
     <script src="sidebar.js"></script>
 
     <script>
@@ -120,10 +129,9 @@
                 container.innerHTML += `
                     <div class="friend-card">
                         <div class="friend-info">
-                            <h4>${req.name}</h4>
-                            <span class="id-tag">ID: #${req.numericId}</span>
+                            <h4>${req.name} <span class="id-tag">#${req.numericId}</span></h4>
                         </div>
-                        <div>
+                        <div class="card-actions">
                             <button class="btn-action btn-accept" onclick="responderSolicitud(${req.numericId}, 'accept')"><i class="fa-solid fa-check"></i></button>
                             <button class="btn-action btn-reject" onclick="responderSolicitud(${req.numericId}, 'reject')"><i class="fa-solid fa-xmark"></i></button>
                         </div>
@@ -161,7 +169,7 @@
                             <h4>${vipBadge} ${f.name} <span class="id-tag">#${f.numericId}</span></h4>
                             ${statusHtml}
                         </div>
-                        <div>${btnHtml}</div>
+                        <div class="card-actions">${btnHtml}</div>
                     </div>
                 `;
             });
