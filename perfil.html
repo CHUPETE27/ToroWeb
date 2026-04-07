@@ -313,11 +313,25 @@
                 };
                 document.getElementById('chartDoughnut').src = `https://quickchart.io/chart?w=300&h=250&c=${encodeURIComponent(JSON.stringify(chartDoughnutData))}&bkg=transparent`;
 
-                const radarAtaque = Math.min(100, (parseFloat(promGoles) / 1.5) * 100);
-                const radarCreacion = Math.min(100, (parseFloat(promAsist) / 1.0) * 100);
-                const radarDefensa = Math.min(100, (parseFloat(promDefensas) / 2.5) * 100);
-                const radarPorteria = Math.min(100, (parseFloat(promAtajadas) / 1.5) * 100);
-                const radarUtilidad = Math.min(100, (mvps / partidos) * 300);
+                const pG = parseFloat(promGoles) * 12;
+                const pA = parseFloat(promAsist) * 10;
+                const pAt = parseFloat(promAtajadas) * 8;
+                const pD = parseFloat(promDefensas) * 1;
+                const totalPromedios = pG + pA + pAt + pD;
+
+                const pP = parseFloat(promPuntos) * 1;
+                const totalRadar = pG + pA + pAt + pD + pP;
+
+                let radarAtaque = 0, radarCreacion = 0, radarDefensa = 0, radarPorteria = 0;
+
+                if (totalPromedios > 0) {
+                    radarAtaque = Math.min(100, (pG / totalRadar) * 100);
+                    radarCreacion = Math.min(100, (pA / totalRadar) * 100);
+                    radarPorteria = Math.min(100, (pAt / totalRadar) * 100);
+                    radarDefensa = Math.min(100, (pD / totalRadar) * 100);
+                }
+                
+                const radarUtilidad = Math.min(100, (pP / totalRadar) * 100);
 
                 const chartRadarData = {
                     type: 'radar',
@@ -326,7 +340,7 @@
                         datasets: [{
                             label: 'Atributos', 
                             data: [radarAtaque, radarCreacion, radarDefensa, radarPorteria, radarUtilidad],
-                            backgroundColor: 'rgba(45, 242, 193, 0.5)',
+                            backgroundColor: 'rgba(45, 242, 193, 0.5)', 
                             borderColor: '#2df2c1', 
                             borderWidth: 2,
                             pointBackgroundColor: '#FFD342'
@@ -339,12 +353,6 @@
                     }
                 };
                 document.getElementById('chartRadar').src = `https://quickchart.io/chart?w=300&h=250&c=${encodeURIComponent(JSON.stringify(chartRadarData))}&bkg=transparent`;
-
-                const pG = parseFloat(promGoles) * 12;
-                const pA = parseFloat(promAsist) * 10;
-                const pAt = parseFloat(promAtajadas) * 8;
-                const pD = parseFloat(promDefensas) * 1;
-                const totalPromedios = pG + pA + pAt + pD;
 
                 if (totalPromedios > 0) {
                     document.getElementById('atkPct').innerText = (((pG + pA) / totalPromedios) * 100).toFixed(1);
