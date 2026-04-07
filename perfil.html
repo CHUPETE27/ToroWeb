@@ -307,7 +307,7 @@
                     type: 'doughnut',
                     data: {
                         labels: ['Victorias', 'Derrotas', 'MVPs'],
-                        datasets: [{ data: [ganados, perdidos, mvps], backgroundColor: ['#10af10', '#8b1515', '#FFD342'], borderColor: '#111', borderWidth: 3 }]
+                        datasets: [{ data: [ganados, perdidos, mvps], backgroundColor: ['#10af10', '#8b1515', '#D3A778'], borderColor: '#111', borderWidth: 3 }]
                     },
                     options: { legend: { position: 'bottom', labels: { fontColor: '#fff' } }, plugins: { datalabels: { color: '#fff', font: { weight: 'bold' } } } }
                 };
@@ -322,16 +322,22 @@
                 const pP = parseFloat(promPuntos) * 0.03;
                 const totalRadar = pG + pA + pAt + pD + pP;
 
+                const MAX_ATAQUE = 18;
+                const MAX_CREACION = 10;
+                const MAX_PORTERIA = 12;
+                const MAX_DEFENSA = 3;
+                const MAX_UTILIDAD = 0.09;
+
                 let radarAtaque = 0, radarCreacion = 0, radarDefensa = 0, radarPorteria = 0;
 
                 if (totalPromedios > 0) {
-                    radarAtaque = Math.min(100, (pG / totalRadar) * 100);
-                    radarCreacion = Math.min(100, (pA / totalRadar) * 100);
-                    radarPorteria = Math.min(100, (pAt / totalRadar) * 100);
-                    radarDefensa = Math.min(100, (pD / totalRadar) * 100);
+                    radarAtaque = Math.min(100, (pG / MAX_ATAQUE) * 100);
+                    radarCreacion = Math.min(100, (pA / MAX_CREACION) * 100);
+                    radarPorteria = Math.min(100, (pAt / MAX_PORTERIA) * 100);
+                    radarDefensa = Math.min(100, (pD / MAX_DEFENSA) * 100);
                 }
                 
-                const radarUtilidad = Math.min(100, (pP / totalRadar) * 100);
+                const radarUtilidad = Math.min(100, (pP / MAX_UTILIDAD) * 100);
 
                 const chartRadarData = {
                     type: 'radar',
