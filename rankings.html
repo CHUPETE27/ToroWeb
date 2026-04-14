@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        body { overflow-x: hidden; width: 100%; position: relative; overflow-y: auto; }
+
         main { display: flex; flex-direction: column; align-items: center; width: 95%; max-width: 1000px; margin: 5vh auto 50px; text-align: center; }
         
         .rankings-title { color: #FFD342; text-transform: uppercase; letter-spacing: 2px; font-size: 2.2rem; margin-bottom: 10px; }
@@ -34,6 +36,10 @@
         .tab-btn.active { background: #FFD342; color: #111; border-color: #FFD342; box-shadow: 0 0 15px rgba(255, 211, 66, 0.4); }
 
         .table-container { background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; overflow-x: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 100%; }
+        .table-container::-webkit-scrollbar { height: 8px; }
+        .table-container::-webkit-scrollbar-thumb { background: #555; border-radius: 10px; }
+        .table-container::-webkit-scrollbar-thumb:hover { background: #FFD342; }
+
         table { width: 100%; border-collapse: collapse; min-width: 600px; text-align: center; }
         th { background: rgba(0,0,0,0.6); color: #FFD342; padding: 15px; font-size: 1.1rem; border-bottom: 2px solid #333; }
         td { padding: 15px; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: middle;}
@@ -61,7 +67,28 @@
 
         .loading-text { color: #FFD342; padding: 50px; font-size: 1.2rem; }
 
-        @media (max-width: 768px) { .tab-btn { max-width: 100%; } }
+        @media (max-width: 768px) { 
+            .tab-btn { max-width: 48%; font-size: 0.95rem; padding: 10px; }
+            .filter-container { flex-direction: row; flex-wrap: wrap; border-radius: 15px; padding: 10px; }
+            .filter-btn { width: 45%; padding: 10px; font-size: 0.95rem;}
+        }
+
+        @media (max-width: 480px) {
+            .rankings-title { font-size: 1.8rem; }
+            main { margin-top: 3vh; }
+            
+            table { min-width: 500px; } 
+            th, td { padding: 10px 5px; font-size: 0.95rem; }
+            
+            .player-id { display: block; margin-left: 0; margin-top: 2px; font-size: 0.75rem; }
+            .rango-badge { font-size: 1.1rem; }
+            .rank-number { font-size: 1rem; }
+            
+            .tab-btn { max-width: 100%;}
+            
+            .pagination { gap: 10px; }
+            .page-btn { padding: 8px 10px; font-size: 0.9rem; }
+        }
     </style>
 </head>
 <body>
