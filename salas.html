@@ -97,7 +97,6 @@
         @media (max-width: 768px) { 
             .rooms-title { font-size: 1.6rem; margin-top: 20px;} 
             .rooms-grid { grid-template-columns: 1fr; gap: 15px;} 
-            /* Reducimos el padding de 25px a 15px en celulares para que entre mejor */
             .room-card { padding: 15px; } 
         }
     </style>
@@ -185,7 +184,7 @@
                 let salaSecundaria = null;
 
                 salas.forEach(sala => {
-                    if (sala.id === 'jt_principal' || sala.name.toLowerCase().includes('juegan todos')) {
+                    if (sala.id === 'jt_principal' || sala.name.toLowerCase().includes('ᴊᴜᴇɢᴀɴ ᴛᴏᴅᴏs')) {
                         salaPrincipal = sala;
                     } else if (!salaSecundaria) {
                         salaSecundaria = sala;
