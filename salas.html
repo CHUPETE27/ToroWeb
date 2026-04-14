@@ -6,8 +6,10 @@
     <title>ToroHax Oficial Site - Salas</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
+    
     <style>
+        html, body { overflow-x: hidden; width: 100%; position: relative; }
+
         .rooms-section { width: 90%; max-width: 1200px; margin: auto; margin-top: 10vh; text-align: center; margin-bottom: 50px; }
         .rooms-title { color: #FFD342; text-transform: uppercase; letter-spacing: 2px; font-size: 2.2rem; margin-bottom: 40px; }
 
@@ -15,7 +17,7 @@
             display: grid; 
             grid-template-columns: repeat(2, 1fr); 
             gap: 30px; 
-            max-width: 900px;
+            max-width: 900px; 
             margin: 0 auto;
             background: transparent !important;
             border: none !important;
@@ -23,26 +25,31 @@
             padding: 0 !important;
         }
         
-        .room-card { background: rgba(20, 20, 20, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px; padding: 25px; text-align: left; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box;}
+        .room-card { background: rgba(20, 20, 20, 0.7); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 15px; padding: 25px; text-align: left; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; width: 100%; overflow: hidden;}
         .room-card:hover { transform: translateY(-5px); border-color: #FFD342; box-shadow: 0 10px 25px rgba(255, 211, 66, 0.2); }
         
         .room-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            gap: 15px;
+            gap: 10px;
             margin-bottom: 15px;
+            width: 100%;
         }
 
         .room-name { 
             color: #FFD342; 
             font-size: 1.1rem;
             font-weight: bold; 
-            margin: 0;
+            margin: 0; 
             text-transform: uppercase; 
             letter-spacing: 1px; 
-            word-break: break-word;
             flex-grow: 1;
+            
+            min-width: 0; 
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .room-status { 
@@ -57,7 +64,7 @@
             flex-shrink: 0;
         }
         
-        .status-circle { width: 10px; height: 10px; border-radius: 50%; }
+        .status-circle { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;}
         .status-circle.green { background-color: #2df2c1; box-shadow: 0 0 10px rgba(45, 242, 193, 0.5); }
         .status-circle.red { background-color: #cc2a2a; box-shadow: 0 0 10px rgba(204, 42, 42, 0.5); }
         
@@ -73,10 +80,11 @@
             padding: 10px 15px;
             border-radius: 8px;
             border: 1px solid rgba(255,255,255,0.05);
+            gap: 10px;
         }
-        .room-link-text { color: #3498db; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .room-link-text { color: #3498db; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; flex-grow: 1;}
         
-        .copy-btn { background: transparent; border: none; color: #bdc3c7; cursor: pointer; font-size: 1.2rem; transition: 0.3s; padding-left: 10px; }
+        .copy-btn { background: transparent; border: none; color: #bdc3c7; cursor: pointer; font-size: 1.2rem; transition: 0.3s; padding: 0; flex-shrink: 0;}
         .copy-btn:hover { color: #FFD342; transform: scale(1.1); }
 
         .room-jugar-btn { width: 100%; background: rgba(255, 211, 66, 0.1); color: #FFD342; border: 1px solid #FFD342; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 1rem; text-decoration: none; cursor: pointer; transition: 0.3s; text-align: center; display: block; box-sizing: border-box;}
@@ -87,9 +95,10 @@
         .room-jugar-btn.offline { color: #cc2a2a; border-color: #cc2a2a; background: rgba(204, 42, 42, 0.05); pointer-events: none; }
         
         @media (max-width: 768px) { 
-            .rooms-title { font-size: 1.8rem; margin-top: 20px;} 
-            .rooms-grid { grid-template-columns: 1fr; gap: 20px;}
-            .room-card { padding: 20px; }
+            .rooms-title { font-size: 1.6rem; margin-top: 20px;} 
+            .rooms-grid { grid-template-columns: 1fr; gap: 15px;} 
+            /* Reducimos el padding de 25px a 15px en celulares para que entre mejor */
+            .room-card { padding: 15px; } 
         }
     </style>
 </head>
@@ -152,7 +161,7 @@
                 return `
                     <div class="room-card inactive">
                         <div class="room-header">
-                            <h4 class="room-name" style="color: #7d7d7d;">${tituloCerrado}</h4>
+                            <h4 class="room-name" style="color: #7d7d7d;" title="${tituloCerrado}">${tituloCerrado}</h4>
                             <div class="room-status">
                                 <span class="status-circle red"></span>
                                 <span>OFF</span>
