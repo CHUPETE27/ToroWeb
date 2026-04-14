@@ -13,11 +13,14 @@
     </script>
 
     <style>
+        * { box-sizing: border-box; }
+        body { overflow-x: hidden; width: 100%; position: relative; overflow-y: auto; }
+
         main { display: flex; flex-direction: column; align-items: center; width: 95%; max-width: 1100px; margin: 5vh auto 50px; }
         .page-title { color: #FFD342; text-transform: uppercase; letter-spacing: 2px; font-size: 2.2rem; margin-bottom: 30px; text-align: center; }
 
-        .friends-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 25px; width: 100%; align-items: start; }
-        .panel { background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .friends-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 25px; width: 100%; align-items: start; max-width: 100vw;}
+        .panel { background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 100%;}
         .panel h3 { color: #5dc8e8; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 20px;}
 
         .add-friend-box { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; box-sizing: border-box;}
@@ -31,16 +34,17 @@
         .list-container::-webkit-scrollbar-thumb { background: #555; border-radius: 10px; }
         .empty-msg { color: #7d7d7d; text-align: center; font-style: italic; padding: 20px; }
 
-        .friend-card { background: #111; border: 1px solid #444; border-radius: 10px; padding: 15px; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; flex-wrap: wrap; gap: 10px;}
+        .friend-card { background: #111; border: 1px solid #444; border-radius: 10px; padding: 15px; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; flex-wrap: wrap; gap: 10px; width: 100%;}
         .friend-card:hover { border-color: #FFD342; transform: translateY(-3px); }
-        .friend-info { flex-grow: 1; }
-        .friend-info h4 { margin: 0 0 5px 0; color: #fff; font-size: 1.1rem;}
+        
+        .friend-info { flex-grow: 1; min-width: 0; overflow: hidden; }
+        .friend-info h4 { margin: 0 0 5px 0; color: #fff; font-size: 1.1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .friend-info span.id-tag { color: #7d7d7d; font-size: 0.85rem; }
         
-        .status-online { color: #2df2c1; font-size: 0.9rem; font-weight: bold;}
+        .status-online { color: #2df2c1; font-size: 0.9rem; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
         .status-offline { color: #7d7d7d; font-size: 0.9rem;}
 
-        .card-actions { display: flex; gap: 5px; }
+        .card-actions { display: flex; gap: 5px; flex-shrink: 0;}
         .btn-action { padding: 8px 15px; border-radius: 5px; border: none; font-weight: bold; cursor: pointer; transition: 0.2s; font-size: 0.9rem; text-align: center;}
         .btn-join { background: #FFD342; color: #111; text-decoration: none;}
         .btn-join:hover { box-shadow: 0 0 15px rgba(255, 211, 66, 0.5); }
@@ -53,10 +57,12 @@
 
         @media (max-width: 480px) {
             .page-title { font-size: 1.8rem; }
+            main { width: 100%; padding: 0 10px; max-width: 100vw; }
             .panel { padding: 15px; }
             .friend-card { flex-direction: column; align-items: stretch; text-align: center; }
             .card-actions { width: 100%; justify-content: center; }
             .btn-action { flex-grow: 1; }
+            .friend-info h4 { white-space: normal; } 
         }
     </style>
 </head>
@@ -72,7 +78,7 @@
             <div>
                 <div class="panel" style="margin-bottom: 25px;">
                     <h3><i class="fa-solid fa-user-plus"></i> Añadir Amigo</h3>
-                    <p style="color:#bdc3c7; font-size:0.9rem; margin-bottom: 15px;">Ingresa la ID de la sala del jugador.</p>
+                    <p style="color:#bdc3c7; font-size:0.9rem; margin-bottom: 15px;">Ingresa la ID del jugador.</p>
                     <div class="add-friend-box">
                         <input type="number" id="newFriendId" placeholder="Ej: 145">
                         <button onclick="enviarSolicitud()" id="btnAdd"><i class="fa-solid fa-paper-plane"></i></button>
