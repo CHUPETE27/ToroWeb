@@ -185,7 +185,7 @@
                 let salaSecundaria = null;
 
                 salas.forEach(sala => {
-                    if (sala.name.toLowerCase().includes('juegan todos')) {
+                    if (sala.id === 'jt_principal' || sala.name.toLowerCase().includes('juegan todos')) {
                         salaPrincipal = sala;
                     } else if (!salaSecundaria) {
                         salaSecundaria = sala;
