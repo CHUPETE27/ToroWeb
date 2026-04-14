@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Mi Perfil - ToroHax</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -15,59 +15,83 @@
     </script>
 
     <style>
-        .profile-container { width: 100%; max-width: 1100px; background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-top: 20px; display: none; }
+        * { box-sizing: border-box; }
+        body { overflow-x: hidden; width: 100%; position: relative; overflow-y: auto; max-width: 100vw; }
+
+        main { width: 95%; max-width: 1100px; margin: 5vh auto 50px; display: flex; flex-direction: column; align-items: center; }
+
+        .profile-container { width: 100%; background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none; overflow: hidden; }
         .profile-header { text-align: center; border-bottom: 2px solid #FFD342; padding-bottom: 25px; margin-bottom: 20px; }
-        .profile-header h2 { margin: 0; color: #FFD342; font-size: 2rem; text-transform: uppercase; }
+        .profile-header h2 { margin: 0; color: #FFD342; font-size: 2rem; text-transform: uppercase; word-break: break-word; }
         .profile-header p { margin: 5px 0 15px; color: #5dc8e8; font-size: 1.1rem; }
 
-        .rank-progress-container { width: 80%; max-width: 500px; margin: 0 auto; background: rgba(0, 0, 0, 0.4); padding: 15px; border-radius: 10px; border: 1px solid #333; }
+        .discord-avatar { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #FFD342; object-fit: cover; margin-bottom: 15px; box-shadow: 0 0 15px rgba(255, 211, 66, 0.4); }
+
+        .rank-progress-container { width: 100%; max-width: 500px; margin: 0 auto; background: rgba(0, 0, 0, 0.4); padding: 15px; border-radius: 10px; border: 1px solid #333; }
         .rank-progress-info { display: flex; justify-content: space-between; color: #bdc3c7; font-size: 0.9rem; margin-bottom: 8px; font-weight: bold; }
         .rank-progress-info .current-rank { color: #FFD342; }
         .rank-progress-info .next-rank { color: #5dc8e8; }
-        .rank-progress-bar { background: #111; border: 1px solid #444; border-radius: 10px; height: 14px; overflow: hidden; position: relative; }
+        .rank-progress-bar { background: #111; border: 1px solid #444; border-radius: 10px; height: 14px; overflow: hidden; position: relative; width: 100%; }
         .rank-progress-fill { background: linear-gradient(90deg, #FFD342, #ff7e5f); height: 100%; border-radius: 10px; width: 0%; transition: width 1.5s ease-in-out; box-shadow: 0 0 10px rgba(255, 211, 66, 0.5); }
 
-        .profile-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap;}
+        .profile-tabs { display: flex; justify-content: center; gap: 10px; margin-bottom: 25px; flex-wrap: wrap; width: 100%;}
         .tab-btn { background: rgba(0,0,0,0.5); color: #bdc3c7; border: 1px solid #333; padding: 12px 25px; border-radius: 8px; cursor: pointer; transition: 0.3s; font-weight: bold; flex-grow: 1; max-width: 250px; font-size: 1.05rem;}
         .tab-btn:hover { background: rgba(255, 211, 66, 0.1); border-color: #FFD342; color: #FFD342; }
         .tab-btn.active { background: #FFD342; color: #111; border-color: #FFD342; box-shadow: 0 0 15px rgba(255, 211, 66, 0.4); }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .stat-box { background: #111; border: 1px solid #444; border-radius: 10px; padding: 20px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; width: 100%;}
+        .stat-box { background: #111; border: 1px solid #444; border-radius: 10px; padding: 20px; width: 100%;}
         .stat-box h3 { margin: 0 0 15px; color: #FFD342; font-size: 1.2rem; text-align: center; border-bottom: 1px solid #333; padding-bottom: 10px;}
         .stat-box ul { list-style: none; padding: 0; margin: 0; }
         .stat-box li { margin-bottom: 8px; color: #ccc; font-size: 0.95rem; }
         .stat-box li strong { color: white; }
 
-        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 30px; }
-        .chart-box { background: #111; border: 1px solid #444; border-radius: 10px; padding: 20px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between;}
+        .charts-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 30px; width: 100%;}
+        .chart-box { background: #111; border: 1px solid #444; border-radius: 10px; padding: 20px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; width: 100%;}
         .chart-box h3 { margin: 0 0 10px; color: #FFD342; font-size: 1.2rem; }
         .chart-box p { color: #ccc; font-size: 0.9rem; margin-bottom: 15px; }
-        .chart-box img { max-width: 100%; height: auto; }
+        .chart-box img { max-width: 100%; height: auto; object-fit: contain; } /* Asegura que la imagen nunca supere la caja */
 
-        .vip-upsell { text-align: center; padding: 40px 20px; background: rgba(255, 211, 66, 0.05); border: 1px dashed #FFD342; border-radius: 15px; margin-top: 20px; }
+        .vip-upsell { text-align: center; padding: 40px 20px; background: rgba(255, 211, 66, 0.05); border: 1px dashed #FFD342; border-radius: 15px; margin-top: 20px; width: 100%;}
         .vip-upsell h3 { color: #FFD342; font-size: 1.8rem; margin-bottom: 10px; }
         .vip-upsell p { color: #bdc3c7; margin-bottom: 20px; }
         .btn-buy-vip { display: inline-block; background: #FFD342; color: #111; padding: 12px 30px; border-radius: 8px; font-weight: bold; text-decoration: none; font-size: 1.1rem; transition: 0.3s; }
         .btn-buy-vip:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(255, 211, 66, 0.5); }
 
-        .vip-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; }
-        .form-group { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border: 1px solid #333; }
+        .vip-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; width: 100%;}
+        .form-group { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border: 1px solid #333; width: 100%;}
         .form-group label { display: block; color: #2df2c1; margin-bottom: 8px; font-weight: bold; }
         .form-control { width: 100%; background: #111; color: white; border: 1px solid #555; padding: 12px; border-radius: 5px; box-sizing: border-box; font-family: inherit; }
         .form-control:focus { border-color: #FFD342; outline: none; }
         input[type="color"].form-control { padding: 5px; cursor: pointer; height: 45px; }
         
-        .save-btn { grid-column: span 2; background: #2df2c1; color: #111; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.2rem; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .save-btn { grid-column: span 2; background: #2df2c1; color: #111; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.2rem; cursor: pointer; transition: 0.3s; margin-top: 10px; width: 100%;}
         .save-btn:hover { background: #24c29a; box-shadow: 0 0 15px rgba(45, 242, 193, 0.4); }
 
-        .loading-text { text-align: center; font-size: 1.5rem; color: #FFD342; margin-top: 100px;}
+        .loading-text { text-align: center; font-size: 1.5rem; color: #FFD342; margin-top: 100px; width: 100%;}
 
-        @media (max-width: 768px) { .vip-form-grid { grid-template-columns: 1fr; } .save-btn { grid-column: span 1; } .tab-btn { max-width: 100%; } }
+        @media (max-width: 768px) { 
+            .vip-form-grid { grid-template-columns: 1fr; } 
+            .save-btn { grid-column: span 1; } 
+            .tab-btn { max-width: 100%; } 
+            .charts-grid { grid-template-columns: 1fr; }
+        }
+        
+        @media (max-width: 480px) {
+            main { width: 100%; padding: 0 10px; margin-top: 3vh; }
+            .profile-container { padding: 20px 15px; }
+            
+            .profile-header h2 { font-size: 1.6rem; }
+
+            .rank-progress-info { font-size: 0.75rem; flex-wrap: wrap; justify-content: center; gap: 5px;}
+            #eloCenterText { width: 100%; text-align: center; order: 3; margin-top: 5px;}
+            
+            .tab-btn { font-size: 0.9rem; padding: 10px; }
+            .chart-box { padding: 15px 10px; }
+        }
     </style>
 </head>
 <body>
-
     <header></header>
 
     <main>
@@ -81,8 +105,8 @@
                 <div class="rank-progress-container" id="rankContainer">
                     <div class="rank-progress-info">
                         <span class="current-rank" id="rankMinText">0</span>
-                        <span id="eloCenterText">0 / 0 Elo (0%)</span>
                         <span class="next-rank" id="rankMaxText">0</span>
+                        <span id="eloCenterText">0 / 0 Elo (0%)</span>
                     </div>
                     <div class="rank-progress-bar">
                         <div class="rank-progress-fill" id="rankProgressBar"></div>
