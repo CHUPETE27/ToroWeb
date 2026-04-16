@@ -222,7 +222,7 @@
         iniciarCarga();
 
         function cargarPartidos() {
-            fetch('https://torobot-izu5.onrender.com/api/matches/seleccion')
+            fetch('https://torobot-izu5.onrender.com/api/seleccion/live')
             .then(res => res.json())
             .then(data => {
                 if(data.success) {
