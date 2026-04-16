@@ -13,18 +13,18 @@
         main { display: flex; flex-direction: column; align-items: center; width: 95%; max-width: 1000px; margin: 5vh auto 50px; text-align: center; }
         
         .rankings-title { color: #FFD342; text-transform: uppercase; letter-spacing: 2px; font-size: 2.2rem; margin-bottom: 30px; }
-        .my-rank-alert { background: rgba(45, 242, 193, 0.1); color: #2df2c1; border: 1px solid #2df2c1; padding: 10px 20px; border-radius: 8px; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; display: none; width: 100%; max-width: 600px; box-shadow: 0 0 10px rgba(45, 242, 193, 0.2);}
         
-        .search-container { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; max-width: 500px; }
+        .search-container { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; max-width: 600px; }
         .search-container input { flex-grow: 1; background: #111; color: white; border: 1px solid #555; padding: 12px; border-radius: 8px; outline: none; text-align: center; font-size: 1rem;}
         .search-container input:focus { border-color: #FFD342; }
         .search-container button { background: #FFD342; color: #111; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; flex-shrink: 0;}
         .search-container button:hover { transform: scale(1.05); }
 
-        .filter-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 30px; border: 1px solid #333; width: 100%; max-width: 470px;}
+        .filter-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 30px; border: 1px solid #333; width: 100%; max-width: 600px;}
         .filter-btn { background: transparent; color: #bdc3c7; border: none; padding: 10px 25px; border-radius: 20px; cursor: pointer; transition: 0.3s; font-weight: bold; font-size: 1.05rem; }
         .filter-btn:hover { color: #FFD342; }
         .filter-btn.active { background: #FFD342; color: #111; box-shadow: 0 0 15px rgba(104, 201, 163, 0.4); }
+        .my-rank-alert { background: rgba(45, 242, 193, 0.1); color: #2df2c1; border: 1px solid #2df2c1; padding: 10px 20px; border-radius: 8px; margin-bottom: 20px; font-weight: bold; font-size: 1.1rem; display: block; width: 100%; max-width: 600px; box-shadow: 0 0 10px rgba(45, 242, 193, 0.2);}
 
         .tabs-container { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; width: 100%; max-width: 100%;}
         .tab-btn { background: rgba(0,0,0,0.5); color: #bdc3c7; border: 1px solid #333; padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s; font-weight: bold; flex-grow: 1; max-width: 180px;}
@@ -112,7 +112,7 @@
         </div>
 
         <div id="myRankAlert" class="my-rank-alert">
-            <i class="fa-solid fa-ranking-star"></i> Tu posición actual: <span id="myPositionNumber">...</span>
+            <i class="fa-solid fa-spinner fa-spin"></i> Cargando tu posición...
         </div>
 
         <div class="table-container">
@@ -204,16 +204,31 @@
         }
 
         function actualizarPosicion() {
-            if (!loggedUserId) return;
+            const alertBox = document.getElementById('myRankAlert');
+
+            if (!loggedUserId) {
+                alertBox.innerHTML = '⚠️ Inicia sesión para ver tu posición aquí';
+                alertBox.style.color = '#FFD342';
+                alertBox.style.borderColor = '#FFD342';
+                return;
+            }
+
+            alertBox.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Calculando tu posición...';
+            alertBox.style.color = '#2df2c1';
+            alertBox.style.borderColor = '#2df2c1';
             
             fetch(`https://torobot-izu5.onrender.com/api/my-rank-position?userId=${loggedUserId}&category=${categoriaActual}&filter=${filtroActual}`)
             .then(res => res.json())
             .then(data => {
                 if(data.success && data.position) {
-                    document.getElementById('myRankAlert').style.display = 'block';
-                    document.getElementById('myPositionNumber').innerText = data.position;
+                    alertBox.innerHTML = `<i class="fa-solid fa-ranking-star"></i> Tu posición actual: <span>${data.position}</span>`;
+                } else {
+                    alertBox.innerHTML = `<i class="fa-solid fa-ranking-star"></i> Tu posición actual: <span>No clasificado</span>`;
                 }
-            }).catch(e => console.log(e));
+            }).catch(e => {
+                console.log(e);
+                alertBox.innerHTML = `❌ Error al obtener tu posición`;
+            });
         }
 
         function cambiarFiltro(nuevoFiltro) {
