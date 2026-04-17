@@ -114,11 +114,11 @@
                     </div>
 
                     <div id="proximos" class="tab-content active">
-                        <div id="proximos-lista" class="match-list-container"><p style="text-align:center; color:#7d7d7d;">Cargando partidos...</p></div>
+                        <div id="proximos-lista" class="match-list-container"><p style="text-align:center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando partidos...</p></div>
                     </div>
 
                     <div id="historial" class="tab-content">
-                        <div id="historial-lista" class="match-list-container"><p style="text-align:center; color:#7d7d7d;">Cargando historial...</p></div>
+                        <div id="historial-lista" class="match-list-container"><p style="text-align:center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando historial...</p></div>
                     </div>
 
                     <button id="btnEditar" class="edit-btn" onclick="abrirModalNuevo()"><i class="fa-solid fa-plus"></i> Añadir Partido</button>
@@ -131,11 +131,11 @@
                 </div>
                 <div class="box list-box">
                     <h3>🏆 Vitrina</h3>
-                    <ul id="listaVitrina"><li>Cargando trofeos...</li></ul>
+                    <ul id="listaVitrina"><li><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</li></ul>
                 </div>
                 <div class="box list-box">
                     <h3>⚽ Jugadores</h3>
-                    <ul id="listaJugadores"><li>Cargando plantilla...</li></ul>
+                    <ul id="listaJugadores"><li><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</li></ul>
                 </div>
             </div>
         </div>
@@ -183,53 +183,52 @@
         let isManager = false;
         let editingId = null;
 
-        function iniciarCarga() {
+        function iniciarCargaJugadores() {
             const ulJugadores = document.getElementById('listaJugadores');
             const ulVitrina = document.getElementById('listaVitrina');
-            const proxDiv = document.getElementById('proximos-lista');
-            const histDiv = document.getElementById('historial-lista');
-
-            ulJugadores.innerHTML = '<li><i class="fa-solid fa-spinner fa-spin"></i> Conectando al servidor...</li>';
-            ulVitrina.innerHTML = '<li><i class="fa-solid fa-spinner fa-spin"></i> Conectando al servidor...</li>';
-            proxDiv.innerHTML = '<p style="text-align:center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Despertando bot (puede tardar 50s)...</p>';
-            histDiv.innerHTML = '<p style="text-align:center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Despertando bot...</p>';
 
             fetch(`https://torobot-izu5.onrender.com/api/seleccion/data?numericId=${loggedId}`)
-            .then(res => {
-                if(!res.ok) throw new Error("Servidor no responde");
-                return res.json();
-            })
+            .then(res => res.json())
             .then(data => {
                 if(data.success) {
                     if(data.canEdit) {
                         isManager = true;
                         document.getElementById('btnEditar').style.display = 'block';
+                        cargarPartidos();
                     }
                     ulJugadores.innerHTML = '';
-                    if(data.jugadores.length > 0) data.jugadores.forEach(jug => ulJugadores.innerHTML += `<li>${jug}</li>`);
+                    if(data.jugadores && data.jugadores.length > 0) data.jugadores.forEach(jug => ulJugadores.innerHTML += `<li>${jug}</li>`);
                     else ulJugadores.innerHTML = '<li>No hay jugadores registrados.</li>';
 
                     ulVitrina.innerHTML = '';
-                    if(data.trofeos.length > 0) data.trofeos.forEach(trofeo => ulVitrina.innerHTML += `<li>${trofeo}</li>`);
+                    if(data.trofeos && data.trofeos.length > 0) data.trofeos.forEach(trofeo => ulVitrina.innerHTML += `<li>${trofeo}</li>`);
                     else ulVitrina.innerHTML = '<li>Vitrina en construcción.</li>';
-                    cargarPartidos(); 
+                } else {
+                    ulJugadores.innerHTML = '<li>No se pudo obtener la plantilla.</li>';
+                    ulVitrina.innerHTML = '<li>No se pudo obtener la vitrina.</li>';
                 }
             })
             .catch(err => {
-                ulJugadores.innerHTML = '<li><i class="fa-solid fa-spinner fa-spin"></i> El bot está despertando. Reintentando...</li>';
-                setTimeout(iniciarCarga, 5000); 
+                ulJugadores.innerHTML = '<li><i class="fa-solid fa-spinner fa-spin"></i> Reintentando conexión...</li>';
+                setTimeout(iniciarCargaJugadores, 5000); 
             });
         }
-        iniciarCarga();
 
         function cargarPartidos() {
+            const proxDiv = document.getElementById('proximos-lista');
+            const histDiv = document.getElementById('historial-lista');
+
+            if (!proxDiv.innerHTML.includes('match-row')) {
+                proxDiv.innerHTML = '<p style="text-align:center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Obteniendo partidos...</p>';
+                histDiv.innerHTML = '<p style="text-align:center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Obteniendo historial...</p>';
+            }
+
             fetch('https://torobot-izu5.onrender.com/api/matches/seleccion')
             .then(res => res.json())
             .then(data => {
                 if(data.success) {
-                    const proxDiv = document.getElementById('proximos-lista');
-                    const histDiv = document.getElementById('historial-lista');
-                    proxDiv.innerHTML = ''; histDiv.innerHTML = '';
+                    proxDiv.innerHTML = ''; 
+                    histDiv.innerHTML = '';
 
                     const hoy = new Date();
                     hoy.setHours(0, 0, 0, 0);
@@ -237,13 +236,14 @@
                     const formatFecha = (dateStr) => {
                         if(!dateStr) return '';
                         const parts = dateStr.split('-'); 
-                        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+                        if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+                        return dateStr;
                     };
 
                     data.matches.forEach(m => {
-                        const fechaPartido = new Date(m.date + 'T00:00:00');
+                        const fechaPartido = m.date ? new Date(m.date + 'T00:00:00') : new Date(0);
                         
-                        if (!m.isHistory && fechaPartido < hoy) {
+                        if (!m.isHistory && m.date && fechaPartido < hoy) {
                             if (isManager) {
                                 fetch(`https://torobot-izu5.onrender.com/api/matches/${m._id}`, {
                                     method: 'DELETE',
@@ -256,7 +256,7 @@
 
                         const acciones = isManager ? `
                             <div class="action-icons">
-                                <i class="fa-solid fa-pen edit-action-icon" onclick="abrirModalEditar('${m._id}', ${m.isHistory}, '${m.rival}', ${m.golesLocal}, ${m.golesVisita}, '${m.matchType}', '${m.date}')"></i>
+                                <i class="fa-solid fa-pen edit-action-icon" onclick="abrirModalEditar('${m._id}', ${m.isHistory}, '${m.rival || ''}', ${m.golesLocal || 0}, ${m.golesVisita || 0}, '${m.matchType || 'Amistoso'}', '${m.date || ''}')"></i>
                                 <i class="fa-solid fa-trash delete-icon" onclick="borrarPartido('${m._id}')"></i>
                             </div>` : '';
                         
@@ -268,8 +268,8 @@
                             histDiv.innerHTML += `
                                 <div class="match-row">
                                     <div class="match-result ${resultClass}">(${resultText})</div> 
-                                    <div class="match-teams">ToroHax ${m.golesLocal} - ${m.golesVisita} ${m.rival}</div>
-                                    <div class="match-type">${m.matchType}</div>
+                                    <div class="match-teams">ToroHax ${m.golesLocal || 0} - ${m.golesVisita || 0} ${m.rival || 'Rival'}</div>
+                                    <div class="match-type">${m.matchType || 'Amistoso'}</div>
                                     <div class="match-date">${formatFecha(m.date)}</div>
                                     ${acciones}
                                 </div>
@@ -278,8 +278,8 @@
                             proxDiv.innerHTML += `
                                 <div class="match-row">
                                     <div class="match-result" style="width: 0px; margin: 0;"></div> 
-                                    <div class="match-teams">ToroHax vs ${m.rival}</div>
-                                    <div class="match-type">${m.matchType}</div>
+                                    <div class="match-teams">ToroHax vs ${m.rival || 'Rival'}</div>
+                                    <div class="match-type">${m.matchType || 'Amistoso'}</div>
                                     <div class="match-date">${formatFecha(m.date)}</div>
                                     ${acciones}
                                 </div>
@@ -289,9 +289,21 @@
 
                     if (proxDiv.innerHTML === '') proxDiv.innerHTML = '<p style="text-align:center; color:#7d7d7d;">No hay partidos programados.</p>';
                     if (histDiv.innerHTML === '') histDiv.innerHTML = '<p style="text-align:center; color:#7d7d7d;">El historial está vacío.</p>';
+                } else {
+                    proxDiv.innerHTML = '<p style="text-align:center; color:#cc2a2a;">Error al cargar partidos desde la DB.</p>';
+                    histDiv.innerHTML = '<p style="text-align:center; color:#cc2a2a;">Error al cargar el historial.</p>';
                 }
+            })
+            .catch(e => {
+                console.error(e);
+                document.getElementById('proximos-lista').innerHTML = '<p style="text-align:center; color:#cc2a2a;">Error de red. Reintentando...</p>';
+                document.getElementById('historial-lista').innerHTML = '<p style="text-align:center; color:#cc2a2a;">Error de red. Reintentando...</p>';
+                setTimeout(cargarPartidos, 5000);
             });
         }
+
+        iniciarCargaJugadores();
+        cargarPartidos();
 
         function abrirModalNuevo() {
             editingId = null;
