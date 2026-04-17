@@ -67,9 +67,7 @@
         .close-modal:hover { color: #cc2a2a; transform: scale(1.1); }
         
         .modal-header { text-align: center; border-bottom: 2px solid #FFD342; padding-bottom: 20px; margin-bottom: 25px; }
-        
         .modal-avatar { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #FFD342; object-fit: cover; margin-bottom: 10px; box-shadow: 0 0 15px rgba(255, 211, 66, 0.4); display: inline-block;}
-        
         .modal-name { color: #FFD342; font-size: 2rem; margin: 0; text-transform: uppercase; word-break: break-word;}
         .modal-discord { color: #5dc8e8; font-size: 1.1rem; margin-top: 5px; display: inline-block; font-weight: bold; cursor: text;}
         .modal-id-rank { color:#bdc3c7; margin-top:10px; font-size: 1.1rem;}
@@ -235,17 +233,6 @@
             'arqueros': ['Atajadas', 'Atajadas / Partido']
         };
 
-        const rankThresholds = [
-            { min: 0, max: 360, name: "🐓 Gallina" },
-            { min: 360, max: 810, name: "🦙 Llama" },
-            { min: 810, max: 1400, name: "🐑 Oveja" },
-            { min: 1400, max: 2150, name: "🐖 Cerdo" },
-            { min: 2150, max: 3050, name: "🐄 Vaca" },
-            { min: 3050, max: 3950, name: "🐎 Caballo" },
-            { min: 3950, max: 5000, name: "🐃 Búfalo" },
-            { min: 5000, max: 99999, name: "🐂 Toro" }
-        ];
-
         function getNivelRango(elo, min, max) {
             const tercio = (max - min) / 3;
             if (elo < min + tercio) return "1️⃣";
@@ -382,7 +369,11 @@
                     return;
                 }
 
-                document.getElementById('m_avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=111&color=FFD342&rounded=true&bold=true&size=100`;
+                if (p.discordAvatarUrl) {
+                    document.getElementById('m_avatar').src = p.discordAvatarUrl;
+                } else {
+                    document.getElementById('m_avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=111&color=FFD342&rounded=true&bold=true&size=100`;
+                }
 
                 const dLabel = document.getElementById('m_discord');
                 if (p.discordName) {
