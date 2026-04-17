@@ -25,8 +25,6 @@
         .profile-header { text-align: center; border-bottom: 2px solid #FFD342; padding-bottom: 25px; margin-bottom: 20px; }
         .profile-header h2 { margin: 0; color: #FFD342; font-size: 2rem; text-transform: uppercase; word-break: break-word; }
         .profile-header p { margin: 5px 0 15px; color: #5dc8e8; font-size: 1.1rem; }
-        
-        .discord-avatar { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #FFD342; object-fit: cover; margin-bottom: 15px; box-shadow: 0 0 15px rgba(255, 211, 66, 0.4); }
 
         .rank-progress-container { width: 100%; max-width: 500px; margin: 0 auto; background: rgba(0, 0, 0, 0.4); padding: 15px; border-radius: 10px; border: 1px solid #333; }
         .rank-progress-info { display: flex; justify-content: space-between; color: #bdc3c7; font-size: 0.9rem; margin-bottom: 8px; font-weight: bold; }
@@ -100,8 +98,6 @@
 
         <div class="profile-container" id="profileContainer">
             <div class="profile-header">
-                <img id="discordPfp" class="discord-avatar" src="" alt="Avatar" style="display: none;">
-                
                 <h2 id="playerName">Nombre</h2>
                 <p>ID: <strong id="playerID">#0</strong> | Rango: <strong id="playerRank">...</strong></p>
 
@@ -246,19 +242,16 @@
             document.getElementById('loading').style.display = 'none';
             document.getElementById('profileContainer').style.display = 'block';
 
-            const avatarImg = document.getElementById('discordPfp');
-            let urlAvatar = "";
-
-            if (player.discordAvatarUrl) {
-                urlAvatar = player.discordAvatarUrl;
-            } else {
-                urlAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(player.name)}&background=111&color=FFD342&rounded=true&bold=true&size=100`;
-            }
-
-            avatarImg.src = urlAvatar;
-            avatarImg.style.display = 'inline-block';
-            
+            const urlAvatar = player.discordAvatarUrl ? player.discordAvatarUrl : `https://ui-avatars.com/api/?name=${encodeURIComponent(player.name)}&background=111&color=FFD342&rounded=true&bold=true&size=100`;
             localStorage.setItem('toroHaxUserAvatar', urlAvatar);
+
+            const headerLogo = document.querySelector('.logo-container img');
+            if (headerLogo) {
+                headerLogo.src = urlAvatar;
+                headerLogo.style.borderRadius = '50%';
+                headerLogo.style.border = '2px solid #FFD342';
+                headerLogo.style.objectFit = 'cover';
+            }
 
             if (player.isVip) {
                 document.getElementById('vipUpsellBlock').style.display = 'none';

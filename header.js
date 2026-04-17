@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const currentPage = window.location.pathname.split("/").pop();
     const isIndex = currentPage === "" || currentPage === "index.html";
+    const isPerfil = currentPage === "perfil.html";
 
     const logoContainer = document.createElement('div');
     logoContainer.className = 'logo-container';
@@ -14,7 +15,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const loggedId = localStorage.getItem('toroHaxLoggedId');
     const userAvatar = localStorage.getItem('toroHaxUserAvatar');
 
-    if (loggedId && userAvatar) {
+    if (isPerfil && loggedId && userAvatar) {
         logoImg.src = userAvatar;
         logoImg.alt = 'Mi Perfil';
         logoImg.style.borderRadius = '50%';
