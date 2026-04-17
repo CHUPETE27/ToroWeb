@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", function() {
         logoImg.style.objectFit = 'cover';
         logoImg.style.border = '2px solid #FFD342';
     } else if (isSeleccion) {
-        logoImg.src = 'logo_seleccion.png';
+        logoImg.src = 'path1.png';
         logoImg.alt = 'ToroHax Selección';
     } else {
         logoImg.src = 'logo_torohax.png';
