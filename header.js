@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", function() {
     const currentPage = window.location.pathname.split("/").pop();
     const isIndex = currentPage === "" || currentPage === "index.html";
     const isPerfil = currentPage === "perfil.html";
+    const isSeleccion = currentPage === "seleccion.html";
 
     const logoContainer = document.createElement('div');
     logoContainer.className = 'logo-container';
@@ -21,6 +22,9 @@ document.addEventListener("DOMContentLoaded", function() {
         logoImg.style.borderRadius = '50%';
         logoImg.style.objectFit = 'cover';
         logoImg.style.border = '2px solid #FFD342';
+    } else if (isSeleccion) {
+        logoImg.src = 'logo_seleccion.png';
+        logoImg.alt = 'ToroHax Selección';
     } else {
         logoImg.src = 'logo_torohax.png';
         logoImg.alt = 'ToroHax Logo';
