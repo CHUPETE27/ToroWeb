@@ -11,8 +11,19 @@ document.addEventListener("DOMContentLoaded", function() {
     logoContainer.style.cursor = 'pointer'; 
 
     const logoImg = document.createElement('img');
-    logoImg.src = 'logo_torohax.png';
-    logoImg.alt = 'ToroHax Logo';
+    const loggedId = localStorage.getItem('toroHaxLoggedId');
+    const userAvatar = localStorage.getItem('toroHaxUserAvatar');
+
+    if (loggedId && userAvatar) {
+        logoImg.src = userAvatar;
+        logoImg.alt = 'Mi Perfil';
+        logoImg.style.borderRadius = '50%';
+        logoImg.style.objectFit = 'cover';
+        logoImg.style.border = '2px solid #FFD342';
+    } else {
+        logoImg.src = 'logo_torohax.png';
+        logoImg.alt = 'ToroHax Logo';
+    }
 
     logoContainer.appendChild(logoImg);
 
