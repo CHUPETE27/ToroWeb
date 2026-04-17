@@ -25,7 +25,7 @@
         .profile-header { text-align: center; border-bottom: 2px solid #FFD342; padding-bottom: 25px; margin-bottom: 20px; }
         .profile-header h2 { margin: 0; color: #FFD342; font-size: 2rem; text-transform: uppercase; word-break: break-word; }
         .profile-header p { margin: 5px 0 15px; color: #5dc8e8; font-size: 1.1rem; }
-
+        
         .discord-avatar { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #FFD342; object-fit: cover; margin-bottom: 15px; box-shadow: 0 0 15px rgba(255, 211, 66, 0.4); }
 
         .rank-progress-container { width: 100%; max-width: 500px; margin: 0 auto; background: rgba(0, 0, 0, 0.4); padding: 15px; border-radius: 10px; border: 1px solid #333; }
@@ -100,6 +100,8 @@
 
         <div class="profile-container" id="profileContainer">
             <div class="profile-header">
+                <img id="discordPfp" class="discord-avatar" src="" alt="Avatar" style="display: none;">
+                
                 <h2 id="playerName">Nombre</h2>
                 <p>ID: <strong id="playerID">#0</strong> | Rango: <strong id="playerRank">...</strong></p>
 
@@ -137,25 +139,21 @@
                 </div>
 
                 <div class="charts-grid" id="chartSection" style="display: none;">
-                    
                     <div class="chart-box">
                         <h3><i class="fa-solid fa-spider"></i> Atributos</h3>
                         <p>Perfil técnico</p>
                         <img id="chartRadar" src="" alt="Gráfico Radar">
                     </div>
-
                     <div class="chart-box">
                         <h3><i class="fa-solid fa-balance-scale"></i> Estilo: <span id="playerPosition" style="color:white;">...</span></h3>
                         <p>⚔️ Atq: <span id="atkPct">0</span>% | 🛡️ Def: <span id="defPct">0</span>%</p>
                         <img id="chartPie" src="" alt="Gráfico Circular">
                     </div>
-
                     <div class="chart-box">
                         <h3><i class="fa-solid fa-clock-rotate-left"></i> Historial</h3>
                         <p>Distribución de resultados.</p>
                         <img id="chartDoughnut" src="" alt="Gráfico de Historial">
                     </div>
-
                 </div>
                 <div id="noChartsMsg" style="text-align: center; color: #ccc; margin-bottom: 20px;"></div>
             </div>
