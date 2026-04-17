@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Mi Perfil - ToroHax</title>
+    <link rel="icon" type="image/png" href="logo_torohax.png">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -246,6 +247,20 @@
 
             document.getElementById('loading').style.display = 'none';
             document.getElementById('profileContainer').style.display = 'block';
+
+            const avatarImg = document.getElementById('discordPfp');
+            let urlAvatar = "";
+
+            if (player.discordAvatarUrl) {
+                urlAvatar = player.discordAvatarUrl;
+            } else {
+                urlAvatar = `https://ui-avatars.com/api/?name=${encodeURIComponent(player.name)}&background=111&color=FFD342&rounded=true&bold=true&size=100`;
+            }
+
+            avatarImg.src = urlAvatar;
+            avatarImg.style.display = 'inline-block';
+            
+            localStorage.setItem('toroHaxUserAvatar', urlAvatar);
 
             if (player.isVip) {
                 document.getElementById('vipUpsellBlock').style.display = 'none';

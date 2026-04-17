@@ -1,35 +1,58 @@
-document.addEventListener("DOMContentLoaded", function() {
-    if (window.location.pathname.includes('login.html')) {
-        return; 
-    }
+document.addEventListener('DOMContentLoaded', () => {
+    const headerHTML = `
+        <div class="nav-container">
+            <div class="logo">
+                <img src="logo_torohax.png" alt="ToroHax Logo">
+                ToroHax
+            </div>
+            
+            <button class="mobile-menu-btn" onclick="toggleSidebar()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
 
-    const currentPage = window.location.pathname.split("/").pop();
-    const isIndex = currentPage === "" || currentPage === "index.html";
+            <nav class="desktop-nav">
+                <a href="index.html">Inicio</a>
+                <a href="ranking.html">Rankings</a>
+                <a href="toromatch.html">ToroMatch</a>
+                <a href="salas.html">Salas</a>
+                <a href="tienda.html">Tienda</a>
+                <div id="header-profile-btn-container"></div>
+            </nav>
+        </div>
+    `;
 
-    const logoContainer = document.createElement('div');
-    logoContainer.className = 'logo-container';
-    logoContainer.style.cursor = 'pointer';
+    document.querySelector('header').innerHTML = headerHTML;
 
-    const logoImg = document.createElement('img');
-    logoImg.src = 'logo_torohax.png';
-    logoImg.alt = 'ToroHax Logo';
+    const loggedId = localStorage.getItem('toroHaxLoggedId');
+    const userAvatar = localStorage.getItem('toroHaxUserAvatar'); // Traemos la foto guardada
+    const profileBtnContainer = document.getElementById('header-profile-btn-container');
 
-    logoContainer.appendChild(logoImg);
-
-    logoContainer.addEventListener('click', () => {
-        if (isIndex) {
-            if (typeof checkLogin === 'function') {
-                checkLogin('perfil.html');
-            } else {
-                window.location.href = 'login.html';
-            }
+    if (loggedId) {
+        if (userAvatar) {
+            profileBtnContainer.innerHTML = `
+                <a href="perfil.html" class="profile-btn" style="padding: 5px; border-radius: 50%;">
+                    <img src="${userAvatar}" alt="Perfil" style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover;">
+                </a>
+            `;
         } else {
-            window.location.href = 'index.html';
+            profileBtnContainer.innerHTML = `
+                <a href="perfil.html" class="profile-btn">
+                    <i class="fa-solid fa-user"></i> Mi Perfil
+                </a>
+            `;
         }
-    });
-
-    const mainElement = document.querySelector('main');
-    if (mainElement) {
-        document.body.insertBefore(logoContainer, mainElement);
+    } else {
+        profileBtnContainer.innerHTML = `
+            <a href="login.html" class="login-btn">
+                <i class="fa-solid fa-right-to-bracket"></i> Iniciar Sesión
+            </a>
+        `;
     }
 });
+
+function toggleSidebar() {
+    const sidebar = document.getElementById('mobileSidebar');
+    if (sidebar) {
+        sidebar.classList.toggle('active');
+    }
+}
