@@ -82,7 +82,7 @@
         @media (max-width: 900px) { .seleccion-wrapper { grid-template-columns: 1fr; } }
         
         @media (max-width: 480px) { 
-            .seleccion-wrapper { padding: 0 10px; width: 100%; margin-top: 3vh;}
+            .seleccion-wrapper { padding: 0 10px; width: 100%; margin-top: 12vh;}
             .score-text { font-size: 1.8rem; }
             .box { padding: 15px; padding-bottom: 60px; } 
             
@@ -223,7 +223,7 @@
         iniciarCarga();
 
         function cargarPartidos() {
-            fetch('https://torobot-izu5.onrender.com/api/seleccion/live')
+            fetch('https://torobot-izu5.onrender.com/api/matches/seleccion')
             .then(res => res.json())
             .then(data => {
                 if(data.success) {
@@ -322,6 +322,7 @@
         }
 
         function cerrarModal() { document.getElementById('editModal').style.display = 'none'; }
+        
         function toggleGoles() {
             const esHistorial = document.getElementById('m_target').value === 'historial';
             document.getElementById('goles_inputs').style.display = esHistorial ? 'flex' : 'none';
