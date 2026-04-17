@@ -67,8 +67,11 @@
         .close-modal:hover { color: #cc2a2a; transform: scale(1.1); }
         
         .modal-header { text-align: center; border-bottom: 2px solid #FFD342; padding-bottom: 20px; margin-bottom: 25px; }
+        
+        .modal-avatar { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #FFD342; object-fit: cover; margin-bottom: 10px; box-shadow: 0 0 15px rgba(255, 211, 66, 0.4); display: inline-block;}
+        
         .modal-name { color: #FFD342; font-size: 2rem; margin: 0; text-transform: uppercase; word-break: break-word;}
-        .modal-discord { color: #5dc8e8; font-size: 1.1rem; margin-top: 5px; display: inline-block; font-weight: bold; }
+        .modal-discord { color: #5dc8e8; font-size: 1.1rem; margin-top: 5px; display: inline-block; font-weight: bold; cursor: text;}
         .modal-id-rank { color:#bdc3c7; margin-top:10px; font-size: 1.1rem;}
         .modal-id-rank strong { color: white; }
 
@@ -168,6 +171,7 @@
             <i class="fa-solid fa-xmark close-modal" onclick="cerrarModal()"></i>
             
             <div class="modal-header">
+                <img id="m_avatar" class="modal-avatar" src="" alt="Avatar">
                 <h2 id="m_name" class="modal-name">Cargando...</h2>
                 <span id="m_discord" class="modal-discord"></span>
                 <p class="modal-id-rank">ID: <strong id="m_id">#0</strong> | Rango: <strong id="m_rank">...</strong></p>
@@ -378,12 +382,14 @@
                     return;
                 }
 
+                document.getElementById('m_avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=111&color=FFD342&rounded=true&bold=true&size=100`;
+
                 const dLabel = document.getElementById('m_discord');
                 if (p.discordName) {
                     dLabel.innerHTML = `<i class="fa-brands fa-discord"></i> ${p.discordName}`;
                     dLabel.style.display = 'inline-block';
                 } else if (p.discordId) {
-                    dLabel.innerHTML = `<i class="fa-brands fa-discord"></i> Usuario Oculto`;
+                    dLabel.innerHTML = `<i class="fa-brands fa-discord"></i> ID: ${p.discordId}`;
                     dLabel.style.display = 'inline-block';
                 } else {
                     dLabel.style.display = 'none';
