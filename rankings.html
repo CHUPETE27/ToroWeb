@@ -67,7 +67,6 @@
         .close-modal:hover { color: #cc2a2a; transform: scale(1.1); }
         
         .modal-header { text-align: center; border-bottom: 2px solid #FFD342; padding-bottom: 20px; margin-bottom: 25px; }
-        .modal-avatar { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #FFD342; object-fit: cover; margin-bottom: 10px; box-shadow: 0 0 15px rgba(255, 211, 66, 0.4); }
         .modal-name { color: #FFD342; font-size: 2rem; margin: 0; text-transform: uppercase; word-break: break-word;}
         .modal-discord { color: #5dc8e8; font-size: 1.1rem; margin-top: 5px; display: inline-block; font-weight: bold; }
         .modal-id-rank { color:#bdc3c7; margin-top:10px; font-size: 1.1rem;}
@@ -169,7 +168,6 @@
             <i class="fa-solid fa-xmark close-modal" onclick="cerrarModal()"></i>
             
             <div class="modal-header">
-                <img id="m_avatar" class="modal-avatar" src="" alt="Avatar">
                 <h2 id="m_name" class="modal-name">Cargando...</h2>
                 <span id="m_discord" class="modal-discord"></span>
                 <p class="modal-id-rank">ID: <strong id="m_id">#0</strong> | Rango: <strong id="m_rank">...</strong></p>
@@ -244,12 +242,25 @@
             { min: 5000, max: 99999, name: "🐂 Toro" }
         ];
 
+        function getNivelRango(elo, min, max) {
+            const tercio = (max - min) / 3;
+            if (elo < min + tercio) return "1️⃣";
+            if (elo < min + tercio * 2) return "2️⃣";
+            return "3️⃣";
+        }
+
         function getPlayerRankString(elo) {
-            const currentElo = elo || 200;
-            for (let rank of rankThresholds) {
-                if (currentElo >= rank.min && currentElo < rank.max) return rank.name;
-            }
-            return "🐂 Toro";
+            const currentElo = elo !== undefined ? elo : 200;
+            let avatar = ""; let nivel = "";
+            if (currentElo < 360) { avatar = "🐓"; nivel = getNivelRango(currentElo, 0, 360); }
+            else if (currentElo < 810) { avatar = "🦙"; nivel = getNivelRango(currentElo, 360, 810); }
+            else if (currentElo < 1400) { avatar = "🐑"; nivel = getNivelRango(currentElo, 810, 1400); }
+            else if (currentElo < 2150) { avatar = "🐖"; nivel = getNivelRango(currentElo, 1400, 2150); }
+            else if (currentElo < 3050) { avatar = "🐄"; nivel = getNivelRango(currentElo, 2150, 3050); }
+            else if (currentElo < 3950) { avatar = "🐎"; nivel = getNivelRango(currentElo, 3050, 3950); }
+            else if (currentElo < 5000) { avatar = "🐃"; nivel = getNivelRango(currentElo, 3950, 5000); }
+            else { return "🐂"; }
+            return `${avatar} ${nivel}`;
         }
 
         function actualizarPosicion() {
@@ -370,12 +381,12 @@
                 const dLabel = document.getElementById('m_discord');
                 if (p.discordName) {
                     dLabel.innerHTML = `<i class="fa-brands fa-discord"></i> ${p.discordName}`;
-                    dLabel.style.color = '#5dc8e8';
+                    dLabel.style.display = 'inline-block';
                 } else if (p.discordId) {
-                    dLabel.innerHTML = `<i class="fa-brands fa-discord"></i> Vinculado`;
-                    dLabel.style.color = '#5dc8e8';
+                    dLabel.innerHTML = `<i class="fa-brands fa-discord"></i> Usuario Oculto`;
+                    dLabel.style.display = 'inline-block';
                 } else {
-                    dLabel.innerHTML = ``;
+                    dLabel.style.display = 'none';
                 }
 
                 document.getElementById('m_name').innerText = p.name;
