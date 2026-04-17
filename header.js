@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     const logoContainer = document.createElement('div');
     logoContainer.className = 'logo-container';
-    logoContainer.style.cursor = 'pointer';
+    logoContainer.style.cursor = 'pointer'; 
 
     const logoImg = document.createElement('img');
     logoImg.src = 'logo_torohax.png';
