@@ -149,7 +149,7 @@
             <div class="right-col">
                 <div class="box list-box" style="flex: 1;">
                     <h3>⚽ Jugadores</h3>
-                    <ul id="listaJugadores"><li>Cargando plantel...</li></ul>
+                    <ul id="listaJugadores"><li><i class="fa-solid fa-spinner fa-spin"></i> Cargando plantel...</li></ul>
                 </div>
             </div>
         </div>
@@ -160,8 +160,19 @@
             <h3><i class="fa-solid fa-file-contract"></i> Compromiso de Juego</h3>
             <p id="termsText">"Yo como jugador me comprometo a presentarme al partido express ToroMatch conectándome antes de las 20:30 horas a la sala de juego."</p>
             <div class="modal-btn-row">
-                <button class="modal-btn cancel" onclick="cerrarModalTerms()">Cancelar</button>
+                <button class="modal-btn cancel" onclick="cerrarModalTerms()">Volver</button>
                 <button class="modal-btn" onclick="confirmarInscripcion()">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="cancelModal">
+        <div class="modal-content">
+            <h3><i class="fa-solid fa-triangle-exclamation"></i> Cancelar Inscripción</h3>
+            <p>¿Estás seguro de que ya no podrás asistir al ToroMatch? Al cancelar perderás tu cupo y deberás volver a postular si cambias de opinión.</p>
+            <div class="modal-btn-row">
+                <button class="modal-btn cancel" style="background: #555;" onclick="cerrarModalCancel()">Volver</button>
+                <button class="modal-btn" style="background: #cc2a2a; color: white;" onclick="confirmarCancelacion()">Sí, Cancelar</button>
             </div>
         </div>
     </div>
@@ -241,6 +252,7 @@
 
                 if (data.abiertas) {
                     btnInscribir.style.display = 'inline-block';
+                    btnInscribir.disabled = false;
                     matchNumberGlobal = data.matchNumber;
                     
                     if (btnAbrir) btnAbrir.style.display = 'none';
@@ -251,7 +263,7 @@
                         msg.style.color = '#2df2c1';
                         btnInscribir.innerText = "Cancelar Inscripción";
                         btnInscribir.className = "btn-inscribir btn-cancelar";
-                        btnInscribir.onclick = cancelarInscripcion;
+                        btnInscribir.onclick = abrirModalCancelacion;
                     } else {
                         msg.innerText = `ToroMatch #${data.matchNumber} abierto. Asegura tu cupo.`;
                         msg.style.color = '#bdc3c7';
@@ -272,14 +284,12 @@
 
         async function abrirPostulaciones() {
             if(!confirm("¿Seguro que deseas abrir un nuevo proceso? Esto reseteará los roles en Discord y creará un foro nuevo.")) return;
-            
             const btn = document.getElementById('btnAbrirPostulaciones');
             btn.innerText = "Abriendo..."; btn.disabled = true;
 
             try {
                 const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/abrir-postulaciones', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ numericId: loggedId })
                 });
                 const data = await res.json();
@@ -292,14 +302,12 @@
 
         async function cerrarPostulaciones() {
             if(!confirm("¿Seguro que deseas cerrar las postulaciones? Se bloqueará el foro en Discord y nadie más podrá inscribirse.")) return;
-            
             const btn = document.getElementById('btnCerrarPostulaciones');
             btn.innerText = "Cerrando..."; btn.disabled = true;
 
             try {
                 const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/cerrar-postulaciones', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ numericId: loggedId })
                 });
                 const data = await res.json();
@@ -326,8 +334,7 @@
 
             try {
                 const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/inscribir', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ numericId: loggedId })
                 });
                 const data = await res.json();
@@ -340,8 +347,32 @@
             }
         }
 
-        function cancelarInscripcion() {
-            alert("La función de cancelar estará disponible en la Fase 3 de desarrollo.");
+        function abrirModalCancelacion() {
+            document.getElementById('cancelModal').style.display = 'flex';
+        }
+
+        function cerrarModalCancel() {
+            document.getElementById('cancelModal').style.display = 'none';
+        }
+
+        async function confirmarCancelacion() {
+            cerrarModalCancel();
+            const btn = document.getElementById('btnInscribir');
+            btn.innerText = "Cancelando..."; btn.disabled = true;
+
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/cancelar', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ numericId: loggedId })
+                });
+                const data = await res.json();
+                alert(data.message);
+                if(data.success) checkEstadoPostulaciones();
+                else { btn.innerText = "Cancelar Inscripción"; btn.disabled = false; }
+            } catch(e) {
+                alert("Error al conectar con el servidor.");
+                btn.innerText = "Cancelar Inscripción"; btn.disabled = false;
+            }
         }
 
         function iniciarCargaJugadores() {
@@ -430,6 +461,8 @@
                     });
                     if (histDiv.innerHTML === '') histDiv.innerHTML = '<p style="text-align:center; color:#7d7d7d;">El historial está vacío.</p>';
                 }
+            }).catch(()=>{
+                histDiv.innerHTML = '<p style="text-align:center; color:#cc2a2a;">Error al cargar historial.</p>';
             });
         }
 
