@@ -41,17 +41,16 @@
         .match-date { width: 140px; text-align: center; color: #7d7d7d; font-size: 0.9rem; border-left: 1px solid #444; flex-shrink: 0;}
         .action-icons { width: 50px; display: flex; gap: 10px; justify-content: center; margin-left: 0; flex-shrink: 0;}
 
-        .inscripcion-container { padding: 20px; background: rgba(0,0,0,0.4); border-radius: 10px; text-align: center; margin-bottom: 20px; border: 1px dashed #5dc8e8; }
-        .btn-inscribir { background: #5dc8e8; color: #111; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.1rem; }
+        .inscripcion-container { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;}
+        .btn-inscribir { background: #5dc8e8; color: #111; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.1rem; margin-bottom: 10px;}
         .btn-inscribir:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(93, 200, 232, 0.4); }
         .btn-inscribir:disabled { background: #555; color: #888; cursor: not-allowed; transform: none; box-shadow: none; }
         
         .btn-cancelar { background: #cc2a2a; color: #fff; }
         .btn-cancelar:hover { background: #e74c3c; box-shadow: 0 0 15px rgba(204, 42, 42, 0.4); }
 
-        .btn-organizador { background: #FFD342; color: #111; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: none; margin: 10px auto 0; font-size: 0.9rem; transition: 0.2s;}
-        .btn-organizador:hover { background: #ffdf73; }
-
+        .btn-organizador { color: #111; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem; transition: 0.2s;}
+        
         .edit-btn { position: absolute; bottom: 20px; right: 20px; background: transparent; color: #2df2c1; border: 2px solid #2df2c1; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: none; transition: 0.3s; }
         .edit-btn:hover { background: #2df2c1; color: #111; }
 
@@ -118,15 +117,6 @@
                     </div>
 
                     <div id="proximos" class="tab-content active">
-                        
-                        <div class="inscripcion-container">
-                            <h3 style="color: #5dc8e8; margin-top:0; font-size: 1.1rem;"><i class="fa-solid fa-clipboard-user"></i> Postulaciones</h3>
-                            <p id="msgInscripcion" style="color: #bdc3c7; font-size: 0.9rem; margin-bottom: 15px;">Verificando estado en Discord...</p>
-                            
-                            <button id="btnInscribir" class="btn-inscribir" style="display:none;" onclick="abrirModalInscripcion()">Cargando...</button>
-                            <button id="btnAbrirPostulaciones" class="btn-organizador" onclick="abrirPostulaciones()">Abrir Postulaciones</button>
-                        </div>
-                        
                         <div class="match-list-container" id="proximos-lista">
                             <p style="text-align:center; color:#7d7d7d;">Calculando fecha...</p>
                         </div>
@@ -139,6 +129,20 @@
                     </div>
 
                     <button id="btnEditar" class="edit-btn" onclick="abrirModalNuevo()"><i class="fa-solid fa-plus"></i> Añadir Resultado</button>
+                </div>
+
+                <div class="box" id="box-inscripcion">
+                    <div class="inscripcion-container">
+                        <h3 style="color: #5dc8e8; margin-top:0; font-size: 1.2rem; border-bottom: none;"><i class="fa-solid fa-clipboard-user"></i> Postulaciones ToroMatch</h3>
+                        <p id="msgInscripcion" style="color: #bdc3c7; font-size: 0.95rem; margin-bottom: 15px;">Verificando estado en Discord...</p>
+                        
+                        <button id="btnInscribir" class="btn-inscribir" style="display:none;" onclick="abrirModalInscripcion()">Cargando...</button>
+                        
+                        <div id="managerButtons" style="display:none; margin-top: 10px; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                            <button id="btnAbrirPostulaciones" class="btn-organizador" style="background: #FFD342;" onclick="abrirPostulaciones()">Abrir Postulaciones</button>
+                            <button id="btnCerrarPostulaciones" class="btn-organizador" style="background: #cc2a2a; color: white;" onclick="cerrarPostulaciones()">Cerrar Postulaciones</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -154,7 +158,7 @@
     <div class="modal-overlay" id="termsModal">
         <div class="modal-content">
             <h3><i class="fa-solid fa-file-contract"></i> Compromiso de Juego</h3>
-            <p id="termsText">"Yo como jugador me comprometo a presentarme al partido express ToroMatch conectándome antes de las 20:30 horas a la sala de juego. O en su defecto, cancelar y avisar antes de las 20:30 horas."</p>
+            <p id="termsText">"Yo como jugador me comprometo a presentarme al partido express ToroMatch conectándome antes de las 20:30 horas a la sala de juego."</p>
             <div class="modal-btn-row">
                 <button class="modal-btn cancel" onclick="cerrarModalTerms()">Cancelar</button>
                 <button class="modal-btn" onclick="confirmarInscripcion()">Aceptar</button>
@@ -226,36 +230,48 @@
             fetch(`https://torobot-izu5.onrender.com/api/toromatch/estado?numericId=${loggedId}`)
             .then(res => res.json())
             .then(data => {
-                const btn = document.getElementById('btnInscribir');
+                const btnInscribir = document.getElementById('btnInscribir');
                 const msg = document.getElementById('msgInscripcion');
+                const btnAbrir = document.getElementById('btnAbrirPostulaciones');
+                const btnCerrar = document.getElementById('btnCerrarPostulaciones');
                 
+                if (isManager) {
+                    document.getElementById('managerButtons').style.display = 'flex';
+                }
+
                 if (data.abiertas) {
-                    btn.style.display = 'inline-block';
+                    btnInscribir.style.display = 'inline-block';
                     matchNumberGlobal = data.matchNumber;
+                    
+                    if (btnAbrir) btnAbrir.style.display = 'none';
+                    if (btnCerrar) btnCerrar.style.display = 'inline-block';
                     
                     if (data.inscrito) {
                         msg.innerText = "¡Ya estás en la lista para este partido!";
                         msg.style.color = '#2df2c1';
-                        btn.innerText = "Cancelar Inscripción";
-                        btn.className = "btn-inscribir btn-cancelar";
-                        btn.onclick = cancelarInscripcion;
+                        btnInscribir.innerText = "Cancelar Inscripción";
+                        btnInscribir.className = "btn-inscribir btn-cancelar";
+                        btnInscribir.onclick = cancelarInscripcion;
                     } else {
                         msg.innerText = `ToroMatch #${data.matchNumber} abierto. Asegura tu cupo.`;
                         msg.style.color = '#bdc3c7';
-                        btn.innerText = "Inscribirme al Partido";
-                        btn.className = "btn-inscribir";
-                        btn.onclick = abrirModalInscripcion;
+                        btnInscribir.innerText = "Inscribirme al Partido";
+                        btnInscribir.className = "btn-inscribir";
+                        btnInscribir.onclick = abrirModalInscripcion;
                     }
                 } else {
-                    btn.style.display = 'none';
+                    btnInscribir.style.display = 'none';
                     msg.innerText = "Las postulaciones están cerradas.";
                     msg.style.color = '#cc2a2a';
+                    
+                    if (btnAbrir) btnAbrir.style.display = 'inline-block';
+                    if (btnCerrar) btnCerrar.style.display = 'none';
                 }
             }).catch(e => console.log(e));
         }
 
         async function abrirPostulaciones() {
-            if(!confirm("¿Seguro que deseas abrir un nuevo proceso? Esto reseteará los roles de Discord y creará un foro nuevo.")) return;
+            if(!confirm("¿Seguro que deseas abrir un nuevo proceso? Esto reseteará los roles en Discord y creará un foro nuevo.")) return;
             
             const btn = document.getElementById('btnAbrirPostulaciones');
             btn.innerText = "Abriendo..."; btn.disabled = true;
@@ -272,6 +288,26 @@
             } catch (e) { alert("Error de conexión."); }
             
             btn.innerText = "Abrir Postulaciones"; btn.disabled = false;
+        }
+
+        async function cerrarPostulaciones() {
+            if(!confirm("¿Seguro que deseas cerrar las postulaciones? Se bloqueará el foro en Discord y nadie más podrá inscribirse.")) return;
+            
+            const btn = document.getElementById('btnCerrarPostulaciones');
+            btn.innerText = "Cerrando..."; btn.disabled = true;
+
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/cerrar-postulaciones', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ numericId: loggedId })
+                });
+                const data = await res.json();
+                alert(data.message);
+                if(data.success) checkEstadoPostulaciones();
+            } catch (e) { alert("Error de conexión."); }
+            
+            btn.innerText = "Cerrar Postulaciones"; btn.disabled = false;
         }
 
         function abrirModalInscripcion() {
@@ -308,11 +344,8 @@
             alert("La función de cancelar estará disponible en la Fase 3 de desarrollo.");
         }
 
-        function iniciarCarga() {
+        function iniciarCargaJugadores() {
             const ulJugadores = document.getElementById('listaJugadores');
-            const proxDiv = document.getElementById('proximos-lista');
-
-            ulJugadores.innerHTML = '<li><i class="fa-solid fa-spinner fa-spin"></i> Conectando al servidor...</li>';
 
             fetch(`https://torobot-izu5.onrender.com/api/toromatch/data?numericId=${loggedId}`)
             .then(res => res.json())
@@ -321,7 +354,6 @@
                     if(data.canEdit) {
                         isManager = true;
                         document.getElementById('btnEditar').style.display = 'block';
-                        document.getElementById('btnAbrirPostulaciones').style.display = 'block';
                     }
 
                     ulJugadores.innerHTML = '';
@@ -337,7 +369,7 @@
                         ulJugadores.innerHTML = '<li>No hay jugadores registrados en los roles.</li>';
                     }
 
-                    proxDiv.innerHTML = `
+                    document.getElementById('proximos-lista').innerHTML = `
                         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; padding: 30px 15px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-top: 15px;">
                             <div style="font-size: 1.5rem; color: #FFD342; font-weight: bold; text-align: center;">
                                 ${equipoA_Global} <span style="color:white; margin: 0 10px; font-size: 1.2rem;">vs</span> ${equipoB_Global} 
@@ -349,28 +381,29 @@
                     `;
                     
                     checkEstadoPostulaciones(); 
-                    cargarHistorial();
+                } else {
+                    ulJugadores.innerHTML = '<li>Error al cargar.</li>';
                 }
             })
             .catch(err => {
                 ulJugadores.innerHTML = '<li><i class="fa-solid fa-spinner fa-spin"></i> Reintentando...</li>';
-                setTimeout(iniciarCarga, 5000);
+                setTimeout(iniciarCargaJugadores, 5000);
             });
         }
-        iniciarCarga();
 
         function cargarHistorial() {
+            const histDiv = document.getElementById('historial-lista');
+            histDiv.innerHTML = '<p style="text-align:center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando historial...</p>';
+            
             fetch('https://torobot-izu5.onrender.com/api/matches/toromatch')
             .then(res => res.json())
             .then(data => {
                 if(data.success) {
-                    const histDiv = document.getElementById('historial-lista');
                     histDiv.innerHTML = '';
-
                     const formatFecha = (dateStr) => {
                         if(!dateStr) return '';
                         const parts = dateStr.split('-');
-                        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+                        return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : dateStr;
                     };
 
                     data.matches.forEach(m => {
@@ -399,6 +432,9 @@
                 }
             });
         }
+
+        iniciarCargaJugadores();
+        cargarHistorial();
 
         function checkPenales() {
             const g1 = document.getElementById('m_goles1').value;
