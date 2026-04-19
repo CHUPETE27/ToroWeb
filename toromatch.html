@@ -41,6 +41,17 @@
         .match-date { width: 140px; text-align: center; color: #7d7d7d; font-size: 0.9rem; border-left: 1px solid #444; flex-shrink: 0;}
         .action-icons { width: 50px; display: flex; gap: 10px; justify-content: center; margin-left: 0; flex-shrink: 0;}
 
+        .inscripcion-container { padding: 20px; background: rgba(0,0,0,0.4); border-radius: 10px; text-align: center; margin-bottom: 20px; border: 1px dashed #5dc8e8; }
+        .btn-inscribir { background: #5dc8e8; color: #111; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.1rem; }
+        .btn-inscribir:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(93, 200, 232, 0.4); }
+        .btn-inscribir:disabled { background: #555; color: #888; cursor: not-allowed; transform: none; box-shadow: none; }
+        
+        .btn-cancelar { background: #cc2a2a; color: #fff; }
+        .btn-cancelar:hover { background: #e74c3c; box-shadow: 0 0 15px rgba(204, 42, 42, 0.4); }
+
+        .btn-organizador { background: #FFD342; color: #111; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: none; margin: 10px auto 0; font-size: 0.9rem; transition: 0.2s;}
+        .btn-organizador:hover { background: #ffdf73; }
+
         .edit-btn { position: absolute; bottom: 20px; right: 20px; background: transparent; color: #2df2c1; border: 2px solid #2df2c1; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: none; transition: 0.3s; }
         .edit-btn:hover { background: #2df2c1; color: #111; }
 
@@ -55,17 +66,20 @@
         #listaJugadores::-webkit-scrollbar-thumb:hover { background: #FFD342; }
 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .modal-content { background: #111; border: 1px solid #FFD342; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; color: white; }
+        .modal-content { background: #111; border: 1px solid #FFD342; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; color: white; text-align: center;}
         .modal-content h3 { color: #FFD342; margin-top: 0; text-align: center; }
+        .modal-content p { color: #bdc3c7; line-height: 1.5; margin-bottom: 25px;}
         .modal-form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
         .modal-form input { padding: 10px; background: #222; border: 1px solid #444; color: white; border-radius: 5px; outline: none; width: 100%;}
         .modal-form input:focus { border-color: #FFD342; }
         .form-row { display: flex; gap: 10px; }
         .form-row input { flex: 1; }
         .penalties-section { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border: 1px dashed #555;}
-        .modal-btn { background: #2df2c1; color: #111; padding: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
-        .modal-btn.cancel { background: #cc2a2a; color: white; margin-top: 10px;}
         
+        .modal-btn { background: #2df2c1; color: #111; padding: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; flex: 1;}
+        .modal-btn.cancel { background: #cc2a2a; color: white;}
+        .modal-btn-row { display: flex; gap: 15px; width: 100%; }
+
         .delete-icon { color: #cc2a2a; cursor: pointer; }
         .delete-icon:hover { color: #ff4d4d; }
         .edit-action-icon { color: #3498db; cursor: pointer; }
@@ -104,6 +118,15 @@
                     </div>
 
                     <div id="proximos" class="tab-content active">
+                        
+                        <div class="inscripcion-container">
+                            <h3 style="color: #5dc8e8; margin-top:0; font-size: 1.1rem;"><i class="fa-solid fa-clipboard-user"></i> Postulaciones</h3>
+                            <p id="msgInscripcion" style="color: #bdc3c7; font-size: 0.9rem; margin-bottom: 15px;">Verificando estado en Discord...</p>
+                            
+                            <button id="btnInscribir" class="btn-inscribir" style="display:none;" onclick="abrirModalInscripcion()">Cargando...</button>
+                            <button id="btnAbrirPostulaciones" class="btn-organizador" onclick="abrirPostulaciones()">Abrir Postulaciones</button>
+                        </div>
+                        
                         <div class="match-list-container" id="proximos-lista">
                             <p style="text-align:center; color:#7d7d7d;">Calculando fecha...</p>
                         </div>
@@ -128,10 +151,20 @@
         </div>
     </main>
 
+    <div class="modal-overlay" id="termsModal">
+        <div class="modal-content">
+            <h3><i class="fa-solid fa-file-contract"></i> Compromiso de Juego</h3>
+            <p id="termsText">"Yo como jugador me comprometo a presentarme al partido express ToroMatch conectándome antes de las 20:30 horas a la sala de juego. O en su defecto, cancelar y avisar antes de las 20:30 horas."</p>
+            <div class="modal-btn-row">
+                <button class="modal-btn cancel" onclick="cerrarModalTerms()">Cancelar</button>
+                <button class="modal-btn" onclick="confirmarInscripcion()">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="editModal">
         <div class="modal-content">
             <h3 id="modalTitle"><i class="fa-solid fa-plus"></i> Añadir al Historial</h3>
-            
             <div class="modal-form">
                 <div class="form-row">
                     <input type="text" id="m_eq1" placeholder="Nombre Eq 1">
@@ -141,7 +174,6 @@
                     <input type="number" id="m_goles1" placeholder="Goles Eq 1" oninput="checkPenales()">
                     <input type="number" id="m_goles2" placeholder="Goles Eq 2" oninput="checkPenales()">
                 </div>
-                
                 <div class="penalties-section" id="penales_div" style="display: none;">
                     <p style="margin-top:0; margin-bottom: 10px; color:#FFD342; font-size: 0.9rem; text-align: center;">Tanda de Penales</p>
                     <div class="form-row">
@@ -149,11 +181,12 @@
                         <input type="number" id="m_pen2" placeholder="Penales Eq 2">
                     </div>
                 </div>
-
                 <input type="date" id="m_date">
                 
-                <button class="modal-btn" id="modalSubmitBtn" onclick="guardarPartido()">Guardar Resultado</button>
-                <button class="modal-btn cancel" onclick="cerrarModal()">Cancelar</button>
+                <div class="modal-btn-row" style="margin-top: 10px;">
+                    <button class="modal-btn cancel" onclick="cerrarModal()">Cancelar</button>
+                    <button class="modal-btn" id="modalSubmitBtn" onclick="guardarPartido()">Guardar Resultado</button>
+                </div>
             </div>
         </div>
     </div>
@@ -164,6 +197,12 @@
     <script src="sidebar.js"></script>
 
     <script>
+        const loggedId = localStorage.getItem('toroHaxLoggedId') || 'null';
+        let isManager = false;
+        let matchNumberGlobal = 0; 
+        let equipoA_Global = "Equipo 1";
+        let equipoB_Global = "Equipo 2";
+
         function switchTab(tabId) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -183,51 +222,125 @@
             return `${dd}/${mm}/${nextSat.getFullYear()} a las 20:30`;
         }
 
-        const loggedId = localStorage.getItem('toroHaxLoggedId') || 'null';
-        let isManager = false;
-        let editingId = null;
+        function checkEstadoPostulaciones() {
+            fetch(`https://torobot-izu5.onrender.com/api/toromatch/estado?numericId=${loggedId}`)
+            .then(res => res.json())
+            .then(data => {
+                const btn = document.getElementById('btnInscribir');
+                const msg = document.getElementById('msgInscripcion');
+                
+                if (data.abiertas) {
+                    btn.style.display = 'inline-block';
+                    matchNumberGlobal = data.matchNumber;
+                    
+                    if (data.inscrito) {
+                        msg.innerText = "¡Ya estás en la lista para este partido!";
+                        msg.style.color = '#2df2c1';
+                        btn.innerText = "Cancelar Inscripción";
+                        btn.className = "btn-inscribir btn-cancelar";
+                        btn.onclick = cancelarInscripcion;
+                    } else {
+                        msg.innerText = `ToroMatch #${data.matchNumber} abierto. Asegura tu cupo.`;
+                        msg.style.color = '#bdc3c7';
+                        btn.innerText = "Inscribirme al Partido";
+                        btn.className = "btn-inscribir";
+                        btn.onclick = abrirModalInscripcion;
+                    }
+                } else {
+                    btn.style.display = 'none';
+                    msg.innerText = "Las postulaciones están cerradas.";
+                    msg.style.color = '#cc2a2a';
+                }
+            }).catch(e => console.log(e));
+        }
+
+        async function abrirPostulaciones() {
+            if(!confirm("¿Seguro que deseas abrir un nuevo proceso? Esto reseteará los roles de Discord y creará un foro nuevo.")) return;
+            
+            const btn = document.getElementById('btnAbrirPostulaciones');
+            btn.innerText = "Abriendo..."; btn.disabled = true;
+
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/abrir-postulaciones', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ numericId: loggedId })
+                });
+                const data = await res.json();
+                alert(data.message);
+                if(data.success) checkEstadoPostulaciones();
+            } catch (e) { alert("Error de conexión."); }
+            
+            btn.innerText = "Abrir Postulaciones"; btn.disabled = false;
+        }
+
+        function abrirModalInscripcion() {
+            document.getElementById('termsText').innerText = `"Yo como jugador me comprometo a presentarme al partido express ToroMatch #${matchNumberGlobal} "${equipoA_Global} vs ${equipoB_Global}" conectándome antes de las 20:30 horas a la sala de juego."`;
+            document.getElementById('termsModal').style.display = 'flex';
+        }
+
+        function cerrarModalTerms() {
+            document.getElementById('termsModal').style.display = 'none';
+        }
+
+        async function confirmarInscripcion() {
+            cerrarModalTerms();
+            const btn = document.getElementById('btnInscribir');
+            btn.innerText = "Procesando..."; btn.disabled = true;
+
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/inscribir', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ numericId: loggedId })
+                });
+                const data = await res.json();
+                alert(data.message);
+                if(data.success) checkEstadoPostulaciones();
+                else { btn.innerText = "Inscribirme al Partido"; btn.disabled = false; }
+            } catch(e) {
+                alert("Error al conectar con el servidor.");
+                btn.innerText = "Inscribirme al Partido"; btn.disabled = false;
+            }
+        }
+
+        function cancelarInscripcion() {
+            alert("La función de cancelar estará disponible en la Fase 3 de desarrollo.");
+        }
 
         function iniciarCarga() {
             const ulJugadores = document.getElementById('listaJugadores');
-            const histDiv = document.getElementById('historial-lista');
             const proxDiv = document.getElementById('proximos-lista');
 
             ulJugadores.innerHTML = '<li><i class="fa-solid fa-spinner fa-spin"></i> Conectando al servidor...</li>';
-            proxDiv.innerHTML = '<p style="text-align:center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Despertando bot (puede tardar 50s)...</p>';
-            histDiv.innerHTML = '<p style="text-align:center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Despertando bot...</p>';
 
             fetch(`https://torobot-izu5.onrender.com/api/toromatch/data?numericId=${loggedId}`)
-            .then(res => {
-                if(!res.ok) throw new Error("Servidor no responde");
-                return res.json();
-            })
+            .then(res => res.json())
             .then(data => {
                 if(data.success) {
                     if(data.canEdit) {
                         isManager = true;
                         document.getElementById('btnEditar').style.display = 'block';
+                        document.getElementById('btnAbrirPostulaciones').style.display = 'block';
                     }
 
                     ulJugadores.innerHTML = '';
-                    let equipoA = data.equipoA || "Equipo 1";
-                    let equipoB = data.equipoB || "Equipo 2";
-
                     if(data.jugadores.length > 0) {
                         const roles = [...new Set(data.jugadores.map(j => j.split(' - ')[0]))];
-                        if(roles[0]) equipoA = roles[0];
-                        if(roles[1]) equipoB = roles[1];
+                        if(roles[0]) equipoA_Global = roles[0];
+                        if(roles[1]) equipoB_Global = roles[1];
                         data.jugadores.forEach(jug => {
                             const partes = jug.split(' - ');
                             ulJugadores.innerHTML += `<li><span style="color:#5dc8e8; font-weight:bold;">${partes[0]}</span> - ${partes[1]}</li>`;
                         });
                     } else {
-                        ulJugadores.innerHTML = '<li>No hay jugadores registrados.</li>';
+                        ulJugadores.innerHTML = '<li>No hay jugadores registrados en los roles.</li>';
                     }
 
                     proxDiv.innerHTML = `
                         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; padding: 30px 15px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-top: 15px;">
                             <div style="font-size: 1.5rem; color: #FFD342; font-weight: bold; text-align: center;">
-                                ${equipoA} <span style="color:white; margin: 0 10px; font-size: 1.2rem;">vs</span> ${equipoB} 
+                                ${equipoA_Global} <span style="color:white; margin: 0 10px; font-size: 1.2rem;">vs</span> ${equipoB_Global} 
                             </div>
                             <div style="color: #7d7d7d; font-size: 1.1rem; border-top: 1px dashed #444; padding-top: 15px; width: 80%; text-align: center;">
                                 <i class="fa-regular fa-clock" style="margin-right: 5px;"></i> Sábado ${getNextSaturday()}
@@ -235,11 +348,12 @@
                         </div>
                     `;
                     
+                    checkEstadoPostulaciones(); 
                     cargarHistorial();
                 }
             })
             .catch(err => {
-                ulJugadores.innerHTML = '<li><i class="fa-solid fa-spinner fa-spin"></i> El bot está despertando. Reintentando...</li>';
+                ulJugadores.innerHTML = '<li><i class="fa-solid fa-spinner fa-spin"></i> Reintentando...</li>';
                 setTimeout(iniciarCarga, 5000);
             });
         }
