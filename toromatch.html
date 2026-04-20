@@ -431,6 +431,7 @@
 
                     equipoA_Global = data.equipoA;
                     equipoB_Global = data.equipoB;
+                    displayDateGlobal = data.customDate ? data.customDate : `Sábado ${getNextSaturday()}`;
 
                     ulInscritos.innerHTML = '';
                     if (data.inscritos && data.inscritos.length > 0) {
@@ -485,7 +486,7 @@
                                 ${equipoA_Global} <span style="color:white; margin: 0 10px; font-size: 1.2rem;">vs</span> ${equipoB_Global} 
                             </div>
                             <div style="color: #7d7d7d; font-size: 1.1rem; border-top: 1px dashed #444; padding-top: 15px; width: 80%; text-align: center;">
-                                <i class="fa-regular fa-clock" style="margin-right: 5px;"></i> Sábado ${getNextSaturday()}
+                                <i class="fa-regular fa-clock" style="margin-right: 5px;"></i> <span id="toroMatchDateDisplay">${displayDateGlobal}</span>
                             </div>
                         </div>
                     `;
