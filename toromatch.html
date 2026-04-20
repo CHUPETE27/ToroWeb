@@ -56,19 +56,25 @@
 
         .right-col { display: flex; flex-direction: column; gap: 20px; max-width: 100%;}
         .list-box ul { list-style-type: none; padding: 0; margin: 0; }
-        .list-box li { padding: 12px 0; border-bottom: 1px dashed #333; color: #bdc3c7; font-size: 0.95rem; word-break: break-word;}
+        .list-box li { padding: 10px; border-bottom: 1px dashed #333; color: #bdc3c7; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center;}
+        .list-box li:last-child { border-bottom: none; }
         
-        #listaJugadores { max-height: 500px; overflow-y: auto; padding-right: 5px; }
-        #listaJugadores::-webkit-scrollbar { width: 6px; }
-        #listaJugadores::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
-        #listaJugadores::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
-        #listaJugadores::-webkit-scrollbar-thumb:hover { background: #FFD342; }
+        .roster-container { max-height: 250px; overflow-y: auto; padding-right: 5px; }
+        .roster-container::-webkit-scrollbar { width: 6px; }
+        .roster-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
+        .roster-container::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
+
+        .assign-btn { background: #333; border: 1px solid #555; color: #fff; border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: 0.8rem; margin-left: 5px;}
+        .assign-btn.eq1 { color: #3498db; border-color: #3498db; }
+        .assign-btn.eq1.active { background: #3498db; color: #111;}
+        .assign-btn.eq2 { color: #e74c3c; border-color: #e74c3c; }
+        .assign-btn.eq2.active { background: #e74c3c; color: #111;}
 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
         .modal-content { background: #111; border: 1px solid #FFD342; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; color: white; text-align: center;}
         .modal-content h3 { color: #FFD342; margin-top: 0; text-align: center; }
         .modal-content p { color: #bdc3c7; line-height: 1.5; margin-bottom: 25px;}
-        .modal-form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
+        .modal-form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; text-align: left;}
         .modal-form input { padding: 10px; background: #222; border: 1px solid #444; color: white; border-radius: 5px; outline: none; width: 100%;}
         .modal-form input:focus { border-color: #FFD342; }
         .form-row { display: flex; gap: 10px; }
@@ -147,9 +153,18 @@
             </div>
 
             <div class="right-col">
-                <div class="box list-box" style="flex: 1;">
-                    <h3>⚽ Jugadores</h3>
-                    <ul id="listaJugadores"><li><i class="fa-solid fa-spinner fa-spin"></i> Cargando plantel...</li></ul>
+                <div class="box list-box">
+                    <h3>📋 Inscritos</h3>
+                    <div class="roster-container">
+                        <ul id="listaInscritos"><li><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</li></ul>
+                    </div>
+                </div>
+                
+                <div class="box list-box">
+                    <h3 style="color: #bdc3c7;">🩹 Parches en Espera</h3>
+                    <div class="roster-container">
+                        <ul id="listaParches"><li><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</li></ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -294,7 +309,10 @@
                 });
                 const data = await res.json();
                 alert(data.message);
-                if(data.success) checkEstadoPostulaciones();
+                if(data.success) {
+                    checkEstadoPostulaciones();
+                    iniciarCargaJugadores();
+                }
             } catch (e) { alert("Error de conexión."); }
             
             btn.innerText = "Abrir Postulaciones"; btn.disabled = false;
@@ -339,21 +357,20 @@
                 });
                 const data = await res.json();
                 alert(data.message);
-                if(data.success) checkEstadoPostulaciones();
-                else { btn.innerText = "Inscribirme al Partido"; btn.disabled = false; }
+                if(data.success) {
+                    checkEstadoPostulaciones();
+                    iniciarCargaJugadores();
+                } else { 
+                    btn.innerText = "Inscribirme al Partido"; btn.disabled = false; 
+                }
             } catch(e) {
                 alert("Error al conectar con el servidor.");
                 btn.innerText = "Inscribirme al Partido"; btn.disabled = false;
             }
         }
 
-        function abrirModalCancelacion() {
-            document.getElementById('cancelModal').style.display = 'flex';
-        }
-
-        function cerrarModalCancel() {
-            document.getElementById('cancelModal').style.display = 'none';
-        }
+        function abrirModalCancelacion() { document.getElementById('cancelModal').style.display = 'flex'; }
+        function cerrarModalCancel() { document.getElementById('cancelModal').style.display = 'none'; }
 
         async function confirmarCancelacion() {
             cerrarModalCancel();
@@ -367,16 +384,41 @@
                 });
                 const data = await res.json();
                 alert(data.message);
-                if(data.success) checkEstadoPostulaciones();
-                else { btn.innerText = "Cancelar Inscripción"; btn.disabled = false; }
+                if(data.success) {
+                    checkEstadoPostulaciones();
+                    iniciarCargaJugadores();
+                } else { 
+                    btn.innerText = "Cancelar Inscripción"; btn.disabled = false; 
+                }
             } catch(e) {
                 alert("Error al conectar con el servidor.");
                 btn.innerText = "Cancelar Inscripción"; btn.disabled = false;
             }
         }
 
+        async function asignarEquipo(targetDiscordId, equipo, btnElement) {
+            const row = btnElement.parentElement;
+            row.querySelectorAll('.assign-btn').forEach(b => b.classList.remove('active'));
+            
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/asignar-equipo', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ managerNumericId: loggedId, targetDiscordId: targetDiscordId, equipo: equipo })
+                });
+                const data = await res.json();
+                if(data.success) {
+                    if (equipo !== 0) btnElement.classList.add('active');
+                } else {
+                    alert(data.message);
+                }
+            } catch(e) {
+                alert("Error de conexión al asignar equipo.");
+            }
+        }
+
         function iniciarCargaJugadores() {
-            const ulJugadores = document.getElementById('listaJugadores');
+            const ulInscritos = document.getElementById('listaInscritos');
+            const ulParches = document.getElementById('listaParches');
 
             fetch(`https://torobot-izu5.onrender.com/api/toromatch/data?numericId=${loggedId}`)
             .then(res => res.json())
@@ -387,17 +429,44 @@
                         document.getElementById('btnEditar').style.display = 'block';
                     }
 
-                    ulJugadores.innerHTML = '';
-                    if(data.jugadores.length > 0) {
-                        const roles = [...new Set(data.jugadores.map(j => j.split(' - ')[0]))];
-                        if(roles[0]) equipoA_Global = roles[0];
-                        if(roles[1]) equipoB_Global = roles[1];
-                        data.jugadores.forEach(jug => {
-                            const partes = jug.split(' - ');
-                            ulJugadores.innerHTML += `<li><span style="color:#5dc8e8; font-weight:bold;">${partes[0]}</span> - ${partes[1]}</li>`;
+                    equipoA_Global = data.equipoA;
+                    equipoB_Global = data.equipoB;
+
+                    ulInscritos.innerHTML = '';
+                    if (data.inscritos && data.inscritos.length > 0) {
+                        data.inscritos.forEach((jug, i) => {
+                            let botonesManager = "";
+                            if (isManager) {
+                                const eq1Active = jug.teamAssigned === "1" ? "active" : "";
+                                const eq2Active = jug.teamAssigned === "2" ? "active" : "";
+                                botonesManager = `
+                                    <div style="flex-shrink:0;">
+                                        <button class="assign-btn eq1 ${eq1Active}" onclick="asignarEquipo('${jug.discordId}', 1, this)" title="Asignar al Eq 1">1</button>
+                                        <button class="assign-btn eq2 ${eq2Active}" onclick="asignarEquipo('${jug.discordId}', 2, this)" title="Asignar al Eq 2">2</button>
+                                        <button class="assign-btn" onclick="asignarEquipo('${jug.discordId}', 0, this)" title="Quitar equipo">X</button>
+                                    </div>
+                                `;
+                            }
+                            ulInscritos.innerHTML += `
+                                <li>
+                                    <span style="flex-grow:1;"><strong>${i+1}.</strong> ${jug.name} <span style="color:#7d7d7d; font-size:0.8rem;">(#${jug.numericId})</span> - <span style="color:#5dc8e8;">${jug.discordName}</span></span>
+                                    ${botonesManager}
+                                </li>`;
                         });
                     } else {
-                        ulJugadores.innerHTML = '<li>No hay jugadores registrados en los roles.</li>';
+                        ulInscritos.innerHTML = '<li style="color:#7d7d7d; justify-content:center;">Nadie inscrito aún.</li>';
+                    }
+
+                    ulParches.innerHTML = '';
+                    if (data.parches && data.parches.length > 0) {
+                        data.parches.forEach((jug, i) => {
+                            ulParches.innerHTML += `
+                                <li>
+                                    <span style="flex-grow:1;"><strong>${i+1}.</strong> ${jug.name} <span style="color:#7d7d7d; font-size:0.8rem;">(#${jug.numericId})</span> - <span style="color:#5dc8e8;">${jug.discordName}</span></span>
+                                </li>`;
+                        });
+                    } else {
+                        ulParches.innerHTML = '<li style="color:#7d7d7d; justify-content:center;">No hay parches en espera.</li>';
                     }
 
                     document.getElementById('proximos-lista').innerHTML = `
@@ -412,19 +481,16 @@
                     `;
                     
                     checkEstadoPostulaciones(); 
-                } else {
-                    ulJugadores.innerHTML = '<li>Error al cargar.</li>';
                 }
             })
             .catch(err => {
-                ulJugadores.innerHTML = '<li><i class="fa-solid fa-spinner fa-spin"></i> Reintentando...</li>';
+                ulInscritos.innerHTML = '<li><i class="fa-solid fa-spinner fa-spin"></i> Reintentando...</li>';
                 setTimeout(iniciarCargaJugadores, 5000);
             });
         }
 
         function cargarHistorial() {
             const histDiv = document.getElementById('historial-lista');
-            histDiv.innerHTML = '<p style="text-align:center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando historial...</p>';
             
             fetch('https://torobot-izu5.onrender.com/api/matches/toromatch')
             .then(res => res.json())
