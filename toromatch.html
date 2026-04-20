@@ -440,10 +440,11 @@
                                 const eq1Active = jug.teamAssigned === "1" ? "active" : "";
                                 const eq2Active = jug.teamAssigned === "2" ? "active" : "";
                                 botonesManager = `
-                                    <div style="flex-shrink:0;">
+                                    <div style="flex-shrink:0; display:flex; gap:5px; align-items:center;">
                                         <button class="assign-btn eq1 ${eq1Active}" onclick="asignarEquipo('${jug.discordId}', 1, this)" title="Asignar al Eq 1">1</button>
                                         <button class="assign-btn eq2 ${eq2Active}" onclick="asignarEquipo('${jug.discordId}', 2, this)" title="Asignar al Eq 2">2</button>
                                         <button class="assign-btn" onclick="asignarEquipo('${jug.discordId}', 0, this)" title="Quitar equipo">X</button>
+                                        <button class="assign-btn" style="background:#cc2a2a; border-color:#cc2a2a;" onclick="expulsarJugador('${jug.discordId}', '${jug.name}')" title="Expulsar jugador"><i class="fa-solid fa-trash"></i></button>
                                     </div>
                                 `;
                             }
@@ -460,9 +461,18 @@
                     ulParches.innerHTML = '';
                     if (data.parches && data.parches.length > 0) {
                         data.parches.forEach((jug, i) => {
+                            let botonesManager = "";
+                            if (isManager) {
+                                botonesManager = `
+                                    <div style="flex-shrink:0; display:flex; gap:5px; align-items:center;">
+                                        <button class="assign-btn" style="background:#cc2a2a; border-color:#cc2a2a;" onclick="expulsarJugador('${jug.discordId}', '${jug.name}')" title="Expulsar parche"><i class="fa-solid fa-trash"></i></button>
+                                    </div>
+                                `;
+                            }
                             ulParches.innerHTML += `
                                 <li>
                                     <span style="flex-grow:1;"><strong>${i+1}.</strong> ${jug.name} <span style="color:#7d7d7d; font-size:0.8rem;">(#${jug.numericId})</span> - <span style="color:#5dc8e8;">${jug.discordName}</span></span>
+                                    ${botonesManager}
                                 </li>`;
                         });
                     } else {
@@ -487,6 +497,26 @@
                 ulInscritos.innerHTML = '<li><i class="fa-solid fa-spinner fa-spin"></i> Reintentando...</li>';
                 setTimeout(iniciarCargaJugadores, 5000);
             });
+        }
+
+        async function expulsarJugador(targetDiscordId, playerName) {
+            if(!confirm(`¿Estás completamente seguro que deseas EXPULSAR a ${playerName} de las inscripciones?`)) return;
+
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/expulsar', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ managerNumericId: loggedId, targetDiscordId: targetDiscordId })
+                });
+                const data = await res.json();
+                
+                if(data.success) {
+                    iniciarCargaJugadores();
+                } else {
+                    alert(data.message);
+                }
+            } catch(e) {
+                alert("Error de conexión al expulsar al jugador.");
+            }
         }
 
         function cargarHistorial() {
