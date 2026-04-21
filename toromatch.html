@@ -424,79 +424,46 @@
             .then(res => res.json())
             .then(data => {
                 if(data.success) {
-                    if(data.canEdit) {
-                        isManager = true;
-                        document.getElementById('btnEditar').style.display = 'block';
-                    }
+                    isManager = data.canEdit;
+                    if(isManager) document.getElementById('managerButtons').style.display = 'flex';
 
                     equipoA_Global = data.equipoA;
                     equipoB_Global = data.equipoB;
-                    displayDateGlobal = data.customDate ? data.customDate : `Sábado ${getNextSaturday()}`;
+                    displayDateGlobal = data.customDate || `Sábado ${getNextSaturday()}`;
 
                     ulInscritos.innerHTML = '';
                     if (data.inscritos && data.inscritos.length > 0) {
                         data.inscritos.forEach((jug, i) => {
-                            let botonesManager = "";
-                            if (isManager) {
-                                const eq1Active = jug.teamAssigned === "1" ? "active" : "";
-                                const eq2Active = jug.teamAssigned === "2" ? "active" : "";
-                                botonesManager = `
-                                    <div style="flex-shrink:0; display:flex; gap:5px; align-items:center;">
-                                        <button class="assign-btn eq1 ${eq1Active}" onclick="asignarEquipo('${jug.discordId}', 1, this)" title="Asignar al Eq 1">1</button>
-                                        <button class="assign-btn eq2 ${eq2Active}" onclick="asignarEquipo('${jug.discordId}', 2, this)" title="Asignar al Eq 2">2</button>
-                                        <button class="assign-btn" onclick="asignarEquipo('${jug.discordId}', 0, this)" title="Quitar equipo">X</button>
-                                        <button class="assign-btn" style="background:#cc2a2a; border-color:#cc2a2a;" onclick="expulsarJugador('${jug.discordId}', '${jug.name}')" title="Expulsar jugador"><i class="fa-solid fa-trash"></i></button>
-                                    </div>
-                                `;
-                            }
-                            ulInscritos.innerHTML += `
-                                <li>
-                                    <span style="flex-grow:1;"><strong>${i+1}.</strong> ${jug.name} <span style="color:#7d7d7d; font-size:0.8rem;">(#${jug.numericId})</span> - <span style="color:#5dc8e8;">${jug.discordName}</span></span>
-                                    ${botonesManager}
-                                </li>`;
+                            let btnAction = isManager ? `
+                                <div style="display:flex; gap:4px;">
+                                    <button class="assign-btn eq1 ${jug.teamAssigned==='1'?'active':''}" onclick="asignarEquipo('${jug.discordId}', 1, this)">1</button>
+                                    <button class="assign-btn eq2 ${jug.teamAssigned==='2'?'active':''}" onclick="asignarEquipo('${jug.discordId}', 2, this)">2</button>
+                                    <button class="assign-btn" style="background:#cc2a2a;" onclick="expulsarJugador('${jug.discordId}', '${jug.name}')"><i class="fa-solid fa-trash"></i></button>
+                                </div>` : '';
+
+                            ulInscritos.innerHTML += `<li>
+                                <span><strong>${i+1}.</strong> ${jug.name} (ID: ${jug.numericId}) - <span style="color:#5dc8e8;">${jug.discordName}</span></span>
+                                ${btnAction}
+                            </li>`;
                         });
-                    } else {
-                        ulInscritos.innerHTML = '<li style="color:#7d7d7d; justify-content:center;">Nadie inscrito aún.</li>';
-                    }
+                    } else { ulInscritos.innerHTML = '<li>Nadie inscrito aún.</li>'; }
 
                     ulParches.innerHTML = '';
                     if (data.parches && data.parches.length > 0) {
                         data.parches.forEach((jug, i) => {
-                            let botonesManager = "";
-                            if (isManager) {
-                                botonesManager = `
-                                    <div style="flex-shrink:0; display:flex; gap:5px; align-items:center;">
-                                        <button class="assign-btn" style="background:#cc2a2a; border-color:#cc2a2a;" onclick="expulsarJugador('${jug.discordId}', '${jug.name}')" title="Expulsar parche"><i class="fa-solid fa-trash"></i></button>
-                                    </div>
-                                `;
-                            }
-                            ulParches.innerHTML += `
-                                <li>
-                                    <span style="flex-grow:1;"><strong>${i+1}.</strong> ${jug.name} <span style="color:#7d7d7d; font-size:0.8rem;">(#${jug.numericId})</span> - <span style="color:#5dc8e8;">${jug.discordName}</span></span>
-                                    ${botonesManager}
-                                </li>`;
+                            ulParches.innerHTML += `<li>
+                                <span><strong>${i+1}.</strong> ${jug.name} (ID: ${jug.numericId}) - <span style="color:#5dc8e8;">${jug.discordName}</span></span>
+                            </li>`;
                         });
-                    } else {
-                        ulParches.innerHTML = '<li style="color:#7d7d7d; justify-content:center;">No hay parches en espera.</li>';
-                    }
+                    } else { ulParches.innerHTML = '<li>No hay parches.</li>'; }
 
                     document.getElementById('proximos-lista').innerHTML = `
-                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; padding: 30px 15px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-top: 15px;">
-                            <div style="font-size: 1.5rem; color: #FFD342; font-weight: bold; text-align: center;">
-                                ${equipoA_Global} <span style="color:white; margin: 0 10px; font-size: 1.2rem;">vs</span> ${equipoB_Global} 
-                            </div>
-                            <div style="color: #7d7d7d; font-size: 1.1rem; border-top: 1px dashed #444; padding-top: 15px; width: 80%; text-align: center;">
-                                <i class="fa-regular fa-clock" style="margin-right: 5px;"></i> <span id="toroMatchDateDisplay">${displayDateGlobal}</span>
-                            </div>
-                        </div>
-                    `;
-                    
-                    checkEstadoPostulaciones(); 
+                        <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 8px;">
+                            <div style="font-size: 1.4rem; color: #FFD342; font-weight: bold;">${equipoA_Global} vs ${equipoB_Global}</div>
+                            <div style="color: #7d7d7d; font-size: 1rem;"><i class="fa-regular fa-clock"></i> ${displayDateGlobal}</div>
+                        </div>`;
+                    checkEstadoPostulaciones();
                 }
-            })
-            .catch(err => {
-                ulInscritos.innerHTML = '<li><i class="fa-solid fa-spinner fa-spin"></i> Reintentando...</li>';
-                setTimeout(iniciarCargaJugadores, 5000);
             });
         }
 
