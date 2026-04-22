@@ -42,15 +42,33 @@
         .action-icons { width: 50px; display: flex; gap: 10px; justify-content: center; margin-left: 0; flex-shrink: 0;}
 
         .inscripcion-container { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;}
-        .btn-inscribir { background: #5dc8e8; color: #111; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.1rem; margin-bottom: 10px;}
+        
+        .btn-estandar { 
+            width: 260px;
+            padding: 12px; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            font-size: 1.05rem; 
+            border: none; 
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn-estandar:disabled { filter: grayscale(100%); opacity: 0.6; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+        .btn-inscribir { background: #5dc8e8; color: #111; }
         .btn-inscribir:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(93, 200, 232, 0.4); }
-        .btn-inscribir:disabled { background: #555; color: #888; cursor: not-allowed; transform: none; box-shadow: none; }
         
         .btn-cancelar { background: #cc2a2a; color: #fff; }
-        .btn-cancelar:hover { background: #e74c3c; box-shadow: 0 0 15px rgba(204, 42, 42, 0.4); }
+        .btn-cancelar:hover { background: #e74c3c; box-shadow: 0 0 15px rgba(204, 42, 42, 0.4); transform: scale(1.05); }
 
-        .btn-organizador { color: #111; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem; transition: 0.2s;}
-        
+        .btn-abrir { background: #FFD342; color: #111; }
+        .btn-abrir:hover { background: #ffdf73; transform: scale(1.05); box-shadow: 0 0 15px rgba(255, 211, 66, 0.4); }
+
         .edit-btn { position: absolute; bottom: 20px; right: 20px; background: transparent; color: #2df2c1; border: 2px solid #2df2c1; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: none; transition: 0.3s; }
         .edit-btn:hover { background: #2df2c1; color: #111; }
 
@@ -64,7 +82,8 @@
         .roster-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
         .roster-container::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
 
-        .assign-btn { background: #333; border: 1px solid #555; color: #fff; border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: 0.8rem; margin-left: 5px;}
+        .assign-btn { background: #333; border: 1px solid #555; color: #fff; border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: 0.8rem; margin-left: 5px; transition: 0.2s;}
+        .assign-btn:hover { background: #444; }
         .assign-btn.eq1 { color: #3498db; border-color: #3498db; }
         .assign-btn.eq1.active { background: #3498db; color: #111;}
         .assign-btn.eq2 { color: #e74c3c; border-color: #e74c3c; }
@@ -142,11 +161,11 @@
                         <h3 style="color: #5dc8e8; margin-top:0; font-size: 1.2rem; border-bottom: none;"><i class="fa-solid fa-clipboard-user"></i> Postulaciones ToroMatch</h3>
                         <p id="msgInscripcion" style="color: #bdc3c7; font-size: 0.95rem; margin-bottom: 15px;">Verificando estado en Discord...</p>
                         
-                        <button id="btnInscribir" class="btn-inscribir" style="display:none;" onclick="abrirModalInscripcion()">Cargando...</button>
+                        <button id="btnInscribir" class="btn-estandar" style="display:none;" onclick="abrirModalInscripcion()"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</button>
                         
-                        <div id="managerButtons" style="display:none; margin-top: 10px; gap: 10px; justify-content: center; flex-wrap: wrap;">
-                            <button id="btnAbrirPostulaciones" class="btn-organizador" style="background: #FFD342;" onclick="abrirPostulaciones()">Abrir Postulaciones</button>
-                            <button id="btnCerrarPostulaciones" class="btn-organizador" style="background: #cc2a2a; color: white;" onclick="cerrarPostulaciones()">Cerrar Postulaciones</button>
+                        <div id="managerButtons" style="display:none; flex-direction: column; align-items: center;">
+                            <button id="btnAbrirPostulaciones" class="btn-estandar btn-abrir" onclick="abrirPostulaciones()"><i class="fa-solid fa-door-open"></i> Abrir Postulaciones</button>
+                            <button id="btnCerrarPostulaciones" class="btn-estandar btn-cancelar" onclick="cerrarPostulaciones()"><i class="fa-solid fa-door-closed"></i> Cerrar Postulaciones</button>
                         </div>
                     </div>
                 </div>
@@ -173,7 +192,7 @@
     <div class="modal-overlay" id="termsModal">
         <div class="modal-content">
             <h3><i class="fa-solid fa-file-contract"></i> Compromiso de Juego</h3>
-            <p id="termsText">"Yo como jugador me comprometo a presentarme al partido express ToroMatch conectándome antes de las 20:30 horas a la sala de juego."</p>
+            <p id="termsText">"Yo como jugador me comprometo a presentarme al partido express ToroMatch conectándome a la hora acordada."</p>
             <div class="modal-btn-row">
                 <button class="modal-btn cancel" onclick="cerrarModalTerms()">Volver</button>
                 <button class="modal-btn" onclick="confirmarInscripcion()">Aceptar</button>
@@ -232,6 +251,7 @@
         let matchNumberGlobal = 0; 
         let equipoA_Global = "Equipo 1";
         let equipoB_Global = "Equipo 2";
+        let displayDateGlobal = "";
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -266,24 +286,24 @@
                 }
 
                 if (data.abiertas) {
-                    btnInscribir.style.display = 'inline-block';
+                    btnInscribir.style.display = 'flex';
                     btnInscribir.disabled = false;
                     matchNumberGlobal = data.matchNumber;
                     
                     if (btnAbrir) btnAbrir.style.display = 'none';
-                    if (btnCerrar) btnCerrar.style.display = 'inline-block';
+                    if (btnCerrar) btnCerrar.style.display = 'flex';
                     
                     if (data.inscrito) {
                         msg.innerText = "¡Ya estás en la lista para este partido!";
                         msg.style.color = '#2df2c1';
-                        btnInscribir.innerText = "Cancelar Inscripción";
-                        btnInscribir.className = "btn-inscribir btn-cancelar";
+                        btnInscribir.innerHTML = '<i class="fa-solid fa-xmark"></i> Cancelar Inscripción';
+                        btnInscribir.className = "btn-estandar btn-cancelar";
                         btnInscribir.onclick = abrirModalCancelacion;
                     } else {
                         msg.innerText = `ToroMatch #${data.matchNumber} abierto. Asegura tu cupo.`;
                         msg.style.color = '#bdc3c7';
-                        btnInscribir.innerText = "Inscribirme al Partido";
-                        btnInscribir.className = "btn-inscribir";
+                        btnInscribir.innerHTML = '<i class="fa-solid fa-check"></i> Inscribirme al Partido';
+                        btnInscribir.className = "btn-estandar btn-inscribir";
                         btnInscribir.onclick = abrirModalInscripcion;
                     }
                 } else {
@@ -291,7 +311,7 @@
                     msg.innerText = "Las postulaciones están cerradas.";
                     msg.style.color = '#cc2a2a';
                     
-                    if (btnAbrir) btnAbrir.style.display = 'inline-block';
+                    if (btnAbrir) btnAbrir.style.display = 'flex';
                     if (btnCerrar) btnCerrar.style.display = 'none';
                 }
             }).catch(e => console.log(e));
@@ -300,7 +320,8 @@
         async function abrirPostulaciones() {
             if(!confirm("¿Seguro que deseas abrir un nuevo proceso? Esto reseteará los roles en Discord y creará un foro nuevo.")) return;
             const btn = document.getElementById('btnAbrirPostulaciones');
-            btn.innerText = "Abriendo..."; btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Abriendo...'; 
+            btn.disabled = true;
 
             try {
                 const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/abrir-postulaciones', {
@@ -315,13 +336,15 @@
                 }
             } catch (e) { alert("Error de conexión."); }
             
-            btn.innerText = "Abrir Postulaciones"; btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-door-open"></i> Abrir Postulaciones'; 
+            btn.disabled = false;
         }
 
         async function cerrarPostulaciones() {
             if(!confirm("¿Seguro que deseas cerrar las postulaciones? Se bloqueará el foro en Discord y nadie más podrá inscribirse.")) return;
             const btn = document.getElementById('btnCerrarPostulaciones');
-            btn.innerText = "Cerrando..."; btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cerrando...'; 
+            btn.disabled = true;
 
             try {
                 const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/cerrar-postulaciones', {
@@ -333,11 +356,12 @@
                 if(data.success) checkEstadoPostulaciones();
             } catch (e) { alert("Error de conexión."); }
             
-            btn.innerText = "Cerrar Postulaciones"; btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-door-closed"></i> Cerrar Postulaciones'; 
+            btn.disabled = false;
         }
 
         function abrirModalInscripcion() {
-            document.getElementById('termsText').innerText = `"Yo como jugador me comprometo a presentarme al partido express ToroMatch #${matchNumberGlobal} "${equipoA_Global} vs ${equipoB_Global}" conectándome antes de las 20:30 horas a la sala de juego."`;
+            document.getElementById('termsText').innerText = `"Yo como jugador me comprometo a presentarme al partido express ToroMatch #${matchNumberGlobal} "${equipoA_Global} vs ${equipoB_Global}" conectándome antes de la hora acordada a la sala de juego."`;
             document.getElementById('termsModal').style.display = 'flex';
         }
 
@@ -348,7 +372,8 @@
         async function confirmarInscripcion() {
             cerrarModalTerms();
             const btn = document.getElementById('btnInscribir');
-            btn.innerText = "Procesando..."; btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Procesando...'; 
+            btn.disabled = true;
 
             try {
                 const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/inscribir', {
@@ -359,13 +384,15 @@
                 alert(data.message);
                 if(data.success) {
                     checkEstadoPostulaciones();
-                    iniciarCargaJugadores();
+                    iniciarCargaJugadores(); 
                 } else { 
-                    btn.innerText = "Inscribirme al Partido"; btn.disabled = false; 
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i> Inscribirme al Partido'; 
+                    btn.disabled = false; 
                 }
             } catch(e) {
                 alert("Error al conectar con el servidor.");
-                btn.innerText = "Inscribirme al Partido"; btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i> Inscribirme al Partido'; 
+                btn.disabled = false;
             }
         }
 
@@ -375,7 +402,8 @@
         async function confirmarCancelacion() {
             cerrarModalCancel();
             const btn = document.getElementById('btnInscribir');
-            btn.innerText = "Cancelando..."; btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cancelando...'; 
+            btn.disabled = true;
 
             try {
                 const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/cancelar', {
@@ -388,11 +416,13 @@
                     checkEstadoPostulaciones();
                     iniciarCargaJugadores();
                 } else { 
-                    btn.innerText = "Cancelar Inscripción"; btn.disabled = false; 
+                    btn.innerHTML = '<i class="fa-solid fa-xmark"></i> Cancelar Inscripción'; 
+                    btn.disabled = false; 
                 }
             } catch(e) {
                 alert("Error al conectar con el servidor.");
-                btn.innerText = "Cancelar Inscripción"; btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-xmark"></i> Cancelar Inscripción'; 
+                btn.disabled = false;
             }
         }
 
@@ -416,6 +446,26 @@
             }
         }
 
+        async function expulsarJugador(targetDiscordId, playerName) {
+            if(!confirm(`¿Estás completamente seguro que deseas EXPULSAR a ${playerName} de las inscripciones?`)) return;
+
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/expulsar', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ managerNumericId: loggedId, targetDiscordId: targetDiscordId })
+                });
+                const data = await res.json();
+                
+                if(data.success) {
+                    iniciarCargaJugadores(); 
+                } else {
+                    alert(data.message);
+                }
+            } catch(e) {
+                alert("Error de conexión al expulsar al jugador.");
+            }
+        }
+
         function iniciarCargaJugadores() {
             const ulInscritos = document.getElementById('listaInscritos');
             const ulParches = document.getElementById('listaParches');
@@ -431,12 +481,15 @@
 
                     equipoA_Global = data.equipoA;
                     equipoB_Global = data.equipoB;
-                    displayDateGlobal = data.customDate || `Sábado ${getNextSaturday()}`;
+                    
+                    displayDateGlobal = data.customDate ? data.customDate : `Sábado ${getNextSaturday()}`;
 
                     ulInscritos.innerHTML = '';
                     if (data.inscritos && data.inscritos.length > 0) {
                         data.inscritos.forEach((jug, i) => {
-                            let statusIcon = jug.isOnline ? '<span style="color:#2df2c1; text-shadow: 0 0 5px #2df2c1;">🟢</span>' : '<span style="color:#cc2a2a;">🔴</span>';
+                            let statusIcon = jug.isOnline 
+                                ? '<i class="fa-solid fa-circle" style="color:#2df2c1; font-size: 0.6rem; margin-right: 6px; text-shadow: 0 0 6px #2df2c1;" title="Conectado"></i>' 
+                                : '<i class="fa-solid fa-circle" style="color:#cc2a2a; font-size: 0.6rem; margin-right: 6px;" title="Desconectado"></i>';
                             
                             let botonesManager = "";
                             if (isManager) {
@@ -444,16 +497,16 @@
                                 const eq2Active = jug.teamAssigned === "2" ? "active" : "";
                                 botonesManager = `
                                     <div style="flex-shrink:0; display:flex; gap:5px; align-items:center;">
-                                        <button class="assign-btn eq1 ${eq1Active}" onclick="asignarEquipo('${jug.discordId}', 1, this)">1</button>
-                                        <button class="assign-btn eq2 ${eq2Active}" onclick="asignarEquipo('${jug.discordId}', 2, this)">2</button>
-                                        <button class="assign-btn" onclick="asignarEquipo('${jug.discordId}', 0, this)">X</button>
-                                        <button class="assign-btn" style="background:#cc2a2a; border-color:#cc2a2a;" onclick="expulsarJugador('${jug.discordId}', '${jug.name}')"><i class="fa-solid fa-trash"></i></button>
+                                        <button class="assign-btn eq1 ${eq1Active}" onclick="asignarEquipo('${jug.discordId}', 1, this)" title="Asignar al Eq 1">1</button>
+                                        <button class="assign-btn eq2 ${eq2Active}" onclick="asignarEquipo('${jug.discordId}', 2, this)" title="Asignar al Eq 2">2</button>
+                                        <button class="assign-btn" onclick="asignarEquipo('${jug.discordId}', 0, this)" title="Quitar equipo">X</button>
+                                        <button class="assign-btn" style="background:#cc2a2a; border-color:#cc2a2a;" onclick="expulsarJugador('${jug.discordId}', '${jug.name}')" title="Expulsar jugador"><i class="fa-solid fa-trash"></i></button>
                                     </div>
                                 `;
                             }
                             ulInscritos.innerHTML += `
                                 <li>
-                                    <span style="flex-grow:1;">${statusIcon} <strong>${i+1}.</strong> ${jug.name} <span style="color:#7d7d7d; font-size:0.8rem;">(#${jug.numericId})</span> - <span style="color:#5dc8e8;">${jug.discordName}</span></span>
+                                    <span style="flex-grow:1;">${statusIcon}<strong>${i+1}.</strong> ${jug.name} <span style="color:#7d7d7d; font-size:0.8rem;">(#${jug.numericId})</span> - <span style="color:#5dc8e8;">${jug.discordName}</span></span>
                                     ${botonesManager}
                                 </li>`;
                         });
@@ -464,19 +517,21 @@
                     ulParches.innerHTML = '';
                     if (data.parches && data.parches.length > 0) {
                         data.parches.forEach((jug, i) => {
-                            let statusIcon = jug.isOnline ? '<span style="color:#2df2c1; text-shadow: 0 0 5px #2df2c1;">🟢</span>' : '<span style="color:#cc2a2a;">🔴</span>';
+                            let statusIcon = jug.isOnline 
+                                ? '<i class="fa-solid fa-circle" style="color:#2df2c1; font-size: 0.6rem; margin-right: 6px; text-shadow: 0 0 6px #2df2c1;" title="Conectado"></i>' 
+                                : '<i class="fa-solid fa-circle" style="color:#cc2a2a; font-size: 0.6rem; margin-right: 6px;" title="Desconectado"></i>';
                             
                             let botonesManager = "";
                             if (isManager) {
                                 botonesManager = `
                                     <div style="flex-shrink:0; display:flex; gap:5px; align-items:center;">
-                                        <button class="assign-btn" style="background:#cc2a2a; border-color:#cc2a2a;" onclick="expulsarJugador('${jug.discordId}', '${jug.name}')"><i class="fa-solid fa-trash"></i></button>
+                                        <button class="assign-btn" style="background:#cc2a2a; border-color:#cc2a2a;" onclick="expulsarJugador('${jug.discordId}', '${jug.name}')" title="Expulsar parche"><i class="fa-solid fa-trash"></i></button>
                                     </div>
                                 `;
                             }
                             ulParches.innerHTML += `
                                 <li>
-                                    <span style="flex-grow:1;">${statusIcon} <strong>${i+1}.</strong> ${jug.name} <span style="color:#7d7d7d; font-size:0.8rem;">(#${jug.numericId})</span> - <span style="color:#5dc8e8;">${jug.discordName}</span></span>
+                                    <span style="flex-grow:1;">${statusIcon}<strong>${i+1}.</strong> ${jug.name} <span style="color:#7d7d7d; font-size:0.8rem;">(#${jug.numericId})</span> - <span style="color:#5dc8e8;">${jug.discordName}</span></span>
                                     ${botonesManager}
                                 </li>`;
                         });
@@ -503,28 +558,8 @@
                 setTimeout(iniciarCargaJugadores, 5000);
             });
         }
-        
-        setInterval(iniciarCargaJugadores, 10000);
 
-        async function expulsarJugador(targetDiscordId, playerName) {
-            if(!confirm(`¿Estás completamente seguro que deseas EXPULSAR a ${playerName} de las inscripciones?`)) return;
-
-            try {
-                const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/expulsar', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ managerNumericId: loggedId, targetDiscordId: targetDiscordId })
-                });
-                const data = await res.json();
-                
-                if(data.success) {
-                    iniciarCargaJugadores();
-                } else {
-                    alert(data.message);
-                }
-            } catch(e) {
-                alert("Error de conexión al expulsar al jugador.");
-            }
-        }
+        setInterval(iniciarCargaJugadores, 10000); 
 
         function cargarHistorial() {
             const histDiv = document.getElementById('historial-lista');
