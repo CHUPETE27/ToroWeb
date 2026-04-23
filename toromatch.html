@@ -158,14 +158,14 @@
 
                 <div class="box" id="box-inscripcion">
                     <div class="inscripcion-container">
-                        <h3 style="color: #5dc8e8; margin-top:0; font-size: 1.2rem; border-bottom: none;"><i class="fa-solid fa-clipboard-user"></i> Postulaciones ToroMatch</h3>
+                        <h3 style="color: #5dc8e8; margin-top:0; font-size: 1.2rem; border-bottom: none;"><i class="fa-solid fa-clipboard-user"></i> ¡Inscríbete aquí!</h3>
                         <p id="msgInscripcion" style="color: #bdc3c7; font-size: 0.95rem; margin-bottom: 15px;">Verificando estado en Discord...</p>
                         
                         <button id="btnInscribir" class="btn-estandar" style="display:none;" onclick="abrirModalInscripcion()"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</button>
                         
                         <div id="managerButtons" style="display:none; flex-direction: column; align-items: center;">
-                            <button id="btnAbrirPostulaciones" class="btn-estandar btn-abrir" onclick="abrirPostulaciones()"><i class="fa-solid fa-door-open"></i> Abrir Postulaciones</button>
-                            <button id="btnCerrarPostulaciones" class="btn-estandar btn-cancelar" onclick="cerrarPostulaciones()"><i class="fa-solid fa-door-closed"></i> Cerrar Postulaciones</button>
+                            <button id="btnAbrirPostulaciones" class="btn-estandar btn-abrir" onclick="abrirPostulaciones()"><i class="fa-solid fa-door-open"></i> Abrir Inscripciones</button>
+                            <button id="btnCerrarPostulaciones" class="btn-estandar btn-cancelar" onclick="cerrarPostulaciones()"><i class="fa-solid fa-door-closed"></i> Cerrar Inscripciones</button>
                         </div>
                     </div>
                 </div>
@@ -180,7 +180,7 @@
                 </div>
                 
                 <div class="box list-box">
-                    <h3 style="color: #bdc3c7;">🩹 Parches en Espera</h3>
+                    <h3 style="color: #bdc3c7;">🩹 Parches</h3>
                     <div class="roster-container">
                         <ul id="listaParches"><li><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</li></ul>
                     </div>
@@ -192,7 +192,7 @@
     <div class="modal-overlay" id="termsModal">
         <div class="modal-content">
             <h3><i class="fa-solid fa-file-contract"></i> Compromiso de Juego</h3>
-            <p id="termsText">"Yo como jugador me comprometo a presentarme al partido express ToroMatch conectándome a la hora acordada."</p>
+            <p id="termsText">"Yo como jugador me comprometo a presentarme al partido express ToroMatch conectándome a la hora acordada, o en su defecto, cancelar y avisar mi cancelación."</p>
             <div class="modal-btn-row">
                 <button class="modal-btn cancel" onclick="cerrarModalTerms()">Volver</button>
                 <button class="modal-btn" onclick="confirmarInscripcion()">Aceptar</button>
@@ -308,7 +308,7 @@
                     }
                 } else {
                     btnInscribir.style.display = 'none';
-                    msg.innerText = "Las postulaciones están cerradas.";
+                    msg.innerText = "Las inscripciones están cerradas.";
                     msg.style.color = '#cc2a2a';
                     
                     if (btnAbrir) btnAbrir.style.display = 'flex';
@@ -336,7 +336,7 @@
                 }
             } catch (e) { alert("Error de conexión."); }
             
-            btn.innerHTML = '<i class="fa-solid fa-door-open"></i> Abrir Postulaciones'; 
+            btn.innerHTML = '<i class="fa-solid fa-door-open"></i> Abrir Inscripciones'; 
             btn.disabled = false;
         }
 
@@ -356,7 +356,7 @@
                 if(data.success) checkEstadoPostulaciones();
             } catch (e) { alert("Error de conexión."); }
             
-            btn.innerHTML = '<i class="fa-solid fa-door-closed"></i> Cerrar Postulaciones'; 
+            btn.innerHTML = '<i class="fa-solid fa-door-closed"></i> Cerrar Inscripciones'; 
             btn.disabled = false;
         }
 
