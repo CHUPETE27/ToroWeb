@@ -63,6 +63,15 @@
 
         .loader-screen { position: fixed; top:0; left:0; width:100%; height:100%; background:#0a0a0a; z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:#FFD342; }
 
+        .player-list-room { background: #111; border: 1px solid #333; border-radius: 8px; max-height: 350px; overflow-y: auto; padding: 0; margin: 0; list-style: none; }
+        .player-list-room li { padding: 12px 15px; border-bottom: 1px dashed #333; display: flex; justify-content: space-between; align-items: center; color: #fff;}
+        .player-list-room li:last-child { border-bottom: none; }
+        .player-list-room::-webkit-scrollbar { width: 6px; }
+        .player-list-room::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
+        .player-list-room::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
+        
+        .id-badge { color: #FFD342; font-family: monospace; font-size: 0.95rem; background: rgba(255, 211, 66, 0.1); padding: 2px 6px; border-radius: 4px; margin-right: 8px; border: 1px solid rgba(255, 211, 66, 0.3);}
+
         @media (max-width: 480px) {
             .admin-wrapper { padding: 0 15px; margin-top: 5vh; }
             .box { padding: 15px; }
@@ -92,7 +101,6 @@
                 </div>
 
                 <div id="global" class="tab-content active">
-                    
                     <div style="background: rgba(204, 42, 42, 0.05); border: 1px dashed #cc2a2a; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
                         <h4 style="color: #e74c3c; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px;"><i class="fa-solid fa-gavel"></i> Banear</h4>
                         
@@ -133,14 +141,34 @@
                             <i class="fa-solid fa-circle-check"></i> Desbanear Jugador
                         </button>
                     </div>
-
                 </div>
 
                 <div id="sala" class="tab-content">
-                    <div style="text-align: center; padding: 40px 20px; color: #7d7d7d;">
-                        <i class="fa-solid fa-person-digging fa-3x" style="margin-bottom: 15px; color: #555;"></i>
-                        <h3>Herramientas de Sala</h3>
-                        <p>Las funciones de host (kick, mute, cambiar mapas) estarán disponibles pronto.</p>
+                    <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #333; padding: 20px; border-radius: 10px;">
+                        <h4 style="color: #5dc8e8; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px;"><i class="fa-solid fa-users-viewfinder"></i> Visor de Salas</h4>
+                        
+                        <div class="form-group" style="display: flex; gap: 10px; align-items: flex-end;">
+                            <div style="flex: 1;">
+                                <label>Seleccionar Sala Activa</label>
+                                <select id="roomSelector" onchange="mostrarJugadoresSala()">
+                                    <option value="">Buscando salas...</option>
+                                </select>
+                            </div>
+                            <button class="btn-estandar" style="width: auto; margin-top: 0; background: #333; color: white; border: 1px solid #555;" onclick="cargarSalasActivas()" title="Actualizar">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                            </button>
+                        </div>
+
+                        <div style="margin-top: 20px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <h5 style="color: #bdc3c7; margin: 0;">Jugadores conectados:</h5>
+                                <span id="roomPlayerCount" style="color: #5dc8e8; font-weight: bold; background: rgba(93, 200, 232, 0.1); padding: 2px 8px; border-radius: 10px;">0/0</span>
+                            </div>
+                            
+                            <ul id="roomPlayersList" class="player-list-room">
+                                <li style="color: #7d7d7d; justify-content: center;">Selecciona una sala en el menú superior.</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
@@ -156,6 +184,7 @@
     <script>
         const loggedId = localStorage.getItem('toroHaxLoggedId');
         let adminData = null;
+        let activeRoomsData = [];
 
         if (!loggedId) {
             window.location.href = 'login.html';
@@ -167,6 +196,7 @@
                     adminData = data;
                     document.getElementById('loader').style.display = 'none';
                     document.getElementById('main-content').style.display = 'block';
+                    cargarSalasActivas();
                 } else {
                     alert("⚠️ Acceso denegado. Esta área está restringida.");
                     window.location.href = 'index.html';
@@ -183,6 +213,8 @@
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             event.target.classList.add('active');
             document.getElementById(tabId).classList.add('active');
+            
+            if (tabId === 'sala') cargarSalasActivas();
         }
 
         function toggleBanDuration() {
@@ -193,6 +225,73 @@
                 banDiasInput.value = "";
             } else {
                 banDiasInput.disabled = false;
+            }
+        }
+
+        async function cargarSalasActivas() {
+            const selector = document.getElementById('roomSelector');
+            const ul = document.getElementById('roomPlayersList');
+            const countSpan = document.getElementById('roomPlayerCount');
+            
+            selector.innerHTML = '<option value="">Cargando salas...</option>';
+            ul.innerHTML = '<li style="color: #7d7d7d; justify-content: center;"><i class="fa-solid fa-spinner fa-spin"></i> Obteniendo datos...</li>';
+            
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/active-rooms');
+                activeRoomsData = await res.json();
+                
+                if (activeRoomsData.length === 0) {
+                    selector.innerHTML = '<option value="">No hay salas activas en este momento</option>';
+                    ul.innerHTML = '<li style="color: #cc2a2a; justify-content: center;">Ningún host reportando actividad.</li>';
+                    countSpan.innerText = '0/0';
+                    return;
+                }
+
+                selector.innerHTML = '<option value="">-- Elige una sala para inspeccionar --</option>';
+                activeRoomsData.forEach((room, index) => {
+                    const cleanName = room.name.replace(/\[.*?\]/g, '').trim() || "Sala HaxBall";
+                    selector.innerHTML += `<option value="${index}">${cleanName} (${room.players.length} jgs)</option>`;
+                });
+                
+                ul.innerHTML = '<li style="color: #7d7d7d; justify-content: center;">Selecciona una sala en el menú superior.</li>';
+                countSpan.innerText = '0/0';
+
+            } catch (err) {
+                selector.innerHTML = '<option value="">Error de conexión</option>';
+                ul.innerHTML = '<li style="color: #cc2a2a; justify-content: center;">Error al conectar con Render.</li>';
+            }
+        }
+
+        function mostrarJugadoresSala() {
+            const index = document.getElementById('roomSelector').value;
+            const ul = document.getElementById('roomPlayersList');
+            const countSpan = document.getElementById('roomPlayerCount');
+
+            if (index === "") {
+                ul.innerHTML = '<li style="color: #7d7d7d; justify-content: center;">Selecciona una sala en el menú superior.</li>';
+                countSpan.innerText = '0/0';
+                return;
+            }
+
+            const room = activeRoomsData[index];
+            const maxP = room.maxPlayers || '?';
+            const currP = room.players ? room.players.length : 0;
+            countSpan.innerText = `${currP}/${maxP}`;
+            
+            ul.innerHTML = '';
+            if (room.players && room.players.length > 0) {
+                room.players.forEach(p => {
+                    const numId = p.numericId ? p.numericId : '???';
+                    ul.innerHTML += `
+                        <li>
+                            <span>
+                                <span class="id-badge">#(ID: ${numId})</span>
+                                ${p.name}
+                            </span>
+                        </li>`;
+                });
+            } else {
+                ul.innerHTML = '<li style="color: #7d7d7d; justify-content: center;">La sala está vacía actualmente.</li>';
             }
         }
 
