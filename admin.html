@@ -30,6 +30,10 @@
         .form-group label { display: block; margin-bottom: 5px; color: #bdc3c7; font-size: 0.9rem; font-weight: bold; }
         .form-group input, .form-group select { width: 100%; background: #111; border: 1px solid #444; color: white; padding: 12px; border-radius: 8px; outline: none; transition: 0.3s; font-family: inherit;}
         .form-group input:focus, .form-group select:focus { border-color: #FFD342; box-shadow: 0 0 8px rgba(255, 211, 66, 0.2); }
+        .form-group input:disabled { background: #222; border-color: #333; color: #555; cursor: not-allowed; }
+
+        .checkbox-container { display: flex; align-items: center; gap: 8px; cursor: pointer; color: #e74c3c; font-weight: bold; padding: 12px; background: rgba(231, 76, 60, 0.1); border-radius: 8px; border: 1px solid #e74c3c;}
+        .checkbox-container input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #e74c3c; margin: 0;}
 
         .btn-estandar { 
             width: 100%;
@@ -62,6 +66,7 @@
         @media (max-width: 480px) {
             .admin-wrapper { padding: 0 15px; margin-top: 5vh; }
             .box { padding: 15px; }
+            .duration-row { flex-direction: column; }
         }
     </style>
 </head>
@@ -78,7 +83,6 @@
             <div class="admin-header">
                 <i class="fa-solid fa-shield-halved"></i>
                 <h1 style="margin: 0; color: white;">Panel de Control</h1>
-                <p style="color: #7d7d7d; margin-top: 5px;">Solo personal autorizado</p>
             </div>
 
             <div class="box">
@@ -90,22 +94,21 @@
                 <div id="global" class="tab-content active">
                     
                     <div style="background: rgba(204, 42, 42, 0.05); border: 1px dashed #cc2a2a; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-                        <h4 style="color: #e74c3c; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px;"><i class="fa-solid fa-gavel"></i> Aplicar Baneo</h4>
+                        <h4 style="color: #e74c3c; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px;"><i class="fa-solid fa-gavel"></i> Banear</h4>
                         
                         <div class="form-group">
-                            <label>ID Numérica del Jugador</label>
+                            <label>ID del host</label>
                             <input type="number" id="banId" placeholder="Ej: 150">
                         </div>
                         
                         <div class="form-group">
                             <label>Duración</label>
-                            <select id="banDuracion">
-                                <option value="1">1 Día</option>
-                                <option value="3">3 Días</option>
-                                <option value="7">7 Días (Una semana)</option>
-                                <option value="30">30 Días (Un mes)</option>
-                                <option value="0" style="color: #e74c3c; font-weight: bold;">PERMANENTE</option>
-                            </select>
+                            <div class="duration-row" style="display: flex; gap: 10px; align-items: center;">
+                                <input type="number" id="banDias" placeholder="N° de días (1-30)" min="1" max="30" style="flex: 1;">
+                                <label class="checkbox-container">
+                                    <input type="checkbox" id="banPermanente" onchange="toggleBanDuration()"> Permanente
+                                </label>
+                            </div>
                         </div>
                         
                         <div class="form-group">
@@ -122,7 +125,7 @@
                         <h4 style="color: #2df2c1; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px;"><i class="fa-solid fa-unlock"></i> Retirar Baneo (Unban)</h4>
                         
                         <div class="form-group">
-                            <label>ID Numérica del Jugador</label>
+                            <label>ID del host</label>
                             <input type="number" id="unbanId" placeholder="Ej: 150">
                         </div>
 
@@ -182,25 +185,44 @@
             document.getElementById(tabId).classList.add('active');
         }
 
-        const LISTA_NEGRA_WEBHOOK_URL = "https://discord.com/api/webhooks/1443741508682649671/Qp5DDMsCg13DWB1T9VZAWu7jPxXjwIx3tIM9XzQGV0-l0PkOpHLSnefTGW0IiFCVMByQ";
+        function toggleBanDuration() {
+            const isPermanent = document.getElementById('banPermanente').checked;
+            const banDiasInput = document.getElementById('banDias');
+            if (isPermanent) {
+                banDiasInput.disabled = true;
+                banDiasInput.value = "";
+            } else {
+                banDiasInput.disabled = false;
+            }
+        }
 
         async function sendToListaNegra(embed) {
             try {
-                await fetch(LISTA_NEGRA_WEBHOOK_URL, {
+                await fetch('https://torobot-izu5.onrender.com/api/webhook/lista-negra', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ embeds: [embed] })
                 });
-            } catch (error) { console.error("Error enviando webhook:", error); }
+            } catch (error) { console.error("Error enviando webhook seguro:", error); }
         }
 
         async function ejecutarBaneo() {
             const targetId = document.getElementById('banId').value;
-            const days = document.getElementById('banDuracion').value;
+            const isPermanent = document.getElementById('banPermanente').checked;
+            const banDias = document.getElementById('banDias').value;
             let reason = document.getElementById('banRazon').value.trim();
 
             if (!targetId || targetId <= 0) return alert("❌ Debes ingresar una ID válida.");
             if (targetId === "1") return alert("❌ ¡Estás loco! No puedes banear al Creador.");
+            
+            let finalDays = 0;
+            if (!isPermanent) {
+                finalDays = parseInt(banDias);
+                if (isNaN(finalDays) || finalDays < 1 || finalDays > 30) {
+                    return alert("❌ Debes ingresar una cantidad válida de días (entre 1 y 30) o marcar 'Permanente'.");
+                }
+            }
+
             if (!reason) reason = "Sin motivo especificado";
 
             if(!confirm(`¿Seguro que deseas banear la ID #${targetId}?`)) return;
@@ -229,9 +251,9 @@
 
                 let banUntil = null;
                 let durationText = "PERMANENTE";
-                if (days !== "0") {
-                    banUntil = Date.now() + (parseInt(days) * 24 * 60 * 60 * 1000);
-                    durationText = `${days} días`;
+                if (!isPermanent) {
+                    banUntil = Date.now() + (finalDays * 24 * 60 * 60 * 1000);
+                    durationText = `${finalDays} días`;
                 }
 
                 const banRes = await fetch(`https://torobot-izu5.onrender.com/ban-add`, {
@@ -265,6 +287,9 @@
                     await sendToListaNegra(embed);
 
                     document.getElementById('banId').value = "";
+                    document.getElementById('banDias').value = "";
+                    document.getElementById('banPermanente').checked = false;
+                    document.getElementById('banDias').disabled = false;
                     document.getElementById('banRazon').value = "";
                 } else if (banRes.status === 409) {
                     alert("⚠️ Este jugador ya tiene un baneo activo.");
