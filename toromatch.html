@@ -466,6 +466,33 @@
             }
         }
 
+        async function togglePresence(targetNumericId, btnElement) {
+            const originalHTML = btnElement.innerHTML;
+            btnElement.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            btnElement.disabled = true;
+
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/toggle-presence', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ managerNumericId: loggedId, targetNumericId: targetNumericId })
+                });
+                const data = await res.json();
+                
+                if(data.success) {
+                    iniciarCargaJugadores();
+                } else {
+                    alert(data.message);
+                    btnElement.innerHTML = originalHTML;
+                    btnElement.disabled = false;
+                }
+            } catch(e) {
+                alert("Error de conexión al cambiar presencia.");
+                btnElement.innerHTML = originalHTML;
+                btnElement.disabled = false;
+            }
+        }
+
         function iniciarCargaJugadores() {
             const ulInscritos = document.getElementById('listaInscritos');
             const ulParches = document.getElementById('listaParches');
@@ -495,11 +522,17 @@
                             if (isManager) {
                                 const eq1Active = jug.teamAssigned === "1" ? "active" : "";
                                 const eq2Active = jug.teamAssigned === "2" ? "active" : "";
+                                
+                                const btnPresenceColor = jug.isOnline ? "#cc2a2a" : "#2df2c1";
+                                const btnPresenceIcon = jug.isOnline ? "fa-user-slash" : "fa-user-check";
+                                const btnPresenceTitle = jug.isOnline ? "Forzar Ausencia" : "Forzar Presencia";
+
                                 botonesManager = `
                                     <div style="flex-shrink:0; display:flex; gap:5px; align-items:center;">
                                         <button class="assign-btn eq1 ${eq1Active}" onclick="asignarEquipo('${jug.discordId}', 1, this)" title="Asignar al Eq 1">1</button>
                                         <button class="assign-btn eq2 ${eq2Active}" onclick="asignarEquipo('${jug.discordId}', 2, this)" title="Asignar al Eq 2">2</button>
                                         <button class="assign-btn" onclick="asignarEquipo('${jug.discordId}', 0, this)" title="Quitar equipo">X</button>
+                                        <button class="assign-btn" style="background:transparent; color:${btnPresenceColor}; border-color:${btnPresenceColor}; font-size: 0.9rem; padding: 2px 5px;" onclick="togglePresence('${jug.numericId}', this)" title="${btnPresenceTitle}"><i class="fa-solid ${btnPresenceIcon}"></i></button>
                                         <button class="assign-btn" style="background:#cc2a2a; border-color:#cc2a2a;" onclick="expulsarJugador('${jug.discordId}', '${jug.name}')" title="Expulsar jugador"><i class="fa-solid fa-trash"></i></button>
                                     </div>
                                 `;
@@ -523,8 +556,13 @@
                             
                             let botonesManager = "";
                             if (isManager) {
+                                const btnPresenceColor = jug.isOnline ? "#cc2a2a" : "#2df2c1";
+                                const btnPresenceIcon = jug.isOnline ? "fa-user-slash" : "fa-user-check";
+                                const btnPresenceTitle = jug.isOnline ? "Forzar Ausencia" : "Forzar Presencia";
+
                                 botonesManager = `
                                     <div style="flex-shrink:0; display:flex; gap:5px; align-items:center;">
+                                        <button class="assign-btn" style="background:transparent; color:${btnPresenceColor}; border-color:${btnPresenceColor}; font-size: 0.9rem; padding: 2px 5px;" onclick="togglePresence('${jug.numericId}', this)" title="${btnPresenceTitle}"><i class="fa-solid ${btnPresenceIcon}"></i></button>
                                         <button class="assign-btn" style="background:#cc2a2a; border-color:#cc2a2a;" onclick="expulsarJugador('${jug.discordId}', '${jug.name}')" title="Expulsar parche"><i class="fa-solid fa-trash"></i></button>
                                     </div>
                                 `;
