@@ -72,6 +72,13 @@
         
         .id-badge { color: #FFD342; font-family: monospace; font-size: 0.95rem; background: rgba(255, 211, 66, 0.1); padding: 2px 6px; border-radius: 4px; margin-right: 8px; border: 1px solid rgba(255, 211, 66, 0.3);}
 
+        .ban-item { margin-bottom: 15px; padding-bottom: 15px; border-bottom: 2px dashed #444; font-size: 1.05rem; line-height: 1.6; }
+        .ban-item:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .ban-header { font-size: 1.2rem; font-weight: bold; color: white; margin-bottom: 5px; }
+        .ban-detail { color: #bdc3c7; }
+        .ban-detail strong { color: white; margin-left: 5px;}
+        .ban-detail span.highlight { background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; color: #fff; font-size: 0.95rem;}
+
         @media (max-width: 480px) {
             .admin-wrapper { padding: 0 15px; margin-top: 5vh; }
             .box { padding: 15px; }
@@ -98,6 +105,7 @@
                 <div class="tabs">
                     <div class="tab active" onclick="switchTab('global')"><i class="fa-solid fa-globe fa-fw"></i> Global</div>
                     <div class="tab" onclick="switchTab('sala')"><i class="fa-solid fa-server fa-fw"></i> Sala</div>
+                    <div class="tab" onclick="switchTab('baneos')"><i class="fa-solid fa-user-slash fa-fw"></i> Baneos</div>
                 </div>
 
                 <div id="global" class="tab-content active">
@@ -145,7 +153,7 @@
 
                 <div id="sala" class="tab-content">
                     <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #333; padding: 20px; border-radius: 10px;">
-                        <h4 style="color: #5dc8e8; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px;"><i class="fa-solid fa-users-viewfinder"></i> Salas</h4>
+                        <h4 style="color: #5dc8e8; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px;"><i class="fa-solid fa-users-viewfinder"></i> Visor de Salas</h4>
                         
                         <div class="form-group" style="display: flex; gap: 10px; align-items: flex-end;">
                             <div style="flex: 1;">
@@ -168,6 +176,21 @@
                             <ul id="roomPlayersList" class="player-list-room">
                                 <li style="color: #7d7d7d; justify-content: center;">Selecciona una sala en el menú superior.</li>
                             </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="baneos" class="tab-content">
+                    <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #333; padding: 20px; border-radius: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; padding-bottom: 10px; margin-bottom: 15px;">
+                            <h4 style="color: #e74c3c; margin: 0;"><i class="fa-solid fa-list"></i> Lista de Baneados</h4>
+                            <button class="btn-estandar" style="width: auto; margin-top: 0; background: #333; color: white; border: 1px solid #555; padding: 6px 12px;" onclick="cargarListaBaneos()" title="Actualizar Lista">
+                                <i class="fa-solid fa-arrows-rotate"></i>
+                            </button>
+                        </div>
+                        
+                        <div id="bansListContainer" style="max-height: 400px; overflow-y: auto; padding-right: 5px;">
+                            <p style="text-align: center; color: #7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando baneos...</p>
                         </div>
                     </div>
                 </div>
@@ -215,6 +238,7 @@
             document.getElementById(tabId).classList.add('active');
             
             if (tabId === 'sala') cargarSalasActivas();
+            if (tabId === 'baneos') cargarListaBaneos();
         }
 
         function toggleBanDuration() {
@@ -225,6 +249,51 @@
                 banDiasInput.value = "";
             } else {
                 banDiasInput.disabled = false;
+            }
+        }
+
+        async function cargarListaBaneos() {
+            const container = document.getElementById('bansListContainer');
+            container.innerHTML = '<p style="text-align: center; color: #7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando baneos...</p>';
+            
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/list-bans');
+                const bans = await res.json();
+                
+                if (!bans || bans.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #2df2c1;"><i class="fa-solid fa-check-circle"></i> No hay jugadores baneados en este momento.</p>';
+                    return;
+                }
+
+                let html = '';
+                bans.forEach(ban => {
+                    let hastaTexto = "PERMANENTE";
+                    if (ban.until) {
+                        const d = new Date(ban.until);
+                        const options = { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' };
+                        hastaTexto = d.toLocaleDateString('en-US', options);
+                    }
+
+                    html += `
+                        <div class="ban-item">
+                            <div class="ban-header">
+                                🚫 ${ban.name || "Desconocido"} <span style="color:#7d7d7d; font-weight:normal;">(ID: ${ban.numericId})</span>
+                            </div>
+                            <div class="ban-detail">
+                                📄 <strong>Razón:</strong> ${ban.reason || "Sin razón"}
+                            </div>
+                            <div class="ban-detail">
+                                📅 <strong>Hasta:</strong> <span class="${hastaTexto === 'PERMANENTE' ? '' : 'highlight'}">${hastaTexto}</span>
+                            </div>
+                            <div class="ban-detail">
+                                👮 <strong>Admin:</strong> ${ban.bannedBy || "Sistema"}
+                            </div>
+                        </div>
+                    `;
+                });
+                container.innerHTML = html;
+            } catch (error) {
+                container.innerHTML = '<p style="text-align: center; color: #cc2a2a;"><i class="fa-solid fa-triangle-exclamation"></i> Error al conectar con la base de datos.</p>';
             }
         }
 
@@ -250,7 +319,13 @@
                 selector.innerHTML = '<option value="">-- Elige una sala para inspeccionar --</option>';
                 activeRoomsData.forEach((room, index) => {
                     const cleanName = room.name.replace(/\[.*?\]/g, '').trim() || "Sala HaxBall";
-                    selector.innerHTML += `<option value="${index}">${cleanName} (${room.players.length} jgs)</option>`;
+                    let numPlayers = 0;
+                    if (Array.isArray(room.players)) {
+                        numPlayers = room.players.length;
+                    } else if (typeof room.players === 'number') {
+                        numPlayers = room.players;
+                    }
+                    selector.innerHTML += `<option value="${index}">${cleanName} (${numPlayers} jgs)</option>`;
                 });
                 
                 ul.innerHTML = '<li style="color: #7d7d7d; justify-content: center;">Selecciona una sala en el menú superior.</li>';
@@ -274,24 +349,30 @@
             }
 
             const room = activeRoomsData[index];
-            const maxP = room.maxPlayers || '?';
-            const currP = room.players ? room.players.length : 0;
-            countSpan.innerText = `${currP}/${maxP}`;
+            const maxP = room.maxPlayers || '30';
             
-            ul.innerHTML = '';
-            if (room.players && room.players.length > 0) {
-                room.players.forEach(p => {
-                    const numId = p.numericId ? p.numericId : '???';
-                    ul.innerHTML += `
-                        <li>
-                            <span>
-                                <span class="id-badge">#(ID: ${numId})</span>
-                                ${p.name}
-                            </span>
-                        </li>`;
-                });
+            if (Array.isArray(room.players)) {
+                countSpan.innerText = `${room.players.length}/${maxP}`;
+                ul.innerHTML = '';
+                
+                if (room.players.length > 0) {
+                    room.players.forEach(p => {
+                        const numId = p.numericId ? p.numericId : '???';
+                        ul.innerHTML += `
+                            <li>
+                                <span>
+                                    <span class="id-badge">#(ID: ${numId})</span>
+                                    ${p.name}
+                                </span>
+                            </li>`;
+                    });
+                } else {
+                    ul.innerHTML = '<li style="color: #7d7d7d; justify-content: center;">La sala está vacía actualmente.</li>';
+                }
             } else {
-                ul.innerHTML = '<li style="color: #7d7d7d; justify-content: center;">La sala está vacía actualmente.</li>';
+                const fallbackNum = typeof room.players === 'number' ? room.players : 0;
+                countSpan.innerText = `${fallbackNum}/${maxP}`;
+                ul.innerHTML = '<li style="color: #naranja; justify-content: center;">⚠️ La sala usa una versión antigua del host. Solo se muestra la cantidad.</li>';
             }
         }
 
