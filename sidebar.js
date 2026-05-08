@@ -4,24 +4,40 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     const sidebarHTML = `
+        <style>
+            #sidebar {
+                display: flex;
+                flex-direction: column;
+                height: 100vh; /* Fallback para navegadores antiguos */
+                height: 100dvh; /* Altura dinámica real en celulares */
+                overflow-y: auto; /* Permite hacer scroll dentro del menú si la pantalla es muy chica */
+            }
+            #sidebar .sidebar-top {
+                flex-grow: 1; /* Empuja el botón de cerrar sesión hacia abajo */
+            }
+            #sidebar .sidebar-bottom {
+                flex-shrink: 0;
+                padding-bottom: 20px; /* Un poco de aire abajo para que no choque con el borde del celular */
+            }
+        </style>
         <div class="menu-toggle" id="menu-toggle">
             <i class="fa-solid fa-bars"></i>
         </div>
         <nav class="sidebar" id="sidebar">
             <div class="sidebar-top">
                 <div class="close-btn" id="close-btn"><i class="fa-solid fa-xmark"></i></div>
-                <a href="#" onclick="checkLogin('perfil.html')"><i class="fa-solid fa-user fa-fw"></i> | Perfil</a>
-                <a href="#" onclick="checkLogin('amigos.html')"><i class="fa-solid fa-user-group fa-fw"></i> | Amigos</a>
-                <a href="#" onclick="checkLogin('vip.html')"><i class="fa-solid fa-gem fa-fw"></i> | VIP</a>
-                <a href="#" onclick="checkLogin('tienda.html')"><i class="fa-solid fa-cart-shopping fa-fw"></i> | Tienda</a>
-                <a href="index.html"><i class="fa-solid fa-house fa-fw"></i> | Menú principal</a>
+                <a href="#" onclick="checkLogin('perfil.html')"><i class="fa-solid fa-user fa-fw"></i> Perfil</a>
+                <a href="#" onclick="checkLogin('amigos.html')"><i class="fa-solid fa-user-group fa-fw"></i> Amigos</a>
+                <a href="#" onclick="checkLogin('vip.html')"><i class="fa-solid fa-gem fa-fw"></i> VIP</a>
+                <a href="#" onclick="checkLogin('tienda.html')"><i class="fa-solid fa-cart-shopping fa-fw"></i> Tienda</a>
+                <a href="index.html"><i class="fa-solid fa-house fa-fw"></i> Menú principal</a>
                 
                 <a href="#" id="sidebar-admin-btn" onclick="checkLogin('admin.html')" style="display: none; color: #FFD342; border-top: 1px dashed #333; margin-top: 10px; padding-top: 15px;">
-                    <i class="fa-solid fa-shield-halved fa-fw"></i> | Panel Admin
+                    <i class="fa-solid fa-shield-halved fa-fw"></i> Panel Admin
                 </a>
             </div>
             <div class="sidebar-bottom">
-                <a href="#" class="logout-btn" onclick="confirmarLogout()"><i class="fa-solid fa-right-from-bracket fa-fw"></i> | Cerrar sesión</a>
+                <a href="#" class="logout-btn" onclick="confirmarLogout()"><i class="fa-solid fa-right-from-bracket fa-fw"></i> Cerrar sesión</a>
             </div>
         </nav>
     `;
