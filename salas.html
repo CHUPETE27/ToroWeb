@@ -139,14 +139,21 @@
         function construirTarjeta(sala, tituloCerrado) {
             if (sala) {
                 const linkLimpio = sala.link ? sala.link.replace('https://', '') : 'Esperando link...';
+                
+                let numPlayers = 0;
+                if (Array.isArray(sala.players)) {
+                    numPlayers = sala.players.length;
+                } else if (typeof sala.players === 'number') {
+                    numPlayers = sala.players;
+                }
+
                 return `
                     <div class="room-card">
                         <div class="room-header">
                             <h4 class="room-name" title="${sala.name}">${sala.name}</h4>
                             <div class="room-status">
                                 <span class="status-circle green"></span>
-                                <span>${sala.players}/${sala.maxPlayers}</span>
-                            </div>
+                                <span>${numPlayers}/${sala.maxPlayers}</span> </div>
                         </div>
                         <div class="room-link-container">
                             <span class="room-link-text">🌐 ${linkLimpio}</span>
