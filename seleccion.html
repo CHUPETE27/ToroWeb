@@ -86,6 +86,18 @@
         .edit-action-icon { color: #3498db; cursor: pointer; }
         .edit-action-icon:hover { color: #5dade2; }
 
+        .carousel-container { position: relative; width: 100%; max-width: 300px; margin: auto; overflow: hidden; border-radius: 10px; background: rgba(0,0,0,0.4); padding: 20px 0; border: 1px solid rgba(255,255,255,0.05); }
+        .carousel-track { display: flex; transition: transform 0.4s ease-in-out; width: 100%; }
+        .carousel-slide { min-width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+        .carousel-slide img { width: 120px; height: 120px; object-fit: contain; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5)); }
+        .kit-name { color: #FFD342; font-weight: bold; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; }
+        .kit-type { color: #bdc3c7; font-size: 0.85rem; }
+        
+        .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(45, 242, 193, 0.2); color: #2df2c1; border: 1px solid #2df2c1; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.3s; z-index: 10; }
+        .carousel-btn:hover { background: #2df2c1; color: #111; }
+        .carousel-btn.prev { left: 10px; }
+        .carousel-btn.next { right: 10px; }
+
         @media (max-width: 900px) { .seleccion-wrapper { grid-template-columns: 1fr; } }
         @media (max-width: 480px) { 
             .mode-tabs { margin-top: 5vh; }
@@ -145,6 +157,37 @@
                 <div class="box list-box">
                     <h3 id="tituloJugadores">⚽ Jugadores (Futsal)</h3>
                     <ul id="listaJugadores"><li><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</li></ul>
+                </div>
+                <div class="box list-box">
+                    <h3>👕 Camisetas</h3>
+                    <div class="carousel-container">
+                        <button class="carousel-btn prev" onclick="moverCarrusel(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+                        
+                        <div class="carousel-track" id="kitTrack">
+                            <div class="carousel-slide">
+                                <img src="kit_local.png" alt="Local">
+                                <div class="kit-name">Local</div>
+                                <div class="kit-type">Titular</div>
+                            </div>
+                            <div class="carousel-slide">
+                                <img src="kit_visita.png" alt="Visita">
+                                <div class="kit-name">Visita</div>
+                                <div class="kit-type">Secundaria</div>
+                            </div>
+                            <div class="carousel-slide">
+                                <img src="kit_alternativa.png" alt="Alternativa">
+                                <div class="kit-name">Alternativa</div>
+                                <div class="kit-type">Alternativa</div>
+                            </div>
+                            <div class="carousel-slide">
+                                <img src="kit_entreno.png" alt="Train">
+                                <div class="kit-name">Entrenamiento</div>
+                                <div class="kit-type">Train</div>
+                            </div>
+                        </div>
+
+                        <button class="carousel-btn next" onclick="moverCarrusel(1)"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -455,6 +498,23 @@
         }
         actualizarMarcador();
         setInterval(actualizarMarcador, 5000);
+
+        let currentKitIndex = 0;
+        function moverCarrusel(direccion) {
+            const track = document.getElementById('kitTrack');
+            const slides = document.querySelectorAll('.carousel-slide');
+            const totalSlides = slides.length;
+
+            currentKitIndex += direccion;
+
+            if (currentKitIndex >= totalSlides) {
+                currentKitIndex = 0;
+            } else if (currentKitIndex < 0) {
+                currentKitIndex = totalSlides - 1;
+            }
+
+            track.style.transform = `translateX(-${currentKitIndex * 100}%)`;
+        }
     </script>
 </body>
 </html>
