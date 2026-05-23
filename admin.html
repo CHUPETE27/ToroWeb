@@ -16,8 +16,10 @@
         .box { background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); position: relative; max-width: 100%; overflow: hidden;}
         .box h3 { margin-top: 0; color: #FFD342; border-bottom: 1px solid #333; padding-bottom: 10px; text-transform: uppercase; text-align: center; font-size: 1.2rem;}
 
-        .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; }
-        .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #7d7d7d; font-weight: bold; transition: 0.3s; }
+        .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; overflow-x: auto; white-space: nowrap; }
+        .tabs::-webkit-scrollbar { height: 4px; }
+        .tabs::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+        .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #7d7d7d; font-weight: bold; transition: 0.3s; min-width: 80px;}
         .tab.active { border-bottom: 2px solid #FFD342; color: #FFD342; }
         .tab:hover:not(.active) { color: white; }
         
@@ -106,6 +108,7 @@
                     <div class="tab active" onclick="switchTab('global')"><i class="fa-solid fa-globe fa-fw"></i> Global</div>
                     <div class="tab" onclick="switchTab('sala')"><i class="fa-solid fa-server fa-fw"></i> Sala</div>
                     <div class="tab" onclick="switchTab('baneos')"><i class="fa-solid fa-user-slash fa-fw"></i> Baneos</div>
+                    <div class="tab" onclick="switchTab('replays')"><i class="fa-solid fa-video fa-fw"></i> Replays</div>
                 </div>
 
                 <div id="global" class="tab-content active">
@@ -195,6 +198,20 @@
                     </div>
                 </div>
 
+                <div id="replays" class="tab-content">
+                    <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #333; padding: 20px; border-radius: 10px;">
+                        <h4 style="color: #FFD342; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px;"><i class="fa-solid fa-film"></i> Visor de Repeticiones</h4>
+                        <p style="color: #bdc3c7; font-size: 0.95rem; margin-bottom: 15px; line-height: 1.5;">
+                            Haz clic en el recuadro para seleccionar tu archivo <strong>.hbr2</strong>. <br>
+                            <small style="color: #7d7d7d;"><i class="fa-solid fa-circle-info"></i> La carga es 100% local, no consume memoria de la base de datos.</small>
+                        </p>
+                        
+                        <div style="width: 100%; height: 60vh; min-height: 450px; border-radius: 8px; overflow: hidden; border: 1px solid #444; background: #000;">
+                            <iframe src="https://www.haxball.com/replay" style="width: 100%; height: 100%; border: none;" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </main>
@@ -274,18 +291,21 @@
                         hastaTexto = d.toLocaleDateString('en-US', options);
                     }
 
+                    const idDisplay = ban.numericId ? ban.numericId : "Desconocido";
+                    const nameDisplay = ban.name ? ban.name : "Desconocido";
+
                     html += `
                         <div class="ban-item">
                             <div class="ban-header">
-                                🚫 ${ban.name || "Desconocido"} <span style="color:#7d7d7d; font-weight:normal;">(ID: ${ban.numericId})</span>
+                                🚫 <strong>${nameDisplay}</strong> <span style="font-weight:normal;">(ID: ${idDisplay})</span>
                             </div>
-                            <div class="ban-detail">
+                            <div class="ban-detail" style="margin-top: 5px;">
                                 📄 <strong>Razón:</strong> ${ban.reason || "Sin razón"}
                             </div>
-                            <div class="ban-detail">
+                            <div class="ban-detail" style="margin-top: 5px;">
                                 📅 <strong>Hasta:</strong> <span class="${hastaTexto === 'PERMANENTE' ? '' : 'highlight'}">${hastaTexto}</span>
                             </div>
-                            <div class="ban-detail">
+                            <div class="ban-detail" style="margin-top: 5px;">
                                 👮 <strong>Admin:</strong> ${ban.bannedBy || "Sistema"}
                             </div>
                         </div>
@@ -357,7 +377,7 @@
                 
                 if (room.players.length > 0) {
                     room.players.forEach(p => {
-                        const numId = p.numericId ? p.numericId : '???';
+                        const numId = (p.numericId && p.numericId !== "Sin Auth") ? p.numericId : '???';
                         ul.innerHTML += `
                             <li>
                                 <span>
