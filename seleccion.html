@@ -11,7 +11,9 @@
         * { box-sizing: border-box; }
         body { overflow-x: hidden; width: 100%; position: relative; overflow-y: auto; max-width: 100vw;}
 
-        .seleccion-wrapper { width: 95%; max-width: 1200px; margin: 10vh auto 50px; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .mode-selector { display: flex; gap: 10px; margin: 12vh auto 0; width: 95%; max-width: 1200px; justify-content: flex-start; }
+        
+        .seleccion-wrapper { width: 95%; max-width: 1200px; margin: 20px auto 50px; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
         .box { background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); position: relative; max-width: 100%; overflow: hidden;}
         .box h3 { margin-top: 0; color: #FFD342; border-bottom: 1px solid #333; padding-bottom: 10px; text-transform: uppercase; text-align: center; font-size: 1.2rem;}
         
@@ -49,6 +51,8 @@
         .edit-btn { position: absolute; bottom: 20px; right: 20px; background: transparent; color: #2df2c1; border: 2px solid #2df2c1; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: none; transition: 0.3s; }
         .edit-btn:hover { background: #2df2c1; color: #111; }
 
+        .btn-estandar { padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; border: none; }
+
         .right-col { display: flex; flex-direction: column; gap: 20px; max-width: 100%;}
         .logo-box { display: flex; justify-content: center; align-items: center; padding: 30px; }
         .logo-box img { width: 150px; height: 150px; border-radius: 50%; border: 3px solid #3498db; object-fit: cover; }
@@ -80,9 +84,9 @@
         .edit-action-icon:hover { color: #5dade2; }
 
         @media (max-width: 900px) { .seleccion-wrapper { grid-template-columns: 1fr; } }
-        
         @media (max-width: 480px) { 
-            .seleccion-wrapper { padding: 0 10px; width: 100%; margin-top: 12vh;}
+            .mode-selector { margin-top: 5vh; justify-content: center; }
+            .seleccion-wrapper { padding: 0 10px; width: 100%; }
             .score-text { font-size: 1.8rem; }
             .box { padding: 15px; padding-bottom: 60px; } 
             
@@ -99,6 +103,11 @@
     <header></header>
 
     <main>
+        <div class="mode-selector">
+            <button id="btnFutsal" class="btn-estandar" style="width: auto; background: #FFD342; color: #111; margin:0;" onclick="cambiarModo('futsal')"><i class="fa-solid fa-futbol"></i> Futsal</button>
+            <button id="btnReal" class="btn-estandar" style="width: auto; background: #333; color: white; border: 1px solid #555; margin:0;" onclick="cambiarModo('realsoccer')"><i class="fa-regular fa-futbol"></i> Real Soccer</button>
+        </div>
+
         <div class="seleccion-wrapper">
             <div class="left-col">
                 <div class="box live-box">
@@ -131,7 +140,7 @@
                     <ul id="listaVitrina"><li><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</li></ul>
                 </div>
                 <div class="box list-box">
-                    <h3>⚽ Jugadores</h3>
+                    <h3 id="tituloJugadores">⚽ Jugadores (Futsal)</h3>
                     <ul id="listaJugadores"><li><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</li></ul>
                 </div>
             </div>
@@ -179,19 +188,52 @@
         const loggedId = localStorage.getItem('toroHaxLoggedId') || 'null';
         let isManager = false;
         let editingId = null;
+        let currentMode = 'futsal';
+
+        function cambiarModo(modo) {
+            currentMode = modo;
+            
+            if (modo === 'futsal') {
+                document.getElementById('btnFutsal').style.background = '#FFD342';
+                document.getElementById('btnFutsal').style.color = '#111';
+                document.getElementById('btnFutsal').style.borderColor = 'transparent';
+                
+                document.getElementById('btnReal').style.background = '#333';
+                document.getElementById('btnReal').style.color = 'white';
+                document.getElementById('btnReal').style.borderColor = '#555';
+                
+                document.getElementById('tituloJugadores').innerText = '⚽ Jugadores (Futsal)';
+            } else {
+                document.getElementById('btnReal').style.background = '#FFD342';
+                document.getElementById('btnReal').style.color = '#111';
+                document.getElementById('btnReal').style.borderColor = 'transparent';
+                
+                document.getElementById('btnFutsal').style.background = '#333';
+                document.getElementById('btnFutsal').style.color = 'white';
+                document.getElementById('btnFutsal').style.borderColor = '#555';
+                
+                document.getElementById('tituloJugadores').innerText = '⚽ Jugadores (Real Soccer)';
+            }
+            
+            document.getElementById('listaJugadores').innerHTML = '<li><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</li>';
+            document.getElementById('proximos-lista').innerHTML = '<p style="text-align:center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando partidos...</p>';
+            document.getElementById('historial-lista').innerHTML = '<p style="text-align:center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando historial...</p>';
+
+            iniciarCargaJugadores();
+            cargarPartidos();
+        }
 
         function iniciarCargaJugadores() {
             const ulJugadores = document.getElementById('listaJugadores');
             const ulVitrina = document.getElementById('listaVitrina');
 
-            fetch(`https://torobot-izu5.onrender.com/api/seleccion/data?numericId=${loggedId}`)
+            fetch(`https://torobot-izu5.onrender.com/api/seleccion/data?numericId=${loggedId}&mode=${currentMode}`)
             .then(res => res.json())
             .then(data => {
                 if(data.success) {
                     if(data.canEdit) {
                         isManager = true;
                         document.getElementById('btnEditar').style.display = 'block';
-                        cargarPartidos();
                     }
                     ulJugadores.innerHTML = '';
                     if(data.jugadores && data.jugadores.length > 0) data.jugadores.forEach(jug => ulJugadores.innerHTML += `<li>${jug}</li>`);
@@ -215,12 +257,7 @@
             const proxDiv = document.getElementById('proximos-lista');
             const histDiv = document.getElementById('historial-lista');
 
-            if (!proxDiv.innerHTML.includes('match-row')) {
-                proxDiv.innerHTML = '<p style="text-align:center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Obteniendo partidos...</p>';
-                histDiv.innerHTML = '<p style="text-align:center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Obteniendo historial...</p>';
-            }
-
-            fetch('https://torobot-izu5.onrender.com/api/matches/seleccion')
+            fetch(`https://torobot-izu5.onrender.com/api/matches/seleccion?mode=${currentMode}`)
             .then(res => res.json())
             .then(data => {
                 if(data.success) {
@@ -245,7 +282,7 @@
                                 fetch(`https://torobot-izu5.onrender.com/api/matches/${m._id}`, {
                                     method: 'DELETE',
                                     headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ numericId: loggedId, team: 'seleccion' })
+                                    body: JSON.stringify({ numericId: loggedId, team: 'seleccion', mode: currentMode })
                                 }).catch(()=>{});
                             }
                             return;
@@ -359,7 +396,7 @@
                     method: method,
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        numericId: loggedId, team: 'seleccion',
+                        numericId: loggedId, team: 'seleccion', mode: currentMode,
                         isHistory, rival, golesLocal, golesVisita, matchType, date
                     })
                 });
@@ -380,7 +417,7 @@
                 const res = await fetch(`https://torobot-izu5.onrender.com/api/matches/${id}`, {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ numericId: loggedId, team: 'seleccion' })
+                    body: JSON.stringify({ numericId: loggedId, team: 'seleccion', mode: currentMode })
                 });
                 const data = await res.json();
                 if(data.success) cargarPartidos();
