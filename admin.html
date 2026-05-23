@@ -199,27 +199,15 @@
                 </div>
 
                 <div id="replays" class="tab-content">
-                    <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #333; padding: 20px; border-radius: 10px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; padding-bottom: 10px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
-                            <h4 style="color: #FFD342; margin: 0;"><i class="fa-solid fa-film"></i> Visor y Analizador</h4>
-                            
-                            <div style="display: flex; gap: 10px;">
-                                <button class="btn-estandar" style="width: auto; margin: 0; background: #333; color: #2df2c1; border: 1px solid #2df2c1; padding: 6px 12px; font-size: 0.9rem;" onclick="document.getElementById('replayFrame').src='https://haxball-replay-analyzer.github.io/'" title="Analizador Táctico">
-                                    <i class="fa-solid fa-chart-pie"></i> Analyzer
-                                </button>
-                                <button class="btn-estandar" style="width: auto; margin: 0; background: #333; color: #5dc8e8; border: 1px solid #5dc8e8; padding: 6px 12px; font-size: 0.9rem;" onclick="document.getElementById('replayFrame').src='https://replay.thehax.pl/'" title="Visor Clásico TheHax">
-                                    <i class="fa-solid fa-play"></i> TheHax
-                                </button>
+                    <div style="background: rgba(255, 255, 255, 0.03); padding: 20px; border-radius: 10px;">
+                        <div class="form-group">
+                            <label>Subir Repetición (.hbr2)</label>
+                            <input type="file" id="replayFile" accept=".hbr2">
+                            <button class="btn-estandar" onclick="subirReplay()">Subir y Obtener Link</button>
+                        </div>
+
+                        <div id="replayList" class="player-list-room">
                             </div>
-                        </div>
-                        
-                        <p style="color: #bdc3c7; font-size: 0.95rem; margin-bottom: 15px; line-height: 1.5;">
-                            Selecciona o arrastra tu archivo <strong>.hbr2</strong>. Puedes alternar entre el analizador táctico y el visor comunitario usando los botones superiores.
-                        </p>
-                        
-                        <div style="width: 100%; height: 75vh; min-height: 500px; border-radius: 8px; overflow: hidden; border: 1px solid #444; background: #111;">
-                            <iframe id="replayFrame" src="https://haxball-replay-analyzer.github.io/" style="width: 100%; height: 100%; border: none;" allowfullscreen></iframe>
-                        </div>
                     </div>
                 </div>
             </div>
