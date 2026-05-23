@@ -199,34 +199,27 @@
                 </div>
 
                 <div id="replays" class="tab-content">
-                    <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #333; padding: 30px 20px; border-radius: 10px; text-align: center;">
-                        <h4 style="color: #FFD342; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px; text-align: left;"><i class="fa-solid fa-film"></i> Visor de Repeticiones</h4>
-                        
-                        <i class="fa-solid fa-file-video" style="font-size: 4rem; color: #5dc8e8; margin: 20px 0;"></i>
-                        
-                        <p style="color: #bdc3c7; font-size: 1.05rem; margin-bottom: 25px; line-height: 1.5;">
-                            Por políticas de seguridad, <strong>HaxBall no permite</strong> incrustar su reproductor dentro de otras páginas web.<br>
-                            Pero no te preocupes, el proceso sigue siendo igual de rápido:
-                        </p>
-
-                        <div style="display: flex; flex-direction: column; gap: 15px; max-width: 450px; margin: 0 auto; text-align: left; background: rgba(0,0,0,0.4); padding: 20px; border-radius: 10px; border: 1px solid #444;">
-                            <div style="display: flex; gap: 15px; align-items: center;">
-                                <span style="background: #FFD342; color: #111; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; border-radius: 50%; font-weight: bold; flex-shrink: 0;">1</span>
-                                <span style="color: #fff;">Descarga el archivo <strong>.hbr2</strong> desde Discord a tu PC o celular.</span>
-                            </div>
-                            <div style="display: flex; gap: 15px; align-items: center;">
-                                <span style="background: #FFD342; color: #111; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; border-radius: 50%; font-weight: bold; flex-shrink: 0;">2</span>
-                                <span style="color: #fff;">Haz clic en el botón de abajo para abrir el visor oficial.</span>
-                            </div>
-                            <div style="display: flex; gap: 15px; align-items: center;">
-                                <span style="background: #FFD342; color: #111; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; border-radius: 50%; font-weight: bold; flex-shrink: 0;">3</span>
-                                <span style="color: #fff;">Presiona "Load" y selecciona tu archivo. ¡Listo!</span>
+                    <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #333; padding: 20px; border-radius: 10px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #444; padding-bottom: 10px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                            <h4 style="color: #FFD342; margin: 0;"><i class="fa-solid fa-film"></i> Visor y Analizador</h4>
+                            
+                            <div style="display: flex; gap: 10px;">
+                                <button class="btn-estandar" style="width: auto; margin: 0; background: #333; color: #2df2c1; border: 1px solid #2df2c1; padding: 6px 12px; font-size: 0.9rem;" onclick="document.getElementById('replayFrame').src='https://haxball-replay-analyzer.github.io/'" title="Analizador Táctico">
+                                    <i class="fa-solid fa-chart-pie"></i> Analyzer
+                                </button>
+                                <button class="btn-estandar" style="width: auto; margin: 0; background: #333; color: #5dc8e8; border: 1px solid #5dc8e8; padding: 6px 12px; font-size: 0.9rem;" onclick="document.getElementById('replayFrame').src='https://replay.thehax.pl/'" title="Visor Clásico TheHax">
+                                    <i class="fa-solid fa-play"></i> TheHax
+                                </button>
                             </div>
                         </div>
-
-                        <a href="https://www.haxball.com/replay" target="_blank" rel="noopener noreferrer" class="btn-estandar" style="background: #2df2c1; color: #111; max-width: 300px; margin: 30px auto 0; text-decoration: none;">
-                            <i class="fa-solid fa-external-link-alt"></i> Abrir Visor de HaxBall
-                        </a>
+                        
+                        <p style="color: #bdc3c7; font-size: 0.95rem; margin-bottom: 15px; line-height: 1.5;">
+                            Selecciona o arrastra tu archivo <strong>.hbr2</strong>. Puedes alternar entre el analizador táctico y el visor comunitario usando los botones superiores.
+                        </p>
+                        
+                        <div style="width: 100%; height: 75vh; min-height: 500px; border-radius: 8px; overflow: hidden; border: 1px solid #444; background: #111;">
+                            <iframe id="replayFrame" src="https://haxball-replay-analyzer.github.io/" style="width: 100%; height: 100%; border: none;" allowfullscreen></iframe>
+                        </div>
                     </div>
                 </div>
             </div>
