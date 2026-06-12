@@ -361,6 +361,10 @@
         }
 
         function abrirModalInscripcion() {
+            if (loggedId === 'null' || !loggedId) {
+                window.location.href = 'login.html';
+                return;
+            }
             document.getElementById('termsText').innerText = `"Yo como jugador me comprometo a presentarme al partido express ToroMatch #${matchNumberGlobal} "${equipoA_Global} vs ${equipoB_Global}" conectándome antes de la hora acordada a la sala de juego."`;
             document.getElementById('termsModal').style.display = 'flex';
         }

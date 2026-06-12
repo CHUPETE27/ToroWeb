@@ -40,13 +40,75 @@
             cursor: pointer; 
             transition: all 0.3s ease; 
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
         }
         
         .card:hover { transform: translateY(-5px); border-color: #FFD342; box-shadow: 0 10px 25px rgba(255, 211, 66, 0.2); }
-        .card-icon { font-size: 3.5rem; display: block; margin-bottom: 15px; }
-        .card h3 { color: #FFD342; margin-bottom: 10px; text-transform: uppercase; font-size: 1.4rem; letter-spacing: 1px;}
-        .card p { color: #bdc3c7; font-size: 1rem; margin: 0; }
+        .card-icon { font-size: 3.5rem; display: block; margin-bottom: 15px; position: relative; z-index: 2;}
+        .card h3 { color: #FFD342; margin-bottom: 10px; text-transform: uppercase; font-size: 1.4rem; letter-spacing: 1px; position: relative; z-index: 2;}
+        .card p { color: #bdc3c7; font-size: 1rem; margin: 0; position: relative; z-index: 2;}
         .social-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; width: 100%; }
+
+        .card.match-day {
+            border-color: #2df2c1;
+            background: rgba(15, 35, 30, 0.8);
+            box-shadow: 0 0 20px rgba(45, 242, 193, 0.4);
+            animation: pulseMatch 2s infinite;
+            overflow: visible;
+        }
+
+        .badge-hoy {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            background: #e74c3c;
+            color: white;
+            font-weight: bold;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 10px rgba(231, 76, 60, 0.5);
+            transform: rotate(10deg);
+            animation: shakeBadge 3s infinite;
+            z-index: 10;
+        }
+
+        @keyframes pulseMatch {
+            0% { box-shadow: 0 0 15px rgba(45, 242, 193, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(45, 242, 193, 0.7), inset 0 0 15px rgba(45, 242, 193, 0.2); transform: translateY(-3px);}
+            100% { box-shadow: 0 0 15px rgba(45, 242, 193, 0.3); }
+        }
+
+        @keyframes shakeBadge {
+            0%, 100% { transform: rotate(10deg); }
+            5%, 15% { transform: rotate(5deg) scale(1.1); }
+            10%, 20% { transform: rotate(15deg) scale(1.1); }
+            25% { transform: rotate(10deg) scale(1); }
+        }
+
+        .card.match-day::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 15px;
+            background-image: 
+                radial-gradient(circle, #FFD342 20%, transparent 20%),
+                radial-gradient(circle, #2df2c1 20%, transparent 20%),
+                radial-gradient(circle, #e74c3c 20%, transparent 20%),
+                radial-gradient(circle, #3498db 20%, transparent 20%),
+                radial-gradient(circle, #FFD342 20%, transparent 20%);
+            background-size: 8px 8px, 10px 10px, 6px 6px, 9px 9px, 7px 7px;
+            background-position: 10% 10%, 80% 20%, 20% 80%, 85% 90%, 50% 50%;
+            background-repeat: no-repeat;
+            opacity: 0.6;
+            z-index: 1;
+            animation: floatConfetti 4s ease-in-out infinite alternate;
+        }
+
+        @keyframes floatConfetti {
+            0% { transform: translateY(0px) scale(1); opacity: 0.4;}
+            100% { transform: translateY(-8px) scale(1.05); opacity: 0.8;}
+        }
 
         @media (max-width: 950px) {
             .card-grid { 
@@ -85,7 +147,7 @@
                 <p>Revisa a nuestras selecciones.</p>
             </div>
 
-            <div class="card" onclick="window.location.href='toromatch.html'">
+            <div class="card" id="card-toromatch" onclick="window.location.href='toromatch.html'">
                 <span class="card-icon">🏟️</span>
                 <h3>ToroMatch</h3>
                 <p>Partidos express semanales.</p>
@@ -115,5 +177,39 @@
 
     <script src="header.js"></script>
     <script src="sidebar.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            fetch('https://torobot-izu5.onrender.com/api/toromatch/data?numericId=null')
+            .then(res => res.json())
+            .then(data => {
+                if (data.success && data.customDate) {
+                    const matchRegex = data.customDate.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+                    
+                    if (matchRegex) {
+                        const dayMatch = parseInt(matchRegex[1]);
+                        const monthMatch = parseInt(matchRegex[2]);
+                        const yearMatch = parseInt(matchRegex[3]);
+                        const now = new Date().toLocaleString("en-US", {timeZone: "America/Santiago"});
+                        const chileDate = new Date(now);
+                        const diaHoy = chileDate.getDate();
+                        const mesHoy = chileDate.getMonth() + 1;
+                        const anioHoy = chileDate.getFullYear();
+                        
+                        if (dayMatch === diaHoy && monthMatch === mesHoy && yearMatch === anioHoy) {
+                            
+                            const card = document.getElementById('card-toromatch');
+                            card.classList.add('match-day');
+                            const badge = document.createElement('div');
+                            badge.className = 'badge-hoy';
+                            badge.innerHTML = '<i class="fa-solid fa-fire"></i> ¡HOY!';
+                            card.appendChild(badge);
+                        }
+                    }
+                }
+            })
+            .catch(e => console.log("ToroMatch info no disponible", e));
+        });
+    </script>
 </body>
 </html>
