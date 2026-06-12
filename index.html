@@ -41,14 +41,12 @@
             transition: all 0.3s ease; 
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
             position: relative;
-            z-index: 1;
         }
         
         .card:hover { transform: translateY(-5px); border-color: #FFD342; box-shadow: 0 10px 25px rgba(255, 211, 66, 0.2); }
-        .card-icon { font-size: 3.5rem; display: block; margin-bottom: 15px; position: relative; z-index: 3;}
-        .card h3 { color: #FFD342; margin-bottom: 10px; text-transform: uppercase; font-size: 1.4rem; letter-spacing: 1px; position: relative; z-index: 3;}
-        .card p { color: #bdc3c7; font-size: 1rem; margin: 0; position: relative; z-index: 3;}
-        
+        .card-icon { font-size: 3.5rem; display: block; margin-bottom: 15px; position: relative; z-index: 2;}
+        .card h3 { color: #FFD342; margin-bottom: 10px; text-transform: uppercase; font-size: 1.4rem; letter-spacing: 1px; position: relative; z-index: 2;}
+        .card p { color: #bdc3c7; font-size: 1rem; margin: 0; position: relative; z-index: 2;}
         .social-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; width: 100%; }
 
         .card.match-day {
@@ -56,6 +54,7 @@
             background: rgba(15, 35, 30, 0.8);
             box-shadow: 0 0 20px rgba(45, 242, 193, 0.4);
             animation: pulseMatch 2s infinite;
+            overflow: visible;
         }
 
         .badge-hoy {
@@ -87,49 +86,28 @@
             25% { transform: rotate(10deg) scale(1); }
         }
 
-        .confetti-container {
+        .card.match-day::before {
+            content: "";
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
             border-radius: 15px;
-            overflow: hidden;
-            z-index: 1;
-            opacity: 0.8;
-            display: none;
-        }
-
-        .card.match-day .confetti-container {
-            display: block;
-        }
-
-        .confetti-diamonds::before {
-            content: "";
-            position: absolute;
-            width: 150%;
-            height: 150%;
-            top: -25%;
-            left: -25%;
-            transform: rotate(45deg);
-
             background-image: 
-                linear-gradient(#FFD342, #FFD342), linear-gradient(#2df2c1, #2df2c1), linear-gradient(#e74c3c, #e74c3c),
-                linear-gradient(#3498db, #3498db), linear-gradient(#FFD342, #FFD342), linear-gradient(#2df2c1, #2df2c1),
-                linear-gradient(#e74c3c, #e74c3c), linear-gradient(#3498db, #3498db), linear-gradient(#FFD342, #FFD342),
-                linear-gradient(#2df2c1, #2df2c1), linear-gradient(#e74c3c, #e74c3c), linear-gradient(#3498db, #3498db),
-                linear-gradient(#FFD342, #FFD342), linear-gradient(#2df2c1, #2df2c1), linear-gradient(#e74c3c, #e74c3c);
-            
-            background-size: 
-                22px 22px, 28px 28px, 19px 19px, 25px 25px, 23px 23px, 21px 21px, 27px 27px, 20px 20px, 24px 24px, 29px 29px, 18px 18px, 26px 26px, 23px 23px, 28px 28px, 20px 20px;
-
-            background-position: 
-                10% 10%, 85% 15%, 25% 85%, 80% 90%, 50% 55%, 15% 50%, 88% 50%, 40% 15%, 65% 80%, 5% 95%, 95% 5%, 50% 10%, 30% 30%, 70% 70%, 10% 75%;
-            
+                radial-gradient(circle, #FFD342 20%, transparent 20%),
+                radial-gradient(circle, #2df2c1 20%, transparent 20%),
+                radial-gradient(circle, #e74c3c 20%, transparent 20%),
+                radial-gradient(circle, #3498db 20%, transparent 20%),
+                radial-gradient(circle, #FFD342 20%, transparent 20%);
+            background-size: 8px 8px, 10px 10px, 6px 6px, 9px 9px, 7px 7px;
+            background-position: 10% 10%, 80% 20%, 20% 80%, 85% 90%, 50% 50%;
             background-repeat: no-repeat;
-            animation: floatConfettiDiamonds 4s infinite alternate ease-in-out;
+            opacity: 0.6;
+            z-index: 1;
+            animation: floatConfetti 4s ease-in-out infinite alternate;
         }
 
-        @keyframes floatConfettiDiamonds {
-            0% { transform: rotate(45deg) translateY(0px) scale(1); opacity: 0.7;}
-            100% { transform: rotate(45deg) translateY(-15px) scale(1.08); opacity: 1;}
+        @keyframes floatConfetti {
+            0% { transform: translateY(0px) scale(1); opacity: 0.4;}
+            100% { transform: translateY(-8px) scale(1.05); opacity: 0.8;}
         }
 
         @media (max-width: 950px) {
@@ -217,7 +195,7 @@
                         const diaHoy = chileDate.getDate();
                         const mesHoy = chileDate.getMonth() + 1;
                         const anioHoy = chileDate.getFullYear();
-
+                        
                         if (dayMatch === diaHoy && monthMatch === mesHoy && yearMatch === anioHoy) {
                             const card = document.getElementById('card-toromatch');
                             card.classList.add('match-day');
