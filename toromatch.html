@@ -212,6 +212,19 @@
     </div>
 
     <div class="modal-overlay" id="editModal">
+        <div class="modal-overlay" id="ratingModal">
+            <div class="modal-content">
+                <h3><i class="fa-solid fa-star"></i> Calificar Partido</h3>
+                <p>Del 1 al 10, ¿qué calificación le das a este partido express?</p>
+                <div id="ratingStarsContainer" style="display:flex; justify-content:center; gap:5px; font-size:1.8rem; color:#555; margin-bottom: 20px; cursor:pointer;">
+                </div>
+                <div class="modal-btn-row">
+                    <button class="modal-btn cancel" onclick="cerrarModalRating()">Cancelar</button>
+                    <button class="modal-btn" onclick="guardarRating()">Guardar</button>
+                </div>
+            </div>
+        </div>
+
         <div class="modal-content">
             <h3 id="modalTitle"><i class="fa-solid fa-plus"></i> Añadir al Historial</h3>
             <div class="modal-form">
@@ -252,6 +265,7 @@
         let equipoA_Global = "Equipo 1";
         let equipoB_Global = "Equipo 2";
         let displayDateGlobal = "";
+        let historialCargado = false;
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -520,6 +534,11 @@
                         
                         displayDateGlobal = data.customDate ? data.customDate : `Sábado ${getNextSaturday()}`;
 
+                        if (!historialCargado) {
+                            cargarHistorial();
+                            historialCargado = true;
+                        }
+
                         ulInscritos.innerHTML = '';
                         if (data.inscritos && data.inscritos.length > 0) {
                             data.inscritos.forEach((jug, i) => {
@@ -628,28 +647,49 @@
                         return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : dateStr;
                     };
 
-                    data.matches.forEach(m => {
-                        if (m.isHistory) {
-                            const acciones = isManager ? `
-                            <div class="action-icons">
-                                <i class="fa-solid fa-pen edit-action-icon" onclick="abrirModalEditar('${m._id}', '${m.matchType}', '${m.rival}', ${m.golesLocal}, ${m.golesVisita}, ${m.penalesLocal}, ${m.penalesVisita}, '${m.date}')"></i>
-                                <i class="fa-solid fa-trash delete-icon" onclick="borrarPartido('${m._id}')"></i>
-                            </div>` : '';
-                            
-                            let scoreText = `${m.golesLocal} - ${m.golesVisita}`;
-                            if (m.penalesLocal > 0 || m.penalesVisita > 0) {
-                                scoreText = `<span style="color:#7d7d7d; font-size:0.9rem;">(${m.penalesLocal})</span> ${scoreText} <span style="color:#7d7d7d; font-size:0.9rem;">(${m.penalesVisita})</span>`;
-                            }
+                    const partidosHistorial = data.matches.filter(m => m.isHistory).reverse();
 
-                            histDiv.innerHTML += `
-                                <div class="match-row">
-                                    <div class="match-teams">${m.matchType} ${scoreText} ${m.rival}</div>
-                                    <div class="match-date">${formatFecha(m.date)}</div>
-                                    ${acciones}
-                                </div>
-                            `;
+                    partidosHistorial.forEach(m => {
+                        const acciones = isManager ? `
+                        <div class="action-icons">
+                            <i class="fa-solid fa-pen edit-action-icon" onclick="abrirModalEditar('${m._id}', '${m.matchType}', '${m.rival}', ${m.golesLocal}, ${m.golesVisita}, ${m.penalesLocal}, ${m.penalesVisita}, '${m.date}')"></i>
+                            <i class="fa-solid fa-trash delete-icon" onclick="borrarPartido('${m._id}')"></i>
+                        </div>` : '';
+                        
+                        let scoreText = `${m.golesLocal} - ${m.golesVisita}`;
+                        if (m.penalesLocal > 0 || m.penalesVisita > 0) {
+                            scoreText = `<span style="color:#7d7d7d; font-size:0.9rem;">(${m.penalesLocal})</span> ${scoreText} <span style="color:#7d7d7d; font-size:0.9rem;">(${m.penalesVisita})</span>`;
                         }
+
+                        let avgScore = 0;
+                        let myScore = 0;
+                        if (m.ratings && m.ratings.length > 0) {
+                            const sum = m.ratings.reduce((acc, r) => acc + r.score, 0);
+                            avgScore = (sum / m.ratings.length).toFixed(1);
+                            const myR = m.ratings.find(r => r.numericId == loggedId);
+                            if (myR) myScore = myR.score;
+                        }
+
+                        const starColor = myScore > 0 ? '#FFD342' : '#555';
+                        const avgDisplay = avgScore > 0 ? avgScore : '-';
+                        const starAction = (loggedId !== 'null') ? `onclick="abrirModalRating('${m._id}', ${myScore})"` : `onclick="alert('Debes iniciar sesión para calificar un partido.')"`;
+
+                        const ratingHtml = `
+                        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:${loggedId !== 'null' ? 'pointer' : 'not-allowed'}; padding: 0 10px; border-left: 1px dashed #444;" ${starAction} title="Calificar partido">
+                            <i class="fa-solid fa-star" style="color: ${starColor}; font-size:1.1rem; transition: 0.2s;"></i>
+                            <span style="font-size:0.8rem; color:#bdc3c7; margin-top:2px; font-weight:bold;">${avgDisplay}</span>
+                        </div>`;
+
+                        histDiv.innerHTML += `
+                            <div class="match-row">
+                                <div class="match-teams">${m.matchType} ${scoreText} ${m.rival}</div>
+                                <div class="match-date" style="border-left:none;">${formatFecha(m.date)}</div>
+                                ${ratingHtml}
+                                ${acciones}
+                            </div>
+                        `;
                     });
+                    
                     if (histDiv.innerHTML === '') histDiv.innerHTML = '<p style="text-align:center; color:#7d7d7d;">El historial está vacío.</p>';
                 }
             }).catch(()=>{
@@ -657,8 +697,54 @@
             });
         }
 
+        let ratingMatchId = null;
+        let currentRating = 0;
+
+        function abrirModalRating(matchId, myScore) {
+            ratingMatchId = matchId;
+            currentRating = myScore || 0;
+            renderStars(currentRating);
+            document.getElementById('ratingModal').style.display = 'flex';
+        }
+
+        function cerrarModalRating() {
+            document.getElementById('ratingModal').style.display = 'none';
+        }
+
+        function renderStars(score) {
+            const container = document.getElementById('ratingStarsContainer');
+            container.innerHTML = '';
+            for(let i=1; i<=10; i++) {
+                container.innerHTML += `<i class="fa-solid fa-star" style="color: ${i <= score ? '#FFD342' : '#444'}; transition: 0.2s;" onclick="seleccionarRating(${i})"></i>`;
+            }
+        }
+
+        function seleccionarRating(score) {
+            currentRating = score;
+            renderStars(currentRating);
+        }
+
+        async function guardarRating() {
+            if (currentRating === 0) return alert("Por favor selecciona al menos 1 estrella.");
+            try {
+                const res = await fetch(`https://torobot-izu5.onrender.com/api/matches/${ratingMatchId}/rate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ numericId: loggedId, score: currentRating })
+                });
+                const data = await res.json();
+                
+                if(data.success) {
+                    cerrarModalRating();
+                    cargarHistorial();
+                } else {
+                    alert(data.message || "Error al guardar calificación.");
+                }
+            } catch(e) {
+                alert("Error de conexión.");
+            }
+        }
         iniciarCargaJugadores();
-        cargarHistorial();
 
         function checkPenales() {
             const g1 = document.getElementById('m_goles1').value;
