@@ -164,7 +164,7 @@
                         <button id="btnInscribir" class="btn-estandar" style="display:none;" onclick="abrirModalInscripcion()"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</button>
                         
                         <div id="managerButtons" style="display:none; flex-direction: column; align-items: center;">
-                            <button id="btnAbrirPostulaciones" class="btn-estandar btn-abrir" onclick="abrirPostulaciones()"><i class="fa-solid fa-unlock"></i> Abrir Inscripciones</button>
+                            <button id="btnAbrirPostulaciones" class="btn-estandar btn-abrir" onclick="abrirModalModo()"><i class="fa-solid fa-unlock"></i> Abrir Inscripciones</button>
                             <button id="btnCerrarPostulaciones" class="btn-estandar btn-cancelar" onclick="cerrarPostulaciones()"><i class="fa-solid fa-lock"></i> Cerrar Inscripciones</button>
                         </div>
                     </div>
@@ -188,6 +188,27 @@
             </div>
         </div>
     </main>
+
+    <div class="modal-overlay" id="modeModal">
+        <div class="modal-content">
+            <h3><i class="fa-solid fa-gear"></i> Modo de Juego</h3>
+            <p style="margin-bottom: 15px;">Selecciona el formato para este ToroMatch:</p>
+            <div class="modal-form" style="align-items: flex-start; gap: 10px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;">
+                <label style="cursor: pointer; font-size: 1.05rem; display: flex; align-items: center; gap: 10px; color: #fff;">
+                    <input type="radio" name="tm_mode" value="Organizado" style="width: auto;"> 
+                    📋 Organizado (Equipos predefinidos)
+                </label>
+                <label style="cursor: pointer; font-size: 1.05rem; display: flex; align-items: center; gap: 10px; color: #fff; margin-top: 10px;">
+                    <input type="radio" name="tm_mode" value="Barrio" style="width: auto;"> 
+                    ⚽ Barrio (Capitanes eligen en sala)
+                </label>
+            </div>
+            <div class="modal-btn-row">
+                <button class="modal-btn cancel" onclick="cerrarModalModo()">Cancelar</button>
+                <button class="modal-btn" id="btnConfirmarModo" onclick="confirmarAbrirPostulaciones()" disabled>Aceptar</button>
+            </div>
+        </div>
+    </div>
 
     <div class="modal-overlay" id="termsModal">
         <div class="modal-content">
@@ -332,26 +353,47 @@
         }
 
         async function abrirPostulaciones() {
-            if(!confirm("¿Seguro que deseas abrir un nuevo proceso? Esto reseteará los roles en Discord y creará un foro nuevo.")) return;
-            const btn = document.getElementById('btnAbrirPostulaciones');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Abriendo...'; 
-            btn.disabled = true;
-
-            try {
-                const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/abrir-postulaciones', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ numericId: loggedId })
+            document.querySelectorAll('input[name="tm_mode"]').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    document.getElementById('btnConfirmarModo').disabled = false;
                 });
-                const data = await res.json();
-                alert(data.message);
-                if(data.success) {
-                    checkEstadoPostulaciones();
-                    iniciarCargaJugadores();
-                }
-            } catch (e) { alert("Error de conexión."); }
-            
-            btn.innerHTML = '<i class="fa-solid fa-door-open"></i> Abrir Inscripciones'; 
-            btn.disabled = false;
+            });
+
+            function abrirModalModo() {
+                document.querySelectorAll('input[name="tm_mode"]').forEach(r => r.checked = false);
+                document.getElementById('btnConfirmarModo').disabled = true;
+                document.getElementById('modeModal').style.display = 'flex';
+            }
+
+            function cerrarModalModo() {
+                document.getElementById('modeModal').style.display = 'none';
+            }
+
+            async function confirmarAbrirPostulaciones() {
+                const modoSeleccionado = document.querySelector('input[name="tm_mode"]:checked').value;
+                cerrarModalModo();
+                
+                if(!confirm(`¿Seguro que deseas abrir un nuevo proceso en modo ${modoSeleccionado}? Se crearán los hilos en Discord.`)) return;
+                const btn = document.getElementById('btnAbrirPostulaciones');
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Abriendo...'; 
+                btn.disabled = true;
+
+                try {
+                    const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/abrir-postulaciones', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ numericId: loggedId, modo: modoSeleccionado })
+                    });
+                    const data = await res.json();
+                    alert(data.message);
+                    if(data.success) {
+                        checkEstadoPostulaciones();
+                        iniciarCargaJugadores();
+                    }
+                } catch (e) { alert("Error de conexión."); }
+                
+                btn.innerHTML = '<i class="fa-solid fa-door-open"></i> Abrir Inscripciones'; 
+                btn.disabled = false;
+            }
         }
 
         async function cerrarPostulaciones() {
@@ -550,22 +592,30 @@
                                 
                                 let botonesManager = "";
                                 if (isManager) {
-                                    const eq1Active = jug.teamAssigned === "1" ? "active" : "";
-                                    const eq2Active = jug.teamAssigned === "2" ? "active" : "";
-                                    
                                     const btnPresenceColor = jug.isOnline ? "#cc2a2a" : "#2df2c1";
                                     const btnPresenceIcon = jug.isOnline ? "fa-user-slash" : "fa-user-check";
                                     const btnPresenceTitle = jug.isOnline ? "Forzar Ausencia" : "Forzar Presencia";
 
-                                    botonesManager = `
-                                        <div style="flex-shrink:0; display:flex; gap:5px; align-items:center;">
-                                            <button class="assign-btn eq1 ${eq1Active}" onclick="asignarEquipo('${jug.discordId}', 1, this)" title="Asignar al Eq 1">1</button>
-                                            <button class="assign-btn eq2 ${eq2Active}" onclick="asignarEquipo('${jug.discordId}', 2, this)" title="Asignar al Eq 2">2</button>
-                                            <button class="assign-btn" onclick="asignarEquipo('${jug.discordId}', 0, this)" title="Quitar equipo">X</button>
-                                            <button class="assign-btn" style="background:transparent; color:${btnPresenceColor}; border-color:${btnPresenceColor}; font-size: 0.9rem; padding: 2px 5px;" onclick="togglePresence('${jug.numericId}', this)" title="${btnPresenceTitle}"><i class="fa-solid ${btnPresenceIcon}"></i></button>
-                                            <button class="assign-btn" style="background:#cc2a2a; border-color:#cc2a2a;" onclick="expulsarJugador('${jug.discordId}', '${jug.name}')" title="Expulsar jugador"><i class="fa-solid fa-trash"></i></button>
-                                        </div>
-                                    `;
+                                    if (data.modo === "Barrio") {
+                                        botonesManager = `
+                                            <div style="flex-shrink:0; display:flex; gap:5px; align-items:center;">
+                                                <button class="assign-btn" style="background:transparent; color:${btnPresenceColor}; border-color:${btnPresenceColor}; font-size: 0.9rem; padding: 2px 5px;" onclick="togglePresence('${jug.numericId}', this)" title="${btnPresenceTitle}"><i class="fa-solid ${btnPresenceIcon}"></i></button>
+                                                <button class="assign-btn" style="background:#cc2a2a; border-color:#cc2a2a;" onclick="expulsarJugador('${jug.discordId}', '${jug.name}')" title="Expulsar jugador"><i class="fa-solid fa-trash"></i></button>
+                                            </div>
+                                        `;
+                                    } else {
+                                        const eq1Active = jug.teamAssigned === "1" ? "active" : "";
+                                        const eq2Active = jug.teamAssigned === "2" ? "active" : "";
+                                        botonesManager = `
+                                            <div style="flex-shrink:0; display:flex; gap:5px; align-items:center;">
+                                                <button class="assign-btn eq1 ${eq1Active}" onclick="asignarEquipo('${jug.discordId}', 1, this)" title="Asignar al Eq 1">1</button>
+                                                <button class="assign-btn eq2 ${eq2Active}" onclick="asignarEquipo('${jug.discordId}', 2, this)" title="Asignar al Eq 2">2</button>
+                                                <button class="assign-btn" onclick="asignarEquipo('${jug.discordId}', 0, this)" title="Quitar equipo">X</button>
+                                                <button class="assign-btn" style="background:transparent; color:${btnPresenceColor}; border-color:${btnPresenceColor}; font-size: 0.9rem; padding: 2px 5px;" onclick="togglePresence('${jug.numericId}', this)" title="${btnPresenceTitle}"><i class="fa-solid ${btnPresenceIcon}"></i></button>
+                                                <button class="assign-btn" style="background:#cc2a2a; border-color:#cc2a2a;" onclick="expulsarJugador('${jug.discordId}', '${jug.name}')" title="Expulsar jugador"><i class="fa-solid fa-trash"></i></button>
+                                            </div>
+                                        `;
+                                    }
                                 }
                                 ulInscritos.innerHTML += `
                                     <li>
