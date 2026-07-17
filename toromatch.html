@@ -352,48 +352,46 @@
             }).catch(e => console.log(e));
         }
 
-        async function abrirPostulaciones() {
-            document.querySelectorAll('input[name="tm_mode"]').forEach(radio => {
-                radio.addEventListener('change', () => {
-                    document.getElementById('btnConfirmarModo').disabled = false;
-                });
+        document.querySelectorAll('input[name="tm_mode"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                document.getElementById('btnConfirmarModo').disabled = false;
             });
+        });
 
-            function abrirModalModo() {
-                document.querySelectorAll('input[name="tm_mode"]').forEach(r => r.checked = false);
-                document.getElementById('btnConfirmarModo').disabled = true;
-                document.getElementById('modeModal').style.display = 'flex';
-            }
+        function abrirModalModo() {
+            document.querySelectorAll('input[name="tm_mode"]').forEach(r => r.checked = false);
+            document.getElementById('btnConfirmarModo').disabled = true;
+            document.getElementById('modeModal').style.display = 'flex';
+        }
 
-            function cerrarModalModo() {
-                document.getElementById('modeModal').style.display = 'none';
-            }
+        function cerrarModalModo() {
+            document.getElementById('modeModal').style.display = 'none';
+        }
 
-            async function confirmarAbrirPostulaciones() {
-                const modoSeleccionado = document.querySelector('input[name="tm_mode"]:checked').value;
-                cerrarModalModo();
-                
-                if(!confirm(`¿Seguro que deseas abrir un nuevo proceso en modo ${modoSeleccionado}? Se crearán los hilos en Discord.`)) return;
-                const btn = document.getElementById('btnAbrirPostulaciones');
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Abriendo...'; 
-                btn.disabled = true;
+        async function confirmarAbrirPostulaciones() {
+            const modoSeleccionado = document.querySelector('input[name="tm_mode"]:checked').value;
+            cerrarModalModo();
+            
+            if(!confirm(`¿Seguro que deseas abrir un nuevo proceso en modo ${modoSeleccionado}? Se crearán los hilos en Discord.`)) return;
+            const btn = document.getElementById('btnAbrirPostulaciones');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Abriendo...'; 
+            btn.disabled = true;
 
-                try {
-                    const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/abrir-postulaciones', {
-                        method: 'POST', headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ numericId: loggedId, modo: modoSeleccionado })
-                    });
-                    const data = await res.json();
-                    alert(data.message);
-                    if(data.success) {
-                        checkEstadoPostulaciones();
-                        iniciarCargaJugadores();
-                    }
-                } catch (e) { alert("Error de conexión."); }
-                
-                btn.innerHTML = '<i class="fa-solid fa-door-open"></i> Abrir Inscripciones'; 
-                btn.disabled = false;
-            }
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/abrir-postulaciones', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ numericId: loggedId, modo: modoSeleccionado })
+                });
+                const data = await res.json();
+                alert(data.message);
+                if(data.success) {
+                    checkEstadoPostulaciones();
+                    iniciarCargaJugadores();
+                }
+            } catch (e) { alert("Error de conexión."); }
+            
+            btn.innerHTML = '<i class="fa-solid fa-door-open"></i> Abrir Inscripciones'; 
+            btn.disabled = false;
         }
 
         async function cerrarPostulaciones() {
