@@ -193,9 +193,9 @@
 
             <div class="modal-charts-grid" id="m_charts" style="display: none;">
                 <div class="modal-chart-box">
-                    <h4><i class="fa-solid fa-spider"></i> Atributos</h4>
-                    <p>Perfil técnico</p>
-                    <img id="m_chartRadar" src="">
+                    <h4><i class="fa-solid fa-shoe-prints"></i> Pases</h4>
+                    <p>Precisión: <strong id="m_passPct" style="color: #2df2c1;">0%</strong></p>
+                    <img id="m_chartPases" src="">
                 </div>
                 <div class="modal-chart-box">
                     <h4><i class="fa-solid fa-balance-scale"></i> Estilo: <span id="m_position" style="color:white;">...</span></h4>
@@ -403,6 +403,12 @@
                 const promAtajadas = part > 0 ? (p.atajadas / part).toFixed(2) : 0;
                 const promDefensas = part > 0 ? (p.intercepciones / part).toFixed(2) : 0;
 
+                const pasesC = p.pasesCompletados || 0;
+                const pasesP = p.pasesPerdidos || 0;
+                const pasesTotales = pasesC + pasesP;
+                const precisionPases = pasesTotales > 0 ? ((pasesC / pasesTotales) * 100).toFixed(1) : 0;
+                const promPasesC = part > 0 ? (pasesC / part).toFixed(1) : 0;
+
                 document.getElementById('m_listTotales').innerHTML = `
                     <li><span>Partidos:</span> <strong>${part}</strong></li>
                     <li><span>Victorias:</span> <strong>${ganados}</strong></li>
@@ -414,6 +420,7 @@
                     <li><span>Puntos:</span> <strong>${p.puntajeTotal || 0}</strong></li>
                     <li><span>Goles:</span> <strong>${p.golesAnotados || 0}</strong></li>
                     <li><span>Asistencias:</span> <strong>${p.asistencias || 0}</strong></li>
+                    <li><span>Pases Completos:</span> <strong>${promPasesC} p/p</strong></li>
                     <li><span>Atajadas:</span> <strong>${p.atajadas || 0}</strong></li>
                     <li><span>Recuperaciones:</span> <strong>${p.intercepciones || 0}</strong></li>
                 `;
@@ -421,12 +428,13 @@
                     <li><span>Puntos:</span> <strong>${promPuntos} p/p</strong></li>
                     <li><span>Goles:</span> <strong>${promGoles} g/p</strong></li>
                     <li><span>Asistencias:</span> <strong>${promAsist} a/p</strong></li>
+                    <li><span>Pases:</span> <strong>${pasesC} ✅ / ${pasesP} ❌</strong></li>
                     <li><span>Atajadas:</span> <strong>${promAtajadas} at/p</strong></li>
                     <li><span>Recuperaciones:</span> <strong>${promDefensas} r/p</strong></li>
                 `;
 
                 if (part > 0) {
-                    generarGraficos(promGoles, promAsist, promAtajadas, promDefensas, promPuntos, ganados, perdidos, mvps);
+                    generarGraficos(promGoles, promAsist, promAtajadas, promDefensas, promPuntos, ganados, perdidos, mvps, pasesC, pasesP, pasesTotales, precisionPases);
                 } else {
                     document.getElementById('m_charts').style.display = 'none';
                     document.getElementById('m_noChartsMsg').style.display = 'block';
@@ -439,9 +447,32 @@
             }
         }
 
-        function generarGraficos(promGoles, promAsist, promAtajadas, promDefensas, promPuntos, ganados, perdidos, mvps) {
+        function generarGraficos(promGoles, promAsist, promAtajadas, promDefensas, promPuntos, ganados, perdidos, mvps, pasesC, pasesP, pasesTotales, precisionPases) {
             document.getElementById('m_charts').style.display = 'grid';
             document.getElementById('m_noChartsMsg').style.display = 'none';
+            document.getElementById('m_passPct').innerText = precisionPases + "%";
+
+            const chartPasesData = {
+                type: 'horizontalBar',
+                data: {
+                    labels: ['Completados', 'Perdidos'],
+                    datasets: [{
+                        data: [pasesC, pasesP],
+                        backgroundColor: ['#2df2c1', '#cc2a2a'],
+                        borderColor: '#111',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    legend: { display: false },
+                    scales: {
+                        xAxes: [{ ticks: { min: 0, max: pasesTotales > 0 ? pasesTotales : 1, fontColor: '#fff' }, gridLines: { color: 'rgba(255, 255, 255, 0.1)' } }],
+                        yAxes: [{ ticks: { fontColor: '#fff', fontSize: 13, fontStyle: 'bold' }, gridLines: { display: false } }]
+                    },
+                    plugins: { datalabels: { color: '#111', font: { weight: 'bold', size: 14 }, align: 'center', formatter: "function(value) { return value; }" } }
+                }
+            };
+            document.getElementById('m_chartPases').src = `https://quickchart.io/chart?w=300&h=250&c=${encodeURIComponent(JSON.stringify(chartPasesData))}&bkg=transparent`;
 
             const chartDoughnutData = {
                 type: 'doughnut',
