@@ -491,27 +491,6 @@
             const totalPromedios = pG + pA + pAt + pD;
             const pP = parseFloat(promPuntos) * 0.03;
 
-            const MAX_ATAQUE = 18; const MAX_CREACION = 10; const MAX_PORTERIA = 40; const MAX_DEFENSA = 13; const MAX_UTILIDAD = 7;
-            let radarAtaque = 0, radarCreacion = 0, radarDefensa = 0, radarPorteria = 0;
-
-            if (totalPromedios > 0) {
-                radarAtaque = Math.min(100, (pG / MAX_ATAQUE) * 100);
-                radarCreacion = Math.min(100, (pA / MAX_CREACION) * 100);
-                radarPorteria = Math.min(100, (pAt / MAX_PORTERIA) * 100);
-                radarDefensa = Math.min(100, (pD / MAX_DEFENSA) * 100);
-            }
-            const radarUtilidad = Math.min(100, (pP / MAX_UTILIDAD) * 100);
-
-            const chartRadarData = {
-                type: 'radar',
-                data: {
-                    labels: ['Ataque', 'Creación', 'Defensa', 'Portería', 'Utilidad'],
-                    datasets: [{ label: 'Atributos', data: [radarAtaque, radarCreacion, radarDefensa, radarPorteria, radarUtilidad], backgroundColor: 'rgba(45, 242, 193, 0.5)', borderColor: '#2df2c1', borderWidth: 2, pointBackgroundColor: '#FFD342' }]
-                },
-                options: { legend: { display: false }, scale: { ticks: { min: 0, max: 100, display: false }, pointLabels: { fontColor: '#fff', fontSize: 12 }, gridLines: { color: 'rgba(255, 255, 255, 0.2)' }, angleLines: { color: 'rgba(255, 255, 255, 0.2)' } }, plugins: { datalabels: { display: false } } }
-            };
-            document.getElementById('m_chartRadar').src = `https://quickchart.io/chart?w=300&h=250&c=${encodeURIComponent(JSON.stringify(chartRadarData))}&bkg=transparent`;
-
             if (totalPromedios > 0) {
                 document.getElementById('m_atkPct').innerText = (((pG + pA) / totalPromedios) * 100).toFixed(1);
                 document.getElementById('m_defPct').innerText = (((pAt + pD) / totalPromedios) * 100).toFixed(1);
