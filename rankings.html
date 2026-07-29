@@ -179,7 +179,7 @@
                 <img id="m_avatar" class="modal-avatar" src="" alt="Avatar">
                 <h2 id="m_name" class="modal-name">Cargando...</h2>
                 <span id="m_discord" class="modal-discord"></span>
-                <p class="modal-id-rank">ID: <strong id="m_id">#0</strong> | Rango: <strong id="m_rank">...</strong></p>
+                <p class="modal-id-rank">ID: <strong id="m_id">#0</strong> | <span id="m_rankLabel">Rango</span>: <strong id="m_rank">...</strong></p>
             </div>
 
             <div class="modal-stats-grid">
@@ -234,7 +234,6 @@
         const loggedUserId = localStorage.getItem('toroHaxLoggedId') || '';
 
         const encabezados = {
-            'general': ['Rango', 'MVPs'],
             'goles': ['Total Goles', 'Goles / Partido'],
             'asistencias': ['Asistencias', 'Asist. / Partido'],
             'defensas': ['Recuperaciones', 'Recup. / Partido'],
@@ -262,12 +261,23 @@
             return `${avatar} ${nivel}`;
         }
 
+        function actualizarEncabezados() {
+            if (categoriaActual === 'general') {
+                document.getElementById('colHeader1').innerText = isTemporada ? 'Rango' : 'Puntos';
+                document.getElementById('colHeader2').innerText = 'MVPs';
+            } else {
+                document.getElementById('colHeader1').innerText = encabezados[categoriaActual][0];
+                document.getElementById('colHeader2').innerText = encabezados[categoriaActual][1];
+            }
+        }
+
         function cambiarModoTemporada(esTemp) {
             if (isTemporada === esTemp) return;
             isTemporada = esTemp;
             paginaActual = 1;
             document.getElementById('btnModoGlobal').classList.toggle('active', !isTemporada);
             document.getElementById('btnModoTemp').classList.toggle('active', isTemporada);
+            actualizarEncabezados();
             actualizarPosicion();
             cargarRankings();
         }
@@ -312,8 +322,7 @@
             btnElement.classList.add('active');
             categoriaActual = nuevaCat; 
             paginaActual = 1;
-            document.getElementById('colHeader1').innerText = encabezados[nuevaCat][0];
-            document.getElementById('colHeader2').innerText = encabezados[nuevaCat][1];
+            actualizarEncabezados();
             actualizarPosicion(); 
             cargarRankings();
         }
@@ -363,7 +372,6 @@
 
                 document.getElementById('m_name').innerText = p.name;
                 document.getElementById('m_id').innerText = p.numericId;
-                document.getElementById('m_rank').innerText = getPlayerRankString(p.elo);
 
                 const part = isTemporada ? (p.temp_partidos || 0) : (p.partidos || 0);
                 const ganados = isTemporada ? (p.temp_ganados || 0) : (p.ganados || 0);
@@ -376,6 +384,14 @@
                 const recup = isTemporada ? (p.temp_intercepciones || 0) : (p.intercepciones || 0);
                 const pasesC = isTemporada ? (p.temp_pasesCompletados || 0) : (p.pasesCompletados || 0);
                 const pasesP = isTemporada ? (p.temp_pasesPerdidos || 0) : (p.pasesPerdidos || 0);
+
+                if (!isTemporada) {
+                    document.getElementById('m_rankLabel').innerText = "Puntos";
+                    document.getElementById('m_rank').innerText = puntaje;
+                } else {
+                    document.getElementById('m_rankLabel').innerText = "Rango";
+                    document.getElementById('m_rank').innerText = getPlayerRankString(p.elo);
+                }
 
                 const winRate = part > 0 ? ((ganados/part)*100).toFixed(2) : 0;
                 const promPuntos = part > 0 ? (puntaje / part).toFixed(1) : 0;
@@ -416,7 +432,7 @@
                 } else {
                     document.getElementById('m_charts').style.display = 'none';
                     document.getElementById('m_noChartsMsg').style.display = 'block';
-                    document.getElementById('m_noChartsMsg').innerHTML = "<p>⚠️ El jugador debe jugar al menos un partido en este formato para desbloquear los gráficos.</p>";
+                    document.getElementById('m_noChartsMsg').innerHTML = `<p>⚠️ El jugador debe jugar al menos un partido en ${isTemporada ? 'esta temporada' : 'histórico'} para desbloquear los gráficos.</p>`;
                 }
             } catch (e) { document.getElementById('m_name').innerText = "Error al cargar"; }
         }
@@ -468,7 +484,6 @@
             btnPrev.disabled = true; btnNext.disabled = true; pageInput.disabled = true;
 
             try {
-                // Enviamos &temporada=${isTemporada} a la API
                 const response = await fetch(`https://torobot-izu5.onrender.com/api/web-rankings?category=${categoriaActual}&page=${paginaActual}&filter=${filtroActual}&userId=${loggedUserId}&temporada=${isTemporada}`);
                 const data = await response.json();
 
@@ -502,8 +517,13 @@
                     const partidos = isTemporada ? (p.temp_partidos || 1) : (p.partidos || 1);
 
                     if (categoriaActual === 'general') {
-                        valorPrincipal = isTemporada ? (p.temp_puntajeTotal || 0) : (p.puntajeTotal || 0);
-                        valorSecundario = isTemporada ? (p.temp_mvps || 0) : (p.mvps || 0);
+                        if (isTemporada) {
+                            valorPrincipal = `<span class="rango-badge">${getPlayerRankString(p.elo)}</span>`;
+                            valorSecundario = p.temp_mvps || 0;
+                        } else {
+                            valorPrincipal = p.puntajeTotal || 0;
+                            valorSecundario = p.mvps || 0;
+                        }
                     } else if (categoriaActual === 'goles') {
                         valorPrincipal = isTemporada ? (p.temp_golesAnotados || 0) : (p.golesAnotados || 0);
                         valorSecundario = (valorPrincipal / partidos).toFixed(2);
@@ -536,8 +556,8 @@
                 tbody.innerHTML = `<tr><td colspan="5" style="color:#cc2a2a; padding:30px;">❌ Error de conexión al cargar los rankings.</td></tr>`;
             }
         }
+        
+        actualizarEncabezados();
         actualizarPosicion();
         cargarRankings();
     </script>
-</body>
-</html>
