@@ -199,6 +199,9 @@
     <script src="sidebar.js"></script>
 
     <script>
+        let globalPlayerData = null;
+        let isTemporada = false;
+
         function checkLogin(page) {
             if (localStorage.getItem('toroHaxLoggedId')) { window.location.href = page; } 
             else { window.location.href = 'login.html'; }
@@ -409,7 +412,7 @@
             } else {
                 document.getElementById('chartSection').style.display = 'none';
                 document.getElementById('noChartsMsg').style.display = 'block';
-                document.getElementById('noChartsMsg').innerHTML = `<p>⚠️ Juega al menos un partido en ${isTemporada ? 'esta temporada' : 'total'} para desbloquear tus gráficos.</p>`;
+                document.getElementById('noChartsMsg').innerHTML = `<p>⚠️ Juega al menos un partido en ${isTemporada ? 'esta temporada' : 'histórico'} para desbloquear tus gráficos.</p>`;
             }
         }
 
