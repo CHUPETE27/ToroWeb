@@ -113,6 +113,11 @@
                 </div>
             </div>
 
+            <div class="profile-tabs" style="border-bottom: 1px dashed #444; padding-bottom: 15px; margin-bottom: 20px;">
+                <button class="tab-btn active" id="btn-modo-global" onclick="cambiarModoTemporada(false)"><i class="fa-solid fa-earth-americas"></i> Histórico</button>
+                <button class="tab-btn" id="btn-modo-temp" onclick="cambiarModoTemporada(true)"><i class="fa-solid fa-fire"></i> Temporada</button>
+            </div>
+
             <div class="profile-tabs">
                 <button class="tab-btn active" id="btn-stats" onclick="cambiarPestana('stats')"><i class="fa-solid fa-chart-pie"></i> Estadísticas</button>
                 <button class="tab-btn" id="btn-vip" onclick="cambiarPestana('vip')"><i class="fa-solid fa-crown"></i> Configuración VIP</button>
@@ -200,11 +205,25 @@
         }
 
         function cambiarPestana(pestana) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.profile-tabs .tab-btn').forEach(btn => {
+                if (btn.id === 'btn-stats' || btn.id === 'btn-vip') {
+                    btn.classList.remove('active');
+                }
+            });
             document.getElementById('btn-' + pestana).classList.add('active');
             
             document.getElementById('section-stats').style.display = pestana === 'stats' ? 'block' : 'none';
             document.getElementById('section-vip').style.display = pestana === 'vip' ? 'block' : 'none';
+        }
+
+        function cambiarModoTemporada(esTemp) {
+            if (isTemporada === esTemp) return;
+            isTemporada = esTemp;
+            
+            document.getElementById('btn-modo-global').classList.toggle('active', !isTemporada);
+            document.getElementById('btn-modo-temp').classList.toggle('active', isTemporada);
+            
+            if (globalPlayerData) renderizarStats();
         }
 
         const rankThresholds = [
@@ -239,19 +258,14 @@
                 return;
             }
 
+            globalPlayerData = player;
             document.getElementById('loading').style.display = 'none';
             document.getElementById('profileContainer').style.display = 'block';
 
             const urlAvatar = player.discordAvatarUrl ? player.discordAvatarUrl : `https://ui-avatars.com/api/?name=${encodeURIComponent(player.name)}&background=111&color=FFD342&rounded=true&bold=true&size=100`;
             localStorage.setItem('toroHaxUserAvatar', urlAvatar);
-
             const headerLogo = document.querySelector('.logo-container img');
-            if (headerLogo) {
-                headerLogo.src = urlAvatar;
-                headerLogo.style.borderRadius = '50%';
-                headerLogo.style.border = '2px solid #FFD342';
-                headerLogo.style.objectFit = 'cover';
-            }
+            if (headerLogo) { headerLogo.src = urlAvatar; headerLogo.style.borderRadius = '50%'; headerLogo.style.border = '2px solid #FFD342'; headerLogo.style.objectFit = 'cover'; }
 
             if (player.isVip) {
                 document.getElementById('vipUpsellBlock').style.display = 'none';
@@ -266,188 +280,138 @@
                 document.getElementById('vipColor').value = hexColor;
             }
 
-            const partidos = player.partidos || 0;
-            const elo = player.elo || 200;
-            const rankData = processRankData(elo, partidos);
-            
-            if (!rankData) {
-                document.getElementById('playerRank').innerText = "⛔ Sin clasificar";
-                document.getElementById('rankContainer').style.display = 'none';
-            } else {
-                document.getElementById('playerRank').innerText = rankData.info.name;
-                if (rankData.info.name === "🐂 Toro") {
-                    document.getElementById('rankMinText').innerText = "🐂";
-                    document.getElementById('rankMaxText').innerText = "Máximo";
-                    document.getElementById('eloCenterText').innerText = `${elo} Elo (Rango Máximo)`;
-                    setTimeout(() => { document.getElementById('rankProgressBar').style.width = '100%'; }, 100);
-                } else {
-                    const minElo = rankData.info.min;
-                    const maxElo = rankData.info.max;
-                    const eloProgress = elo - minElo;
-                    const eloRange = maxElo - minElo;
-                    let percentage = Math.max(0, Math.min(100, (eloProgress / eloRange) * 100));
-
-                    document.getElementById('rankMinText').innerText = rankData.info.name.split(" ")[0];
-                    document.getElementById('rankMaxText').innerText = "Siguiente";
-                    document.getElementById('eloCenterText').innerText = `${elo} / ${maxElo} Elo (${Math.floor(percentage)}%)`;
-                    setTimeout(() => { document.getElementById('rankProgressBar').style.width = `${percentage}%`; }, 300);
-                }
-            }
-
-            const promPuntos = partidos > 0 ? (player.puntajeTotal / partidos).toFixed(1) : 0;
-            const promGoles = partidos > 0 ? (player.golesAnotados / partidos).toFixed(2) : 0;
-            const promAsist = partidos > 0 ? (player.asistencias / partidos).toFixed(2) : 0;
-            const promAtajadas = partidos > 0 ? (player.atajadas / partidos).toFixed(2) : 0;
-            const promDefensas = partidos > 0 ? (player.intercepciones / partidos).toFixed(2) : 0;
-
-            const pasesC = player.pasesCompletados || 0;
-            const pasesP = player.pasesPerdidos || 0;
-            const pasesTotales = pasesC + pasesP;
-            const precisionPases = pasesTotales > 0 ? ((pasesC / pasesTotales) * 100).toFixed(1) : 0;
-            const promPasesC = partidos > 0 ? (pasesC / partidos).toFixed(1) : 0;
-            
-            const perdidos = player.perdidos || 0;
-            const ganados = player.ganados || 0;
-            const mvps = player.mvps || 0;
-            const winRate = partidos > 0 ? ((ganados / partidos)*100).toFixed(2) : 0;
-
             document.getElementById('playerName').innerText = player.name;
             document.getElementById('playerID').innerText = `#${player.numericId}`;
 
+            renderizarStats();
+        })
+        .catch(err => {
+            document.getElementById('loading').innerText = "❌ Hubo un error al contactar al servidor.";
+            console.error(err);
+        });
+
+        function renderizarStats() {
+            const p = globalPlayerData;
+
+            const partidos = isTemporada ? (p.temp_partidos || 0) : (p.partidos || 0);
+            const ganados = isTemporada ? (p.temp_ganados || 0) : (p.ganados || 0);
+            const perdidos = isTemporada ? (p.temp_perdidos || 0) : (p.perdidos || 0);
+            const mvps = isTemporada ? (p.temp_mvps || 0) : (p.mvps || 0);
+            const puntaje = isTemporada ? (p.temp_puntajeTotal || 0) : (p.puntajeTotal || 0);
+            const goles = isTemporada ? (p.temp_golesAnotados || 0) : (p.golesAnotados || 0);
+            const asist = isTemporada ? (p.temp_asistencias || 0) : (p.asistencias || 0);
+            const atajadas = isTemporada ? (p.temp_atajadas || 0) : (p.atajadas || 0);
+            const recup = isTemporada ? (p.temp_intercepciones || 0) : (p.intercepciones || 0);
+            const pasesC = isTemporada ? (p.temp_pasesCompletados || 0) : (p.pasesCompletados || 0);
+            const pasesP = isTemporada ? (p.temp_pasesPerdidos || 0) : (p.pasesPerdidos || 0);
+
+            const elo = p.elo || 200;
+            const rankData = processRankData(elo, p.temp_partidos || 0);
+
+            if (!isTemporada) {
+                document.getElementById('playerRank').innerText = `${puntaje} Puntos Históricos`;
+                document.getElementById('rankContainer').style.display = 'none';
+            } else {
+                document.getElementById('rankContainer').style.display = 'block';
+                if (!rankData) {
+                    document.getElementById('playerRank').innerText = "⛔ Sin clasificar (10 partidos req.)";
+                    document.getElementById('rankContainer').style.display = 'none';
+                } else {
+                    document.getElementById('playerRank').innerText = rankData.info.name;
+                    if (rankData.info.name === "🐂 Toro") {
+                        document.getElementById('rankMinText').innerText = "🐂";
+                        document.getElementById('rankMaxText').innerText = "Máximo";
+                        document.getElementById('eloCenterText').innerText = `${elo} Elo (Rango Máximo)`;
+                        setTimeout(() => { document.getElementById('rankProgressBar').style.width = '100%'; }, 100);
+                    } else {
+                        const minElo = rankData.info.min;
+                        const maxElo = rankData.info.max;
+                        const eloProgress = elo - minElo;
+                        const eloRange = maxElo - minElo;
+                        let percentage = Math.max(0, Math.min(100, (eloProgress / eloRange) * 100));
+
+                        document.getElementById('rankMinText').innerText = rankData.info.name.split(" ")[0];
+                        document.getElementById('rankMaxText').innerText = "Siguiente";
+                        document.getElementById('eloCenterText').innerText = `${elo} / ${maxElo} Elo (${Math.floor(percentage)}%)`;
+                        setTimeout(() => { document.getElementById('rankProgressBar').style.width = `${percentage}%`; }, 100);
+                    }
+                }
+            }
+
+            const winRate = partidos > 0 ? ((ganados/partidos)*100).toFixed(2) : 0;
+            const promPuntos = partidos > 0 ? (puntaje / partidos).toFixed(1) : 0;
+            const promGoles = partidos > 0 ? (goles / partidos).toFixed(2) : 0;
+            const promAsist = partidos > 0 ? (asist / partidos).toFixed(2) : 0;
+            const promAtajadas = partidos > 0 ? (atajadas / partidos).toFixed(2) : 0;
+            const promDefensas = partidos > 0 ? (recup / partidos).toFixed(2) : 0;
+
+            const pasesTotales = pasesC + pasesP;
+            const precisionPases = pasesTotales > 0 ? ((pasesC / pasesTotales) * 100).toFixed(1) : 0;
+            const promPasesC = partidos > 0 ? (pasesC / partidos).toFixed(1) : 0;
+
             document.getElementById('listTotales').innerHTML = `
-                <li><strong>Partidos:</strong> ${partidos}</li>
-                <li><strong>Victorias:</strong> ${ganados}</li>
-                <li><strong>Derrotas:</strong> ${perdidos}</li>
-                <li><strong>WinRate:</strong> ${winRate}%</li>
-                <li><strong>MVPs:</strong> ${mvps}</li>
+                <li><span>Partidos:</span> <strong>${partidos}</strong></li>
+                <li><span>Victorias:</span> <strong>${ganados}</strong></li>
+                <li><span>Derrotas:</span> <strong>${perdidos}</strong></li>
+                <li><span>WinRate:</span> <strong>${winRate}%</strong></li>
+                <li><span>MVPs:</span> <strong>${mvps}</strong></li>
             `;
             document.getElementById('listEstadisticas').innerHTML = `
-                <li><strong>Puntos:</strong> ${player.puntajeTotal || 0}</li>
-                <li><strong>Goles:</strong> ${player.golesAnotados || 0}</li>
-                <li><strong>Asistencias:</strong> ${player.asistencias || 0}</li>
-                <li><strong>Atajadas:</strong> ${player.atajadas || 0}</li>
-                <li><strong>Recuperaciones:</strong> ${player.intercepciones || 0}</li>
-                <li><strong>Pases:</strong> ${pasesC} ✅ / ${pasesP} ❌</li>
+                <li><span>Puntos:</span> <strong>${puntaje}</strong></li>
+                <li><span>Goles:</span> <strong>${goles}</strong></li>
+                <li><span>Asistencias:</span> <strong>${asist}</strong></li>
+                <li><span>Pases Completos:</span> <strong>${pasesC}</strong></li>
+                <li><span>Atajadas:</span> <strong>${atajadas}</strong></li>
+                <li><span>Recuperaciones:</span> <strong>${recup}</strong></li>
             `;
             document.getElementById('listPromedios').innerHTML = `
-                <li><strong>Puntos:</strong> ${promPuntos} p/p</li>
-                <li><strong>Goles:</strong> ${promGoles} g/p</li>
-                <li><strong>Asistencias:</strong> ${promAsist} a/p</li>
-                <li><strong>Atajadas:</strong> ${promAtajadas} at/p</li>
-                <li><strong>Recuperaciones:</strong> ${promDefensas} r/p</li>
-                <li><strong>Pases Completos:</strong> ${promPasesC} p/p</li>
+                <li><span>Puntos:</span> <strong>${promPuntos} p/p</strong></li>
+                <li><span>Goles:</span> <strong>${promGoles} g/p</strong></li>
+                <li><span>Asistencias:</span> <strong>${promAsist} a/p</strong></li>
+                <li><span>Pases:</span> <strong>${pasesC} ✅ / ${pasesP} ❌</strong></li>
+                <li><span>Atajadas:</span> <strong>${promAtajadas} at/p</strong></li>
+                <li><span>Recuperaciones:</span> <strong>${promDefensas} r/p</strong></li>
             `;
 
             if (partidos > 0) {
                 document.getElementById('chartSection').style.display = 'grid';
                 document.getElementById('noChartsMsg').style.display = 'none';
 
-                const chartDoughnutData = {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Victorias', 'Derrotas', 'MVPs'],
-                        datasets: [{ data: [ganados, perdidos, mvps], backgroundColor: ['#10af10', '#8b1515', '#D3A778'], borderColor: '#111', borderWidth: 3 }]
-                    },
-                    options: { legend: { position: 'bottom', labels: { fontColor: '#fff' } }, plugins: { datalabels: { color: '#fff', font: { weight: 'bold' } } } }
-                };
+                const chartDoughnutData = { type: 'doughnut', data: { labels: ['Victorias', 'Derrotas', 'MVPs'], datasets: [{ data: [ganados, perdidos, mvps], backgroundColor: ['#10af10', '#8b1515', '#D3A778'], borderColor: '#111', borderWidth: 3 }] }, options: { legend: { position: 'bottom', labels: { fontColor: '#fff' } }, plugins: { datalabels: { color: '#fff', font: { weight: 'bold' } } } } };
                 document.getElementById('chartDoughnut').src = `https://quickchart.io/chart?w=300&h=250&c=${encodeURIComponent(JSON.stringify(chartDoughnutData))}&bkg=transparent`;
 
-                const pG = parseFloat(promGoles) * 12;
-                const pA = parseFloat(promAsist) * 10;
-                const pAt = parseFloat(promAtajadas) * 8;
-                const pD = parseFloat(promDefensas) * 1;
-                const totalPromedios = pG + pA + pAt + pD;
-
-                const pP = parseFloat(promPuntos) * 0.03;
-                const totalRadar = pG + pA + pAt + pD + pP;
-
                 document.getElementById('passPct').innerText = precisionPases + "%";
-                const chartPasesData = {
-                    type: 'horizontalBar',
-                    data: {
-                        labels: ['Completados', 'Perdidos'],
-                        datasets: [{
-                            data: [pasesC, pasesP],
-                            backgroundColor: ['#2df2c1', '#cc2a2a'],
-                            borderColor: '#111',
-                            borderWidth: 2
-                        }]
-                    },
-                    options: {
-                        legend: { display: false },
-                        scales: {
-                            xAxes: [{ 
-                                ticks: { min: 0, max: pasesTotales > 0 ? pasesTotales : 1, fontColor: '#fff' }, 
-                                gridLines: { color: 'rgba(255, 255, 255, 0.1)' } 
-                            }],
-                            yAxes: [{ 
-                                ticks: { fontColor: '#fff', fontSize: 13, fontStyle: 'bold' }, 
-                                gridLines: { display: false } 
-                            }]
-                        },
-                        plugins: {
-                            datalabels: {
-                                color: '#111',
-                                font: { weight: 'bold', size: 14 },
-                                align: 'center',
-                                formatter: "function(value) { return value; }"
-                            }
-                        }
-                    }
-                };
+                const chartPasesData = { type: 'horizontalBar', data: { labels: ['Completados', 'Perdidos'], datasets: [{ data: [pasesC, pasesP], backgroundColor: ['#2df2c1', '#cc2a2a'], borderColor: '#111', borderWidth: 2 }] }, options: { legend: { display: false }, scales: { xAxes: [{ ticks: { min: 0, max: pasesTotales > 0 ? pasesTotales : 1, fontColor: '#fff' }, gridLines: { color: 'rgba(255, 255, 255, 0.1)' } }], yAxes: [{ ticks: { fontColor: '#fff', fontSize: 13, fontStyle: 'bold' }, gridLines: { display: false } }] }, plugins: { datalabels: { color: '#111', font: { weight: 'bold', size: 14 }, align: 'center', formatter: "function(value) { return value; }" } } } };
                 document.getElementById('chartPases').src = `https://quickchart.io/chart?w=300&h=250&c=${encodeURIComponent(JSON.stringify(chartPasesData))}&bkg=transparent`;
+
+                const pG = parseFloat(promGoles) * 12; const pA = parseFloat(promAsist) * 10; const pAt = parseFloat(promAtajadas) * 8; const pD = parseFloat(promDefensas) * 1;
+                const totalPromedios = pG + pA + pAt + pD;
 
                 if (totalPromedios > 0) {
                     document.getElementById('atkPct').innerText = (((pG + pA) / totalPromedios) * 100).toFixed(1);
                     document.getElementById('defPct').innerText = (((pAt + pD) / totalPromedios) * 100).toFixed(1);
 
-                    const statsArray = [
-                        { name: "goles", value: pG }, { name: "asistencias", value: pA },
-                        { name: "atajadas", value: pAt }, { name: "intercepciones", value: pD }
-                    ].sort((a, b) => b.value - a.value);
-                    
+                    const statsArray = [ { name: "goles", value: pG }, { name: "asistencias", value: pA }, { name: "atajadas", value: pAt }, { name: "intercepciones", value: pD } ].sort((a, b) => b.value - a.value);
                     const top1 = statsArray[0].name; const top2 = statsArray[1].name;
                     let posicionJugador = "Sin definir";
 
-                    if (top1 === "goles") {
-                        if (top2 === "asistencias") posicionJugador = "Puntero";
-                        else if (top2 === "intercepciones") posicionJugador = "Delantero";
-                        else if (top2 === "atajadas") posicionJugador = "Poli";
-                    } else if (top1 === "asistencias") {
-                        if (top2 === "goles") posicionJugador = "Medio ofensivo";
-                        else if (top2 === "intercepciones") posicionJugador = "Pivote";
-                        else if (top2 === "atajadas") posicionJugador = "Poli";
-                    } else if (top1 === "intercepciones") {
-                        if (top2 === "goles") posicionJugador = "Medio";
-                        else if (top2 === "asistencias") posicionJugador = "Defensa";
-                        else if (top2 === "atajadas") posicionJugador = "Defensa";
-                    } else if (top1 === "atajadas") {
-                        if (top2 === "goles") posicionJugador = "Poli";
-                        else if (top2 === "asistencias") posicionJugador = "Arquero";
-                        else if (top2 === "intercepciones") posicionJugador = "Arquero";
-                    }
+                    if (top1 === "goles") { posicionJugador = top2 === "asistencias" ? "Puntero" : top2 === "intercepciones" ? "Delantero" : "Poli"; }
+                    else if (top1 === "asistencias") { posicionJugador = top2 === "goles" ? "Medio ofensivo" : top2 === "intercepciones" ? "Pivote" : "Poli"; }
+                    else if (top1 === "intercepciones") { posicionJugador = top2 === "goles" ? "Medio" : "Defensa"; }
+                    else if (top1 === "atajadas") { posicionJugador = top2 === "goles" ? "Poli" : "Arquero"; }
+                    
                     document.getElementById('playerPosition').innerText = posicionJugador;
 
-                    const chartPieData = {
-                        type: 'pie',
-                        data: {
-                            labels: ['Goles', 'Asistencias', 'Atajadas', 'Recuperaciones'],
-                            datasets: [{ data: [Math.round((pG/totalPromedios)*100), Math.round((pA/totalPromedios)*100), Math.round((pAt/totalPromedios)*100), Math.round((pD/totalPromedios)*100)], backgroundColor: ['#8b1515', '#10af10', '#611161', '#2222a7'], borderColor: '#111', borderWidth: 2 }]
-                        },
-                        options: { legend: { position: 'bottom', labels: { fontColor: '#fff' } }, plugins: { datalabels: { color: '#fff', font: { weight: 'bold'}, formatter: "function(value) { return value.toString().concat('%'); }", display: "function(context) { return context.dataset.data[context.dataIndex] > 0; }" } } }
-                    };
+                    const chartPieData = { type: 'pie', data: { labels: ['Goles', 'Asistencias', 'Atajadas', 'Recuperaciones'], datasets: [{ data: [Math.round((pG/totalPromedios)*100), Math.round((pA/totalPromedios)*100), Math.round((pAt/totalPromedios)*100), Math.round((pD/totalPromedios)*100)], backgroundColor: ['#8b1515', '#10af10', '#611161', '#2222a7'], borderColor: '#111', borderWidth: 2 }] }, options: { legend: { position: 'bottom', labels: { fontColor: '#fff' } }, plugins: { datalabels: { color: '#fff', font: { weight: 'bold'}, formatter: "function(value) { return value.toString().concat('%'); }", display: "function(context) { return context.dataset.data[context.dataIndex] > 0; }" } } } };
                     document.getElementById('chartPie').src = `https://quickchart.io/chart?w=300&h=250&c=${encodeURIComponent(JSON.stringify(chartPieData))}&bkg=transparent`;
                 }
 
             } else {
                 document.getElementById('chartSection').style.display = 'none';
-                document.getElementById('noChartsMsg').innerHTML = "<p>⚠️ Juega al menos un partido para desbloquear tus gráficos de rendimiento.</p>";
+                document.getElementById('noChartsMsg').style.display = 'block';
+                document.getElementById('noChartsMsg').innerHTML = `<p>⚠️ Juega al menos un partido en ${isTemporada ? 'esta temporada' : 'total'} para desbloquear tus gráficos.</p>`;
             }
-        })
-        .catch(err => {
-            document.getElementById('loading').innerText = "❌ Hubo un error al contactar al servidor.";
-            console.error(err);
-        });
+        }
 
         async function guardarConfiguracionVip() {
             const btn = document.getElementById('btnSaveVip');
