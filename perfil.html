@@ -7,6 +7,7 @@
     <link rel="icon" type="image/png" href="logo_torohax.png">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <script>
         const loggedId = localStorage.getItem('toroHaxLoggedId');
@@ -96,10 +97,14 @@
     <main>
         <h2 id="loading" class="loading-text">⏳ Cargando perfil desde el servidor...</h2>
 
-        <div class="profile-container" id="profileContainer">
+        <div class="profile-container" id="profileContainer" style="position: relative;">
+            <button onclick="descargarStats()" style="position: absolute; top: 15px; right: 15px; background: transparent; color: #2df2c1; border: 1px solid #2df2c1; padding: 8px 12px; border-radius: 5px; cursor: pointer; transition: 0.3s; z-index: 10;">
+                <i class="fa-solid fa-camera"></i> Guardar
+            </button>
+
             <div class="profile-header">
                 <h2 id="playerName">Nombre</h2>
-                <p>ID: <strong id="playerID">#0</strong> | Rango: <strong id="playerRank">...</strong></p>
+                <p>ID: <strong id="playerID">#0</strong> | <span id="rangoLabelText">Rango</span>: <strong id="playerRank">...</strong></p>
 
                 <div class="rank-progress-container" id="rankContainer">
                     <div class="rank-progress-info">
@@ -312,9 +317,11 @@
             const rankData = processRankData(elo, p.temp_partidos || 0);
 
             if (!isTemporada) {
-                document.getElementById('playerRank').innerText = `${puntaje} Puntos Históricos`;
+                document.getElementById('rangoLabelText').innerText = "Puntos Totales";
+                document.getElementById('playerRank').innerText = `${puntaje}`;
                 document.getElementById('rankContainer').style.display = 'none';
             } else {
+                document.getElementById('rangoLabelText').innerText = "Rango";
                 document.getElementById('rankContainer').style.display = 'block';
                 if (!rankData) {
                     document.getElementById('playerRank').innerText = "⛔ Sin clasificar (10 partidos req.)";
@@ -363,7 +370,7 @@
                 <li><span>Puntos:</span> <strong>${puntaje}</strong></li>
                 <li><span>Goles:</span> <strong>${goles}</strong></li>
                 <li><span>Asistencias:</span> <strong>${asist}</strong></li>
-                <li><span>Pases Completos:</span> <strong>${pasesC}</strong></li>
+                <li><span>Pases Completos:</span> <strong>${promPasesC} p/p</strong></li>
                 <li><span>Atajadas:</span> <strong>${atajadas}</strong></li>
                 <li><span>Recuperaciones:</span> <strong>${recup}</strong></li>
             `;
@@ -446,6 +453,27 @@
 
             btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar Cambios';
             btn.disabled = false;
+        }
+
+        function descargarStats() {
+            const container = document.getElementById('profileContainer');
+            const tabButtons = container.querySelector('.profile-tabs');
+            const vipSection = document.getElementById('section-vip');
+            const saveBtn = container.querySelector('button[onclick="descargarStats()"]');
+            
+            if (tabButtons) tabButtons.style.display = 'none';
+            if (vipSection) vipSection.style.display = 'none';
+            if (saveBtn) saveBtn.style.display = 'none';
+
+            html2canvas(container, { backgroundColor: "#141414", scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `ToroHax_${globalPlayerData.name}_Stats.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+
+                if (tabButtons) tabButtons.style.display = 'flex';
+                if (saveBtn) saveBtn.style.display = 'inline-block';
+            });
         }
     </script>
 </body>
