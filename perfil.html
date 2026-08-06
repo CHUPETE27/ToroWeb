@@ -107,7 +107,7 @@
 
         <div class="profile-container" id="profileContainer">
             <button onclick="descargarStats()" id="btnDownloadImg" style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.5); color: #2df2c1; border: 1px solid #2df2c1; padding: 8px 12px; border-radius: 5px; cursor: pointer; transition: 0.3s; z-index: 10; font-weight: bold;">
-                <i class="fa-solid fa-camera"></i> Guardar P.
+                <i class="fa-solid fa-camera"></i> Guardar
             </button>
 
             <div class="profile-header">
@@ -320,6 +320,11 @@
             const recup = isTemporada ? (p.temp_intercepciones || 0) : (p.intercepciones || 0);
             const pasesC = isTemporada ? (p.temp_pasesCompletados || 0) : (p.pasesCompletados || 0);
             const pasesP = isTemporada ? (p.temp_pasesPerdidos || 0) : (p.pasesPerdidos || 0);
+            
+            const rachaActual = p.racha || 0;
+            const rachaMax = p.racha_max || 0;
+            const port0 = isTemporada ? (p.temp_porteria_0 || 0) : (p.porteria_0 || 0);
+            const golesRec = isTemporada ? (p.temp_golesRecibidos || 0) : (p.golesRecibidos || 0);
 
             const elo = p.elo || 200;
             const rankData = processRankData(elo, p.temp_partidos || 0);
@@ -327,7 +332,19 @@
             if (!isTemporada) {
                 document.getElementById('rangoLabelText').innerText = "Puntos Totales";
                 document.getElementById('playerRank').innerText = `${puntaje}`;
-                document.getElementById('rankContainer').style.display = 'none';
+                document.getElementById('rankContainer').style.display = 'block';
+                
+                let rachaPercentage = 0;
+                if (rachaMax > 0) {
+                    rachaPercentage = Math.max(0, Math.min(100, (rachaActual / rachaMax) * 100));
+                }
+
+                document.getElementById('rankMinText').innerText = "🔥 Actual";
+                document.getElementById('rankMaxText').innerText = "👑 Récord";
+                document.getElementById('eloCenterText').innerText = `${rachaActual} / ${rachaMax} Victorias (${Math.floor(rachaPercentage)}%)`;
+                
+                setTimeout(() => { document.getElementById('rankProgressBar').style.width = `${rachaPercentage}%`; }, 100);
+
             } else {
                 document.getElementById('rangoLabelText').innerText = "Rango";
                 document.getElementById('rankContainer').style.display = 'block';
@@ -362,6 +379,7 @@
             const promAsist = partidos > 0 ? (asist / partidos).toFixed(2) : 0;
             const promAtajadas = partidos > 0 ? (atajadas / partidos).toFixed(2) : 0;
             const promDefensas = partidos > 0 ? (recup / partidos).toFixed(2) : 0;
+            const promGolesRec = partidos > 0 ? (golesRec / partidos).toFixed(2) : 0;
 
             const pasesTotales = pasesC + pasesP;
             const precisionPases = pasesTotales > 0 ? ((pasesC / pasesTotales) * 100).toFixed(1) : 0;
@@ -372,23 +390,28 @@
                 <li><span>Victorias:</span> <strong>${ganados}</strong></li>
                 <li><span>Derrotas:</span> <strong>${perdidos}</strong></li>
                 <li><span>WinRate:</span> <strong>${winRate}%</strong></li>
+                <li><span style="color:#FFD342;">Racha Actual:</span> <strong style="color:#FFD342;">${rachaActual}</strong></li>
+                <li><span style="color:#FFD342;">Racha Max:</span> <strong style="color:#FFD342;">${rachaMax}</strong></li>
                 <li><span>MVPs:</span> <strong>${mvps}</strong></li>
             `;
             document.getElementById('listEstadisticas').innerHTML = `
                 <li><span>Puntos:</span> <strong>${puntaje}</strong></li>
                 <li><span>Goles:</span> <strong>${goles}</strong></li>
                 <li><span>Asistencias:</span> <strong>${asist}</strong></li>
-                <li><span>Pases Completos:</span> <strong>${promPasesC} p/p</strong></li>
+                <li><span>Pases:</span> <strong>${pasesC} ✅ / ${pasesP} ❌</strong></li>
                 <li><span>Atajadas:</span> <strong>${atajadas}</strong></li>
                 <li><span>Recuperaciones:</span> <strong>${recup}</strong></li>
+                <li><span>Porterías en 0:</span> <strong>${port0}</strong></li>
+                <li><span style="color:#ff7e5f;">Goles Recibidos:</span> <strong style="color:#ff7e5f;">${golesRec}</strong></li>
             `;
             document.getElementById('listPromedios').innerHTML = `
                 <li><span>Puntos:</span> <strong>${promPuntos} p/p</strong></li>
                 <li><span>Goles:</span> <strong>${promGoles} g/p</strong></li>
                 <li><span>Asistencias:</span> <strong>${promAsist} a/p</strong></li>
-                <li><span>Pases:</span> <strong>${pasesC} ✅ / ${pasesP} ❌</strong></li>
+                <li><span>Pases Completos:</span> <strong>${pasesC}</strong></li>
                 <li><span>Atajadas:</span> <strong>${promAtajadas} at/p</strong></li>
                 <li><span>Recuperaciones:</span> <strong>${promDefensas} r/p</strong></li>
+                <li><span style="color:#ff7e5f;">Goles Recibidos:</span> <strong style="color:#ff7e5f;">${promGolesRec} g/p</strong></li>
             `;
 
             if (partidos > 0) {
@@ -489,3 +512,5 @@
             });
         }
     </script>
+</body>
+</html>
