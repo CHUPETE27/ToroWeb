@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- 👇 ETIQUETAS ANTI-CACHÉ 👇 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Mi Perfil - ToroHax</title>
     <link rel="icon" type="image/png" href="logo_torohax.png">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=2.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
@@ -332,6 +336,8 @@
             if (!isTemporada) {
                 document.getElementById('rangoLabelText').innerText = "Puntos Totales";
                 document.getElementById('playerRank').innerText = `${puntaje}`;
+                
+                // 👇 MAGIA DEL TERMÓMETRO DE RACHA 👇
                 document.getElementById('rankContainer').style.display = 'block';
                 
                 let rachaPercentage = 0;
@@ -339,11 +345,13 @@
                     rachaPercentage = Math.max(0, Math.min(100, (rachaActual / rachaMax) * 100));
                 }
 
-                document.getElementById('rankMinText').innerText = "🔥 Actual";
-                document.getElementById('rankMaxText').innerText = "👑 Récord";
-                document.getElementById('eloCenterText').innerText = `${rachaActual} / ${rachaMax} Victorias (${Math.floor(rachaPercentage)}%)`;
+                // Ajuste de textos de la barra de racha
+                document.getElementById('rankMinText').innerText = `🔥 Racha: ${rachaActual}`;
+                document.getElementById('rankMaxText').innerText = `👑 Récord: ${rachaMax}`;
+                document.getElementById('eloCenterText').innerText = `(${Math.floor(rachaPercentage)}%)`;
                 
                 setTimeout(() => { document.getElementById('rankProgressBar').style.width = `${rachaPercentage}%`; }, 100);
+                // 👆 FIN MAGIA TERMÓMETRO 👆
 
             } else {
                 document.getElementById('rangoLabelText').innerText = "Rango";
@@ -385,33 +393,34 @@
             const precisionPases = pasesTotales > 0 ? ((pasesC / pasesTotales) * 100).toFixed(1) : 0;
             const promPasesC = partidos > 0 ? (pasesC / partidos).toFixed(1) : 0;
 
+            // 👇 Se quitaron las rachas de las listas 👇
             document.getElementById('listTotales').innerHTML = `
                 <li><span>Partidos:</span> <strong>${partidos}</strong></li>
                 <li><span>Victorias:</span> <strong>${ganados}</strong></li>
                 <li><span>Derrotas:</span> <strong>${perdidos}</strong></li>
                 <li><span>WinRate:</span> <strong>${winRate}%</strong></li>
-                <li><span style="color:#FFD342;">Racha Actual:</span> <strong style="color:#FFD342;">${rachaActual}</strong></li>
-                <li><span style="color:#FFD342;">Racha Max:</span> <strong style="color:#FFD342;">${rachaMax}</strong></li>
                 <li><span>MVPs:</span> <strong>${mvps}</strong></li>
             `;
+            
+            // 👇 Se cambió el color de Goles Recibidos a blanco 👇
             document.getElementById('listEstadisticas').innerHTML = `
                 <li><span>Puntos:</span> <strong>${puntaje}</strong></li>
                 <li><span>Goles:</span> <strong>${goles}</strong></li>
                 <li><span>Asistencias:</span> <strong>${asist}</strong></li>
-                <li><span>Pases:</span> <strong>${pasesC} ✅ / ${pasesP} ❌</strong></li>
+                <li><span>Pases Completos:</span> <strong>${pasesC}</strong></li>
                 <li><span>Atajadas:</span> <strong>${atajadas}</strong></li>
                 <li><span>Recuperaciones:</span> <strong>${recup}</strong></li>
                 <li><span>Porterías en 0:</span> <strong>${port0}</strong></li>
-                <li><span style="color:#ff7e5f;">Goles Recibidos:</span> <strong style="color:#ff7e5f;">${golesRec}</strong></li>
+                <li><span>Goles Recibidos:</span> <strong>${golesRec}</strong></li>
             `;
             document.getElementById('listPromedios').innerHTML = `
                 <li><span>Puntos:</span> <strong>${promPuntos} p/p</strong></li>
                 <li><span>Goles:</span> <strong>${promGoles} g/p</strong></li>
                 <li><span>Asistencias:</span> <strong>${promAsist} a/p</strong></li>
-                <li><span>Pases Completos:</span> <strong>${pasesC}</strong></li>
+                <li><span>Pases:</span> <strong>${pasesC} ✅ / ${pasesP} ❌</strong></li>
                 <li><span>Atajadas:</span> <strong>${promAtajadas} at/p</strong></li>
                 <li><span>Recuperaciones:</span> <strong>${promDefensas} r/p</strong></li>
-                <li><span style="color:#ff7e5f;">Goles Recibidos:</span> <strong style="color:#ff7e5f;">${promGolesRec} g/p</strong></li>
+                <li><span>Goles Recibidos:</span> <strong>${promGolesRec} g/p</strong></li>
             `;
 
             if (partidos > 0) {
