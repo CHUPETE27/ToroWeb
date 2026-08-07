@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Rankings - ToroHax</title>
     <link rel="icon" type="image/png" href="logo_torohax.png">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=2.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { box-sizing: border-box; }
@@ -237,7 +240,7 @@
             'goles': ['Total Goles', 'Goles / Partido'],
             'asistencias': ['Asistencias', 'Asist. / Partido'],
             'defensas': ['Recuperaciones', 'Recup. / Partido'],
-            'arqueros': ['Atajadas', 'Atajadas / Partido']
+            'arqueros': ['Atajadas', 'Porterías en 0']
         };
 
         function getNivelRango(elo, min, max) {
@@ -384,6 +387,8 @@
                 const recup = isTemporada ? (p.temp_intercepciones || 0) : (p.intercepciones || 0);
                 const pasesC = isTemporada ? (p.temp_pasesCompletados || 0) : (p.pasesCompletados || 0);
                 const pasesP = isTemporada ? (p.temp_pasesPerdidos || 0) : (p.pasesPerdidos || 0);
+                const port0 = isTemporada ? (p.temp_porteria_0 || 0) : (p.porteria_0 || 0);
+                const golesRec = isTemporada ? (p.temp_golesRecibidos || 0) : (p.golesRecibidos || 0);
 
                 if (!isTemporada) {
                     document.getElementById('m_rankLabel').innerText = "Puntos";
@@ -399,6 +404,7 @@
                 const promAsist = part > 0 ? (asist / part).toFixed(2) : 0;
                 const promAtajadas = part > 0 ? (atajadas / part).toFixed(2) : 0;
                 const promDefensas = part > 0 ? (recup / part).toFixed(2) : 0;
+                const promGolesRec = part > 0 ? (golesRec / part).toFixed(2) : 0;
                 const pasesTotales = pasesC + pasesP;
                 const precisionPases = pasesTotales > 0 ? ((pasesC / pasesTotales) * 100).toFixed(1) : 0;
                 const promPasesC = part > 0 ? (pasesC / part).toFixed(1) : 0;
@@ -414,9 +420,11 @@
                     <li><span>Puntos:</span> <strong>${puntaje}</strong></li>
                     <li><span>Goles:</span> <strong>${goles}</strong></li>
                     <li><span>Asistencias:</span> <strong>${asist}</strong></li>
-                    <li><span>Pases Completos:</span> <strong>${promPasesC} p/p</strong></li>
+                    <li><span>Pases Completos:</span> <strong>${pasesC}</strong></li>
                     <li><span>Atajadas:</span> <strong>${atajadas}</strong></li>
                     <li><span>Recuperaciones:</span> <strong>${recup}</strong></li>
+                    <li><span>Porterías en 0:</span> <strong>${port0}</strong></li>
+                    <li><span>Goles Recibidos:</span> <strong>${golesRec}</strong></li>
                 `;
                 document.getElementById('m_listPromedios').innerHTML = `
                     <li><span>Puntos:</span> <strong>${promPuntos} p/p</strong></li>
@@ -425,6 +433,7 @@
                     <li><span>Pases:</span> <strong>${pasesC} ✅ / ${pasesP} ❌</strong></li>
                     <li><span>Atajadas:</span> <strong>${promAtajadas} at/p</strong></li>
                     <li><span>Recuperaciones:</span> <strong>${promDefensas} r/p</strong></li>
+                    <li><span>Goles Recibidos:</span> <strong>${promGolesRec} g/p</strong></li>
                 `;
 
                 if (part > 0) {
@@ -535,7 +544,7 @@
                         valorSecundario = (valorPrincipal / partidos).toFixed(2);
                     } else if (categoriaActual === 'arqueros') {
                         valorPrincipal = isTemporada ? (p.temp_atajadas || 0) : (p.atajadas || 0);
-                        valorSecundario = (valorPrincipal / partidos).toFixed(2);
+                        valorSecundario = isTemporada ? (p.temp_porteria_0 || 0) : (p.porteria_0 || 0);
                     }
 
                     let highlightClass = p.numericId === targetHighlightId ? 'highlighted-row' : '';
@@ -556,8 +565,9 @@
                 tbody.innerHTML = `<tr><td colspan="5" style="color:#cc2a2a; padding:30px;">❌ Error de conexión al cargar los rankings.</td></tr>`;
             }
         }
-        
         actualizarEncabezados();
         actualizarPosicion();
         cargarRankings();
     </script>
+</body>
+</html>
