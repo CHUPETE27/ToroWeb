@@ -240,7 +240,7 @@
             'goles': ['Total Goles', 'Goles / Partido'],
             'asistencias': ['Asistencias', 'Asist. / Partido'],
             'defensas': ['Recuperaciones', 'Recup. / Partido'],
-            'arqueros': ['Atajadas', 'Porterías en 0']
+            'arqueros': ['Atajadas', 'Porterías en 0'] 
         };
 
         function getNivelRango(elo, min, max) {
@@ -387,6 +387,8 @@
                 const recup = isTemporada ? (p.temp_intercepciones || 0) : (p.intercepciones || 0);
                 const pasesC = isTemporada ? (p.temp_pasesCompletados || 0) : (p.pasesCompletados || 0);
                 const pasesP = isTemporada ? (p.temp_pasesPerdidos || 0) : (p.pasesPerdidos || 0);
+                const rachaActual = p.racha || 0;
+                const rachaMax = p.racha_max || 0;
                 const port0 = isTemporada ? (p.temp_porteria_0 || 0) : (p.porteria_0 || 0);
                 const golesRec = isTemporada ? (p.temp_golesRecibidos || 0) : (p.golesRecibidos || 0);
 
@@ -415,6 +417,8 @@
                     <li><span>Derrotas:</span> <strong>${perdidos}</strong></li>
                     <li><span>WinRate:</span> <strong>${winRate}%</strong></li>
                     <li><span>MVPs:</span> <strong>${mvps}</strong></li>
+                    <li><span style="color:#FFD342;">Racha Actual:</span> <strong style="color:#FFD342;">${rachaActual}</strong></li>
+                    <li><span style="color:#FFD342;">Racha Max:</span> <strong style="color:#FFD342;">${rachaMax}</strong></li>
                 `;
                 document.getElementById('m_listEstadisticas').innerHTML = `
                     <li><span>Puntos:</span> <strong>${puntaje}</strong></li>
