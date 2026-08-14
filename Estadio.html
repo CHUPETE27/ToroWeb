@@ -1040,36 +1040,9 @@
             dirLight.position.set(10, 50, 20);
             scene.add(dirLight);
 
-            // =========================================================
-            // ESTADIO DE PRUEBA TEMPORAL (Borrar cuando tengas el modelo)
-            // =========================================================
-            const canchaGeo = new THREE.PlaneGeometry(60, 40);
-            const canchaMat = new THREE.MeshLambertMaterial({ color: 0x2e8b57 });
-            const cancha = new THREE.Mesh(canchaGeo, canchaMat);
-            cancha.rotation.x = -Math.PI / 2;
-            scene.add(cancha);
-
-            const lineaMedioGeo = new THREE.PlaneGeometry(1, 40);
-            const lineaMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-            const lineaMedio = new THREE.Mesh(lineaMedioGeo, lineaMat);
-            lineaMedio.rotation.x = -Math.PI / 2;
-            lineaMedio.position.y = 0.01;
-            scene.add(lineaMedio);
-            // =========================================================
-
-            /*
-            // =========================================================
-            // CÓMO CARGAR TU ESTADIO OFICIAL (.glb / .gltf)
-            // =========================================================
-            // 1. Borra el código de la "canchaGeo" de arriba.
-            // 2. Descomenta este código.
-            // 3. Cambia la ruta por el link a tu archivo descargado.
-
             const loader = new THREE.GLTFLoader();
-            loader.load('ruta/a/tu/estadio.glb', function(gltf) {
+            loader.load('Stad de tanger.glb', function(gltf) {
                 const estadio = gltf.scene;
-                
-                // Ajusta el tamaño y la posición si el modelo es muy grande o chico
                 estadio.scale.set(1, 1, 1); 
                 estadio.position.set(0, 0, 0);
                 
@@ -1077,10 +1050,7 @@
             }, undefined, function(error) {
                 console.error("Error cargando el modelo 3D:", error);
             });
-            // =========================================================
-            */
 
-            // Manejo de redimensionamiento de ventana
             window.addEventListener('resize', onWindowResize, false);
 
             is3DInitialized = true;
