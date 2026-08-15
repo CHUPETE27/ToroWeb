@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Panel Admin - ToroHax</title>
     <link rel="icon" type="image/png" href="logo_torohax.png">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=2.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { box-sizing: border-box; }
@@ -15,6 +18,11 @@
         
         .box { background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); position: relative; max-width: 100%; overflow: hidden;}
         .box h3 { margin-top: 0; color: #FFD342; border-bottom: 1px solid #333; padding-bottom: 10px; text-transform: uppercase; text-align: center; font-size: 1.2rem;}
+
+        .main-toggle-container { display: flex; justify-content: center; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 12px; border: 1px solid #333; margin-bottom: 10px; }
+        .main-toggle-btn { flex: 1; padding: 12px; background: transparent; color: #7d7d7d; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; border-radius: 8px; font-size: 1.1rem; }
+        .main-toggle-btn.active { background: #FFD342; color: #111; box-shadow: 0 0 10px rgba(255, 211, 66, 0.3); }
+        .main-toggle-btn:hover:not(.active) { color: #fff; }
 
         .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; overflow-x: auto; white-space: nowrap; }
         .tabs::-webkit-scrollbar { height: 4px; }
@@ -38,19 +46,9 @@
         .checkbox-container input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #e74c3c; margin: 0;}
 
         .btn-estandar { 
-            width: 100%;
-            padding: 12px; 
-            border-radius: 8px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            transition: 0.3s; 
-            font-size: 1.05rem; 
-            border: none; 
-            margin-top: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
+            width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; 
+            cursor: pointer; transition: 0.3s; font-size: 1.05rem; border: none; 
+            margin-top: 10px; display: flex; justify-content: center; align-items: center; gap: 8px;
         }
         .btn-estandar:disabled { filter: grayscale(100%); opacity: 0.6; cursor: not-allowed; }
 
@@ -80,11 +78,26 @@
         .ban-detail { color: #bdc3c7; }
         .ban-detail strong { color: white; margin-left: 5px;}
         .ban-detail span.highlight { background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px; color: #fff; font-size: 0.95rem;}
+        .search-row { display:flex; gap:10px; margin-bottom: 20px; }
+        .search-item { cursor: pointer; transition: 0.2s; }
+        .search-item:hover { background: rgba(255, 211, 66, 0.1); }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
+        .modal-content { background: rgba(20, 20, 20, 0.95); border: 1px solid #FFD342; padding: 30px; border-radius: 15px; width: 95%; max-width: 500px; color: white; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.8);}
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 1.8rem; color: #7d7d7d; cursor: pointer; transition: 0.3s;}
+        .close-modal:hover { color: #cc2a2a; transform: scale(1.1); }
+
+        .alts-btn { width: 100%; background: #111; border: 1px solid #444; color: white; padding: 15px; border-radius: 8px; cursor: pointer; text-align: left; font-weight: bold; font-size: 1rem; transition: 0.3s; display: flex; justify-content: space-between; align-items: center;}
+        .alts-btn:hover { background: #222; border-color: #5dc8e8; }
+        .alts-btn.active { border-radius: 8px 8px 0 0; border-bottom: none; background: #222; border-color: #5dc8e8; color: #5dc8e8; }
+        .alts-content { display: none; padding: 10px; background: #111; border: 1px solid #5dc8e8; border-top: none; border-radius: 0 0 8px 8px; max-height: 200px; overflow-y: auto;}
 
         @media (max-width: 480px) {
             .admin-wrapper { padding: 0 15px; margin-top: 5vh; }
             .box { padding: 15px; }
             .duration-row { flex-direction: column; }
+            .search-row { flex-direction: column; }
+            .modal-content { padding: 20px; }
         }
     </style>
 </head>
@@ -103,7 +116,12 @@
                 <h1 style="margin: 0; color: white;">Panel de Control</h1>
             </div>
 
-            <div class="box">
+            <div class="main-toggle-container">
+                <button class="main-toggle-btn active" id="btnMainAdministrar" onclick="switchMainView('administrar')"><i class="fa-solid fa-sliders"></i> Administrar</button>
+                <button class="main-toggle-btn" id="btnMainBuscar" onclick="switchMainView('buscar')"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+            </div>
+
+            <div class="box" id="panel-administrar">
                 <div class="tabs">
                     <div class="tab active" onclick="switchTab('global')"><i class="fa-solid fa-globe fa-fw"></i> Global</div>
                     <div class="tab" onclick="switchTab('sala')"><i class="fa-solid fa-server fa-fw"></i> Sala</div>
@@ -196,10 +214,62 @@
                         </div>
                     </div>
                 </div>
-
             </div>
+
+            <div class="box" id="panel-buscar" style="display: none;">
+                <h3><i class="fa-solid fa-magnifying-glass"></i> Buscador de Jugadores</h3>
+                
+                <div class="search-row">
+                    <input type="text" id="adminSearchInput" class="form-control" placeholder="Buscar por Nick o ID" style="background:#111; color:white; border:1px solid #555; padding:12px; border-radius:8px; outline:none; flex:1;">
+                    <button class="btn-estandar" style="width:auto; margin:0; background:#FFD342; color:#111;" onclick="ejecutarBusquedaAdmin()" id="btnAdminSearch">
+                        <i class="fa-solid fa-search"></i>
+                    </button>
+                </div>
+
+                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #333; padding: 15px; border-radius: 10px;">
+                    <ul id="adminSearchResults" class="player-list-room" style="max-height: 400px;">
+                        <li style="color: #7d7d7d; justify-content: center;">Ingresa un nombre o ID y presiona buscar.</li>
+                    </ul>
+                </div>
+            </div>
+
         </div>
     </main>
+
+    <div class="modal-overlay" id="playerDetailsModal" onclick="cerrarModalAdminClickFuera(event)">
+        <div class="modal-content">
+            <i class="fa-solid fa-xmark close-modal" onclick="cerrarModalAdmin()"></i>
+            
+            <div style="text-align: center; border-bottom: 1px solid #333; padding-bottom: 15px; margin-bottom: 15px;">
+                <h2 id="modal_p_name" style="color: #FFD342; margin: 0; font-size: 2rem; word-break: break-word;">Cargando...</h2>
+                <p style="color: #7d7d7d; margin: 5px 0 0;">ID: <strong id="modal_p_id" style="color:white;">#0</strong></p>
+                <div id="modal_p_discord" style="display:inline-block; margin-top:10px; padding:5px 15px; background:rgba(45,242,193,0.1); color:#2df2c1; border-radius:5px; font-weight:bold; border: 1px solid #2df2c1;">
+                    <i class="fa-brands fa-discord"></i> Cargando...
+                </div>
+            </div>
+            
+            <div style="text-align: left; margin-bottom: 20px; line-height: 1.8;">
+                <p style="color: #bdc3c7; margin: 5px 0;"><strong>🔑 Auth:</strong> <span id="modal_p_auth" style="color: #5dc8e8; font-family: monospace; word-break: break-all;">...</span></p>
+                <p style="color: #bdc3c7; margin: 5px 0;"><strong>🔨 Baneado:</strong> <span id="modal_p_ban" style="font-weight: bold; background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 4px;">...</span></p>
+            </div>
+
+            <div>
+                <button class="alts-btn" id="btnAltsToggle" onclick="toggleAltsAccordion()">
+                    <span><i class="fa-solid fa-users"></i> Cuentas Adicionales (Misma IP)</span>
+                    <i class="fa-solid fa-chevron-down" id="altsChevron"></i>
+                </button>
+                <div class="alts-content" id="altsContent">
+                    <ul id="modal_p_alts" class="player-list-room" style="border: none; max-height: none;">
+                        <li style="color: #7d7d7d; justify-content: center;"><i class="fa-solid fa-spinner fa-spin"></i> Revisando IP...</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px; text-align: center;">
+                <button class="btn-estandar" style="background:#333; color:white; border: 1px solid #555;" onclick="cerrarModalAdmin()">Cerrar</button>
+            </div>
+        </div>
+    </div>
 
     <footer><p>© 2026 ToroHax. Todos los derechos reservados.</p></footer>
 
@@ -231,6 +301,14 @@
                 alert("Error de conexión al verificar permisos.");
                 window.location.href = 'index.html';
             });
+        }
+
+        function switchMainView(view) {
+            document.getElementById('btnMainAdministrar').classList.toggle('active', view === 'administrar');
+            document.getElementById('btnMainBuscar').classList.toggle('active', view === 'buscar');
+            
+            document.getElementById('panel-administrar').style.display = view === 'administrar' ? 'block' : 'none';
+            document.getElementById('panel-buscar').style.display = view === 'buscar' ? 'block' : 'none';
         }
 
         function switchTab(tabId) {
@@ -377,7 +455,7 @@
             } else {
                 const fallbackNum = typeof room.players === 'number' ? room.players : 0;
                 countSpan.innerText = `${fallbackNum}/${maxP}`;
-                ul.innerHTML = '<li style="color: #naranja; justify-content: center;">⚠️ La sala usa una versión antigua del host. Solo se muestra la cantidad.</li>';
+                ul.innerHTML = '<li style="color: #FFD342; justify-content: center;">⚠️ La sala usa una versión antigua del host. Solo se muestra la cantidad.</li>';
             }
         }
 
@@ -533,6 +611,152 @@
 
             btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Desbanear Jugador';
             btn.disabled = false;
+        }
+
+        document.getElementById('adminSearchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') ejecutarBusquedaAdmin();
+        });
+
+        async function ejecutarBusquedaAdmin() {
+            const query = document.getElementById('adminSearchInput').value.trim();
+            if (!query) return;
+
+            const btn = document.getElementById('btnAdminSearch');
+            const ul = document.getElementById('adminSearchResults');
+            
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            ul.innerHTML = '<li style="color: #7d7d7d; justify-content: center;">Buscando...</li>';
+
+            try {
+                const res = await fetch(`https://torobot-izu5.onrender.com/api/admin/search-players?q=${encodeURIComponent(query)}`);
+                const data = await res.json();
+                
+                if (data.success) {
+                    ul.innerHTML = '';
+                    if (data.players.length === 0) {
+                        ul.innerHTML = '<li style="color: #cc2a2a; justify-content: center;">No se encontraron jugadores.</li>';
+                    } else {
+                        data.players.forEach(p => {
+                            const iconVip = p.isVip ? '<i class="fa-solid fa-gem" style="color:#2df2c1; font-size:0.8rem;" title="VIP"></i>' : '';
+                            const iconDiscord = p.discordId ? '<i class="fa-brands fa-discord" style="color:#5dc8e8; font-size:0.9rem;" title="Vinculado"></i>' : '';
+                            ul.innerHTML += `
+                                <li class="search-item" onclick="abrirPlayerDetails(${p.numericId})">
+                                    <span><span class="id-badge">#${p.numericId}</span> ${p.name} ${iconVip}</span>
+                                    <span>${iconDiscord}</span>
+                                </li>
+                            `;
+                        });
+                    }
+                } else {
+                    ul.innerHTML = '<li style="color: #cc2a2a; justify-content: center;">Error al buscar.</li>';
+                }
+            } catch (error) {
+                ul.innerHTML = '<li style="color: #cc2a2a; justify-content: center;">Error de conexión.</li>';
+            }
+            btn.innerHTML = '<i class="fa-solid fa-search"></i>';
+        }
+
+        async function abrirPlayerDetails(numericId) {
+            document.getElementById('playerDetailsModal').style.display = 'flex';
+            document.getElementById('modal_p_name').innerText = "Cargando...";
+            document.getElementById('modal_p_id').innerText = `#${numericId}`;
+            document.getElementById('modal_p_discord').innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cargando...';
+            document.getElementById('modal_p_discord').style.color = "#bdc3c7";
+            document.getElementById('modal_p_discord').style.borderColor = "#444";
+            document.getElementById('modal_p_discord').style.background = "rgba(255,255,255,0.05)";
+            
+            document.getElementById('modal_p_auth').innerText = "...";
+            document.getElementById('modal_p_ban').innerText = "...";
+            document.getElementById('modal_p_ban').style.color = "white";
+
+            const altsList = document.getElementById('ap_alts_list');
+            altsList.innerHTML = '<li style="color: #7d7d7d; justify-content: center;"><i class="fa-solid fa-spinner fa-spin"></i> Revisando IP...</li>';
+            
+            const altsContent = document.getElementById('altsContent');
+            const btnToggle = document.getElementById('btnAltsToggle');
+            const chevron = document.getElementById('altsChevron');
+            altsContent.style.display = 'none';
+            btnToggle.classList.remove('active');
+            chevron.classList.remove('fa-chevron-up');
+            chevron.classList.add('fa-chevron-down');
+
+            try {
+                const res = await fetch(`https://torobot-izu5.onrender.com/api/admin/player-details/${numericId}`);
+                const data = await res.json();
+
+                if (!data.success) {
+                    document.getElementById('modal_p_name').innerText = "Jugador no encontrado";
+                    return;
+                }
+
+                const p = data.player;
+
+                document.getElementById('modal_p_name').innerText = p.name;
+                document.getElementById('modal_p_auth').innerText = p.auth || "Sin Auth";
+                
+                const elDiscord = document.getElementById('modal_p_discord');
+                if (p.discordName) {
+                    elDiscord.innerHTML = `<i class="fa-brands fa-discord"></i> ${p.discordName}`;
+                    elDiscord.style.color = "#2df2c1"; elDiscord.style.borderColor = "#2df2c1"; elDiscord.style.background = "rgba(45,242,193,0.1)";
+                } else if (p.discordId) {
+                    elDiscord.innerHTML = `<i class="fa-brands fa-discord"></i> ID: ${p.discordId}`;
+                    elDiscord.style.color = "#2df2c1"; elDiscord.style.borderColor = "#2df2c1"; elDiscord.style.background = "rgba(45,242,193,0.1)";
+                } else {
+                    elDiscord.innerHTML = `<i class="fa-solid fa-link-slash"></i> No vinculado`;
+                    elDiscord.style.color = "#e74c3c"; elDiscord.style.borderColor = "#e74c3c"; elDiscord.style.background = "rgba(231,76,60,0.1)";
+                }
+
+                const banSpan = document.getElementById('modal_p_ban');
+                banSpan.innerText = data.banStatus;
+                banSpan.style.color = data.banColor;
+
+                if (!p.ip) {
+                    altsList.innerHTML = '<li style="color: #FFD342; justify-content: center;"><i class="fa-solid fa-triangle-exclamation"></i> No tiene IP registrada en el sistema.</li>';
+                } else if (data.alts.length === 0) {
+                    altsList.innerHTML = '<li style="color: #2df2c1; justify-content: center;"><i class="fa-solid fa-check"></i> No tiene cuentas adicionales.</li>';
+                } else {
+                    altsList.innerHTML = '';
+                    data.alts.forEach(alt => {
+                        altsList.innerHTML += `
+                            <li class="search-item" onclick="abrirPlayerDetails(${alt.numericId})" style="cursor:pointer; display:flex; justify-content:space-between; padding:10px; border-bottom:1px dashed #444;">
+                                <span><span class="id-badge">#${alt.numericId}</span> ${alt.name}</span>
+                                <i class="fa-solid fa-arrow-up-right-from-square" style="color:#7d7d7d; font-size:0.8rem;"></i>
+                            </li>
+                        `;
+                    });
+                }
+
+            } catch (e) {
+                document.getElementById('modal_p_name').innerText = "Error de Conexión";
+            }
+        }
+
+        function toggleAltsAccordion() {
+            const content = document.getElementById('altsContent');
+            const btn = document.getElementById('btnAltsToggle');
+            const chevron = document.getElementById('altsChevron');
+            
+            if (content.style.display === "none") {
+                content.style.display = "block";
+                btn.classList.add('active');
+                chevron.classList.remove('fa-chevron-down');
+                chevron.classList.add('fa-chevron-up');
+            } else {
+                content.style.display = "none";
+                btn.classList.remove('active');
+                chevron.classList.remove('fa-chevron-up');
+                chevron.classList.add('fa-chevron-down');
+            }
+        }
+
+        function cerrarModalAdmin() {
+            document.getElementById('playerDetailsModal').style.display = 'none';
+        }
+        
+        function cerrarModalAdminClickFuera(e) {
+            if (e.target.id === 'playerDetailsModal') {
+                cerrarModalAdmin();
+            }
         }
     </script>
 </body>
