@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>404 - ¡Te perdiste! - ToroHax</title>
+    <link rel="icon" type="image/png" href="logo_torohax.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; }
+        body { overflow-x: hidden; width: 100%; position: relative; overflow-y: auto; background-color: #0a0a0a; color: white; display: flex; flex-direction: column; min-height: 100vh;}
+        
+        main { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; margin-top: 5vh;}
+
+        .error-container { text-align: center; background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 50px 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); max-width: 600px; width: 100%; position: relative; overflow: hidden;}
+        .error-container::before { content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255, 211, 66, 0.05) 0%, transparent 50%); z-index: 0; pointer-events: none;}
+
+        .error-code { font-size: 8rem; font-weight: bold; color: #FFD342; margin: 0; line-height: 1; text-shadow: 0 0 20px rgba(255, 211, 66, 0.4), 4px 4px 0px #111, 6px 6px 0px #cc2a2a; position: relative; z-index: 1;}
+        .error-icon { font-size: 4rem; color: #cc2a2a; margin-bottom: 20px; position: relative; z-index: 1;}
+        
+        .toro-quote { background: rgba(0,0,0,0.5); border-left: 4px solid #cc2a2a; padding: 15px; margin: 25px 0; border-radius: 0 8px 8px 0; font-style: italic; color: #bdc3c7; position: relative; z-index: 1; font-size: 1.1rem;}
+        .toro-quote strong { color: #FFD342; font-style: normal;}
+
+        .btn-estandar { width: auto; display: inline-flex; padding: 12px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.1rem; border: none; align-items: center; gap: 8px; position: relative; z-index: 1; text-decoration: none;}
+        .btn-volver { background: #2df2c1; color: #111; }
+        .btn-volver:hover { background: #40ffce; box-shadow: 0 0 15px rgba(45, 242, 193, 0.4); transform: translateY(-2px);}
+    </style>
+</head>
+<body>
+    <header></header>
+
+    <main>
+        <div class="error-container">
+            <i class="fa-solid fa-map-location-dot error-icon"></i>
+            <h1 class="error-code">404</h1>
+            <h2 style="color: #fff; margin-top: 10px; font-size: 1.8rem; position: relative; z-index: 1;">Página no encontrada</h2>
+            
+            <div class="toro-quote">
+                "Esta página no existe. Nada que ver aquí." <br><br>
+                <strong>- El Toro</strong> 🐂
+            </div>
+
+            <a href="index.html" class="btn-estandar btn-volver"><i class="fa-solid fa-house"></i> Volver a la Cancha</a>
+        </div>
+    </main>
+
+    <footer><p>© 2026 ToroHax. Todos los derechos reservados.</p></footer>
+
+    <script src="header.js"></script>
+    <script src="sidebar.js"></script>
+</body>
+</html>
