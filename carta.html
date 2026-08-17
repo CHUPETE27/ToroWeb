@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Creador de Cartas - ToroHax</title>
+    <link rel="icon" type="image/png" href="logo_torohax.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <style>
+        * { box-sizing: border-box; }
+        body { overflow-x: hidden; background-color: #0a0a0a; color: white; margin: 0; padding: 0; }
+        
+        .carta-wrapper { display: flex; flex-wrap: wrap; width: 95%; max-width: 1200px; margin: 10vh auto 50px; gap: 30px; justify-content: center; align-items: flex-start; }
+        
+        .controles-box { flex: 1; min-width: 300px; max-width: 450px; background: rgba(20, 20, 20, 0.9); border: 1px solid #333; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .controles-box h3 { color: #FFD342; border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 0; text-transform: uppercase; text-align: center; }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; color: #bdc3c7; font-weight: bold; font-size: 0.9rem;}
+        .form-group select, .form-group input { width: 100%; background: #111; border: 1px solid #444; color: white; padding: 10px; border-radius: 8px; outline: none; }
+        .form-group select:focus, .form-group input:focus { border-color: #FFD342; }
+
+        .vip-section { background: rgba(255, 211, 66, 0.05); border: 1px dashed #FFD342; padding: 15px; border-radius: 8px; margin-top: 15px; display: none; }
+        .vip-title { color: #FFD342; font-weight: bold; margin-bottom: 10px; font-size: 0.9rem; }
+        .color-row { display: flex; gap: 5px; margin-bottom: 10px; }
+        .color-row input[type="color"] { flex: 1; padding: 0; height: 35px; border: none; cursor: pointer; border-radius: 4px; }
+
+        .btn-descargar { width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.1rem; border: none; background: #2df2c1; color: #111; margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .btn-descargar:hover { background: #40ffce; box-shadow: 0 0 15px rgba(45, 242, 193, 0.4); transform: scale(1.02); }
+        .preview-box { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        
+        .fifa-card { 
+            position: relative; width: 320px; height: 480px; 
+            border-radius: 10% 10% 50% 50% / 5% 5% 15% 15%; 
+            display: flex; flex-direction: column; align-items: center; 
+            padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            font-family: 'Arial', sans-serif; overflow: hidden;
+            transition: background 0.5s ease;
+        }
+
+        .card-gris { background: linear-gradient(135deg, #4b4b4b 0%, #2c2c2c 100%); color: #fff; border: 2px solid #5a5a5a; }
+        .card-bronce { background: linear-gradient(135deg, #cd7f32 0%, #8b4513 100%); color: #fff; border: 2px solid #e2a061; }
+        .card-plata { background: linear-gradient(135deg, #e0e0e0 0%, #9e9e9e 100%); color: #111; border: 2px solid #fff; }
+        .card-oro { background: linear-gradient(135deg, #ffe066 0%, #d4af37 50%, #aa8014 100%); color: #222; border: 2px solid #fff3a1; }
+        .card-leyenda { background: linear-gradient(135deg, #ff007f, #7f00ff, #00d4ff); color: #fff; border: 2px solid #fff; box-shadow: 0 0 30px rgba(127, 0, 255, 0.8); }
+
+        .fifa-card::before {
+            content: ''; position: absolute; top: 0; left: -50%; width: 100%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg); opacity: 0.5;
+        }
+
+        .card-top { display: flex; width: 100%; justify-content: space-between; align-items: flex-start; z-index: 2;}
+        .card-info-left { display: flex; flex-direction: column; align-items: center; width: 35%; }
+        
+        .card-ovr { font-size: 3.5rem; font-weight: 900; line-height: 1; letter-spacing: -2px; }
+        .card-pos { font-size: 1.2rem; font-weight: bold; margin-bottom: 8px; }
+        .card-rank { font-size: 1.5rem; margin-bottom: 5px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+        .card-logo { width: 35px; height: 35px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); }
+
+        .card-avatar-container { width: 65%; display: flex; justify-content: center; position: relative; }
+
+        .haxball-circle {
+            width: 140px; height: 140px; border-radius: 50%; border: 4px solid #111;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 3rem; font-weight: bold; color: white;
+            box-shadow: inset 0 -10px 20px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.6);
+            text-transform: uppercase; margin-top: 10px;
+        }
+
+        .card-name { font-size: 1.8rem; font-weight: 900; text-transform: uppercase; margin: 15px 0 5px 0; letter-spacing: 1px; z-index: 2; width: 100%; text-align: center; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 5px;}
+        .card-plata .card-name, .card-oro .card-name { border-bottom-color: rgba(0,0,0,0.2); }
+        .card-gris .card-name, .card-bronce .card-name, .card-leyenda .card-name { border-bottom-color: rgba(255,255,255,0.3); }
+
+        .card-stats { display: grid; grid-template-columns: 1fr 1fr; width: 100%; gap: 5px 20px; padding: 0 15px; z-index: 2; margin-top: 10px;}
+        .stat-item { display: flex; justify-content: space-between; font-size: 1.2rem; }
+        .stat-val { font-weight: 900; }
+        .stat-label { font-weight: bold; opacity: 0.8; margin-left: 5px; }
+    </style>
+</head>
+<body>
+    <header></header>
+
+    <main>
+        <div class="carta-wrapper" style="display: none;" id="mainContent">
+            <div class="controles-box">
+                <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Crear tu Carta</h3>
+
+                <div class="form-group">
+                    <label>Tipo de carta</label>
+                    <select id="selModo" onchange="actualizarCarta()">
+                        <option value="hist">Histórico</option>
+                        <option value="temp">Temporada</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Posición</label>
+                    <select id="selPos" onchange="actualizarCarta()">
+                        <option value="DEL">Delantero (DEL)</option>
+                        <option value="MED">Mediocampista (MED)</option>
+                        <option value="DEF">Defensa (DEF)</option>
+                        <option value="GK">Arquero (GK)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Camiseta</label>
+                    <select id="selKit" onchange="manejarKits()">
+                        <option value="ToroHax_home">ToroHax (Local)</option>
+                        <option value="ToroHax_away">ToroHax (Visita)</option>
+                        <option value="custom" id="optCustomVIP" disabled>Personalizada (VIP)</option>
+                    </select>
+                </div>
+
+                <div class="vip-section" id="vipColorsDiv">
+                    <div class="vip-title"><i class="fa-solid fa-gem"></i> Colores VIP</div>
+                    <div class="color-row">
+                        <input type="color" id="c1" value="#FF0000" oninput="aplicarCustomKit()">
+                        <input type="color" id="c2" value="#000000" oninput="aplicarCustomKit()">
+                        <input type="color" id="c3" value="#FF0000" oninput="aplicarCustomKit()">
+                    </div>
+                    <div class="color-row">
+                        <label style="font-size:0.8rem; margin:0; flex:1;">Ángulo (0-360)</label>
+                        <input type="number" id="cAngle" value="90" min="0" max="360" oninput="aplicarCustomKit()" style="flex:1; height: 35px; padding: 5px;">
+                    </div>
+                    <div class="color-row">
+                        <label style="font-size:0.8rem; margin:0; flex:1;">Color Texto</label>
+                        <input type="color" id="cText" value="#FFFFFF" oninput="aplicarCustomKit()" style="flex:1;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Texto del Avatar</label>
+                    <input type="text" id="txtAvatar" maxlength="3" value="10" oninput="actualizarAvatarTexto()">
+                </div>
+
+                <button class="btn-descargar" onclick="descargarCarta()">
+                    <i class="fa-solid fa-download"></i> Descargar Carta
+                </button>
+            </div>
+
+            <div class="preview-box">
+                <div class="fifa-card card-oro" id="cartaFifa">
+                    <div class="card-top">
+                        <div class="card-info-left">
+                            <div class="card-ovr" id="c_ovr">99</div>
+                            <div class="card-pos" id="c_pos">DEL</div>
+                            <div class="card-rank" id="c_rank" title="Rango Toro">🐂</div>
+                            <img src="logo_torohax.png" class="card-logo" alt="ToroHax">
+                        </div>
+                        
+                        <div class="card-avatar-container">
+                            <div class="haxball-circle" id="c_avatar">10</div>
+                        </div>
+                    </div>
+
+                    <div class="card-name" id="c_name">ZAMPEDRI</div>
+
+                    <div class="card-stats">
+                        <div class="stat-item"><span class="stat-val" id="s_tir">99</span> <span class="stat-label">TIR</span></div>
+                        <div class="stat-item"><span class="stat-val" id="s_pas">99</span> <span class="stat-label">PAS</span></div>
+                        <div class="stat-item"><span class="stat-val" id="s_hab">99</span> <span class="stat-label">HAB</span></div>
+                        <div class="stat-item"><span class="stat-val" id="s_def">99</span> <span class="stat-label">DEF</span></div>
+                        <div class="stat-item"><span class="stat-val" id="s_gk">99</span> <span class="stat-label">GK</span></div>
+                        <div class="stat-item"><span class="stat-val" id="s_elo">5000</span> <span class="stat-label">ELO</span></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer><p>© 2026 ToroHax. Todos los derechos reservados.</p></footer>
+
+    <script src="header.js"></script>
+    <script src="sidebar.js"></script>
+
+    <script>
+        const COLORS = {
+            blanco: 0xFFFFFF, azul: 0x0000FF, rojo: 0xFF0000, negro: 0x000000,
+            amarillo: 0xFFFF00, naranja: 0xFFA500, celeste: 0x87CEEB, morado: 0x800080,
+            dorado: 0xFFD700, dorado_oscuro: 0xB8860B, verde_oscuro: 0x006400,
+            verde: 0x008000, verde_claro: 0x90EE90, granate: 0x800000,
+            blanco_opaco: 0xD3D3D3, rosa: 0xFFC0CB, azul_oscuro: 0x00008B
+        };
+
+        const KIT_COLORS = [
+            { name: "U. Católica", home: { colors: [COLORS.blanco, COLORS.azul, COLORS.blanco], text: COLORS.rojo, angle: 90 }, away: { colors: [COLORS.azul, COLORS.rojo, COLORS.rojo], text: COLORS.blanco, angle: 90 } },
+            { name: "U. De Chile", home: { colors: [0x132A61, COLORS.azul, COLORS.azul], text: COLORS.rojo, angle: 70 }, away: { colors: [COLORS.azul, COLORS.blanco, COLORS.blanco], text: COLORS.rojo, angle: 50 } },
+            { name: "Colo-Colo", home: { colors: [COLORS.blanco, COLORS.blanco, COLORS.negro], text: COLORS.negro, angle: 90 }, away: { colors: [0x191919, 0x121212, COLORS.negro], text: COLORS.rojo, angle: 60 } },
+            { name: "U. Española", home: { colors: [COLORS.rojo, COLORS.rojo, COLORS.azul], text: COLORS.amarillo, angle: 90 }, away: { colors: [0x212121, COLORS.negro, 0x212121], text: COLORS.amarillo, angle: 0 } },
+            { name: "Cobreloa", home: { colors: [0xF77B00, COLORS.naranja, 0xC96500], text: COLORS.blanco, angle: 60 }, away: { colors: [COLORS.negro, 0x0F0F0F, 0x141414], text: COLORS.naranja, angle: 60 } },
+            { name: "Palestino", home: { colors: [COLORS.negro, COLORS.blanco, COLORS.blanco], text: COLORS.verde_oscuro, angle: 90 }, away: { colors: [COLORS.negro, COLORS.rojo, COLORS.negro], text: COLORS.verde_oscuro, angle: 0 } },
+            { name: "S. Wanderes", home: { colors: [0x255940, 0x1B402E, 0x122B1F], text: COLORS.blanco, angle: 60 }, away: { colors: [COLORS.blanco, 0xF2F2F2, 0xE8E8E8], text: COLORS.verde_oscuro, angle: 60 } },
+            { name: "Chile", home: { colors: [COLORS.rojo, COLORS.rojo, COLORS.azul], text: COLORS.blanco, angle: 90 }, away: { colors: [COLORS.blanco, COLORS.blanco, 0x1C150E], text: COLORS.rosa, angle: 90 } },
+            { name: "ToroHax", home: { colors: [0x3F6B73, 0x5CC1BB, 0x3F6B73], text: COLORS.dorado_oscuro, angle: 90 }, away: { colors: [COLORS.negro, 0x1A3837, COLORS.negro], text: COLORS.dorado_oscuro, angle: 60 } }
+        ];
+
+        let playerData = null;
+
+        window.onload = () => {
+            const loggedId = localStorage.getItem('toroHaxLoggedId');
+            if (!loggedId) {
+                alert("Debes iniciar sesión para crear tu carta.");
+                window.location.href = "login.html";
+                return;
+            }
+
+            fetch(`https://torobot-izu5.onrender.com/get-player/${loggedId}`)
+            .then(res => res.json())
+            .then(data => {
+                if(data.name) {
+                    playerData = data;
+                    document.getElementById('mainContent').style.display = 'flex';
+                    
+                    if (data.isVip) {
+                        document.getElementById('optCustomVIP').disabled = false;
+                        document.getElementById('optCustomVIP').innerText = "👕 Personalizado (VIP)";
+                    }
+
+                    llenarSelectKits();
+                    document.getElementById('c_name').innerText = data.name.substring(0, 15);
+                    actualizarCarta();
+                }
+            });
+        };
+
+        function numToHex(num) {
+            return "#" + num.toString(16).padStart(6, '0').toUpperCase();
+        }
+
+        function llenarSelectKits() {
+            const select = document.getElementById('selKit');
+            KIT_COLORS.forEach((kit, i) => {
+                if (kit.name === "ToroHax") return;
+                select.innerHTML += `<option value="${i}_home">${kit.name} (Local)</option>`;
+                select.innerHTML += `<option value="${i}_away">${kit.name} (Visita)</option>`;
+            });
+        }
+
+        function manejarKits() {
+            const val = document.getElementById('selKit').value;
+            const vipDiv = document.getElementById('vipColorsDiv');
+            
+            if (val === 'custom') {
+                vipDiv.style.display = 'block';
+                aplicarCustomKit();
+            } else {
+                vipDiv.style.display = 'none';
+                aplicarKitPredefinido(val);
+            }
+        }
+
+        function aplicarKitPredefinido(val) {
+            let kitTarget;
+            if (val === "ToroHax_home") kitTarget = KIT_COLORS.find(k => k.name === "ToroHax").home;
+            else if (val === "ToroHax_away") kitTarget = KIT_COLORS.find(k => k.name === "ToroHax").away;
+            else {
+                const parts = val.split('_');
+                const kitObj = KIT_COLORS[parseInt(parts[0])];
+                kitTarget = parts[1] === 'home' ? kitObj.home : kitObj.away;
+            }
+
+            dibujarAvatarHaxball(
+                numToHex(kitTarget.colors[0]), 
+                numToHex(kitTarget.colors[1]), 
+                numToHex(kitTarget.colors[2]), 
+                kitTarget.angle, 
+                numToHex(kitTarget.text)
+            );
+        }
+
+        function aplicarCustomKit() {
+            dibujarAvatarHaxball(
+                document.getElementById('c1').value,
+                document.getElementById('c2').value,
+                document.getElementById('c3').value,
+                document.getElementById('cAngle').value,
+                document.getElementById('cText').value
+            );
+        }
+
+        function dibujarAvatarHaxball(c1, c2, c3, angle, textCol) {
+            const avatar = document.getElementById('c_avatar');
+            avatar.style.background = `linear-gradient(${angle}deg, ${c1} 33.3%, ${c2} 33.3% 66.6%, ${c3} 66.6%)`;
+            avatar.style.color = textCol;
+        }
+
+        function actualizarAvatarTexto() {
+            document.getElementById('c_avatar').innerText = document.getElementById('txtAvatar').value || " ";
+        }
+
+        function getRankEmoji(elo, partidos) {
+            if (partidos < 10) return "⛔";
+            const e = elo || 200;
+            if (e < 360) return "🐓";
+            if (e < 810) return "🦙";
+            if (e < 1400) return "🐑";
+            if (e < 2150) return "🐖";
+            if (e < 3050) return "🐄";
+            if (e < 3950) return "🐎";
+            if (e < 5000) return "🐃";
+            return "🐂";
+        }
+
+        function actualizarCarta() {
+            if (!playerData) return;
+
+            const isTemp = document.getElementById('selModo').value === 'temp';
+            const pos = document.getElementById('selPos').value;
+
+            const p_partidos = isTemp ? (playerData.temp_partidos || 0) : (playerData.partidos || 0);
+            const p_goles = isTemp ? (playerData.temp_golesAnotados || 0) : (playerData.golesAnotados || 0);
+            const p_asist = isTemp ? (playerData.temp_asistencias || 0) : (playerData.asistencias || 0);
+            const p_ataj = isTemp ? (playerData.temp_atajadas || 0) : (playerData.atajadas || 0);
+            const p_int = isTemp ? (playerData.temp_intercepciones || 0) : (playerData.intercepciones || 0);
+            const p_pts = isTemp ? (playerData.temp_puntajeTotal || 0) : (playerData.puntajeTotal || 0);
+            const p_pasC = isTemp ? (playerData.temp_pasesCompletados || 0) : (playerData.pasesCompletados || 0);
+            const p_pasP = isTemp ? (playerData.temp_pasesPerdidos || 0) : (playerData.pasesPerdidos || 0);
+            
+            const elo = playerData.elo || 200;
+            const calcScale = (val, max) => Math.min(99, Math.max(1, Math.round((val / max) * 98 + 1)));
+
+            const golesPP = p_partidos > 0 ? p_goles / p_partidos : 0;
+            const TIR = calcScale(golesPP, 2.0);
+
+            const asistPP = p_partidos > 0 ? p_asist / p_partidos : 0;
+            const calcAsist = calcScale(asistPP, 1.0);
+            const totalPases = p_pasC + p_pasP;
+            const prec = totalPases > 0 ? p_pasC / totalPases : 0;
+            const calcPrec = calcScale(prec, 1.0);
+            const PAS = Math.round((calcAsist * 0.6) + (calcPrec * 0.4));
+
+            const ptsPP = p_partidos > 0 ? p_pts / p_partidos : 0;
+            const HAB = calcScale(ptsPP, 300);
+
+            const defPP = p_partidos > 0 ? p_int / p_partidos : 0;
+            const DEF = calcScale(defPP, 20.0);
+
+            const gkPP = p_partidos > 0 ? p_ataj / p_partidos : 0;
+            const GK = calcScale(gkPP, 5.0);
+
+            let OVR = 1;
+            if (pos === "DEL") OVR = Math.round(TIR*0.6 + PAS*0.2 + HAB*0.15 + DEF*0.05);
+            else if (pos === "MED") OVR = Math.round(TIR*0.2 + PAS*0.4 + HAB*0.3 + DEF*0.1);
+            else if (pos === "DEF") OVR = Math.round(TIR*0.02 + PAS*0.13 + HAB*0.05 + DEF*0.8);
+            else if (pos === "GK") OVR = GK;
+
+            document.getElementById('s_tir').innerText = TIR;
+            document.getElementById('s_pas').innerText = PAS;
+            document.getElementById('s_hab').innerText = HAB;
+            document.getElementById('s_def').innerText = DEF;
+            document.getElementById('s_gk').innerText = GK;
+            document.getElementById('s_elo').innerText = elo;
+
+            document.getElementById('c_ovr').innerText = OVR;
+            document.getElementById('c_pos').innerText = pos;
+            document.getElementById('c_rank').innerText = getRankEmoji(elo, p_partidos);
+
+            const cartaDOM = document.getElementById('cartaFifa');
+            cartaDOM.className = "fifa-card";
+            if (OVR <= 49) cartaDOM.classList.add("card-gris");
+            else if (OVR <= 69) cartaDOM.classList.add("card-bronce");
+            else if (OVR <= 79) cartaDOM.classList.add("card-plata");
+            else if (OVR <= 89) cartaDOM.classList.add("card-oro");
+            else cartaDOM.classList.add("card-leyenda");
+
+            manejarKits();
+        }
+
+        function descargarCarta() {
+            const btn = document.querySelector('.btn-descargar');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando...';
+            btn.disabled = true;
+
+            const cartaElement = document.getElementById('cartaFifa');
+
+            html2canvas(cartaElement, {
+                scale: 3,
+                backgroundColor: null,
+                logging: false
+            }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = `Carta_ToroHax_${playerData.name.replace(/\s+/g, '_')}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }).catch(err => {
+                alert("Hubo un error al generar la imagen. Inténtalo desde un PC.");
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
+        }
+    </script>
+</body>
+</html>
