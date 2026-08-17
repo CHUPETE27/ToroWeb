@@ -20,16 +20,26 @@
 
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; color: #bdc3c7; font-weight: bold; font-size: 0.9rem;}
-        .form-group select, .form-group input { width: 100%; background: #111; border: 1px solid #444; color: white; padding: 10px; border-radius: 8px; outline: none; }
-        .form-group select:focus, .form-group input:focus { border-color: #FFD342; }
+        .form-group select, .form-group input[type="text"], .form-group input[type="number"] { width: 100%; background: #111; border: 1px solid #444; color: white; padding: 10px; border-radius: 8px; outline: none; transition: 0.2s;}
+        .form-group select:focus, .form-group input[type="text"]:focus { border-color: #FFD342; }
 
-        .vip-section { background: rgba(255, 211, 66, 0.05); border: 1px dashed #FFD342; padding: 15px; border-radius: 8px; margin-top: 15px; display: none; }
-        .vip-title { color: #FFD342; font-weight: bold; margin-bottom: 10px; font-size: 0.9rem; }
-        .color-row { display: flex; gap: 5px; margin-bottom: 10px; }
-        .color-row input[type="color"] { flex: 1; padding: 0; height: 35px; border: none; cursor: pointer; border-radius: 4px; }
+        .radio-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; border: 1px dashed #444;}
+        .radio-label { display: flex; align-items: center; gap: 8px; cursor: pointer; color: #fff; font-size: 0.95rem; }
+        .radio-label input[type="radio"] { cursor: pointer; accent-color: #FFD342; width: 18px; height: 18px; margin: 0; }
+        .radio-label.disabled { color: #555; cursor: not-allowed; }
+        .radio-label.disabled input[type="radio"] { cursor: not-allowed; filter: grayscale(1); }
+
+        .haxcolors-box { background: #5a4b3d; border: 2px solid #3a3026; border-radius: 8px; padding: 15px; color: white; font-family: 'Arial', sans-serif; display: none; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);}
+        .hc-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .hc-label { font-size: 0.9rem; font-weight: normal; color: #e6e6e6; }
+        .hc-input-group { display: flex; align-items: center; gap: 5px; }
+        .hc-text { width: 75px; padding: 5px; border: 1px solid #222; outline: none; text-transform: uppercase; font-family: monospace; background: white; color: black; font-weight: bold; font-size: 0.9rem;}
+        .hc-color { width: 35px; height: 28px; padding: 0; border: 1px solid #222; cursor: pointer; background: #fff;}
+        .hc-angle { width: 60px; padding: 5px; border: 1px solid #222; outline: none; background: white; color: black; font-weight: bold; text-align: center;}
 
         .btn-descargar { width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.1rem; border: none; background: #2df2c1; color: #111; margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 10px; }
         .btn-descargar:hover { background: #40ffce; box-shadow: 0 0 15px rgba(45, 242, 193, 0.4); transform: scale(1.02); }
+        
         .preview-box { display: flex; flex-direction: column; align-items: center; justify-content: center; }
         
         .fifa-card { 
@@ -50,7 +60,7 @@
         .fifa-card::before {
             content: ''; position: absolute; top: 0; left: -50%; width: 100%; height: 100%;
             background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
-            transform: skewX(-25deg); opacity: 0.5;
+            transform: skewX(-25deg); opacity: 0.5; pointer-events: none;
         }
 
         .card-top { display: flex; width: 100%; justify-content: space-between; align-items: flex-start; z-index: 2;}
@@ -66,7 +76,7 @@
         .haxball-circle {
             width: 140px; height: 140px; border-radius: 50%; border: 4px solid #111;
             display: flex; justify-content: center; align-items: center;
-            font-size: 3rem; font-weight: bold; color: white;
+            font-size: 4.5rem; font-weight: bold; color: white;
             box-shadow: inset 0 -10px 20px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.6);
             text-transform: uppercase; margin-top: 10px;
         }
@@ -77,6 +87,7 @@
 
         .card-stats { display: grid; grid-template-columns: 1fr 1fr; width: 100%; gap: 5px 20px; padding: 0 15px; z-index: 2; margin-top: 10px;}
         .stat-item { display: flex; justify-content: space-between; font-size: 1.2rem; }
+        .stat-item.gk-center { grid-column: 1 / -1; justify-content: center; gap: 15px; }
         .stat-val { font-weight: 900; }
         .stat-label { font-weight: bold; opacity: 0.8; margin-left: 5px; }
     </style>
@@ -108,34 +119,63 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Camiseta</label>
-                    <select id="selKit" onchange="manejarKits()">
+                    <label>Diseño de la Camiseta</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="kitMode" value="server" checked onchange="toggleKitMode()"> 
+                            Equipos del Servidor
+                        </label>
+                        <label class="radio-label disabled" id="lblVipCustom">
+                            <input type="radio" name="kitMode" value="custom" id="radioCustom" onchange="toggleKitMode()" disabled> 
+                            <i class="fa-solid fa-gem" style="color: #FFD342;"></i> Personalizado (Solo VIP)
+                        </label>
+                    </div>
+
+                    <select id="selKit" onchange="actualizarCarta()">
                         <option value="ToroHax_home">ToroHax (Local)</option>
                         <option value="ToroHax_away">ToroHax (Visita)</option>
-                        <option value="custom" id="optCustomVIP" disabled>Personalizada (VIP)</option>
                     </select>
-                </div>
 
-                <div class="vip-section" id="vipColorsDiv">
-                    <div class="vip-title"><i class="fa-solid fa-gem"></i> Colores VIP</div>
-                    <div class="color-row">
-                        <input type="color" id="c1" value="#FF0000" oninput="aplicarCustomKit()">
-                        <input type="color" id="c2" value="#000000" oninput="aplicarCustomKit()">
-                        <input type="color" id="c3" value="#FF0000" oninput="aplicarCustomKit()">
-                    </div>
-                    <div class="color-row">
-                        <label style="font-size:0.8rem; margin:0; flex:1;">Ángulo (0-360)</label>
-                        <input type="number" id="cAngle" value="90" min="0" max="360" oninput="aplicarCustomKit()" style="flex:1; height: 35px; padding: 5px;">
-                    </div>
-                    <div class="color-row">
-                        <label style="font-size:0.8rem; margin:0; flex:1;">Color Texto</label>
-                        <input type="color" id="cText" value="#FFFFFF" oninput="aplicarCustomKit()" style="flex:1;">
+                    <div class="haxcolors-box" id="haxcolorsBox">
+                        <div class="hc-row">
+                            <span class="hc-label">angle</span>
+                            <input type="number" id="hc_angle" class="hc-angle" value="60" oninput="actualizarCarta()">
+                        </div>
+                        <div class="hc-row">
+                            <span class="hc-label">avatar color</span>
+                            <div class="hc-input-group">
+                                <input type="text" id="txtTextCol" class="hc-text" value="FFFFFF" maxlength="6" oninput="syncTextToColor('txtTextCol', 'colText'); actualizarCarta();">
+                                <input type="color" id="colText" class="hc-color" value="#FFFFFF" oninput="syncColorToText('colText', 'txtTextCol'); actualizarCarta();">
+                            </div>
+                        </div>
+                        <hr style="border: 1px solid #4a3e32; margin: 15px 0;">
+                        <div class="hc-row">
+                            <span class="hc-label">color 1</span>
+                            <div class="hc-input-group">
+                                <input type="text" id="txtC1" class="hc-text" value="FF0000" maxlength="6" oninput="syncTextToColor('txtC1', 'colC1'); actualizarCarta();">
+                                <input type="color" id="colC1" class="hc-color" value="#FF0000" oninput="syncColorToText('colC1', 'txtC1'); actualizarCarta();">
+                            </div>
+                        </div>
+                        <div class="hc-row">
+                            <span class="hc-label">color 2</span>
+                            <div class="hc-input-group">
+                                <input type="text" id="txtC2" class="hc-text" value="000000" maxlength="6" oninput="syncTextToColor('txtC2', 'colC2'); actualizarCarta();">
+                                <input type="color" id="colC2" class="hc-color" value="#000000" oninput="syncColorToText('colC2', 'txtC2'); actualizarCarta();">
+                            </div>
+                        </div>
+                        <div class="hc-row">
+                            <span class="hc-label">color 3</span>
+                            <div class="hc-input-group">
+                                <input type="text" id="txtC3" class="hc-text" value="FF0000" maxlength="6" oninput="syncTextToColor('txtC3', 'colC3'); actualizarCarta();">
+                                <input type="color" id="colC3" class="hc-color" value="#FF0000" oninput="syncColorToText('colC3', 'txtC3'); actualizarCarta();">
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>Texto del Avatar</label>
-                    <input type="text" id="txtAvatar" maxlength="3" value="10" oninput="actualizarAvatarTexto()">
+                    <input type="text" id="txtAvatar" maxlength="2" value="10" oninput="actualizarAvatarTexto()">
                 </div>
 
                 <button class="btn-descargar" onclick="descargarCarta()">
@@ -158,15 +198,14 @@
                         </div>
                     </div>
 
-                    <div class="card-name" id="c_name">ZAMPEDRI</div>
+                    <div class="card-name" id="c_name">Nick</div>
 
                     <div class="card-stats">
                         <div class="stat-item"><span class="stat-val" id="s_tir">99</span> <span class="stat-label">TIR</span></div>
                         <div class="stat-item"><span class="stat-val" id="s_pas">99</span> <span class="stat-label">PAS</span></div>
                         <div class="stat-item"><span class="stat-val" id="s_hab">99</span> <span class="stat-label">HAB</span></div>
                         <div class="stat-item"><span class="stat-val" id="s_def">99</span> <span class="stat-label">DEF</span></div>
-                        <div class="stat-item"><span class="stat-val" id="s_gk">99</span> <span class="stat-label">GK</span></div>
-                        <div class="stat-item"><span class="stat-val" id="s_elo">5000</span> <span class="stat-label">ELO</span></div>
+                        <div class="stat-item gk-center"><span class="stat-val" id="s_gk">99</span> <span class="stat-label">GK</span></div>
                     </div>
                 </div>
             </div>
@@ -181,11 +220,30 @@
 
     <script>
         const COLORS = {
-            blanco: 0xFFFFFF, azul: 0x0000FF, rojo: 0xFF0000, negro: 0x000000,
-            amarillo: 0xFFFF00, naranja: 0xFFA500, celeste: 0x87CEEB, morado: 0x800080,
-            dorado: 0xFFD700, dorado_oscuro: 0xB8860B, verde_oscuro: 0x006400,
-            verde: 0x008000, verde_claro: 0x90EE90, granate: 0x800000,
-            blanco_opaco: 0xD3D3D3, rosa: 0xFFC0CB, azul_oscuro: 0x00008B
+            blanco:        0xFFFFFF,
+            negro:         0x000000,
+            gris:          0x7d7d7d,
+            blanco_opaco:  0xbab8b8,
+            blanco_crema:  0xFFFEE8,
+            rojo:          0xCC2A2A,
+            azul:          0x2656c7,
+            celeste:       0x5dc8e8,
+            azul_claro:    0x5D8AA8,
+            azul_oscuro:   0x0a2445,
+            celeste_claro: 0xADFFFF,
+            granate:       0x6B1A1A,
+            amarillo:      0xF7D738,
+            dorado:        0xFFD342,
+            dorado_oscuro: 0xD3A778,
+            rosa:          0xFF69B4,
+            rosa_claro:    0xFFABE3,
+            verde:         0x00BA00,
+            verde_oscuro:  0x23703C,
+            verde_claro:   0x2ECC71,
+            naranja:       0xE07000,
+            morado:        0x8B45BA,
+            azul_morado:   0x374B99,
+            celeste_opaco: 0x95DBDB
         };
 
         const KIT_COLORS = [
@@ -194,10 +252,38 @@
             { name: "Colo-Colo", home: { colors: [COLORS.blanco, COLORS.blanco, COLORS.negro], text: COLORS.negro, angle: 90 }, away: { colors: [0x191919, 0x121212, COLORS.negro], text: COLORS.rojo, angle: 60 } },
             { name: "U. Española", home: { colors: [COLORS.rojo, COLORS.rojo, COLORS.azul], text: COLORS.amarillo, angle: 90 }, away: { colors: [0x212121, COLORS.negro, 0x212121], text: COLORS.amarillo, angle: 0 } },
             { name: "Cobreloa", home: { colors: [0xF77B00, COLORS.naranja, 0xC96500], text: COLORS.blanco, angle: 60 }, away: { colors: [COLORS.negro, 0x0F0F0F, 0x141414], text: COLORS.naranja, angle: 60 } },
+            { name: "Magallanes", home: { colors: [COLORS.celeste, COLORS.blanco, COLORS.celeste], text: COLORS.dorado, angle: 0 }, away: { colors: [0xED4292, 0xF573CE, 0xED4292], text: 0x1F1F1F, angle: 0 } },
+            { name: "D. Concepción", home: { colors: [0xA250D9, COLORS.morado, 0x783CA1], text: COLORS.dorado_oscuro, angle: 60 }, away: { colors: [COLORS.blanco, 0xF2F2F2, 0xE8E8E8], text: COLORS.morado, angle: 60 } },
+            { name: "D. Temuco", home: { colors: [COLORS.blanco, COLORS.verde_oscuro, COLORS.blanco], text: COLORS.negro, angle: 90 }, away: { colors: [COLORS.negro, COLORS.verde_oscuro, COLORS.negro], text: COLORS.blanco, angle: 90 } },
+            { name: "D. Iquique", home: { colors: [0x87D7FF, COLORS.celeste, COLORS.celeste], text: COLORS.negro, angle: 90 }, away: { colors: [0x1F1F1F, 0x191919, 0x1F1F1F], text: COLORS.celeste, angle: 0 } },
             { name: "Palestino", home: { colors: [COLORS.negro, COLORS.blanco, COLORS.blanco], text: COLORS.verde_oscuro, angle: 90 }, away: { colors: [COLORS.negro, COLORS.rojo, COLORS.negro], text: COLORS.verde_oscuro, angle: 0 } },
             { name: "S. Wanderes", home: { colors: [0x255940, 0x1B402E, 0x122B1F], text: COLORS.blanco, angle: 60 }, away: { colors: [COLORS.blanco, 0xF2F2F2, 0xE8E8E8], text: COLORS.verde_oscuro, angle: 60 } },
-            { name: "Chile", home: { colors: [COLORS.rojo, COLORS.rojo, COLORS.azul], text: COLORS.blanco, angle: 90 }, away: { colors: [COLORS.blanco, COLORS.blanco, 0x1C150E], text: COLORS.rosa, angle: 90 } },
-            { name: "ToroHax", home: { colors: [0x3F6B73, 0x5CC1BB, 0x3F6B73], text: COLORS.dorado_oscuro, angle: 90 }, away: { colors: [COLORS.negro, 0x1A3837, COLORS.negro], text: COLORS.dorado_oscuro, angle: 60 } }
+            { name: "Everton", home: { colors: [COLORS.azul, 0xFFBC57, COLORS.azul], text: COLORS.blanco, angle: 90 }, away: { colors: [COLORS.negro, 0xFFBC57, COLORS.negro], text: COLORS.blanco, angle: 90 } },
+            { name: "Coquimbo Unido", home: { colors: [COLORS.amarillo, COLORS.negro, COLORS.amarillo], text: COLORS.blanco, angle: 10 }, away: { colors: [COLORS.negro], text: 0x616161, angle: 0 } },
+            { name: "D. La Serena", home: { colors: [0x872121, COLORS.granate, 0x591616], text: COLORS.blanco, angle: 60 }, away: { colors: [COLORS.granate, COLORS.blanco, COLORS.blanco], text: COLORS.rojo, angle: 90 } },
+            { name: "Audax Italiano", home: { colors: [0x00D100, COLORS.verde, 0x00A100], text: COLORS.blanco, angle: 60 }, away: { colors: [COLORS.blanco, 0xF2F2F2, 0xE8E8E8], text: COLORS.verde_claro, angle: 60 } },
+            { name: "U. La Calera", home: { colors: [COLORS.rojo, COLORS.blanco_opaco, COLORS.rojo], text: COLORS.blanco, angle: 0 }, away: { colors: [0xD1CFCF, COLORS.blanco_opaco, 0xA6A4A4], text: COLORS.rojo, angle: 60 } },
+            { name: "O'Higgins", home: { colors: [0x66DCFF, COLORS.celeste, 0x52B0CC], text: COLORS.negro, angle: 60 }, away: { colors: [0xE0C333, COLORS.amarillo, 0xE0C333], text: COLORS.negro, angle: 0 } },
+            { name: "Limache", home: { colors: [COLORS.rojo, COLORS.negro, COLORS.rojo], text: COLORS.blanco, angle: 0 }, away: { colors: [COLORS.blanco, COLORS.blanco_opaco, COLORS.blanco], text: COLORS.negro, angle: 0 } },
+            { name: "Ñublense", home: { colors: [0xE3221B, COLORS.rojo, 0xAD2424], text: COLORS.blanco, angle: 60 }, away: { colors: [0x191919, 0x121212, COLORS.negro], text: COLORS.blanco, angle: 60 } },
+            { name: "Huachipato", home: { colors: [COLORS.negro, COLORS.azul, COLORS.negro], text: COLORS.blanco, angle: 0 }, away: { colors: [COLORS.blanco, 0xF2F2F2, 0xE8E8E8], text: COLORS.azul, angle: 60 } },
+            { name: "Cobresal", home: { colors: [COLORS.blanco, COLORS.naranja, COLORS.blanco], text: COLORS.negro, angle: 0 }, away: { colors: [0x229E77, 0x1B7D5E, 0x229E77], text: COLORS.naranja, angle: 0 } },
+            { name: "Rangers", home: { colors: [COLORS.negro, COLORS.rojo, COLORS.negro], text: COLORS.blanco, angle: 90 }, away: { colors: [COLORS.blanco, 0xF2F2F2, 0xE8E8E8], text: COLORS.rojo, angle: 0 } },
+            { name: "U. De Concepción", home: { colors: [COLORS.amarillo, COLORS.amarillo, COLORS.azul], text: COLORS.azul, angle: 90 }, away: { colors: [COLORS.blanco, 0xF2F2F2, 0xE8E8E8], text: COLORS.amarillo, angle: 60 } },
+            { name: "D. Copiapó", home: { colors: [COLORS.rojo, COLORS.blanco, COLORS.blanco], text: COLORS.rojo, angle: 90 }, away: { colors: [COLORS.granate, COLORS.rojo, COLORS.granate], text: COLORS.blanco, angle: 0 } },
+            { name: "D. Recoleta", home: { colors: [COLORS.blanco, 0xFFDCDB, COLORS.blanco], text: COLORS.azul_oscuro, angle: 0 }, away: { colors: [COLORS.blanco, COLORS.azul_oscuro, COLORS.azul_oscuro], text: COLORS.rojo, angle: 90 } },
+            { name: "S. Morning", home: { colors: [COLORS.blanco, COLORS.negro, COLORS.blanco], text: COLORS.negro, angle: 85 }, away: { colors: [COLORS.dorado, COLORS.negro, COLORS.dorado], text: COLORS.blanco, angle: 85 } },
+            { name: "D. Melipilla", home: { colors: [COLORS.blanco, 0xF2F2F2, 0xE8E8E8], text: COLORS.azul_oscuro, angle: 60 }, away: { colors: [COLORS.azul_oscuro, 0x071930, 0x04101F], text: COLORS.blanco, angle: 60 } },
+            { name: "San Marcos de Arica", home: { colors: [0x66DCFF, COLORS.celeste, 0x52B0CC], text: COLORS.blanco, angle: 60 }, away: { colors: [0x081136, 0x081136, COLORS.rojo], text: COLORS.dorado_oscuro, angle: 90 } },
+            { name: "D. Puerto Montt", home: { colors: [COLORS.verde, COLORS.blanco, COLORS.blanco], text: COLORS.azul, angle: 90 }, away: { colors: [COLORS.negro, COLORS.negro, COLORS.verde], text: COLORS.blanco, angle: 90 } },
+            { name: "San Luis", home: { colors: [COLORS.negro, COLORS.amarillo, COLORS.amarillo], text: COLORS.negro, angle: 90 }, away: { colors: [COLORS.azul, COLORS.azul, COLORS.amarillo], text: COLORS.amarillo, angle: 90 } },
+            { name: "Curicó Unido", home: { colors: [COLORS.blanco, COLORS.rojo, COLORS.blanco], text: COLORS.negro, angle: 60 }, away: { colors: [COLORS.negro, COLORS.rojo, COLORS.negro], text: COLORS.blanco, angle: 60 } },
+            { name: "D. Santa Cruz", home: { colors: [COLORS.blanco, 0x8AA1FF, COLORS.blanco], text: COLORS.azul, angle: 0 }, away: { colors: [COLORS.azul, 0x4664C7, COLORS.azul], text: COLORS.blanco, angle: 0 } },
+            { name: "San Felipe", home: { colors: [COLORS.blanco, COLORS.blanco, COLORS.rojo], text: COLORS.negro, angle: 0 }, away: { colors: [COLORS.negro, COLORS.negro, COLORS.rojo], text: COLORS.blanco, angle: 0 } },
+            { name: "Barnechea", home: { colors: [COLORS.amarillo, 0x10396E, 0x10396E], text: COLORS.amarillo, angle: 90 }, away: { colors: [COLORS.amarillo, COLORS.blanco, COLORS.blanco], text: 0x10396E, angle: 90 } },
+            { name: "Antofagasta", home: { colors: [COLORS.blanco, COLORS.azul], text: COLORS.rojo, angle: 0 }, away: { colors: [COLORS.negro, COLORS.rojo], text: COLORS.blanco, angle: 0 } },
+            { name: "ToroHax", home: { colors: [0x3F6B73, 0x5CC1BB, 0x3F6B73], text: COLORS.dorado_oscuro, angle: 90 }, away: { colors: [COLORS.negro, 0x1A3837, COLORS.negro], text: COLORS.dorado_oscuro, angle: 60 } },
+            { name: "Chile", home: { colors: [COLORS.rojo, COLORS.rojo, COLORS.azul], text: COLORS.blanco, angle: 90 }, away: { colors: [COLORS.blanco, COLORS.blanco, 0x1C150E], text: COLORS.rosa, angle: 90 } }
         ];
 
         let playerData = null;
@@ -218,8 +304,10 @@
                     document.getElementById('mainContent').style.display = 'flex';
                     
                     if (data.isVip) {
-                        document.getElementById('optCustomVIP').disabled = false;
-                        document.getElementById('optCustomVIP').innerText = "👕 Personalizado (VIP)";
+                        const lblVip = document.getElementById('lblVipCustom');
+                        const radioCustom = document.getElementById('radioCustom');
+                        lblVip.classList.remove('disabled');
+                        radioCustom.disabled = false;
                     }
 
                     llenarSelectKits();
@@ -228,6 +316,18 @@
                 }
             });
         };
+
+        function syncColorToText(idColor, idText) {
+            let hex = document.getElementById(idColor).value.toUpperCase().replace('#', '');
+            document.getElementById(idText).value = hex;
+        }
+
+        function syncTextToColor(idText, idColor) {
+            let hex = document.getElementById(idText).value.trim();
+            if (/^[0-9A-Fa-f]{6}$/i.test(hex)) {
+                document.getElementById(idColor).value = '#' + hex;
+            }
+        }
 
         function numToHex(num) {
             return "#" + num.toString(16).padStart(6, '0').toUpperCase();
@@ -242,51 +342,57 @@
             });
         }
 
-        function manejarKits() {
-            const val = document.getElementById('selKit').value;
-            const vipDiv = document.getElementById('vipColorsDiv');
-            
-            if (val === 'custom') {
-                vipDiv.style.display = 'block';
-                aplicarCustomKit();
+        function toggleKitMode() {
+            const mode = document.querySelector('input[name="kitMode"]:checked').value;
+            const selKit = document.getElementById('selKit');
+            const hcBox = document.getElementById('haxcolorsBox');
+
+            if (mode === 'server') {
+                selKit.style.display = 'block';
+                hcBox.style.display = 'none';
             } else {
-                vipDiv.style.display = 'none';
-                aplicarKitPredefinido(val);
+                selKit.style.display = 'none';
+                hcBox.style.display = 'block';
+            }
+            actualizarCarta();
+        }
+
+        function manejarKits() {
+            const mode = document.querySelector('input[name="kitMode"]:checked').value;
+            
+            if (mode === 'custom') {
+                dibujarAvatarHaxball(
+                    document.getElementById('colC1').value,
+                    document.getElementById('colC2').value,
+                    document.getElementById('colC3').value,
+                    document.getElementById('hc_angle').value,
+                    document.getElementById('colText').value
+                );
+            } else {
+                const val = document.getElementById('selKit').value;
+                let kitTarget;
+                if (val === "ToroHax_home") kitTarget = KIT_COLORS.find(k => k.name === "ToroHax").home;
+                else if (val === "ToroHax_away") kitTarget = KIT_COLORS.find(k => k.name === "ToroHax").away;
+                else {
+                    const parts = val.split('_');
+                    const kitObj = KIT_COLORS[parseInt(parts[0])];
+                    kitTarget = parts[1] === 'home' ? kitObj.home : kitObj.away;
+                }
+
+                dibujarAvatarHaxball(
+                    numToHex(kitTarget.colors[0]), 
+                    numToHex(kitTarget.colors[1]), 
+                    numToHex(kitTarget.colors[2]), 
+                    kitTarget.angle, 
+                    numToHex(kitTarget.text)
+                );
             }
         }
 
-        function aplicarKitPredefinido(val) {
-            let kitTarget;
-            if (val === "ToroHax_home") kitTarget = KIT_COLORS.find(k => k.name === "ToroHax").home;
-            else if (val === "ToroHax_away") kitTarget = KIT_COLORS.find(k => k.name === "ToroHax").away;
-            else {
-                const parts = val.split('_');
-                const kitObj = KIT_COLORS[parseInt(parts[0])];
-                kitTarget = parts[1] === 'home' ? kitObj.home : kitObj.away;
-            }
-
-            dibujarAvatarHaxball(
-                numToHex(kitTarget.colors[0]), 
-                numToHex(kitTarget.colors[1]), 
-                numToHex(kitTarget.colors[2]), 
-                kitTarget.angle, 
-                numToHex(kitTarget.text)
-            );
-        }
-
-        function aplicarCustomKit() {
-            dibujarAvatarHaxball(
-                document.getElementById('c1').value,
-                document.getElementById('c2').value,
-                document.getElementById('c3').value,
-                document.getElementById('cAngle').value,
-                document.getElementById('cText').value
-            );
-        }
-
-        function dibujarAvatarHaxball(c1, c2, c3, angle, textCol) {
+        function dibujarAvatarHaxball(c1, c2, c3, angleHax, textCol) {
             const avatar = document.getElementById('c_avatar');
-            avatar.style.background = `linear-gradient(${angle}deg, ${c1} 33.3%, ${c2} 33.3% 66.6%, ${c3} 66.6%)`;
+            const cssAngle = (parseInt(angleHax) || 0) + 90;
+            avatar.style.background = `linear-gradient(${cssAngle}deg, ${c1} 33.3%, ${c2} 33.3% 66.6%, ${c3} 66.6%)`;
             avatar.style.color = textCol;
         }
 
@@ -323,7 +429,12 @@
             const p_pasP = isTemp ? (playerData.temp_pasesPerdidos || 0) : (playerData.pasesPerdidos || 0);
             
             const elo = playerData.elo || 200;
-            const calcScale = (val, max) => Math.min(99, Math.max(1, Math.round((val / max) * 98 + 1)));
+            
+            const calcScale = (val, max) => {
+                let ratio = Math.min(1, Math.max(0, val / max));
+                let curved = Math.pow(ratio, 0.45);
+                return Math.min(99, Math.round(curved * 98 + 1));
+            };
 
             const golesPP = p_partidos > 0 ? p_goles / p_partidos : 0;
             const TIR = calcScale(golesPP, 2.0);
@@ -355,8 +466,6 @@
             document.getElementById('s_hab').innerText = HAB;
             document.getElementById('s_def').innerText = DEF;
             document.getElementById('s_gk').innerText = GK;
-            document.getElementById('s_elo').innerText = elo;
-
             document.getElementById('c_ovr').innerText = OVR;
             document.getElementById('c_pos').innerText = pos;
             document.getElementById('c_rank').innerText = getRankEmoji(elo, p_partidos);
