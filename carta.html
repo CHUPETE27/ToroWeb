@@ -22,24 +22,33 @@
 
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 6px; color: #fff; font-weight: bold; font-size: 0.95rem;}
-        .form-group select, .form-group input[type="text"], .form-group input[type="number"] { width: 100%; background: #000; border: 1px solid #444; color: white; padding: 10px 15px; border-radius: 8px; outline: none; transition: 0.2s; font-size: 1rem;}
+        
+        .form-group select {
+            width: 100%; padding: 12px 15px; font-size: 1rem; color: #fff; background-color: #1a1a1a;
+            border: 1px solid #444; border-radius: 8px; outline: none; cursor: pointer; transition: 0.2s;
+            appearance: none; -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFD342' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat; background-position: right 15px center; background-size: 15px;
+        }
+        .form-group input[type="text"], .form-group input[type="number"] { width: 100%; background: #1a1a1a; border: 1px solid #444; color: white; padding: 12px 15px; border-radius: 8px; outline: none; transition: 0.2s; font-size: 1rem;}
         .form-group select:focus, .form-group input[type="text"]:focus { border-color: #FFD342; box-shadow: 0 0 10px rgba(255, 211, 66, 0.2);}
+        .form-group select option { background: #1a1a1a; color: #fff; }
 
-        .radio-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; border: 1px solid #333;}
-        .radio-label { display: flex; align-items: center; gap: 10px; cursor: pointer; color: #fff; font-size: 0.95rem; font-weight: bold;}
-        .radio-label input[type="radio"] { cursor: pointer; accent-color: #FFD342; width: 18px; height: 18px; margin: 0; }
+        .radio-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; border: 1px solid #333;}
+        .radio-label { display: flex; align-items: center; cursor: pointer; color: #fff; font-size: 0.95rem; font-weight: bold; line-height: 1;}
+        .radio-label input[type="radio"] { cursor: pointer; accent-color: #FFD342; width: 18px; height: 18px; margin: 0 10px 0 0; }
+        .radio-label span { display: flex; align-items: center; }
         .radio-label.disabled { color: #555; cursor: not-allowed; }
         .radio-label.disabled input[type="radio"] { cursor: not-allowed; filter: grayscale(1); }
 
-        .haxcolors-box { background: #4a3b32; border: 2px solid #332720; border-radius: 8px; padding: 15px; color: white; font-family: 'Arial', sans-serif; display: none; box-shadow: inset 0 0 15px rgba(0,0,0,0.5);}
+        .haxcolors-box { background: #b89947; border: 2px solid #8f7431; border-radius: 8px; padding: 15px; color: white; font-family: 'Arial', sans-serif; display: none; box-shadow: inset 0 0 15px rgba(0,0,0,0.3), 0 5px 15px rgba(0,0,0,0.4);}
         .hc-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .hc-label { font-size: 0.95rem; font-weight: bold; color: #f0f0f0; }
+        .hc-label { font-size: 0.95rem; font-weight: bold; color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);}
         
-        .hc-input-group { display: flex; align-items: center; background: #fff; border-radius: 4px; padding: 2px; overflow: hidden; border: 1px solid #111;}
-        .hc-hash { color: #555; padding-left: 8px; font-weight: bold; font-family: monospace; font-size: 1rem;}
-        .hc-text { border: none !important; outline: none; padding: 6px; width: 65px !important; font-family: monospace; font-weight: bold; text-transform: uppercase; font-size: 0.95rem; color: #000 !important; background: transparent !important; border-radius: 0 !important;}
-        .hc-color { width: 35px; height: 28px; border: none; cursor: pointer; padding: 0; background: transparent;}
-        .hc-angle { width: 65px !important; padding: 6px !important; border: 1px solid #222 !important; outline: none; background: white !important; color: black !important; font-weight: bold; text-align: center; border-radius: 4px !important;}
+        .hc-combo-input { display: flex; align-items: center; border: 2px solid #fff; border-radius: 5px; height: 34px; overflow: hidden; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.5);}
+        .hc-text-bg { width: 75px; height: 100%; border: none; outline: none; text-align: center; font-family: monospace; font-weight: bold; font-size: 1rem; color: white; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; text-transform: uppercase;}
+        .hc-color-picker { width: 30px; height: 100%; border: none; padding: 0; cursor: pointer; background: transparent; border-left: 1px solid #ccc;}
+        .hc-angle { width: 75px !important; height: 34px; padding: 5px !important; border: 2px solid #fff !important; outline: none; background: white !important; color: black !important; font-weight: bold; text-align: center; border-radius: 5px !important; box-shadow: 0 2px 5px rgba(0,0,0,0.5);}
 
         .btn-descargar { width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.1rem; border: none; background: #FFD342; color: #111; display: flex; justify-content: center; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 1px;}
         .btn-descargar:hover { background: #ffdf73; box-shadow: 0 0 20px rgba(255, 211, 66, 0.4); transform: translateY(-2px); }
@@ -63,8 +72,6 @@
         .fifa-card.temporada {
             background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 10px, transparent 10px, transparent 20px), linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 100%);
         }
-        .temporada-badge { display: none; position: absolute; top: 22px; right: -35px; background: #111; color: #FFD342; font-weight: bold; font-size: 0.75rem; padding: 5px 40px; transform: rotate(45deg); z-index: 10; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 2px 10px rgba(0,0,0,0.8); border-bottom: 2px solid #FFD342;}
-        .fifa-card.temporada .temporada-badge { display: block; }
 
         .fifa-card::before {
             content: ''; position: absolute; top: 0; left: -50%; width: 100%; height: 100%;
@@ -93,7 +100,6 @@
         .card-name { font-size: 1.8rem; font-weight: 900; text-transform: uppercase; margin: 15px 0 5px 0; letter-spacing: 1px; z-index: 2; width: 100%; text-align: center; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 5px;}
         .card-plata .card-name, .card-oro .card-name { border-bottom-color: rgba(0,0,0,0.2); }
         .card-gris .card-name, .card-bronce .card-name, .card-leyenda .card-name { border-bottom-color: rgba(255,255,255,0.3); }
-
         .card-stats { display: flex; flex-direction: column; width: 100%; padding: 0 15px; z-index: 2; margin-top: 5px;}
         .stats-grid { display: flex; justify-content: center; width: 100%; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 10px;}
         .card-plata .stats-grid, .card-oro .stats-grid { border-top-color: rgba(0,0,0,0.2); }
@@ -107,8 +113,9 @@
         .stat-item { display: flex; gap: 8px; font-size: 1.25rem; align-items: center;}
         .stat-val { font-weight: 900; width: 30px; text-align: right; }
         .stat-label { font-weight: bold; opacity: 0.8; }
-        
-        .stat-gk-row { display: flex; justify-content: center; font-size: 1.25rem; margin-top: 8px; gap: 8px; }
+
+        .stat-gk-wrapper { display: flex; justify-content: center; margin-top: 8px; width: 100%; }
+        .stat-gk-wrapper .stat-item { justify-content: center; }
     </style>
 </head>
 <body>
@@ -116,7 +123,6 @@
 
     <main>
         <div class="carta-wrapper" style="display: none;" id="mainContent">
-            
             <div class="controles-box">
                 <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Crea tu Carta</h3>
 
@@ -130,7 +136,7 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group" style="margin-bottom: 0;">
                         <label>Posición</label>
                         <select id="selPos" onchange="actualizarCarta()">
                             <option value="DEL">Delantero (DEL)</option>
@@ -148,11 +154,11 @@
                         <div class="radio-group">
                             <label class="radio-label">
                                 <input type="radio" name="kitMode" value="server" checked onchange="toggleKitMode()"> 
-                                Equipos
+                                <span>Equipos</span>
                             </label>
                             <label class="radio-label disabled" id="lblVipCustom">
                                 <input type="radio" name="kitMode" value="custom" id="radioCustom" onchange="toggleKitMode()" disabled> 
-                                <span><i class="fa-solid fa-gem" style="color: #FFD342; margin-right: 5px;"></i> Personalizado (VIP)</span>
+                                <span><i class="fa-solid fa-gem" style="color: #FFD342; margin-right: 8px;"></i> Personalizado (VIP)</span>
                             </label>
                         </div>
 
@@ -167,55 +173,50 @@
                                 <input type="number" id="hc_angle" class="hc-angle" value="60" oninput="actualizarCarta()">
                             </div>
                             <div class="hc-row">
-                                <span class="hc-label">text color</span>
-                                <div class="hc-input-group">
-                                    <span class="hc-hash">#</span>
-                                    <input type="text" id="txtTextCol" class="hc-text" value="FFFFFF" maxlength="6" oninput="syncTextToColor('txtTextCol', 'colText'); actualizarCarta();">
-                                    <input type="color" id="colText" class="hc-color" value="#FFFFFF" oninput="syncColorToText('colText', 'txtTextCol'); actualizarCarta();">
+                                <span class="hc-label">avatar color</span>
+                                <div class="hc-combo-input">
+                                    <input type="text" id="txtTextCol" class="hc-text-bg" value="FFFFFF" maxlength="6" style="background-color: #FFFFFF;" oninput="syncTextToBg('txtTextCol', 'colText'); actualizarCarta();">
+                                    <input type="color" id="colText" class="hc-color-picker" value="#FFFFFF" oninput="syncBgToText('colText', 'txtTextCol'); actualizarCarta();">
                                 </div>
                             </div>
-                            <hr style="border: 1px solid #332720; margin: 15px 0;">
+                            <hr style="border: 1px solid #8f7431; margin: 15px 0;">
                             <div class="hc-row">
                                 <span class="hc-label">color 1</span>
-                                <div class="hc-input-group">
-                                    <span class="hc-hash">#</span>
-                                    <input type="text" id="txtC1" class="hc-text" value="FF0000" maxlength="6" oninput="syncTextToColor('txtC1', 'colC1'); actualizarCarta();">
-                                    <input type="color" id="colC1" class="hc-color" value="#FF0000" oninput="syncColorToText('colC1', 'txtC1'); actualizarCarta();">
+                                <div class="hc-combo-input">
+                                    <input type="text" id="txtC1" class="hc-text-bg" value="0080FF" maxlength="6" style="background-color: #0080FF;" oninput="syncTextToBg('txtC1', 'colC1'); actualizarCarta();">
+                                    <input type="color" id="colC1" class="hc-color-picker" value="#0080FF" oninput="syncBgToText('colC1', 'txtC1'); actualizarCarta();">
                                 </div>
                             </div>
                             <div class="hc-row">
                                 <span class="hc-label">color 2</span>
-                                <div class="hc-input-group">
-                                    <span class="hc-hash">#</span>
-                                    <input type="text" id="txtC2" class="hc-text" value="000000" maxlength="6" oninput="syncTextToColor('txtC2', 'colC2'); actualizarCarta();">
-                                    <input type="color" id="colC2" class="hc-color" value="#000000" oninput="syncColorToText('colC2', 'txtC2'); actualizarCarta();">
+                                <div class="hc-combo-input">
+                                    <input type="text" id="txtC2" class="hc-text-bg" value="004077" maxlength="6" style="background-color: #004077;" oninput="syncTextToBg('txtC2', 'colC2'); actualizarCarta();">
+                                    <input type="color" id="colC2" class="hc-color-picker" value="#004077" oninput="syncBgToText('colC2', 'txtC2'); actualizarCarta();">
                                 </div>
                             </div>
                             <div class="hc-row">
                                 <span class="hc-label">color 3</span>
-                                <div class="hc-input-group">
-                                    <span class="hc-hash">#</span>
-                                    <input type="text" id="txtC3" class="hc-text" value="FF0000" maxlength="6" oninput="syncTextToColor('txtC3', 'colC3'); actualizarCarta();">
-                                    <input type="color" id="colC3" class="hc-color" value="#FF0000" oninput="syncColorToText('colC3', 'txtC3'); actualizarCarta();">
+                                <div class="hc-combo-input">
+                                    <input type="text" id="txtC3" class="hc-text-bg" value="002033" maxlength="6" style="background-color: #002033;" oninput="syncTextToBg('txtC3', 'colC3'); actualizarCarta();">
+                                    <input type="color" id="colC3" class="hc-color-picker" value="#002033" oninput="syncBgToText('colC3', 'txtC3'); actualizarCarta();">
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="form-group" style="margin-bottom: 0;">
-                        <label>Texto del Avatar (Max 2)</label>
-                        <input type="text" id="txtAvatar" maxlength="2" value="10" oninput="actualizarAvatarTexto()" placeholder="Ej: 10">
+                        <label>Texto del Avatar</label>
+                        <input type="text" id="txtAvatar" maxlength="2" value="10" oninput="actualizarAvatarTexto()" placeholder="Ej: 10 o LM">
                     </div>
                 </div>
 
                 <button class="btn-descargar" onclick="descargarCarta()">
-                    <i class="fa-solid fa-download"></i> Guardar Imagen
+                    <i class="fa-solid fa-download"></i> Descargar Carta
                 </button>
             </div>
 
             <div class="preview-container">
                 <div class="fifa-card card-oro" id="cartaFifa">
-                    <div class="temporada-badge">Temporada</div>
                     <div class="card-top">
                         <div class="card-info-left">
                             <div class="card-ovr" id="c_ovr">99</div>
@@ -243,8 +244,8 @@
                                 <div class="stat-item"><span class="stat-val" id="s_def">99</span> <span class="stat-label">DEF</span></div>
                             </div>
                         </div>
-                        <div class="stat-gk-row">
-                            <span class="stat-val" id="s_gk">99</span> <span class="stat-label">GK</span>
+                        <div class="stat-gk-wrapper">
+                            <div class="stat-item"><span class="stat-val" id="s_gk">99</span> <span class="stat-label">GK</span></div>
                         </div>
                     </div>
                 </div>
@@ -341,15 +342,19 @@
             });
         };
 
-        function syncColorToText(idColor, idText) {
-            let hex = document.getElementById(idColor).value.toUpperCase().replace('#', '');
-            document.getElementById(idText).value = hex;
+        function syncBgToText(idColor, idText) {
+            let col = document.getElementById(idColor).value.toUpperCase();
+            let txt = document.getElementById(idText);
+            txt.value = col.replace('#', '');
+            txt.style.backgroundColor = col;
         }
 
-        function syncTextToColor(idText, idColor) {
-            let hex = document.getElementById(idText).value.trim();
-            if (/^[0-9A-Fa-f]{6}$/i.test(hex)) {
+        function syncTextToBg(idText, idColor) {
+            let txt = document.getElementById(idText);
+            let hex = txt.value.trim().toUpperCase();
+            if (/^[0-9A-F]{6}$/i.test(hex)) {
                 document.getElementById(idColor).value = '#' + hex;
+                txt.style.backgroundColor = '#' + hex;
             }
         }
 
@@ -496,7 +501,7 @@
             document.getElementById('c_rank').innerText = getRankEmoji(elo, p_partidos);
 
             const cartaDOM = document.getElementById('cartaFifa');
-
+            
             cartaDOM.className = "fifa-card";
             if (isTemp) cartaDOM.classList.add("temporada");
             
