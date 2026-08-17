@@ -13,34 +13,37 @@
         * { box-sizing: border-box; }
         body { overflow-x: hidden; background-color: #0a0a0a; color: white; margin: 0; padding: 0; }
         
-        .carta-wrapper { display: flex; flex-wrap: wrap; width: 95%; max-width: 1200px; margin: 10vh auto 50px; gap: 30px; justify-content: center; align-items: flex-start; }
+        .carta-wrapper { display: flex; flex-wrap: wrap; width: 95%; max-width: 1200px; margin: 8vh auto 50px; gap: 40px; justify-content: center; align-items: flex-start; }
+        .controles-box { flex: 1; min-width: 320px; max-width: 450px; background: rgba(15, 15, 15, 0.95); border: 1px solid #333; border-radius: 15px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .controles-box h3 { color: #FFD342; border-bottom: 2px solid #333; padding-bottom: 15px; margin-top: 0; text-transform: uppercase; text-align: center; letter-spacing: 1px;}
         
-        .controles-box { flex: 1; min-width: 300px; max-width: 450px; background: rgba(20, 20, 20, 0.9); border: 1px solid #333; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
-        .controles-box h3 { color: #FFD342; border-bottom: 1px solid #333; padding-bottom: 10px; margin-top: 0; text-transform: uppercase; text-align: center; }
+        .control-section { background: rgba(255,255,255,0.02); border: 1px solid #222; border-radius: 10px; padding: 15px; margin-bottom: 20px;}
+        .section-title { color: #bdc3c7; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;}
 
         .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; color: #bdc3c7; font-weight: bold; font-size: 0.9rem;}
-        .form-group select, .form-group input[type="text"], .form-group input[type="number"] { width: 100%; background: #111; border: 1px solid #444; color: white; padding: 10px; border-radius: 8px; outline: none; transition: 0.2s;}
-        .form-group select:focus, .form-group input[type="text"]:focus { border-color: #FFD342; }
+        .form-group label { display: block; margin-bottom: 6px; color: #fff; font-weight: bold; font-size: 0.95rem;}
+        .form-group select, .form-group input[type="text"], .form-group input[type="number"] { width: 100%; background: #000; border: 1px solid #444; color: white; padding: 10px 15px; border-radius: 8px; outline: none; transition: 0.2s; font-size: 1rem;}
+        .form-group select:focus, .form-group input[type="text"]:focus { border-color: #FFD342; box-shadow: 0 0 10px rgba(255, 211, 66, 0.2);}
 
-        .radio-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 10px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px; border: 1px dashed #444;}
-        .radio-label { display: flex; align-items: center; gap: 8px; cursor: pointer; color: #fff; font-size: 0.95rem; }
+        .radio-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; background: rgba(0,0,0,0.4); padding: 12px; border-radius: 8px; border: 1px solid #333;}
+        .radio-label { display: flex; align-items: center; gap: 10px; cursor: pointer; color: #fff; font-size: 0.95rem; font-weight: bold;}
         .radio-label input[type="radio"] { cursor: pointer; accent-color: #FFD342; width: 18px; height: 18px; margin: 0; }
         .radio-label.disabled { color: #555; cursor: not-allowed; }
         .radio-label.disabled input[type="radio"] { cursor: not-allowed; filter: grayscale(1); }
 
-        .haxcolors-box { background: #5a4b3d; border: 2px solid #3a3026; border-radius: 8px; padding: 15px; color: white; font-family: 'Arial', sans-serif; display: none; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);}
-        .hc-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .hc-label { font-size: 0.9rem; font-weight: normal; color: #e6e6e6; }
-        .hc-input-group { display: flex; align-items: center; gap: 5px; }
-        .hc-text { width: 75px; padding: 5px; border: 1px solid #222; outline: none; text-transform: uppercase; font-family: monospace; background: white; color: black; font-weight: bold; font-size: 0.9rem;}
-        .hc-color { width: 35px; height: 28px; padding: 0; border: 1px solid #222; cursor: pointer; background: #fff;}
-        .hc-angle { width: 60px; padding: 5px; border: 1px solid #222; outline: none; background: white; color: black; font-weight: bold; text-align: center;}
-
-        .btn-descargar { width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.1rem; border: none; background: #2df2c1; color: #111; margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 10px; }
-        .btn-descargar:hover { background: #40ffce; box-shadow: 0 0 15px rgba(45, 242, 193, 0.4); transform: scale(1.02); }
+        .haxcolors-box { background: #4a3b32; border: 2px solid #332720; border-radius: 8px; padding: 15px; color: white; font-family: 'Arial', sans-serif; display: none; box-shadow: inset 0 0 15px rgba(0,0,0,0.5);}
+        .hc-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .hc-label { font-size: 0.95rem; font-weight: bold; color: #f0f0f0; }
         
-        .preview-box { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .hc-input-group { display: flex; align-items: center; background: #fff; border-radius: 4px; padding: 2px; overflow: hidden; border: 1px solid #111;}
+        .hc-hash { color: #555; padding-left: 8px; font-weight: bold; font-family: monospace; font-size: 1rem;}
+        .hc-text { border: none !important; outline: none; padding: 6px; width: 65px !important; font-family: monospace; font-weight: bold; text-transform: uppercase; font-size: 0.95rem; color: #000 !important; background: transparent !important; border-radius: 0 !important;}
+        .hc-color { width: 35px; height: 28px; border: none; cursor: pointer; padding: 0; background: transparent;}
+        .hc-angle { width: 65px !important; padding: 6px !important; border: 1px solid #222 !important; outline: none; background: white !important; color: black !important; font-weight: bold; text-align: center; border-radius: 4px !important;}
+
+        .btn-descargar { width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.1rem; border: none; background: #FFD342; color: #111; display: flex; justify-content: center; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 1px;}
+        .btn-descargar:hover { background: #ffdf73; box-shadow: 0 0 20px rgba(255, 211, 66, 0.4); transform: translateY(-2px); }
+        .preview-container { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 20px;}
         
         .fifa-card { 
             position: relative; width: 320px; height: 480px; 
@@ -48,7 +51,7 @@
             display: flex; flex-direction: column; align-items: center; 
             padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
             font-family: 'Arial', sans-serif; overflow: hidden;
-            transition: background 0.5s ease;
+            transition: all 0.5s ease;
         }
 
         .card-gris { background: linear-gradient(135deg, #4b4b4b 0%, #2c2c2c 100%); color: #fff; border: 2px solid #5a5a5a; }
@@ -56,6 +59,12 @@
         .card-plata { background: linear-gradient(135deg, #e0e0e0 0%, #9e9e9e 100%); color: #111; border: 2px solid #fff; }
         .card-oro { background: linear-gradient(135deg, #ffe066 0%, #d4af37 50%, #aa8014 100%); color: #222; border: 2px solid #fff3a1; }
         .card-leyenda { background: linear-gradient(135deg, #ff007f, #7f00ff, #00d4ff); color: #fff; border: 2px solid #fff; box-shadow: 0 0 30px rgba(127, 0, 255, 0.8); }
+
+        .fifa-card.temporada {
+            background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 10px, transparent 10px, transparent 20px), linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 100%);
+        }
+        .temporada-badge { display: none; position: absolute; top: 22px; right: -35px; background: #111; color: #FFD342; font-weight: bold; font-size: 0.75rem; padding: 5px 40px; transform: rotate(45deg); z-index: 10; text-transform: uppercase; letter-spacing: 2px; box-shadow: 0 2px 10px rgba(0,0,0,0.8); border-bottom: 2px solid #FFD342;}
+        .fifa-card.temporada .temporada-badge { display: block; }
 
         .fifa-card::before {
             content: ''; position: absolute; top: 0; left: -50%; width: 100%; height: 100%;
@@ -85,11 +94,21 @@
         .card-plata .card-name, .card-oro .card-name { border-bottom-color: rgba(0,0,0,0.2); }
         .card-gris .card-name, .card-bronce .card-name, .card-leyenda .card-name { border-bottom-color: rgba(255,255,255,0.3); }
 
-        .card-stats { display: grid; grid-template-columns: 1fr 1fr; width: 100%; gap: 5px 20px; padding: 0 15px; z-index: 2; margin-top: 10px;}
-        .stat-item { display: flex; justify-content: space-between; font-size: 1.2rem; }
-        .stat-item.gk-center { grid-column: 1 / -1; justify-content: center; gap: 15px; }
-        .stat-val { font-weight: 900; }
-        .stat-label { font-weight: bold; opacity: 0.8; margin-left: 5px; }
+        .card-stats { display: flex; flex-direction: column; width: 100%; padding: 0 15px; z-index: 2; margin-top: 5px;}
+        .stats-grid { display: flex; justify-content: center; width: 100%; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 10px;}
+        .card-plata .stats-grid, .card-oro .stats-grid { border-top-color: rgba(0,0,0,0.2); }
+        .card-gris .stats-grid, .card-bronce .stats-grid, .card-leyenda .stats-grid { border-top-color: rgba(255,255,255,0.3); }
+        
+        .stats-col { display: flex; flex-direction: column; flex: 1; padding: 0 15px; gap: 8px;}
+        .stats-divider { width: 1px; background: rgba(0,0,0,0.1); }
+        .card-plata .stats-divider, .card-oro .stats-divider { background: rgba(0,0,0,0.2); }
+        .card-gris .stats-divider, .card-bronce .stats-divider, .card-leyenda .stats-divider { background: rgba(255,255,255,0.3); }
+
+        .stat-item { display: flex; gap: 8px; font-size: 1.25rem; align-items: center;}
+        .stat-val { font-weight: 900; width: 30px; text-align: right; }
+        .stat-label { font-weight: bold; opacity: 0.8; }
+        
+        .stat-gk-row { display: flex; justify-content: center; font-size: 1.25rem; margin-top: 8px; gap: 8px; }
     </style>
 </head>
 <body>
@@ -97,94 +116,106 @@
 
     <main>
         <div class="carta-wrapper" style="display: none;" id="mainContent">
+            
             <div class="controles-box">
-                <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Crear tu Carta</h3>
+                <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Crea tu Carta</h3>
 
-                <div class="form-group">
-                    <label>Tipo de carta</label>
-                    <select id="selModo" onchange="actualizarCarta()">
-                        <option value="hist">Histórico</option>
-                        <option value="temp">Temporada</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Posición</label>
-                    <select id="selPos" onchange="actualizarCarta()">
-                        <option value="DEL">Delantero (DEL)</option>
-                        <option value="MED">Mediocampista (MED)</option>
-                        <option value="DEF">Defensa (DEF)</option>
-                        <option value="GK">Arquero (GK)</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label>Diseño de la Camiseta</label>
-                    <div class="radio-group">
-                        <label class="radio-label">
-                            <input type="radio" name="kitMode" value="server" checked onchange="toggleKitMode()"> 
-                            Equipos del Servidor
-                        </label>
-                        <label class="radio-label disabled" id="lblVipCustom">
-                            <input type="radio" name="kitMode" value="custom" id="radioCustom" onchange="toggleKitMode()" disabled> 
-                            <i class="fa-solid fa-gem" style="color: #FFD342;"></i> Personalizado (Solo VIP)
-                        </label>
+                <div class="control-section">
+                    <div class="section-title"><i class="fa-solid fa-chart-simple"></i> Atributos</div>
+                    <div class="form-group">
+                        <label>Tipo de carta</label>
+                        <select id="selModo" onchange="actualizarCarta()">
+                            <option value="hist">Histórico</option>
+                            <option value="temp">Temporada</option>
+                        </select>
                     </div>
 
-                    <select id="selKit" onchange="actualizarCarta()">
-                        <option value="ToroHax_home">ToroHax (Local)</option>
-                        <option value="ToroHax_away">ToroHax (Visita)</option>
-                    </select>
-
-                    <div class="haxcolors-box" id="haxcolorsBox">
-                        <div class="hc-row">
-                            <span class="hc-label">angle</span>
-                            <input type="number" id="hc_angle" class="hc-angle" value="60" oninput="actualizarCarta()">
-                        </div>
-                        <div class="hc-row">
-                            <span class="hc-label">avatar color</span>
-                            <div class="hc-input-group">
-                                <input type="text" id="txtTextCol" class="hc-text" value="FFFFFF" maxlength="6" oninput="syncTextToColor('txtTextCol', 'colText'); actualizarCarta();">
-                                <input type="color" id="colText" class="hc-color" value="#FFFFFF" oninput="syncColorToText('colText', 'txtTextCol'); actualizarCarta();">
-                            </div>
-                        </div>
-                        <hr style="border: 1px solid #4a3e32; margin: 15px 0;">
-                        <div class="hc-row">
-                            <span class="hc-label">color 1</span>
-                            <div class="hc-input-group">
-                                <input type="text" id="txtC1" class="hc-text" value="FF0000" maxlength="6" oninput="syncTextToColor('txtC1', 'colC1'); actualizarCarta();">
-                                <input type="color" id="colC1" class="hc-color" value="#FF0000" oninput="syncColorToText('colC1', 'txtC1'); actualizarCarta();">
-                            </div>
-                        </div>
-                        <div class="hc-row">
-                            <span class="hc-label">color 2</span>
-                            <div class="hc-input-group">
-                                <input type="text" id="txtC2" class="hc-text" value="000000" maxlength="6" oninput="syncTextToColor('txtC2', 'colC2'); actualizarCarta();">
-                                <input type="color" id="colC2" class="hc-color" value="#000000" oninput="syncColorToText('colC2', 'txtC2'); actualizarCarta();">
-                            </div>
-                        </div>
-                        <div class="hc-row">
-                            <span class="hc-label">color 3</span>
-                            <div class="hc-input-group">
-                                <input type="text" id="txtC3" class="hc-text" value="FF0000" maxlength="6" oninput="syncTextToColor('txtC3', 'colC3'); actualizarCarta();">
-                                <input type="color" id="colC3" class="hc-color" value="#FF0000" oninput="syncColorToText('colC3', 'txtC3'); actualizarCarta();">
-                            </div>
-                        </div>
+                    <div class="form-group">
+                        <label>Posición</label>
+                        <select id="selPos" onchange="actualizarCarta()">
+                            <option value="DEL">Delantero (DEL)</option>
+                            <option value="MED">Mediocampista (MED)</option>
+                            <option value="DEF">Defensa (DEF)</option>
+                            <option value="GK">Arquero (GK)</option>
+                        </select>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Texto del Avatar</label>
-                    <input type="text" id="txtAvatar" maxlength="2" value="10" oninput="actualizarAvatarTexto()">
+                <div class="control-section">
+                    <div class="section-title"><i class="fa-solid fa-shirt"></i> Diseño de la Carta</div>
+                    <div class="form-group">
+                        <label>Diseño de la camiseta</label>
+                        <div class="radio-group">
+                            <label class="radio-label">
+                                <input type="radio" name="kitMode" value="server" checked onchange="toggleKitMode()"> 
+                                Equipos
+                            </label>
+                            <label class="radio-label disabled" id="lblVipCustom">
+                                <input type="radio" name="kitMode" value="custom" id="radioCustom" onchange="toggleKitMode()" disabled> 
+                                <span><i class="fa-solid fa-gem" style="color: #FFD342; margin-right: 5px;"></i> Personalizado (VIP)</span>
+                            </label>
+                        </div>
+
+                        <select id="selKit" onchange="actualizarCarta()">
+                            <option value="ToroHax_home">ToroHax (Local)</option>
+                            <option value="ToroHax_away">ToroHax (Visita)</option>
+                        </select>
+
+                        <div class="haxcolors-box" id="haxcolorsBox">
+                            <div class="hc-row">
+                                <span class="hc-label">angle</span>
+                                <input type="number" id="hc_angle" class="hc-angle" value="60" oninput="actualizarCarta()">
+                            </div>
+                            <div class="hc-row">
+                                <span class="hc-label">text color</span>
+                                <div class="hc-input-group">
+                                    <span class="hc-hash">#</span>
+                                    <input type="text" id="txtTextCol" class="hc-text" value="FFFFFF" maxlength="6" oninput="syncTextToColor('txtTextCol', 'colText'); actualizarCarta();">
+                                    <input type="color" id="colText" class="hc-color" value="#FFFFFF" oninput="syncColorToText('colText', 'txtTextCol'); actualizarCarta();">
+                                </div>
+                            </div>
+                            <hr style="border: 1px solid #332720; margin: 15px 0;">
+                            <div class="hc-row">
+                                <span class="hc-label">color 1</span>
+                                <div class="hc-input-group">
+                                    <span class="hc-hash">#</span>
+                                    <input type="text" id="txtC1" class="hc-text" value="FF0000" maxlength="6" oninput="syncTextToColor('txtC1', 'colC1'); actualizarCarta();">
+                                    <input type="color" id="colC1" class="hc-color" value="#FF0000" oninput="syncColorToText('colC1', 'txtC1'); actualizarCarta();">
+                                </div>
+                            </div>
+                            <div class="hc-row">
+                                <span class="hc-label">color 2</span>
+                                <div class="hc-input-group">
+                                    <span class="hc-hash">#</span>
+                                    <input type="text" id="txtC2" class="hc-text" value="000000" maxlength="6" oninput="syncTextToColor('txtC2', 'colC2'); actualizarCarta();">
+                                    <input type="color" id="colC2" class="hc-color" value="#000000" oninput="syncColorToText('colC2', 'txtC2'); actualizarCarta();">
+                                </div>
+                            </div>
+                            <div class="hc-row">
+                                <span class="hc-label">color 3</span>
+                                <div class="hc-input-group">
+                                    <span class="hc-hash">#</span>
+                                    <input type="text" id="txtC3" class="hc-text" value="FF0000" maxlength="6" oninput="syncTextToColor('txtC3', 'colC3'); actualizarCarta();">
+                                    <input type="color" id="colC3" class="hc-color" value="#FF0000" oninput="syncColorToText('colC3', 'txtC3'); actualizarCarta();">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label>Texto del Avatar (Max 2)</label>
+                        <input type="text" id="txtAvatar" maxlength="2" value="10" oninput="actualizarAvatarTexto()" placeholder="Ej: 10">
+                    </div>
                 </div>
 
                 <button class="btn-descargar" onclick="descargarCarta()">
-                    <i class="fa-solid fa-download"></i> Descargar Carta
+                    <i class="fa-solid fa-download"></i> Guardar Imagen
                 </button>
             </div>
 
-            <div class="preview-box">
+            <div class="preview-container">
                 <div class="fifa-card card-oro" id="cartaFifa">
+                    <div class="temporada-badge">Temporada</div>
                     <div class="card-top">
                         <div class="card-info-left">
                             <div class="card-ovr" id="c_ovr">99</div>
@@ -201,11 +232,20 @@
                     <div class="card-name" id="c_name">Nick</div>
 
                     <div class="card-stats">
-                        <div class="stat-item"><span class="stat-val" id="s_tir">99</span> <span class="stat-label">TIR</span></div>
-                        <div class="stat-item"><span class="stat-val" id="s_pas">99</span> <span class="stat-label">PAS</span></div>
-                        <div class="stat-item"><span class="stat-val" id="s_hab">99</span> <span class="stat-label">HAB</span></div>
-                        <div class="stat-item"><span class="stat-val" id="s_def">99</span> <span class="stat-label">DEF</span></div>
-                        <div class="stat-item gk-center"><span class="stat-val" id="s_gk">99</span> <span class="stat-label">GK</span></div>
+                        <div class="stats-grid">
+                            <div class="stats-col">
+                                <div class="stat-item"><span class="stat-val" id="s_tir">99</span> <span class="stat-label">TIR</span></div>
+                                <div class="stat-item"><span class="stat-val" id="s_pas">99</span> <span class="stat-label">PAS</span></div>
+                            </div>
+                            <div class="stats-divider"></div>
+                            <div class="stats-col">
+                                <div class="stat-item"><span class="stat-val" id="s_hab">99</span> <span class="stat-label">HAB</span></div>
+                                <div class="stat-item"><span class="stat-val" id="s_def">99</span> <span class="stat-label">DEF</span></div>
+                            </div>
+                        </div>
+                        <div class="stat-gk-row">
+                            <span class="stat-val" id="s_gk">99</span> <span class="stat-label">GK</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -220,30 +260,14 @@
 
     <script>
         const COLORS = {
-            blanco:        0xFFFFFF,
-            negro:         0x000000,
-            gris:          0x7d7d7d,
-            blanco_opaco:  0xbab8b8,
-            blanco_crema:  0xFFFEE8,
-            rojo:          0xCC2A2A,
-            azul:          0x2656c7,
-            celeste:       0x5dc8e8,
-            azul_claro:    0x5D8AA8,
-            azul_oscuro:   0x0a2445,
-            celeste_claro: 0xADFFFF,
-            granate:       0x6B1A1A,
-            amarillo:      0xF7D738,
-            dorado:        0xFFD342,
-            dorado_oscuro: 0xD3A778,
-            rosa:          0xFF69B4,
-            rosa_claro:    0xFFABE3,
-            verde:         0x00BA00,
-            verde_oscuro:  0x23703C,
-            verde_claro:   0x2ECC71,
-            naranja:       0xE07000,
-            morado:        0x8B45BA,
-            azul_morado:   0x374B99,
-            celeste_opaco: 0x95DBDB
+            blanco:        0xFFFFFF, negro:         0x000000, gris:          0x7d7d7d,
+            blanco_opaco:  0xbab8b8, blanco_crema:  0xFFFEE8, rojo:          0xCC2A2A,
+            azul:          0x2656c7, celeste:       0x5dc8e8, azul_claro:    0x5D8AA8,
+            azul_oscuro:   0x0a2445, celeste_claro: 0xADFFFF, granate:       0x6B1A1A,
+            amarillo:      0xF7D738, dorado:        0xFFD342, dorado_oscuro: 0xD3A778,
+            rosa:          0xFF69B4, rosa_claro:    0xFFABE3, verde:         0x00BA00,
+            verde_oscuro:  0x23703C, verde_claro:   0x2ECC71, naranja:       0xE07000,
+            morado:        0x8B45BA, azul_morado:   0x374B99, celeste_opaco: 0x95DBDB
         };
 
         const KIT_COLORS = [
@@ -450,7 +474,7 @@
             const HAB = calcScale(ptsPP, 300);
 
             const defPP = p_partidos > 0 ? p_int / p_partidos : 0;
-            const DEF = calcScale(defPP, 20.0);
+            const DEF = calcScale(defPP, 30.0);
 
             const gkPP = p_partidos > 0 ? p_ataj / p_partidos : 0;
             const GK = calcScale(gkPP, 5.0);
@@ -466,17 +490,21 @@
             document.getElementById('s_hab').innerText = HAB;
             document.getElementById('s_def').innerText = DEF;
             document.getElementById('s_gk').innerText = GK;
+
             document.getElementById('c_ovr').innerText = OVR;
             document.getElementById('c_pos').innerText = pos;
             document.getElementById('c_rank').innerText = getRankEmoji(elo, p_partidos);
 
             const cartaDOM = document.getElementById('cartaFifa');
+
             cartaDOM.className = "fifa-card";
-            if (OVR <= 49) cartaDOM.classList.add("card-gris");
-            else if (OVR <= 69) cartaDOM.classList.add("card-bronce");
-            else if (OVR <= 79) cartaDOM.classList.add("card-plata");
-            else if (OVR <= 89) cartaDOM.classList.add("card-oro");
-            else cartaDOM.classList.add("card-leyenda");
+            if (isTemp) cartaDOM.classList.add("temporada");
+            
+            if (OVR <= 49) { cartaDOM.classList.add("card-gris"); cartaDOM.style.setProperty('--bg-1', '#4b4b4b'); cartaDOM.style.setProperty('--bg-2', '#2c2c2c'); }
+            else if (OVR <= 69) { cartaDOM.classList.add("card-bronce"); cartaDOM.style.setProperty('--bg-1', '#cd7f32'); cartaDOM.style.setProperty('--bg-2', '#8b4513'); }
+            else if (OVR <= 79) { cartaDOM.classList.add("card-plata"); cartaDOM.style.setProperty('--bg-1', '#e0e0e0'); cartaDOM.style.setProperty('--bg-2', '#9e9e9e'); }
+            else if (OVR <= 89) { cartaDOM.classList.add("card-oro"); cartaDOM.style.setProperty('--bg-1', '#ffe066'); cartaDOM.style.setProperty('--bg-2', '#aa8014'); }
+            else { cartaDOM.classList.add("card-leyenda"); cartaDOM.style.setProperty('--bg-1', '#ff007f'); cartaDOM.style.setProperty('--bg-2', '#00d4ff'); }
 
             manejarKits();
         }
