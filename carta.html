@@ -12,11 +12,11 @@
     <style>
         * { box-sizing: border-box; }
         body { overflow-x: hidden; background-color: #0a0a0a; color: white; margin: 0; padding: 0; }
-        
+
         ::-webkit-scrollbar { width: 10px; }
-        ::-webkit-scrollbar-track { background: #0a0a0a; }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 5px; }
-        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        ::-webkit-scrollbar-track { background: #1a1a1a; border-radius: 5px;}
+        ::-webkit-scrollbar-thumb { background: #ffe680; border-radius: 5px; border: 2px solid #1a1a1a; }
+        ::-webkit-scrollbar-thumb:hover { background: #FFD342; }
 
         .carta-wrapper { display: flex; flex-wrap: wrap; width: 95%; max-width: 1200px; margin: 8vh auto 50px; gap: 40px; justify-content: center; align-items: flex-start; }
         
@@ -37,10 +37,11 @@
             background-repeat: no-repeat; background-position: right 15px center; background-size: 15px;
         }
         .form-group select option { background-color: #1a1a1a; color: #fff; padding: 12px; }
-        .form-group select option:hover, .form-group select option:checked { background-color: #0080ff; color: white; }
+        .form-group select option:checked { background: linear-gradient(#005f73, #005f73) !important; background-color: #005f73 !important; color: white !important; }
+        .form-group select option:hover { background: linear-gradient(#5dc8e8, #5dc8e8) !important; background-color: #5dc8e8 !important; color: #111 !important; }
 
         .form-group input[type="text"], .form-group input[type="number"] { width: 100%; background: #1a1a1a; border: 1px solid #444; color: white; padding: 12px 15px; border-radius: 8px; outline: none; transition: 0.2s; font-size: 1rem;}
-        .form-group select:focus, .form-group input[type="text"]:focus { border-color: #FFD342; box-shadow: 0 0 10px rgba(255, 211, 66, 0.2);}
+        .form-group select:focus, .form-group input[type="text"]:focus { border-color: #5dc8e8; box-shadow: 0 0 10px rgba(93, 200, 232, 0.2);}
 
         .radio-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; border: 1px solid #333;}
         .radio-label { display: flex; flex-direction: row; align-items: center; cursor: pointer; color: #fff; font-size: 0.95rem; font-weight: bold; line-height: 1; margin: 0; padding: 0;}
@@ -60,7 +61,6 @@
 
         .btn-descargar { width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.1rem; border: none; background: #FFD342; color: #111; display: flex; justify-content: center; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 1px;}
         .btn-descargar:hover { background: #ffdf73; box-shadow: 0 0 20px rgba(255, 211, 66, 0.4); transform: translateY(-2px); }
-        
         .preview-container { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 20px;}
         
         .fifa-card { 
@@ -69,28 +69,41 @@
             padding: 20px;
             font-family: 'Arial', sans-serif; overflow: hidden;
             transition: all 0.5s ease;
-            clip-path: polygon(10% 0, 90% 0, 100% 10%, 100% 82%, 50% 100%, 0 82%, 0 10%);
         }
 
-        .card-gris { background: linear-gradient(135deg, #4b4b4b 0%, #2c2c2c 100%); color: #fff; }
-        .card-bronce { background: linear-gradient(135deg, #cd7f32 0%, #8b4513 100%); color: #fff; }
-        .card-plata { background: linear-gradient(135deg, #e0e0e0 0%, #9e9e9e 100%); color: #111; }
-        .card-oro { background: linear-gradient(135deg, #ffe066 0%, #d4af37 50%, #aa8014 100%); color: #222; }
-        .card-leyenda { background: linear-gradient(135deg, #ff007f, #7f00ff, #00d4ff); color: #fff; }
+        .fifa-card.historico {
+            clip-path: polygon(10% 0, 90% 0, 100% 10%, 100% 82%, 50% 100%, 0 82%, 0 10%);
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(255,255,255,0.4) 0%, transparent 60%),
+                radial-gradient(rgba(0,0,0,0.15) 1.5px, transparent 1.5px),
+                linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 100%);
+            background-size: 100% 100%, 8px 8px, 100% 100%;
+        }
 
         .fifa-card.temporada {
-            clip-path: polygon(0 0, 100% 0, 100% 75%, 50% 100%, 0 75%);
-            background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0px, rgba(255,255,255,0.05) 10px, transparent 10px, transparent 20px), linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 100%);
+            clip-path: polygon(0 8%, 50% 0, 100% 8%, 100% 80%, 50% 100%, 0 80%);
+            background-image: 
+                radial-gradient(circle at 50% 80%, rgba(255,255,255,0.3) 0%, transparent 60%),
+                repeating-linear-gradient(45deg, transparent 0, transparent 8px, rgba(0,0,0,0.06) 8px, rgba(0,0,0,0.06) 16px),
+                repeating-linear-gradient(-45deg, transparent 0, transparent 8px, rgba(255,255,255,0.04) 8px, rgba(255,255,255,0.04) 16px),
+                linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 100%);
+            background-size: 100% 100%;
         }
 
+        .card-gris { color: #fff; }
+        .card-bronce { color: #fff; }
+        .card-plata { color: #111; }
+        .card-oro { color: #222; }
+        .card-leyenda { color: #fff; }
+
         .fifa-card::before {
-            content: ''; position: absolute; top: 0; left: -50%; width: 100%; height: 100%;
-            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
-            transform: skewX(-25deg); opacity: 0.5; pointer-events: none; z-index: 1;
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 40%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.05) 60%, rgba(255,255,255,0) 100%);
+            transform: rotate(35deg) translateY(-20%); opacity: 0.7; pointer-events: none; z-index: 1;
         }
 
         .card-top { display: flex; width: 100%; justify-content: space-between; align-items: flex-start; z-index: 2;}
-        .card-info-left { display: flex; flex-direction: column; align-items: center; width: 35%; }
+        .card-info-left { display: flex; flex-direction: column; align-items: center; width: 35%; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);}
         
         .card-ovr { font-size: 3.5rem; font-weight: 900; line-height: 1; letter-spacing: -2px; }
         .card-pos { font-size: 1.2rem; font-weight: bold; margin-bottom: 8px; }
@@ -104,22 +117,23 @@
             display: flex; justify-content: center; align-items: center;
             font-size: 4.5rem; font-weight: bold; color: white;
             box-shadow: inset 0 -10px 20px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.6);
-            text-transform: uppercase; margin-top: 10px;
+            text-transform: uppercase; margin-top: 15px; z-index: 2;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
         }
 
-        .card-name { font-size: 1.8rem; font-weight: 900; text-transform: uppercase; margin: 15px 0 5px 0; letter-spacing: 1px; z-index: 2; width: 100%; text-align: center; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 5px;}
+        .card-name { font-size: 1.8rem; font-weight: 900; text-transform: uppercase; margin: 15px 0 5px 0; letter-spacing: 1px; z-index: 2; width: 100%; text-align: center; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);}
         .card-plata .card-name, .card-oro .card-name { border-bottom-color: rgba(0,0,0,0.2); }
         .card-gris .card-name, .card-bronce .card-name, .card-leyenda .card-name { border-bottom-color: rgba(255,255,255,0.3); }
 
-        .card-stats { display: flex; flex-direction: column; width: 100%; padding: 0 15px; z-index: 2; margin-top: 5px;}
+        .card-stats { display: flex; flex-direction: column; width: 100%; padding: 0 15px; z-index: 2; margin-top: 5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);}
         .stats-grid { display: flex; justify-content: center; width: 100%; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 10px;}
         .card-plata .stats-grid, .card-oro .stats-grid { border-top-color: rgba(0,0,0,0.2); }
         .card-gris .stats-grid, .card-bronce .stats-grid, .card-leyenda .stats-grid { border-top-color: rgba(255,255,255,0.3); }
         
         .stats-col { display: flex; flex-direction: column; flex: 1; padding: 0 15px; gap: 8px;}
-        .stats-divider { width: 1px; background: rgba(0,0,0,0.1); }
-        .card-plata .stats-divider, .card-oro .stats-divider { background: rgba(0,0,0,0.2); }
-        .card-gris .stats-divider, .card-bronce .stats-divider, .card-leyenda .stats-divider { background: rgba(255,255,255,0.3); }
+        .stats-divider { width: 2px; background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.2), transparent); }
+        .card-plata .stats-divider, .card-oro .stats-divider { background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.3), transparent); }
+        .card-gris .stats-divider, .card-bronce .stats-divider, .card-leyenda .stats-divider { background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.4), transparent); }
 
         .stat-item { display: flex; gap: 8px; font-size: 1.25rem; align-items: center;}
         .stat-val { font-weight: 900; width: 30px; text-align: right; }
@@ -150,10 +164,10 @@
                     <div class="form-group" style="margin-bottom: 0;">
                         <label>Posición</label>
                         <select id="selPos" onchange="actualizarCarta()">
-                            <option value="DEL">Delantero (DEL)</option>
-                            <option value="MED">Mediocampista (MED)</option>
-                            <option value="DEF">Defensa (DEF)</option>
-                            <option value="GK">Arquero (GK)</option>
+                            <option value="DEL">Delantero</option>
+                            <option value="MED">Mediocampista</option>
+                            <option value="DEF">Defensa</option>
+                            <option value="GK">Arquero</option>
                         </select>
                     </div>
                 </div>
@@ -180,11 +194,11 @@
 
                         <div class="haxcolors-box" id="haxcolorsBox">
                             <div class="hc-row">
-                                <span class="hc-label">ángulo</span>
+                                <span class="hc-label">angle</span>
                                 <input type="number" id="hc_angle" class="hc-angle" value="60" oninput="actualizarCarta()">
                             </div>
                             <div class="hc-row">
-                                <span class="hc-label">color avatar</span>
+                                <span class="hc-label">avatar text</span>
                                 <div class="hc-combo-input">
                                     <input type="text" id="txtTextCol" class="hc-text-bg" value="FFFFFF" maxlength="6" style="background-color: #FFFFFF;" oninput="syncTextToBg('txtTextCol', 'colText'); actualizarCarta();">
                                     <input type="color" id="colText" class="hc-color-picker" value="#FFFFFF" oninput="syncBgToText('colText', 'txtTextCol'); actualizarCarta();">
@@ -227,7 +241,7 @@
             </div>
 
             <div class="preview-container">
-                <div class="fifa-card card-oro" id="cartaFifa">
+                <div class="fifa-card historico card-oro" id="cartaFifa">
                     <div class="card-top">
                         <div class="card-info-left">
                             <div class="card-ovr" id="c_ovr">99</div>
@@ -514,7 +528,11 @@
             const cartaDOM = document.getElementById('cartaFifa');
             
             cartaDOM.className = "fifa-card";
-            if (isTemp) cartaDOM.classList.add("temporada");
+            if (isTemp) {
+                cartaDOM.classList.add("temporada");
+            } else {
+                cartaDOM.classList.add("historico");
+            }
             
             if (OVR <= 49) { cartaDOM.classList.add("card-gris"); cartaDOM.style.setProperty('--bg-1', '#4b4b4b'); cartaDOM.style.setProperty('--bg-2', '#2c2c2c'); }
             else if (OVR <= 69) { cartaDOM.classList.add("card-bronce"); cartaDOM.style.setProperty('--bg-1', '#cd7f32'); cartaDOM.style.setProperty('--bg-2', '#8b4513'); }
