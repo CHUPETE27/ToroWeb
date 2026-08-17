@@ -62,6 +62,7 @@
         .btn-descargar { width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.1rem; border: none; background: #FFD342; color: #111; display: flex; justify-content: center; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 1px;}
         .btn-descargar:hover { background: #ffdf73; box-shadow: 0 0 20px rgba(255, 211, 66, 0.4); transform: translateY(-2px); }
         
+        /* ESTILOS DE LA CARTA FIFA */
         .preview-container { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 20px;}
         
         .fifa-card { 
@@ -74,12 +75,21 @@
             box-shadow: inset 0 0 15px rgba(0,0,0,0.3), 0 20px 50px rgba(0,0,0,0.8);
         }
 
+        /* Clase crucial: Desactiva los cortes en HTML para que el Script matemático lo corte perfectamente */
+        .fifa-card.exportando {
+            clip-path: none !important;
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+        }
+
         .card-gris { --bg-1: #4b4b4b; --bg-2: #2c2c2c; --border-col: #8c8c8c; color: #fff; }
         .card-bronce { --bg-1: #cd7f32; --bg-2: #8b4513; --border-col: #ffc28f; color: #fff; }
         .card-plata { --bg-1: #e0e0e0; --bg-2: #9e9e9e; --border-col: #ffffff; color: #111; }
         .card-oro { --bg-1: #ffe066; --bg-2: #aa8014; --border-col: #fff5ba; color: #222; }
         .card-leyenda { --bg-1: #ff007f; --bg-2: #00d4ff; --border-col: #ffffff; color: #fff; }
 
+        /* DISEÑO HISTÓRICO */
         .fifa-card.historico {
             clip-path: polygon(10% 0, 90% 0, 100% 10%, 100% 82%, 50% 100%, 0 82%, 0 10%);
             background-image: 
@@ -89,14 +99,14 @@
             background-size: 100% 100%, 8px 8px, 100% 100%;
         }
 
+        /* NUEVO DISEÑO TEMPORADA: Aura ascendente amigable con html2canvas */
         .fifa-card.temporada {
             clip-path: polygon(0 8%, 50% 0, 100% 8%, 100% 82%, 50% 100%, 0 82%);
             padding-top: 35px;
             background-image: 
-                radial-gradient(ellipse at 50% 100%, rgba(255, 255, 255, 0.5) 0%, transparent 50%),
-                radial-gradient(ellipse at 25% 90%, rgba(255, 255, 255, 0.3) 0%, transparent 60%),
-                radial-gradient(ellipse at 75% 90%, rgba(255, 255, 255, 0.3) 0%, transparent 60%),
-                repeating-radial-gradient(ellipse at 50% 110%, transparent 0, transparent 15px, rgba(0,0,0,0.1) 15px, rgba(0,0,0,0.1) 30px),
+                radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.6) 0%, transparent 50%),
+                radial-gradient(circle at 20% 90%, rgba(255, 255, 255, 0.3) 0%, transparent 40%),
+                radial-gradient(circle at 80% 90%, rgba(255, 255, 255, 0.3) 0%, transparent 40%),
                 linear-gradient(0deg, var(--bg-1) 0%, var(--bg-2) 100%);
             background-size: 100% 100%;
         }
@@ -135,7 +145,6 @@
         .card-gris .stats-grid, .card-bronce .stats-grid, .card-leyenda .stats-grid { border-top-color: rgba(255,255,255,0.3); }
         
         .stats-col { display: flex; flex-direction: column; flex: 1; padding: 0 15px; gap: 8px;}
-        
         .stats-divider { width: 2px; background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.2), transparent); }
         .card-plata .stats-divider, .card-oro .stats-divider { background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.3), transparent); }
         .card-gris .stats-divider, .card-bronce .stats-divider, .card-leyenda .stats-divider { background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.4), transparent); }
@@ -153,6 +162,7 @@
 
     <main>
         <div class="carta-wrapper" style="display: none;" id="mainContent">
+            
             <div class="controles-box">
                 <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Crea tu Carta</h3>
 
@@ -161,8 +171,8 @@
                     <div class="form-group">
                         <label>Evaluación</label>
                         <select id="selModo" onchange="actualizarCarta()">
-                            <option value="hist">Histórico</option>
-                            <option value="temp">Temporada</option>
+                            <option value="hist">Histórico (Carrera)</option>
+                            <option value="temp">Temporada Actual</option>
                         </select>
                     </div>
 
@@ -184,7 +194,7 @@
                         <div class="radio-group">
                             <label class="radio-label">
                                 <input type="radio" name="kitMode" value="server" checked onchange="toggleKitMode()"> 
-                                <span>Equipos</span>
+                                <span>Equipos del Servidor</span>
                             </label>
                             <label class="radio-label disabled" id="lblVipCustom">
                                 <input type="radio" name="kitMode" value="custom" id="radioCustom" onchange="toggleKitMode()" disabled> 
@@ -197,13 +207,14 @@
                             <option value="ToroHax_away">ToroHax (Visita)</option>
                         </select>
 
+                        <!-- Panel VIP -->
                         <div class="haxcolors-box" id="haxcolorsBox">
                             <div class="hc-row">
-                                <span class="hc-label">ángulo</span>
+                                <span class="hc-label">angle</span>
                                 <input type="number" id="hc_angle" class="hc-angle" value="60" oninput="actualizarCarta()">
                             </div>
                             <div class="hc-row">
-                                <span class="hc-label">color avatar</span>
+                                <span class="hc-label">avatar text</span>
                                 <div class="hc-combo-input">
                                     <input type="text" id="txtTextCol" class="hc-text-bg" value="FFFFFF" maxlength="6" style="background-color: #FFFFFF;" oninput="syncTextToBg('txtTextCol', 'colText'); actualizarCarta();">
                                     <input type="color" id="colText" class="hc-color-picker" value="#FFFFFF" oninput="syncBgToText('colText', 'txtTextCol'); actualizarCarta();">
@@ -539,11 +550,11 @@
                 cartaDOM.classList.add("historico");
             }
             
-            if (OVR <= 49) { cartaDOM.classList.add("card-gris"); cartaDOM.style.setProperty('--bg-1', '#4b4b4b'); cartaDOM.style.setProperty('--bg-2', '#2c2c2c'); }
-            else if (OVR <= 69) { cartaDOM.classList.add("card-bronce"); cartaDOM.style.setProperty('--bg-1', '#cd7f32'); cartaDOM.style.setProperty('--bg-2', '#8b4513'); }
-            else if (OVR <= 79) { cartaDOM.classList.add("card-plata"); cartaDOM.style.setProperty('--bg-1', '#e0e0e0'); cartaDOM.style.setProperty('--bg-2', '#9e9e9e'); }
-            else if (OVR <= 89) { cartaDOM.classList.add("card-oro"); cartaDOM.style.setProperty('--bg-1', '#ffe066'); cartaDOM.style.setProperty('--bg-2', '#aa8014'); }
-            else { cartaDOM.classList.add("card-leyenda"); cartaDOM.style.setProperty('--bg-1', '#ff007f'); cartaDOM.style.setProperty('--bg-2', '#00d4ff'); }
+            if (OVR <= 49) { cartaDOM.classList.add("card-gris"); cartaDOM.style.setProperty('--bg-1', '#4b4b4b'); cartaDOM.style.setProperty('--bg-2', '#2c2c2c'); cartaDOM.style.setProperty('--border-col', '#8c8c8c'); }
+            else if (OVR <= 69) { cartaDOM.classList.add("card-bronce"); cartaDOM.style.setProperty('--bg-1', '#cd7f32'); cartaDOM.style.setProperty('--bg-2', '#8b4513'); cartaDOM.style.setProperty('--border-col', '#ffc28f');}
+            else if (OVR <= 79) { cartaDOM.classList.add("card-plata"); cartaDOM.style.setProperty('--bg-1', '#e0e0e0'); cartaDOM.style.setProperty('--bg-2', '#9e9e9e'); cartaDOM.style.setProperty('--border-col', '#ffffff');}
+            else if (OVR <= 89) { cartaDOM.classList.add("card-oro"); cartaDOM.style.setProperty('--bg-1', '#ffe066'); cartaDOM.style.setProperty('--bg-2', '#aa8014'); cartaDOM.style.setProperty('--border-col', '#fff5ba');}
+            else { cartaDOM.classList.add("card-leyenda"); cartaDOM.style.setProperty('--bg-1', '#ff007f'); cartaDOM.style.setProperty('--bg-2', '#00d4ff'); cartaDOM.style.setProperty('--border-col', '#ffffff');}
 
             manejarKits();
         }
@@ -555,20 +566,62 @@
             btn.disabled = true;
 
             const cartaElement = document.getElementById('cartaFifa');
+            cartaElement.classList.add('exportando');
 
             html2canvas(cartaElement, {
                 scale: 3,
                 backgroundColor: null,
                 logging: false
             }).then(canvas => {
+                cartaElement.classList.remove('exportando');
+                const finalCanvas = document.createElement('canvas');
+                finalCanvas.width = canvas.width;
+                finalCanvas.height = canvas.height;
+                const ctx = finalCanvas.getContext('2d');
+
+                const isTemp = document.getElementById('selModo').value === 'temp';
+                const w = finalCanvas.width;
+                const h = finalCanvas.height;
+
+                ctx.beginPath();
+                if (isTemp) {
+                    ctx.moveTo(0, h * 0.08);
+                    ctx.lineTo(w * 0.5, 0);
+                    ctx.lineTo(w, h * 0.08);
+                    ctx.lineTo(w, h * 0.82);
+                    ctx.lineTo(w * 0.5, h);
+                    ctx.lineTo(0, h * 0.82);
+                } else {
+                    ctx.moveTo(w * 0.1, 0);
+                    ctx.lineTo(w * 0.9, 0);
+                    ctx.lineTo(w, h * 0.1);
+                    ctx.lineTo(w, h * 0.82);
+                    ctx.lineTo(w * 0.5, h);
+                    ctx.lineTo(0, h * 0.82);
+                    ctx.lineTo(0, h * 0.1);
+                }
+                ctx.closePath();
+
+                ctx.save();
+                ctx.clip();
+                ctx.drawImage(canvas, 0, 0);
+                ctx.restore();
+
+                const borderCol = getComputedStyle(cartaElement).getPropertyValue('--border-col').trim();
+                ctx.strokeStyle = borderCol || '#ffffff';
+                ctx.lineWidth = 12;
+                ctx.lineJoin = 'miter'; 
+                ctx.stroke();
+
                 const link = document.createElement('a');
                 link.download = `Carta_ToroHax_${playerData.name.replace(/\s+/g, '_')}.png`;
-                link.href = canvas.toDataURL('image/png');
+                link.href = finalCanvas.toDataURL('image/png');
                 link.click();
                 
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }).catch(err => {
+                cartaElement.classList.remove('exportando');
                 alert("Hubo un error al generar la imagen. Inténtalo desde un PC.");
                 btn.innerHTML = originalText;
                 btn.disabled = false;
