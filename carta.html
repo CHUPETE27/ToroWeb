@@ -12,7 +12,7 @@
     <style>
         * { box-sizing: border-box; }
         body { overflow-x: hidden; background-color: #0a0a0a; color: white; margin: 0; padding: 0; }
-
+        
         ::-webkit-scrollbar { width: 10px; }
         ::-webkit-scrollbar-track { background: #1a1a1a; border-radius: 5px;}
         ::-webkit-scrollbar-thumb { background: #ffe680; border-radius: 5px; border: 2px solid #1a1a1a; }
@@ -61,6 +61,7 @@
 
         .btn-descargar { width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.1rem; border: none; background: #FFD342; color: #111; display: flex; justify-content: center; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 1px;}
         .btn-descargar:hover { background: #ffdf73; box-shadow: 0 0 20px rgba(255, 211, 66, 0.4); transform: translateY(-2px); }
+        
         .preview-container { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 20px;}
         
         .fifa-card { 
@@ -69,7 +70,15 @@
             padding: 20px;
             font-family: 'Arial', sans-serif; overflow: hidden;
             transition: all 0.5s ease;
+            border: 4px solid var(--border-col, transparent);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.3), 0 20px 50px rgba(0,0,0,0.8);
         }
+
+        .card-gris { --bg-1: #4b4b4b; --bg-2: #2c2c2c; --border-col: #8c8c8c; color: #fff; }
+        .card-bronce { --bg-1: #cd7f32; --bg-2: #8b4513; --border-col: #ffc28f; color: #fff; }
+        .card-plata { --bg-1: #e0e0e0; --bg-2: #9e9e9e; --border-col: #ffffff; color: #111; }
+        .card-oro { --bg-1: #ffe066; --bg-2: #aa8014; --border-col: #fff5ba; color: #222; }
+        .card-leyenda { --bg-1: #ff007f; --bg-2: #00d4ff; --border-col: #ffffff; color: #fff; }
 
         .fifa-card.historico {
             clip-path: polygon(10% 0, 90% 0, 100% 10%, 100% 82%, 50% 100%, 0 82%, 0 10%);
@@ -81,20 +90,16 @@
         }
 
         .fifa-card.temporada {
-            clip-path: polygon(0 8%, 50% 0, 100% 8%, 100% 80%, 50% 100%, 0 80%);
+            clip-path: polygon(0 8%, 50% 0, 100% 8%, 100% 82%, 50% 100%, 0 82%);
+            padding-top: 35px;
             background-image: 
-                radial-gradient(circle at 50% 80%, rgba(255,255,255,0.3) 0%, transparent 60%),
-                repeating-linear-gradient(45deg, transparent 0, transparent 8px, rgba(0,0,0,0.06) 8px, rgba(0,0,0,0.06) 16px),
-                repeating-linear-gradient(-45deg, transparent 0, transparent 8px, rgba(255,255,255,0.04) 8px, rgba(255,255,255,0.04) 16px),
-                linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 100%);
+                radial-gradient(ellipse at 50% 100%, rgba(255, 255, 255, 0.5) 0%, transparent 50%),
+                radial-gradient(ellipse at 25% 90%, rgba(255, 255, 255, 0.3) 0%, transparent 60%),
+                radial-gradient(ellipse at 75% 90%, rgba(255, 255, 255, 0.3) 0%, transparent 60%),
+                repeating-radial-gradient(ellipse at 50% 110%, transparent 0, transparent 15px, rgba(0,0,0,0.1) 15px, rgba(0,0,0,0.1) 30px),
+                linear-gradient(0deg, var(--bg-1) 0%, var(--bg-2) 100%);
             background-size: 100% 100%;
         }
-
-        .card-gris { color: #fff; }
-        .card-bronce { color: #fff; }
-        .card-plata { color: #111; }
-        .card-oro { color: #222; }
-        .card-leyenda { color: #fff; }
 
         .fifa-card::before {
             content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
@@ -102,7 +107,7 @@
             transform: rotate(35deg) translateY(-20%); opacity: 0.7; pointer-events: none; z-index: 1;
         }
 
-        .card-top { display: flex; width: 100%; justify-content: space-between; align-items: flex-start; z-index: 2;}
+        .card-top { display: flex; width: 100%; justify-content: space-between; align-items: flex-start; z-index: 2; margin-top: 5px;}
         .card-info-left { display: flex; flex-direction: column; align-items: center; width: 35%; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);}
         
         .card-ovr { font-size: 3.5rem; font-weight: 900; line-height: 1; letter-spacing: -2px; }
@@ -117,8 +122,7 @@
             display: flex; justify-content: center; align-items: center;
             font-size: 4.5rem; font-weight: bold; color: white;
             box-shadow: inset 0 -10px 20px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.6);
-            text-transform: uppercase; margin-top: 15px; z-index: 2;
-            text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
+            text-transform: uppercase; margin-top: 10px; z-index: 2; text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
         }
 
         .card-name { font-size: 1.8rem; font-weight: 900; text-transform: uppercase; margin: 15px 0 5px 0; letter-spacing: 1px; z-index: 2; width: 100%; text-align: center; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);}
@@ -131,6 +135,7 @@
         .card-gris .stats-grid, .card-bronce .stats-grid, .card-leyenda .stats-grid { border-top-color: rgba(255,255,255,0.3); }
         
         .stats-col { display: flex; flex-direction: column; flex: 1; padding: 0 15px; gap: 8px;}
+        
         .stats-divider { width: 2px; background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.2), transparent); }
         .card-plata .stats-divider, .card-oro .stats-divider { background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.3), transparent); }
         .card-gris .stats-divider, .card-bronce .stats-divider, .card-leyenda .stats-divider { background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.4), transparent); }
@@ -154,7 +159,7 @@
                 <div class="control-section">
                     <div class="section-title"><i class="fa-solid fa-chart-simple"></i> Atributos</div>
                     <div class="form-group">
-                        <label>Tipo de carta</label>
+                        <label>Evaluación</label>
                         <select id="selModo" onchange="actualizarCarta()">
                             <option value="hist">Histórico</option>
                             <option value="temp">Temporada</option>
@@ -164,10 +169,10 @@
                     <div class="form-group" style="margin-bottom: 0;">
                         <label>Posición</label>
                         <select id="selPos" onchange="actualizarCarta()">
-                            <option value="DEL">Delantero</option>
-                            <option value="MED">Mediocampista</option>
-                            <option value="DEF">Defensa</option>
-                            <option value="GK">Arquero</option>
+                            <option value="DEL">Delantero (DEL)</option>
+                            <option value="MED">Mediocampista (MED)</option>
+                            <option value="DEF">Defensa (DEF)</option>
+                            <option value="GK">Arquero (GK)</option>
                         </select>
                     </div>
                 </div>
@@ -194,11 +199,11 @@
 
                         <div class="haxcolors-box" id="haxcolorsBox">
                             <div class="hc-row">
-                                <span class="hc-label">angle</span>
+                                <span class="hc-label">ángulo</span>
                                 <input type="number" id="hc_angle" class="hc-angle" value="60" oninput="actualizarCarta()">
                             </div>
                             <div class="hc-row">
-                                <span class="hc-label">avatar text</span>
+                                <span class="hc-label">color avatar</span>
                                 <div class="hc-combo-input">
                                     <input type="text" id="txtTextCol" class="hc-text-bg" value="FFFFFF" maxlength="6" style="background-color: #FFFFFF;" oninput="syncTextToBg('txtTextCol', 'colText'); actualizarCarta();">
                                     <input type="color" id="colText" class="hc-color-picker" value="#FFFFFF" oninput="syncBgToText('colText', 'txtTextCol'); actualizarCarta();">
