@@ -253,6 +253,21 @@
                 <p style="color: #bdc3c7; margin: 5px 0;"><strong>🔨 Baneado:</strong> <span id="modal_p_ban" style="font-weight: bold; background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 4px;">...</span></p>
             </div>
 
+            <div style="margin-bottom: 15px;">
+                <button class="alts-btn" id="btnWarnsToggle" onclick="toggleWarnsAccordion()">
+                    <span><i class="fa-solid fa-triangle-exclamation" style="color: #FFD342;"></i> Warns</span>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span id="warnsBadge" style="background: #cc2a2a; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; display: none;">0</span>
+                        <i class="fa-solid fa-chevron-down" id="warnsChevron"></i>
+                    </div>
+                </button>
+                <div class="alts-content" id="warnsContent">
+                    <ul id="modal_p_warns" class="player-list-room" style="border: none; max-height: none;">
+                        <li style="color: #7d7d7d; justify-content: center;"><i class="fa-solid fa-spinner fa-spin"></i> Revisando warns...</li>
+                    </ul>
+                </div>
+            </div>
+
             <div>
                 <button class="alts-btn" id="btnAltsToggle" onclick="toggleAltsAccordion()">
                     <span><i class="fa-solid fa-users"></i> Cuentas Adicionales (Misma IP)</span>
@@ -669,16 +684,18 @@
             document.getElementById('modal_p_ban').innerText = "...";
             document.getElementById('modal_p_ban').style.color = "white";
 
+            const warnsList = document.getElementById('modal_p_warns');
+            warnsList.innerHTML = '<li style="color: #7d7d7d; justify-content: center;"><i class="fa-solid fa-spinner fa-spin"></i> Revisando advertencias...</li>';
+            document.getElementById('warnsContent').style.display = 'none';
+            document.getElementById('btnWarnsToggle').classList.remove('active');
+            document.getElementById('warnsChevron').classList.replace('fa-chevron-up', 'fa-chevron-down');
+            document.getElementById('warnsBadge').style.display = 'none';
+
             const altsList = document.getElementById('modal_p_alts');
             altsList.innerHTML = '<li style="color: #7d7d7d; justify-content: center;"><i class="fa-solid fa-spinner fa-spin"></i> Revisando IP...</li>';
-            
-            const altsContent = document.getElementById('altsContent');
-            const btnToggle = document.getElementById('btnAltsToggle');
-            const chevron = document.getElementById('altsChevron');
-            altsContent.style.display = 'none';
-            btnToggle.classList.remove('active');
-            chevron.classList.remove('fa-chevron-up');
-            chevron.classList.add('fa-chevron-down');
+            document.getElementById('altsContent').style.display = 'none';
+            document.getElementById('btnAltsToggle').classList.remove('active');
+            document.getElementById('altsChevron').classList.replace('fa-chevron-up', 'fa-chevron-down');
 
             try {
                 const res = await fetch(`https://torobot-izu5.onrender.com/api/admin/player-details/${numericId}`);
@@ -710,6 +727,36 @@
                 banSpan.innerText = data.banStatus;
                 banSpan.style.color = data.banColor;
 
+                const warns = data.warns || p.warns || [];
+                const now = Date.now();
+                
+                const activeWarns = warns.filter(w => {
+                    const wTime = (typeof w === 'object' && w.date) ? new Date(w.date).getTime() : new Date(w).getTime();
+                    return !isNaN(wTime) && (now - wTime) < 86400000;
+                });
+
+                if (activeWarns.length > 0) {
+                    document.getElementById('warnsBadge').style.display = 'inline-block';
+                    document.getElementById('warnsBadge').innerText = activeWarns.length;
+                    warnsList.innerHTML = '';
+                    
+                    activeWarns.forEach((w, i) => {
+                        const reason = w.reason || "Comportamiento indebido";
+                        const wTime = (typeof w === 'object' && w.date) ? new Date(w.date).getTime() : new Date(w).getTime();
+                        const dateStr = !isNaN(wTime) ? new Date(wTime).toLocaleString('es-CL') : "Fecha desconocida";
+                        
+                        warnsList.innerHTML += `
+                            <li style="display:flex; flex-direction:column; padding:10px; border-bottom:1px dashed #444; align-items:flex-start;">
+                                <span style="color:#FFD342; font-weight:bold;"><i class="fa-solid fa-triangle-exclamation"></i> Advertencia #${i+1}</span>
+                                <span style="color:#bdc3c7; font-size:0.9rem; margin-top:5px;"><strong>Razón:</strong> ${reason}</span>
+                                <span style="color:#7d7d7d; font-size:0.8rem; margin-top:5px;"><i class="fa-regular fa-clock"></i> ${dateStr}</span>
+                            </li>
+                        `;
+                    });
+                } else {
+                    warnsList.innerHTML = '<li style="color: #2df2c1; justify-content: center;"><i class="fa-solid fa-check"></i> No tiene advertencias recientes (últimas 24h).</li>';
+                }
+
                 if (!p.ip) {
                     altsList.innerHTML = '<li style="color: #FFD342; justify-content: center;"><i class="fa-solid fa-triangle-exclamation"></i> No tiene IP registrada en el sistema.</li>';
                 } else if (data.alts.length === 0) {
@@ -731,21 +778,35 @@
             }
         }
 
+        function toggleWarnsAccordion() {
+            const content = document.getElementById('warnsContent');
+            const btn = document.getElementById('btnWarnsToggle');
+            const chevron = document.getElementById('warnsChevron');
+            
+            if (content.style.display === "none" || content.style.display === "") {
+                content.style.display = "block";
+                btn.classList.add('active');
+                chevron.classList.replace('fa-chevron-down', 'fa-chevron-up');
+            } else {
+                content.style.display = "none";
+                btn.classList.remove('active');
+                chevron.classList.replace('fa-chevron-up', 'fa-chevron-down');
+            }
+        }
+
         function toggleAltsAccordion() {
             const content = document.getElementById('altsContent');
             const btn = document.getElementById('btnAltsToggle');
             const chevron = document.getElementById('altsChevron');
             
-            if (content.style.display === "none") {
+            if (content.style.display === "none" || content.style.display === "") {
                 content.style.display = "block";
                 btn.classList.add('active');
-                chevron.classList.remove('fa-chevron-down');
-                chevron.classList.add('fa-chevron-up');
+                chevron.classList.replace('fa-chevron-down', 'fa-chevron-up');
             } else {
                 content.style.display = "none";
                 btn.classList.remove('active');
-                chevron.classList.remove('fa-chevron-up');
-                chevron.classList.add('fa-chevron-down');
+                chevron.classList.replace('fa-chevron-up', 'fa-chevron-down');
             }
         }
 
