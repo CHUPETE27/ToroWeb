@@ -685,7 +685,7 @@
             document.getElementById('modal_p_ban').style.color = "white";
 
             const warnsList = document.getElementById('modal_p_warns');
-            warnsList.innerHTML = '<li style="color: #7d7d7d; justify-content: center;"><i class="fa-solid fa-spinner fa-spin"></i> Revisando advertencias...</li>';
+            warnsList.innerHTML = '<li style="color: #7d7d7d; justify-content: center;"><i class="fa-solid fa-spinner fa-spin"></i> Revisando warns...</li>';
             document.getElementById('warnsContent').style.display = 'none';
             document.getElementById('btnWarnsToggle').classList.remove('active');
             document.getElementById('warnsChevron').classList.replace('fa-chevron-up', 'fa-chevron-down');
@@ -747,14 +747,14 @@
                         
                         warnsList.innerHTML += `
                             <li style="display:flex; flex-direction:column; padding:10px; border-bottom:1px dashed #444; align-items:flex-start;">
-                                <span style="color:#FFD342; font-weight:bold;"><i class="fa-solid fa-triangle-exclamation"></i> Advertencia #${i+1}</span>
+                                <span style="color:#FFD342; font-weight:bold;"><i class="fa-solid fa-triangle-exclamation"></i> Warn #${i+1}</span>
                                 <span style="color:#bdc3c7; font-size:0.9rem; margin-top:5px;"><strong>Razón:</strong> ${reason}</span>
                                 <span style="color:#7d7d7d; font-size:0.8rem; margin-top:5px;"><i class="fa-regular fa-clock"></i> ${dateStr}</span>
                             </li>
                         `;
                     });
                 } else {
-                    warnsList.innerHTML = '<li style="color: #2df2c1; justify-content: center;"><i class="fa-solid fa-check"></i> No tiene advertencias recientes (últimas 24h).</li>';
+                    warnsList.innerHTML = '<li style="color: #2df2c1; justify-content: center;"><i class="fa-solid fa-check"></i> No tiene warns recientes.</li>';
                 }
 
                 if (!p.ip) {
