@@ -22,6 +22,21 @@
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
         .score-text { font-size: 2.2rem; font-weight: bold; color: white; letter-spacing: 2px; text-align: center;}
 
+        .radio-box { display: flex; flex-direction: row; align-items: center; gap: 15px; padding: 15px 25px; border-color: #FFD342; box-shadow: 0 0 15px rgba(255, 211, 66, 0.1); margin-bottom: 0;}
+        .radio-btn { background: #FFD342; color: #111; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; justify-content: center; align-items: center; transition: 0.3s; flex-shrink: 0;}
+        .radio-btn:hover { transform: scale(1.1); box-shadow: 0 0 15px rgba(255, 211, 66, 0.5); }
+        .radio-info { flex: 1; overflow: hidden; }
+        .radio-title { color: #FFD342; font-weight: bold; font-size: 1.1rem; margin-bottom: 3px; letter-spacing: 1px;}
+        .radio-subtitle { color: #bdc3c7; font-size: 0.85rem; }
+        
+        .visualizer { display: flex; gap: 4px; height: 25px; align-items: flex-end; }
+        .visualizer .bar { width: 5px; background: #FFD342; border-radius: 2px; animation: soundBounce 1s infinite alternate ease-in-out; }
+        .visualizer .bar:nth-child(1) { animation-delay: 0.0s; }
+        .visualizer .bar:nth-child(2) { animation-delay: 0.2s; }
+        .visualizer .bar:nth-child(3) { animation-delay: 0.4s; }
+        .visualizer .bar:nth-child(4) { animation-delay: 0.1s; }
+        @keyframes soundBounce { 0% { height: 5px; } 100% { height: 25px; } }
+
         .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; }
         .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #7d7d7d; font-weight: bold; transition: 0.3s; }
         .tab.active { border-bottom: 2px solid #FFD342; color: #FFD342; }
@@ -135,6 +150,18 @@
                     <div class="score-text" id="liveScore">Esperando conexión...</div>
                 </div>
 
+                <div class="box radio-box">
+                    <button id="btnPlayRadio" class="radio-btn" onclick="toggleRadio()"><i class="fa-solid fa-play"></i></button>
+                    <div class="radio-info">
+                        <div class="radio-title"><i class="fa-solid fa-radio"></i> Radio ToroHax</div>
+                        <div class="radio-subtitle" id="radioSubtitle">Música en pausa</div>
+                    </div>
+                    <div id="radioVisualizer" class="visualizer" style="display:none;">
+                        <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+                    </div>
+                    <div id="yt-player" style="display:none;"></div>
+                </div>
+
                 <div class="box" style="padding-bottom: 70px;">
                     <div class="tabs">
                         <div class="tab active" onclick="switchTab('proximos')">Próximo express</div>
@@ -163,9 +190,17 @@
                         
                         <button id="btnInscribir" class="btn-estandar" style="display:none;" onclick="abrirModalInscripcion()"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</button>
                         
-                        <div id="managerButtons" style="display:none; flex-direction: column; align-items: center;">
+                        <div id="managerButtons" style="display:none; flex-direction: column; align-items: center; width: 100%;">
                             <button id="btnAbrirPostulaciones" class="btn-estandar btn-abrir" onclick="abrirModalModo()"><i class="fa-solid fa-unlock"></i> Abrir Inscripciones</button>
                             <button id="btnCerrarPostulaciones" class="btn-estandar btn-cancelar" onclick="cerrarPostulaciones()"><i class="fa-solid fa-lock"></i> Cerrar Inscripciones</button>
+                            
+                            <div style="width: 100%; max-width: 260px; border-top: 1px dashed #444; margin-top: 15px; padding-top: 15px; text-align: left;">
+                                <label style="color:#bdc3c7; font-size:0.9rem; margin-bottom:8px; display:block; font-weight: bold;"><i class="fa-brands fa-youtube" style="color:#cc2a2a;"></i> Poner Música (Link YT)</label>
+                                <div style="display:flex; gap:10px;">
+                                    <input type="text" id="ytLinkInput" placeholder="https://youtu.be/..." style="flex:1; padding:8px 12px; border-radius:8px; background:#111; border:1px solid #444; color:white; outline:none; font-family: inherit; font-size: 0.9rem;">
+                                    <button class="btn-estandar" style="width:auto; margin:0; background:#FFD342; color:#111; padding: 8px 15px;" onclick="cambiarMusica()" title="Cambiar para todos"><i class="fa-solid fa-sync"></i></button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -287,6 +322,92 @@
         let equipoB_Global = "Equipo 2";
         let displayDateGlobal = "";
         let historialCargado = false;
+        let ytPlayer;
+        let isPlaying = false;
+        let currentVideoId = ""; 
+
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+        function onYouTubeIframeAPIReady() {
+            ytPlayer = new YT.Player('yt-player', {
+                height: '0', width: '0',
+                playerVars: { 'autoplay': 0, 'controls': 0 },
+                events: { 'onStateChange': onPlayerStateChange }
+            });
+            checkRadioUpdate();
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.ENDED) {
+                ytPlayer.playVideo();
+            }
+        }
+
+        function toggleRadio() {
+            if(!ytPlayer || !ytPlayer.playVideo) return;
+            const btn = document.getElementById('btnPlayRadio');
+            const sub = document.getElementById('radioSubtitle');
+            const vis = document.getElementById('radioVisualizer');
+            
+            if(isPlaying) {
+                ytPlayer.pauseVideo();
+                btn.innerHTML = '<i class="fa-solid fa-play"></i>';
+                sub.innerText = "Música en pausa";
+                vis.style.display = 'none';
+                isPlaying = false;
+            } else {
+                ytPlayer.playVideo();
+                btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
+                sub.innerText = "Reproduciendo directo...";
+                vis.style.display = 'flex';
+                isPlaying = true;
+            }
+        }
+
+        function extractVideoID(url) {
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+            const match = url.match(regExp);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        async function cambiarMusica() {
+            const link = document.getElementById('ytLinkInput').value;
+            const vid = extractVideoID(link);
+            if(!vid) return alert("❌ Link de YouTube inválido. Copia la URL correctamente.");
+
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/music', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ videoId: vid })
+                });
+                if(res.ok) {
+                    alert("✅ Música actualizada para todos los oyentes en la sala.");
+                    document.getElementById('ytLinkInput').value = "";
+                    checkRadioUpdate();
+                }
+            } catch(e) { alert("Error al cambiar música."); }
+        }
+
+        function checkRadioUpdate() {
+            fetch('https://torobot-izu5.onrender.com/api/toromatch/music')
+            .then(res => res.json())
+            .then(data => {
+                if(data.videoId && data.videoId !== currentVideoId) {
+                    currentVideoId = data.videoId;
+                    if(ytPlayer && ytPlayer.loadVideoById) {
+                        ytPlayer.loadVideoById(currentVideoId);
+                        if(!isPlaying) {
+                            setTimeout(() => ytPlayer.pauseVideo(), 300);
+                        }
+                    }
+                }
+            }).catch(e => {});
+        }
+        setInterval(checkRadioUpdate, 10000);
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
