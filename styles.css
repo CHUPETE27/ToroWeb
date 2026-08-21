@@ -10,71 +10,22 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    
-    background-color: transparent !important;
-    background-image: none !important;
-    
-    position: relative;
-    overflow-x: hidden;
-    
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
+    background: linear-gradient(135deg, #044235 0%, #073535 50%, #023b3a 100%);
+    background-size: 300% 300%;
+    background-attachment: fixed;
+    overscroll-behavior: none;
+    animation: movimientoFondo 15s ease infinite;
+    -webkit-user-select: none; /* Safari/Chrome */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE/Edge */
+    -o-user-select: none;
     user-select: none;
 }
 
-html::before {
-    content: ''; position: fixed; bottom: 0; left: 0; width: 100vw; height: 100vh;
-    z-index: -3; pointer-events: none;
-    background-color: #01181C;
-    background-image: 
-        radial-gradient(circle at 50% 100%, rgba(4, 66, 53, 0.8) 0%, transparent 80%),
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0,100 C15,100 15,20 25,60 C35,100 35,-10 50,50 C65,110 65,10 75,70 C85,130 85,0 100,60 L100,100 Z' fill='%23073535'/%3E%3C/svg%3E");
-    background-position: center bottom, 0px bottom;
-    background-size: 100% 100%, 600px 70vh;
-    background-repeat: no-repeat, repeat-x;
-    animation: panTeal 8s linear infinite, stretchTeal 4s ease-in-out infinite alternate;
-}
-
-body::before {
-    content: ''; position: fixed; bottom: 0; left: 0; width: 100vw; height: 100vh;
-    z-index: -2; pointer-events: none;
-    background-image: 
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0,100 C10,100 10,40 20,70 C30,100 30,10 40,60 C50,110 50,0 60,50 C70,100 70,20 80,70 C90,120 90,30 100,60 L100,100 Z' fill='%232df2c1' opacity='0.7'/%3E%3C/svg%3E");
-    background-position: 0px bottom;
-    background-size: 400px 50vh;
-    background-repeat: repeat-x;
-    animation: panCyan 5s linear infinite, stretchCyan 3s ease-in-out infinite alternate;
-}
-
-body::after {
-    content: ''; position: fixed; bottom: 0; left: 0; width: 100vw; height: 100vh;
-    z-index: -1; pointer-events: none;
-    background-image: 
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0,100 C10,100 10,60 20,80 C30,100 30,30 40,70 C50,110 50,10 60,60 C70,110 70,40 80,90 C90,140 90,50 100,80 L100,100 Z' fill='%23FFD342'/%3E%3C/svg%3E"),
-        radial-gradient(circle at 50px 50px, #FFD342 2px, transparent 3px),
-        radial-gradient(circle at 150px 150px, #2df2c1 2.5px, transparent 4px);
-    background-position: 0px bottom, 0px 100vh, 50px 100vh;
-    background-size: 250px 30vh, 200px 200px, 300px 300px;
-    background-repeat: repeat-x, repeat, repeat;
-    animation: panGold 3s linear infinite, stretchGold 2s ease-in-out infinite alternate;
-}
-
-@keyframes panTeal { 100% { background-position: center bottom, -600px bottom; } }
-@keyframes panCyan { 100% { background-position: -400px bottom; } }
-@keyframes panGold { 100% { background-position: -250px bottom, -100px -20vh, 0px -20vh; } }
-
-@keyframes stretchTeal { 
-    0%, 100% { background-size: 100% 100%, 600px 70vh; } 
-    50%      { background-size: 100% 100%, 600px 85vh; } 
-}
-@keyframes stretchCyan { 
-    0%, 100% { background-size: 400px 45vh; } 
-    50%      { background-size: 400px 65vh; } 
-}
-@keyframes stretchGold { 
-    0%, 100% { background-size: 250px 25vh, 200px 200px, 300px 300px; } 
-    50%      { background-size: 250px 38vh, 200px 200px, 300px 300px; } 
+@keyframes movimientoFondo {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 input {
