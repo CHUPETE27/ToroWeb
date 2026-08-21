@@ -1,5 +1,5 @@
 html {
-    background-color: #01181C; 
+    background-color: #01181C;
 }
 
 body {
@@ -10,49 +10,77 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-
-    background-color: #01181C;
-    background-image: 
-        radial-gradient(ellipse at center, rgba(4, 66, 53, 0.8) 0%, transparent 50%),
-        radial-gradient(ellipse at center, rgba(7, 53, 53, 0.9) 0%, transparent 50%),
-        radial-gradient(ellipse at center, rgba(2, 59, 58, 1) 0%, transparent 60%),
-        radial-gradient(ellipse at center, rgba(93, 200, 232, 0.15) 0%, transparent 40%);
-    background-size: 150% 150%, 150% 150%, 200% 200%, 100% 100%;
-    background-repeat: no-repeat;
-    background-attachment: fixed; 
     
-    animation: fuegoToro 10s ease-in-out infinite alternate;
-
-    overscroll-behavior: none;
-
-    -webkit-user-select: none; /* Safari/Chrome */
-    -moz-user-select: none; /* Firefox */
-    -ms-user-select: none; /* IE/Edge */
-    -o-user-select: none;
+    position: relative;
+    background-color: #01181C;
+    overflow-x: hidden;
+    
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
     user-select: none;
 }
 
-@keyframes fuegoToro {
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    pointer-events: none;
+
+    background-image:
+        radial-gradient(ellipse 80% 50% at 50% 120%, rgba(255, 211, 66, 0.15) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 60% at 30% 110%, rgba(93, 200, 232, 0.2) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 60% at 70% 110%, rgba(93, 200, 232, 0.2) 0%, transparent 60%),
+        radial-gradient(ellipse 150% 100% at 50% 100%, rgba(4, 66, 53, 0.8) 0%, transparent 60%),
+        radial-gradient(ellipse 100% 120% at 20% 100%, rgba(7, 53, 53, 0.9) 0%, transparent 70%),
+        radial-gradient(ellipse 100% 120% at 80% 100%, rgba(2, 59, 58, 0.9) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 150% at 40% 100%, rgba(4, 66, 53, 0.7) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 150% at 60% 100%, rgba(7, 53, 53, 0.7) 0%, transparent 60%);
+
+    background-size: 
+        100% 100%, 100% 100%, 100% 100%,
+        200% 200%, 150% 200%, 150% 200%,
+        100% 300%, 100% 300%;
+    
+    background-repeat: no-repeat;
+    
+    animation: llamasFogata 8s infinite alternate ease-in-out;
+}
+
+@keyframes llamasFogata {
     0% {
         background-position: 
-            -30% 150%, 
-            130% 150%, 
-            50% 200%, 
-            50% 120%;
+            50% 100%, 30% 100%, 70% 100%,
+            50% 100%, 15% 110%, 85% 110%,
+            35% 120%, 65% 120%;
+    }
+    25% {
+        background-position: 
+            50% 100%, 32% 100%, 68% 100%,
+            48% 95%, 25% 100%, 75% 100%,
+            45% 90%, 55% 95%;
     }
     50% {
         background-position: 
-            20% 80%, 
-            80% 90%, 
-            40% 100%, 
-            50% 90%;
+            50% 100%, 28% 100%, 72% 100%,
+            52% 105%, 10% 105%, 90% 95%,
+            30% 80%, 70% 85%;
+    }
+    75% {
+        background-position: 
+            50% 100%, 31% 100%, 69% 100%,
+            49% 98%, 22% 115%, 78% 105%,
+            42% 100%, 58% 90%;
     }
     100% {
         background-position: 
-            -10% 100%, 
-            110% 80%, 
-            60% 120%, 
-            50% 100%;
+            50% 100%, 29% 100%, 71% 100%,
+            51% 102%, 18% 90%, 82% 115%,
+            38% 110%, 62% 105%;
     }
 }
 
