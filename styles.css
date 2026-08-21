@@ -1,5 +1,5 @@
 html {
-    background-color: #01181C; /* Base muy oscura */
+    background-color: #01181C;
 }
 
 body {
@@ -11,58 +11,70 @@ body {
     flex-direction: column;
     min-height: 100vh;
     
-    /* El gradiente base del fuego anclado a la pantalla */
-    background-color: #01181C;
-    background-image: linear-gradient(to top, rgba(255, 211, 66, 1) 0%, rgba(45, 242, 193, 0.8) 15%, rgba(4, 66, 53, 0.6) 40%, rgba(1, 24, 28, 0) 80%);
-    background-attachment: fixed;
-    background-repeat: no-repeat;
+    background-color: transparent !important;
+    background-image: none !important;
     
     position: relative;
     overflow-x: hidden;
     
-    -webkit-user-select: none; /* Safari/Chrome */
-    -moz-user-select: none; /* Firefox */
-    -ms-user-select: none; /* IE/Edge */
-    -o-user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
     user-select: none;
 }
 
-/* MÁSCARA 1: Ruido fractal para cortar el gradiente (Crea las lenguas de fuego) */
+html::before {
+    content: ''; position: fixed; bottom: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: -3; pointer-events: none;
+    background-color: #01181C;
+    background-image: 
+        radial-gradient(circle at 50% 100%, rgba(4, 66, 53, 0.8) 0%, transparent 80%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0,100 C15,100 15,20 25,60 C35,100 35,-10 50,50 C65,110 65,10 75,70 C85,130 85,0 100,60 L100,100 Z' fill='%23073535'/%3E%3C/svg%3E");
+    background-position: center bottom, 0px bottom;
+    background-size: 100% 100%, 600px 70vh;
+    background-repeat: no-repeat, repeat-x;
+    animation: panTeal 8s linear infinite, stretchTeal 4s ease-in-out infinite alternate;
+}
+
 body::before {
-    content: '';
-    position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    z-index: -2;
-    pointer-events: none;
-    
-    /* Textura de humo estirada verticalmente */
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.025 0.005' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)'/%3E%3C/svg%3E");
-    background-size: 400px 400px;
-    
-    mix-blend-mode: multiply; /* Multiplicar oscurece y recorta el fuego */
-    animation: llamasRealistas 4s linear infinite;
-    opacity: 0.9;
+    content: ''; position: fixed; bottom: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: -2; pointer-events: none;
+    background-image: 
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0,100 C10,100 10,40 20,70 C30,100 30,10 40,60 C50,110 50,0 60,50 C70,100 70,20 80,70 C90,120 90,30 100,60 L100,100 Z' fill='%232df2c1' opacity='0.7'/%3E%3C/svg%3E");
+    background-position: 0px bottom;
+    background-size: 400px 50vh;
+    background-repeat: repeat-x;
+    animation: panCyan 5s linear infinite, stretchCyan 3s ease-in-out infinite alternate;
 }
 
-/* MÁSCARA 2: Ruido secundario para destellos (Crea los núcleos calientes) */
 body::after {
-    content: '';
-    position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    z-index: -1;
-    pointer-events: none;
-    
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.015 0.003' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
-    background-size: 300px 300px;
-    
-    mix-blend-mode: color-dodge; /* Dodge ilumina y satura simulando chispas */
-    animation: llamasRealistas 5s linear infinite;
-    opacity: 0.4;
+    content: ''; position: fixed; bottom: 0; left: 0; width: 100vw; height: 100vh;
+    z-index: -1; pointer-events: none;
+    background-image: 
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'%3E%3Cpath d='M0,100 C10,100 10,60 20,80 C30,100 30,30 40,70 C50,110 50,10 60,60 C70,110 70,40 80,90 C90,140 90,50 100,80 L100,100 Z' fill='%23FFD342'/%3E%3C/svg%3E"),
+        radial-gradient(circle at 50px 50px, #FFD342 2px, transparent 3px),
+        radial-gradient(circle at 150px 150px, #2df2c1 2.5px, transparent 4px);
+    background-position: 0px bottom, 0px 100vh, 50px 100vh;
+    background-size: 250px 30vh, 200px 200px, 300px 300px;
+    background-repeat: repeat-x, repeat, repeat;
+    animation: panGold 3s linear infinite, stretchGold 2s ease-in-out infinite alternate;
 }
 
-@keyframes llamasRealistas {
-    0% { background-position: 0 0; }
-    100% { background-position: 0 -1200px; } /* Sube hacia arriba en bucle perfecto */
+@keyframes panTeal { 100% { background-position: center bottom, -600px bottom; } }
+@keyframes panCyan { 100% { background-position: -400px bottom; } }
+@keyframes panGold { 100% { background-position: -250px bottom, -100px -20vh, 0px -20vh; } }
+
+@keyframes stretchTeal { 
+    0%, 100% { background-size: 100% 100%, 600px 70vh; } 
+    50%      { background-size: 100% 100%, 600px 85vh; } 
+}
+@keyframes stretchCyan { 
+    0%, 100% { background-size: 400px 45vh; } 
+    50%      { background-size: 400px 65vh; } 
+}
+@keyframes stretchGold { 
+    0%, 100% { background-size: 250px 25vh, 200px 200px, 300px 300px; } 
+    50%      { background-size: 250px 38vh, 200px 200px, 300px 300px; } 
 }
 
 input {
