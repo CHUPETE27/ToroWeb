@@ -22,21 +22,6 @@
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
         .score-text { font-size: 2.2rem; font-weight: bold; color: white; letter-spacing: 2px; text-align: center;}
 
-        .radio-box { display: flex; flex-direction: row; align-items: center; gap: 15px; padding: 15px 25px; border-color: #FFD342; box-shadow: 0 0 15px rgba(255, 211, 66, 0.1); margin-bottom: 0;}
-        .radio-btn { background: #FFD342; color: #111; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; display: flex; justify-content: center; align-items: center; transition: 0.3s; flex-shrink: 0;}
-        .radio-btn:hover { transform: scale(1.1); box-shadow: 0 0 15px rgba(255, 211, 66, 0.5); }
-        .radio-info { flex: 1; overflow: hidden; }
-        .radio-title { color: #FFD342; font-weight: bold; font-size: 1.1rem; margin-bottom: 3px; letter-spacing: 1px;}
-        .radio-subtitle { color: #bdc3c7; font-size: 0.85rem; }
-        
-        .visualizer { display: flex; gap: 4px; height: 25px; align-items: flex-end; }
-        .visualizer .bar { width: 5px; background: #FFD342; border-radius: 2px; animation: soundBounce 1s infinite alternate ease-in-out; }
-        .visualizer .bar:nth-child(1) { animation-delay: 0.0s; }
-        .visualizer .bar:nth-child(2) { animation-delay: 0.2s; }
-        .visualizer .bar:nth-child(3) { animation-delay: 0.4s; }
-        .visualizer .bar:nth-child(4) { animation-delay: 0.1s; }
-        @keyframes soundBounce { 0% { height: 5px; } 100% { height: 25px; } }
-
         .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; }
         .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #7d7d7d; font-weight: bold; transition: 0.3s; }
         .tab.active { border-bottom: 2px solid #FFD342; color: #FFD342; }
@@ -59,19 +44,8 @@
         .inscripcion-container { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;}
         
         .btn-estandar { 
-            width: 260px;
-            padding: 12px; 
-            border-radius: 8px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            transition: 0.3s; 
-            font-size: 1.05rem; 
-            border: none; 
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
+            width: 260px; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; 
+            font-size: 1.05rem; border: none; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 8px;
         }
         .btn-estandar:disabled { filter: grayscale(100%); opacity: 0.6; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
 
@@ -124,6 +98,41 @@
         .edit-action-icon { color: #3498db; cursor: pointer; }
         .edit-action-icon:hover { color: #5dade2; }
 
+        .floating-music-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: rgba(20, 20, 20, 0.9);
+            border: 2px solid #555;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.6rem;
+            color: #bdc3c7;
+            cursor: grab;
+            z-index: 9999;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.8);
+            transition: transform 0.2s, border-color 0.3s;
+            user-select: none;
+            touch-action: none;
+        }
+        .floating-music-btn:active { cursor: grabbing; }
+        .floating-music-btn:hover { transform: scale(1.1); }
+        .floating-music-btn.playing {
+            background: #FFD342;
+            color: #111;
+            border-color: #FFD342;
+            animation: pulse-music 2s infinite;
+        }
+        @keyframes pulse-music {
+            0% { box-shadow: 0 0 0 0 rgba(255, 211, 66, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 211, 66, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 211, 66, 0); }
+        }
+
         @media (max-width: 900px) { .seleccion-wrapper { grid-template-columns: 1fr; } }
         
         @media (max-width: 480px) { 
@@ -142,24 +151,17 @@
     <header></header>
 
     <main>
+        <div id="musicToggleBtn" class="floating-music-btn" onclick="toggleMusic()">
+            <i class="fa-solid fa-music"></i>
+        </div>
+        <div id="yt-player" style="display:none;"></div>
+
         <div class="seleccion-wrapper">
             <div class="left-col">
                 <div class="box live-box">
                     <div id="liveIndicator" style="display: none;" class="live-indicator"><span class="status-circle green"></span> En vivo</div>
                     <div id="liveIndicatorOff" class="live-indicator" style="color: #7d7d7d;"><span class="status-circle" style="background:#cc2a2a;"></span> Offline</div>
                     <div class="score-text" id="liveScore">Esperando conexión...</div>
-                </div>
-
-                <div class="box radio-box">
-                    <button id="btnPlayRadio" class="radio-btn" onclick="toggleRadio()"><i class="fa-solid fa-play"></i></button>
-                    <div class="radio-info">
-                        <div class="radio-title"><i class="fa-solid fa-radio"></i> Radio ToroHax</div>
-                        <div class="radio-subtitle" id="radioSubtitle">Música en pausa</div>
-                    </div>
-                    <div id="radioVisualizer" class="visualizer" style="display:none;">
-                        <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
-                    </div>
-                    <div id="yt-player" style="display:none;"></div>
                 </div>
 
                 <div class="box" style="padding-bottom: 70px;">
@@ -193,14 +195,6 @@
                         <div id="managerButtons" style="display:none; flex-direction: column; align-items: center; width: 100%;">
                             <button id="btnAbrirPostulaciones" class="btn-estandar btn-abrir" onclick="abrirModalModo()"><i class="fa-solid fa-unlock"></i> Abrir Inscripciones</button>
                             <button id="btnCerrarPostulaciones" class="btn-estandar btn-cancelar" onclick="cerrarPostulaciones()"><i class="fa-solid fa-lock"></i> Cerrar Inscripciones</button>
-                            
-                            <div style="width: 100%; max-width: 260px; border-top: 1px dashed #444; margin-top: 15px; padding-top: 15px; text-align: left;">
-                                <label style="color:#bdc3c7; font-size:0.9rem; margin-bottom:8px; display:block; font-weight: bold;"><i class="fa-brands fa-youtube" style="color:#cc2a2a;"></i> Poner Música (Link YT)</label>
-                                <div style="display:flex; gap:10px;">
-                                    <input type="text" id="ytLinkInput" placeholder="https://youtu.be/..." style="flex:1; padding:8px 12px; border-radius:8px; background:#111; border:1px solid #444; color:white; outline:none; font-family: inherit; font-size: 0.9rem;">
-                                    <button class="btn-estandar" style="width:auto; margin:0; background:#FFD342; color:#111; padding: 8px 15px;" onclick="cambiarMusica()" title="Cambiar para todos"><i class="fa-solid fa-sync"></i></button>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -323,8 +317,10 @@
         let displayDateGlobal = "";
         let historialCargado = false;
         let ytPlayer;
-        let isPlaying = false;
-        let currentVideoId = ""; 
+        let isMusicPlaying = false;
+        let isDraggingMusic = false;
+        const VIDEO_ID = "JcRqQWDPJcE";
+        const MAX_SECONDS = 7000;
 
         const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
@@ -332,82 +328,121 @@
         firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
         function onYouTubeIframeAPIReady() {
+            const randomStart = Math.floor(Math.random() * MAX_SECONDS);
             ytPlayer = new YT.Player('yt-player', {
                 height: '0', width: '0',
-                playerVars: { 'autoplay': 0, 'controls': 0 },
-                events: { 'onStateChange': onPlayerStateChange }
-            });
-            checkRadioUpdate();
-        }
-
-        function onPlayerStateChange(event) {
-            if (event.data == YT.PlayerState.ENDED) {
-                ytPlayer.playVideo();
-            }
-        }
-
-        function toggleRadio() {
-            if(!ytPlayer || !ytPlayer.playVideo) return;
-            const btn = document.getElementById('btnPlayRadio');
-            const sub = document.getElementById('radioSubtitle');
-            const vis = document.getElementById('radioVisualizer');
-            
-            if(isPlaying) {
-                ytPlayer.pauseVideo();
-                btn.innerHTML = '<i class="fa-solid fa-play"></i>';
-                sub.innerText = "Música en pausa";
-                vis.style.display = 'none';
-                isPlaying = false;
-            } else {
-                ytPlayer.playVideo();
-                btn.innerHTML = '<i class="fa-solid fa-pause"></i>';
-                sub.innerText = "Reproduciendo directo...";
-                vis.style.display = 'flex';
-                isPlaying = true;
-            }
-        }
-
-        function extractVideoID(url) {
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
-        }
-
-        async function cambiarMusica() {
-            const link = document.getElementById('ytLinkInput').value;
-            const vid = extractVideoID(link);
-            if(!vid) return alert("❌ Link de YouTube inválido. Copia la URL correctamente.");
-
-            try {
-                const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/music', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ videoId: vid })
-                });
-                if(res.ok) {
-                    alert("✅ Música actualizada para todos los oyentes en la sala.");
-                    document.getElementById('ytLinkInput').value = "";
-                    checkRadioUpdate();
-                }
-            } catch(e) { alert("Error al cambiar música."); }
-        }
-
-        function checkRadioUpdate() {
-            fetch('https://torobot-izu5.onrender.com/api/toromatch/music')
-            .then(res => res.json())
-            .then(data => {
-                if(data.videoId && data.videoId !== currentVideoId) {
-                    currentVideoId = data.videoId;
-                    if(ytPlayer && ytPlayer.loadVideoById) {
-                        ytPlayer.loadVideoById(currentVideoId);
-                        if(!isPlaying) {
-                            setTimeout(() => ytPlayer.pauseVideo(), 300);
+                videoId: VIDEO_ID,
+                playerVars: { 
+                    'autoplay': 1, 
+                    'controls': 0, 
+                    'loop': 1, 
+                    'playlist': VIDEO_ID,
+                    'start': randomStart
+                },
+                events: { 
+                    'onReady': (event) => {
+                        event.target.playVideo();
+                    },
+                    'onStateChange': (event) => {
+                        const btn = document.getElementById('musicToggleBtn');
+                        const icon = btn.querySelector('i');
+                        if (event.data === YT.PlayerState.PLAYING) {
+                            isMusicPlaying = true;
+                            btn.classList.add('playing');
+                            icon.classList.remove('fa-music-slash', 'fa-volume-xmark');
+                            icon.classList.add('fa-music');
+                        } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
+                            isMusicPlaying = false;
+                            btn.classList.remove('playing');
+                            icon.classList.remove('fa-music');
+                            icon.classList.add('fa-volume-xmark');
                         }
                     }
                 }
-            }).catch(e => {});
+            });
         }
-        setInterval(checkRadioUpdate, 10000);
+
+        function toggleMusic() {
+            if (isDraggingMusic) return; 
+            if (!ytPlayer || !ytPlayer.playVideo) return;
+            
+            if (isMusicPlaying) {
+                ytPlayer.pauseVideo();
+            } else {
+                ytPlayer.playVideo();
+            }
+        }
+
+        const musicBtn = document.getElementById('musicToggleBtn');
+        let startY, startX, initialX, initialY;
+
+        musicBtn.addEventListener('mousedown', dragStart);
+        musicBtn.addEventListener('touchstart', dragStart, {passive: false});
+
+        function dragStart(e) {
+            const evt = e.type === 'touchstart' ? e.touches[0] : e;
+            startX = evt.clientX;
+            startY = evt.clientY;
+            
+            const rect = musicBtn.getBoundingClientRect();
+            initialX = rect.left;
+            initialY = rect.top;
+            
+            isDraggingMusic = false; 
+            
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('touchmove', drag, {passive: false});
+            document.addEventListener('mouseup', dragEnd);
+            document.addEventListener('touchend', dragEnd);
+        }
+
+        function drag(e) {
+            const evt = e.type === 'touchmove' ? e.touches[0] : e;
+            const dx = evt.clientX - startX;
+            const dy = evt.clientY - startY;
+            
+            if(Math.abs(dx) > 5 || Math.abs(dy) > 5) {
+                isDraggingMusic = true;
+            }
+            
+            if(isDraggingMusic) {
+                e.preventDefault(); 
+                let newX = initialX + dx;
+                let newY = initialY + dy;
+
+                newX = Math.max(0, Math.min(window.innerWidth - musicBtn.offsetWidth, newX));
+                newY = Math.max(0, Math.min(window.innerHeight - musicBtn.offsetHeight, newY));
+                
+                musicBtn.style.left = newX + 'px';
+                musicBtn.style.top = newY + 'px';
+                musicBtn.style.right = 'auto';
+                musicBtn.style.bottom = 'auto';
+                musicBtn.style.transition = 'none';
+            }
+        }
+
+        function dragEnd(e) {
+            document.removeEventListener('mousemove', drag);
+            document.removeEventListener('touchmove', drag);
+            document.removeEventListener('mouseup', dragEnd);
+            document.removeEventListener('touchend', dragEnd);
+            
+            if(isDraggingMusic) {
+                const rect = musicBtn.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const screenWidth = window.innerWidth;
+                
+                musicBtn.style.transition = 'left 0.3s ease, top 0.3s ease';
+                
+                if (centerX < screenWidth / 2) {
+                    musicBtn.style.left = '20px';
+                } else {
+                    musicBtn.style.left = (screenWidth - rect.width - 20) + 'px';
+                }
+                
+                setTimeout(() => isDraggingMusic = false, 50);
+            }
+        }
 
         function switchTab(tabId) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
