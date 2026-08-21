@@ -10,15 +10,22 @@ body {
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    
-    background: transparent !important;
-    position: relative;
-    overflow-x: hidden;
-    
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
+    background: linear-gradient(135deg, #044235 0%, #073535 50%, #023b3a 100%);
+    background-size: 300% 300%;
+    background-attachment: fixed;
+    overscroll-behavior: none;
+    animation: movimientoFondo 15s ease infinite;
+    -webkit-user-select: none; /* Safari/Chrome */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* IE/Edge */
+    -o-user-select: none;
     user-select: none;
+}
+
+@keyframes movimientoFondo {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 }
 
 input {
