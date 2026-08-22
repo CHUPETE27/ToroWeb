@@ -66,19 +66,10 @@
         
         .fifa-card { 
             position: relative; width: 320px; height: 480px; 
-            display: flex; flex-direction: column; align-items: center; 
-            padding: 20px;
-            font-family: 'Arial', sans-serif; overflow: hidden;
+            font-family: 'Arial', sans-serif; 
             transition: all 0.5s ease;
-            border: 4px solid var(--border-col, transparent);
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.3), 0 20px 50px rgba(0,0,0,0.8);
-        }
-
-        .fifa-card.exportando {
-            clip-path: none !important;
-            border: none !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
+            background-color: var(--border-col, transparent);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
         }
 
         .card-gris { --bg-1: #4b4b4b; --bg-2: #2c2c2c; --border-col: #8c8c8c; color: #fff; }
@@ -87,8 +78,15 @@
         .card-oro { --bg-1: #ffe066; --bg-2: #aa8014; --border-col: #fff5ba; color: #222; }
         .card-leyenda { --bg-1: #ff007f; --bg-2: #00d4ff; --border-col: #ffffff; color: #fff; }
 
-        .fifa-card.historico {
+        .card-bg {
+            position: absolute; top: 4px; left: 4px; right: 4px; bottom: 4px; z-index: 0;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.3);
+        }
+
+        .fifa-card.historico, .fifa-card.historico .card-bg {
             clip-path: polygon(10% 0, 90% 0, 100% 10%, 100% 82%, 50% 100%, 0 82%, 0 10%);
+        }
+        .fifa-card.historico .card-bg {
             background-image: 
                 radial-gradient(circle at 50% 0%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 60%),
                 radial-gradient(rgba(0,0,0,0.15) 1.5px, rgba(0,0,0,0) 1.5px),
@@ -96,9 +94,10 @@
             background-size: 100% 100%, 8px 8px, 100% 100%;
         }
 
-        .fifa-card.temporada {
+        .fifa-card.temporada, .fifa-card.temporada .card-bg {
             clip-path: polygon(0 8%, 50% 0, 100% 8%, 100% 82%, 50% 100%, 0 82%);
-            padding-top: 35px;
+        }
+        .fifa-card.temporada .card-bg {
             background-image: 
                 radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 50%),
                 radial-gradient(circle at 20% 90%, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 40%),
@@ -107,11 +106,17 @@
             background-size: 100% 100%;
         }
 
-        .fifa-card::before {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+        .card-shine {
+            position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
             background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 40%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.05) 60%, rgba(255,255,255,0) 100%);
             transform: rotate(35deg) translateY(-20%); opacity: 0.7; pointer-events: none; z-index: 1;
         }
+
+        .card-content {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 2;
+            display: flex; flex-direction: column; align-items: center; padding: 20px;
+        }
+        .fifa-card.temporada .card-content { padding-top: 35px; }
 
         .card-top { display: flex; width: 100%; justify-content: space-between; align-items: flex-start; z-index: 2; margin-top: 5px;}
         .card-info-left { display: flex; flex-direction: column; align-items: center; width: 35%; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);}
@@ -131,6 +136,10 @@
             text-transform: uppercase; margin-top: 10px; z-index: 2; text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
         }
 
+        .fifa-card.exportando .haxball-circle {
+            box-shadow: 0 10px 20px rgba(0,0,0,0.6) !important; 
+        }
+
         .card-name { font-size: 1.8rem; font-weight: 900; text-transform: uppercase; margin: 15px 0 5px 0; letter-spacing: 1px; z-index: 2; width: 100%; text-align: center; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);}
         .card-plata .card-name, .card-oro .card-name { border-bottom-color: rgba(0,0,0,0.2); }
         .card-gris .card-name, .card-bronce .card-name, .card-leyenda .card-name { border-bottom-color: rgba(255,255,255,0.3); }
@@ -141,7 +150,6 @@
         .card-gris .stats-grid, .card-bronce .stats-grid, .card-leyenda .stats-grid { border-top-color: rgba(255,255,255,0.3); }
         
         .stats-col { display: flex; flex-direction: column; flex: 1; padding: 0 15px; gap: 8px;}
-
         .stats-divider { width: 2px; background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.2), rgba(0,0,0,0)); }
         .card-plata .stats-divider, .card-oro .stats-divider { background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.3), rgba(0,0,0,0)); }
         .card-gris .stats-divider, .card-bronce .stats-divider, .card-leyenda .stats-divider { background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.4), rgba(255,255,255,0)); }
@@ -152,6 +160,16 @@
         
         .stat-gk-wrapper { display: flex; justify-content: center; margin-top: 8px; width: 100%; }
         .stat-gk-wrapper .stat-item { justify-content: center; }
+
+        .fifa-card.exportando {
+            background-color: transparent !important;
+            clip-path: none !important;
+            box-shadow: none !important;
+        }
+        .fifa-card.exportando .card-bg {
+            top: 0; left: 0; right: 0; bottom: 0;
+            clip-path: none !important;
+        }
     </style>
 </head>
 <body>
@@ -254,37 +272,43 @@
 
             <div class="preview-container">
                 <div class="fifa-card historico card-oro" id="cartaFifa">
-                    <div class="card-top">
-                        <div class="card-info-left">
-                            <div class="card-ovr" id="c_ovr">99</div>
-                            <div class="card-pos" id="c_pos">DEL</div>
-                            <div class="card-rank" id="c_rank" title="Rango Toro">🐂</div>
-                            <img src="logo_torohax.png" class="card-logo" alt="ToroHax">
+                    <div class="card-bg"></div>
+                    <div class="card-shine"></div>
+                    
+                    <div class="card-content">
+                        <div class="card-top">
+                            <div class="card-info-left">
+                                <div class="card-ovr" id="c_ovr">99</div>
+                                <div class="card-pos" id="c_pos">DEL</div>
+                                <div class="card-rank" id="c_rank" title="Rango Toro">🐂</div>
+                                <img src="logo_torohax.png" class="card-logo" alt="ToroHax">
+                            </div>
+                            
+                            <div class="card-avatar-container">
+                                <div class="haxball-circle" id="c_avatar">10</div>
+                            </div>
                         </div>
-                        
-                        <div class="card-avatar-container">
-                            <div class="haxball-circle" id="c_avatar">10</div>
+
+                        <div class="card-name" id="c_name">Nick</div>
+
+                        <div class="card-stats">
+                            <div class="stats-grid">
+                                <div class="stats-col">
+                                    <div class="stat-item"><span class="stat-val" id="s_tir">99</span> <span class="stat-label">TIR</span></div>
+                                    <div class="stat-item"><span class="stat-val" id="s_pas">99</span> <span class="stat-label">PAS</span></div>
+                                </div>
+                                <div class="stats-divider"></div>
+                                <div class="stats-col">
+                                    <div class="stat-item"><span class="stat-val" id="s_hab">99</span> <span class="stat-label">HAB</span></div>
+                                    <div class="stat-item"><span class="stat-val" id="s_def">99</span> <span class="stat-label">DEF</span></div>
+                                </div>
+                            </div>
+                            <div class="stat-gk-wrapper">
+                                <div class="stat-item"><span class="stat-val" id="s_gk">99</span> <span class="stat-label">GK</span></div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="card-name" id="c_name">Nick</div>
-
-                    <div class="card-stats">
-                        <div class="stats-grid">
-                            <div class="stats-col">
-                                <div class="stat-item"><span class="stat-val" id="s_tir">99</span> <span class="stat-label">TIR</span></div>
-                                <div class="stat-item"><span class="stat-val" id="s_pas">99</span> <span class="stat-label">PAS</span></div>
-                            </div>
-                            <div class="stats-divider"></div>
-                            <div class="stats-col">
-                                <div class="stat-item"><span class="stat-val" id="s_hab">99</span> <span class="stat-label">HAB</span></div>
-                                <div class="stat-item"><span class="stat-val" id="s_def">99</span> <span class="stat-label">DEF</span></div>
-                            </div>
-                        </div>
-                        <div class="stat-gk-wrapper">
-                            <div class="stat-item"><span class="stat-val" id="s_gk">99</span> <span class="stat-label">GK</span></div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
