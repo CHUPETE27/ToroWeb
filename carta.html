@@ -70,13 +70,14 @@
             padding: 20px;
             font-family: 'Arial', sans-serif; overflow: hidden;
             transition: all 0.5s ease;
-            border: 6px solid var(--border-col, transparent);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            border: 4px solid var(--border-col, transparent);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.3), 0 20px 50px rgba(0,0,0,0.8);
         }
 
         .fifa-card.exportando {
             clip-path: none !important;
-            border-color: transparent !important;
+            border: none !important;
+            border-radius: 0 !important;
             box-shadow: none !important;
         }
 
@@ -99,14 +100,14 @@
             clip-path: polygon(0 8%, 50% 0, 100% 8%, 100% 82%, 50% 100%, 0 82%);
             padding-top: 35px;
             background-image: 
-                radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.6) 0%, rgba(255,255,255,0) 50%),
-                radial-gradient(circle at 20% 90%, rgba(255, 255, 255, 0.3) 0%, rgba(255,255,255,0) 40%),
-                radial-gradient(circle at 80% 90%, rgba(255, 255, 255, 0.3) 0%, rgba(255,255,255,0) 40%),
+                radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 50%),
+                radial-gradient(circle at 20% 90%, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 40%),
+                radial-gradient(circle at 80% 90%, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 40%),
                 linear-gradient(0deg, var(--bg-1) 0%, var(--bg-2) 100%);
             background-size: 100% 100%;
         }
 
-        .card-shine {
+        .fifa-card::before {
             content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
             background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 40%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.05) 60%, rgba(255,255,255,0) 100%);
             transform: rotate(35deg) translateY(-20%); opacity: 0.7; pointer-events: none; z-index: 1;
@@ -126,12 +127,8 @@
             width: 140px; height: 140px; border-radius: 50%; border: 4px solid #111;
             display: flex; justify-content: center; align-items: center;
             font-size: 4.5rem; font-weight: bold; color: white;
-            box-shadow: inset 0 -4px 10px rgba(0,0,0,0.2), 0 6px 15px rgba(0,0,0,0.4);
+            box-shadow: inset 0 -10px 20px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.6);
             text-transform: uppercase; margin-top: 10px; z-index: 2; text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
-        }
-
-        .fifa-card.exportando .haxball-circle {
-            box-shadow: 0 6px 15px rgba(0,0,0,0.4) !important; 
         }
 
         .card-name { font-size: 1.8rem; font-weight: 900; text-transform: uppercase; margin: 15px 0 5px 0; letter-spacing: 1px; z-index: 2; width: 100%; text-align: center; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);}
@@ -139,21 +136,22 @@
         .card-gris .card-name, .card-bronce .card-name, .card-leyenda .card-name { border-bottom-color: rgba(255,255,255,0.3); }
 
         .card-stats { display: flex; flex-direction: column; width: 100%; padding: 0 15px; z-index: 2; margin-top: 5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);}
-        .stats-grid { display: flex; justify-content: center; width: 100%; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 10px; gap: 6px;}
+        .stats-grid { display: flex; justify-content: center; width: 100%; border-top: 1px solid rgba(0,0,0,0.1); padding-top: 10px;}
         .card-plata .stats-grid, .card-oro .stats-grid { border-top-color: rgba(0,0,0,0.2); }
         .card-gris .stats-grid, .card-bronce .stats-grid, .card-leyenda .stats-grid { border-top-color: rgba(255,255,255,0.3); }
         
-        .stats-col { display: flex; flex-direction: column; flex: 1; gap: 8px;}
-        .stats-divider { width: 2px; background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(0,0,0,0.2), rgba(255,255,255,0)); }
-        .card-plata .stats-divider, .card-oro .stats-divider { background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(0,0,0,0.3), rgba(255,255,255,0)); }
+        .stats-col { display: flex; flex-direction: column; flex: 1; padding: 0 15px; gap: 8px;}
+
+        .stats-divider { width: 2px; background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.2), rgba(0,0,0,0)); }
+        .card-plata .stats-divider, .card-oro .stats-divider { background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.3), rgba(0,0,0,0)); }
         .card-gris .stats-divider, .card-bronce .stats-divider, .card-leyenda .stats-divider { background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.4), rgba(255,255,255,0)); }
 
-        .stat-item { display: flex; gap: 8px; font-size: 1.35rem; align-items: center; width: 100%; justify-content: center;}
-        .stat-val { font-weight: 900; width: 45%; text-align: right; }
-        .stat-label { font-weight: bold; opacity: 0.85; width: 55%; text-align: left;}
+        .stat-item { display: flex; gap: 8px; font-size: 1.25rem; align-items: center;}
+        .stat-val { font-weight: 900; width: 30px; text-align: right; }
+        .stat-label { font-weight: bold; opacity: 0.8; }
         
         .stat-gk-wrapper { display: flex; justify-content: center; margin-top: 8px; width: 100%; }
-        .stat-gk-wrapper .stat-item { width: 50%; }
+        .stat-gk-wrapper .stat-item { justify-content: center; }
     </style>
 </head>
 <body>
@@ -256,7 +254,6 @@
 
             <div class="preview-container">
                 <div class="fifa-card historico card-oro" id="cartaFifa">
-                    <div class="card-shine"></div>
                     <div class="card-top">
                         <div class="card-info-left">
                             <div class="card-ovr" id="c_ovr">99</div>
