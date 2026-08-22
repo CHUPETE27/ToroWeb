@@ -7,7 +7,7 @@
     <link rel="icon" type="image/png" href="logo_torohax.png">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
 
     <style>
         * { box-sizing: border-box; }
@@ -204,38 +204,6 @@
         .fifa-card.exportando .card-bg {
             top: 0; left: 0; right: 0; bottom: 0;
             clip-path: none !important;
-        }
-        .fifa-card.exportando .card-shine {
-            top: 0 !important; 
-            left: 0 !important; 
-            width: 100% !important; 
-            height: 100% !important;
-            transform: none !important;
-            background: linear-gradient(115deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 45%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.05) 55%, rgba(255,255,255,0) 100%) !important;
-        }
-
-        .fifa-card.exportando .stats-col {
-            flex: none !important;
-            width: 120px !important;
-        }
-
-        .fifa-card.exportando .stat-item {
-            display: block !important;
-            text-align: center !important;
-            margin-bottom: 2px !important;
-        }
-
-        .fifa-card.exportando .stat-val {
-            display: inline-block !important;
-            width: 40px !important;
-            text-align: right !important;
-            margin-right: 8px !important;
-        }
-
-        .fifa-card.exportando .stat-label {
-            display: inline-block !important;
-            width: 40px !important;
-            text-align: left !important;
         }
     </style>
 </head>
@@ -670,10 +638,9 @@
             const cartaElement = document.getElementById('cartaFifa');
             cartaElement.classList.add('exportando');
 
-            html2canvas(cartaElement, {
-                scale: 3,
-                backgroundColor: null,
-                logging: false
+            htmlToImage.toCanvas(cartaElement, {
+                pixelRatio: 3,
+                backgroundColor: 'rgba(0,0,0,0)'
             }).then(canvas => {
                 cartaElement.classList.remove('exportando');
                 
@@ -728,6 +695,7 @@
                 btn.disabled = false;
             }).catch(err => {
                 cartaElement.classList.remove('exportando');
+                console.error(err);
                 alert("Hubo un error al generar la imagen. Inténtalo desde un PC.");
                 btn.innerHTML = originalText;
                 btn.disabled = false;
