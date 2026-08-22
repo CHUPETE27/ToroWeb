@@ -10,8 +10,7 @@ function initRain() {
         width: '100vw',
         height: '100vh',
         zIndex: '-2',
-        pointerEvents: 'none',
-        display: 'none'
+        pointerEvents: 'none'
     });
     document.body.appendChild(canvas);
 
@@ -69,7 +68,6 @@ function initRain() {
         }
         requestAnimationFrame(draw);
     }
-    
     draw();
 }
 
