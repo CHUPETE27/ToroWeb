@@ -17,8 +17,8 @@ function initLight() {
     const ctx = canvas.getContext('2d');
     let width, height, cx, cy;
     
-    const numStars = 600;
-    const warpSpeed = 12;
+    const numStars = 600; 
+    const warpSpeed = 3;
     let stars = [];
 
     function resize() {
@@ -34,8 +34,8 @@ function initLight() {
         star.x = (Math.random() - 0.5) * 3000;
         star.y = (Math.random() - 0.5) * 3000;
         star.z = Math.random() * 2000 + 100;
-        star.pz = star.z;
-
+        star.pz = star.z; 
+        
         const rand = Math.random();
         if (rand > 0.9) star.color = '#ffffff';
         else if (rand > 0.6) star.color = '#FFD342';
@@ -58,7 +58,7 @@ function initLight() {
         time += 0.01;
 
         ctx.translate(cx, cy);
-        ctx.rotate(time * 0.2);
+        ctx.rotate(time * 0.05); 
         ctx.translate(-cx, -cy);
 
         for (let star of stars) {
