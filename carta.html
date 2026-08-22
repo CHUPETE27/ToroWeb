@@ -310,14 +310,23 @@
                             <hr style="border: 0; border-top: 1px solid rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255,255,255,0.2); margin: 15px 0;">
                             
                             <div class="hc-row">
+                                <span class="hc-label">capas (colores)</span>
+                                <div style="display: flex; gap: 15px;">
+                                    <label style="cursor: pointer; color: white; font-weight: bold;"><input type="radio" name="hc_layers" value="1" onchange="toggleLayers()"> 1</label>
+                                    <label style="cursor: pointer; color: white; font-weight: bold;"><input type="radio" name="hc_layers" value="2" onchange="toggleLayers()"> 2</label>
+                                    <label style="cursor: pointer; color: white; font-weight: bold;"><input type="radio" name="hc_layers" value="3" checked onchange="toggleLayers()"> 3</label>
+                                </div>
+                            </div>
+
+                            <div class="hc-row" id="row_c1">
                                 <span class="hc-label">color 1</span>
                                 <input id="txtC1" class="hc-input-styled" data-jscolor="{value:'0080FF', hash:false}" oninput="actualizarCarta()">
                             </div>
-                            <div class="hc-row">
+                            <div class="hc-row" id="row_c2">
                                 <span class="hc-label">color 2</span>
                                 <input id="txtC2" class="hc-input-styled" data-jscolor="{value:'004077', hash:false}" oninput="actualizarCarta()">
                             </div>
-                            <div class="hc-row">
+                            <div class="hc-row" id="row_c3">
                                 <span class="hc-label">color 3</span>
                                 <input id="txtC3" class="hc-input-styled" data-jscolor="{value:'002033', hash:false}" oninput="actualizarCarta()">
                             </div>
@@ -516,10 +525,15 @@
             const mode = document.querySelector('input[name="kitMode"]:checked').value;
             
             if (mode === 'custom') {
+                const layers = parseInt(document.querySelector('input[name="hc_layers"]:checked').value);
+                let customColors = [];
+                
+                customColors.push('#' + document.getElementById('txtC1').value);
+                if (layers >= 2) customColors.push('#' + document.getElementById('txtC2').value);
+                if (layers === 3) customColors.push('#' + document.getElementById('txtC3').value);
+
                 dibujarAvatarHaxball(
-                    '#' + document.getElementById('txtC1').value,
-                    '#' + document.getElementById('txtC2').value,
-                    '#' + document.getElementById('txtC3').value,
+                    customColors,
                     document.getElementById('hc_angle').value,
                     '#' + document.getElementById('txtTextCol').value
                 );
@@ -534,20 +548,28 @@
                     kitTarget = parts[1] === 'home' ? kitObj.home : kitObj.away;
                 }
 
+                const hexColors = kitTarget.colors.map(c => numToHex(c));
+
                 dibujarAvatarHaxball(
-                    numToHex(kitTarget.colors[0]), 
-                    numToHex(kitTarget.colors[1]), 
-                    numToHex(kitTarget.colors[2]), 
+                    hexColors, 
                     kitTarget.angle, 
                     numToHex(kitTarget.text)
                 );
             }
         }
 
-        function dibujarAvatarHaxball(c1, c2, c3, angleHax, textCol) {
+        function dibujarAvatarHaxball(colorsArr, angleHax, textCol) {
             const avatar = document.getElementById('c_avatar');
             const cssAngle = (parseInt(angleHax) || 0) + 90;
-            avatar.style.background = `linear-gradient(${cssAngle}deg, ${c1} 33.3%, ${c2} 33.3% 66.6%, ${c3} 66.6%)`;
+            
+            if (colorsArr.length === 1) {
+                avatar.style.background = colorsArr[0];
+            } else if (colorsArr.length === 2) {
+                avatar.style.background = `linear-gradient(${cssAngle}deg, ${colorsArr[0]} 50%, ${colorsArr[1]} 50%)`;
+            } else {
+                avatar.style.background = `linear-gradient(${cssAngle}deg, ${colorsArr[0]} 33.33%, ${colorsArr[1]} 33.33% 66.66%, ${colorsArr[2]} 66.66%)`;
+            }
+            
             avatar.style.color = textCol;
         }
 
@@ -730,6 +752,13 @@
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             });
+        }
+
+        function toggleLayers() {
+            const layers = parseInt(document.querySelector('input[name="hc_layers"]:checked').value);
+            document.getElementById('row_c2').style.display = layers >= 2 ? 'flex' : 'none';
+            document.getElementById('row_c3').style.display = layers === 3 ? 'flex' : 'none';
+            actualizarCarta();
         }
     </script>
     <script src="aurora.js"></script>
