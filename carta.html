@@ -66,11 +66,10 @@
         
         .fifa-card { 
             position: relative; width: 320px; height: 480px; 
-            display: flex; flex-direction: column; align-items: center; 
-            padding: 20px;
-            font-family: 'Arial', sans-serif; overflow: hidden;
+            font-family: 'Arial', sans-serif; 
             transition: all 0.5s ease;
-            box-shadow: inset 0 0 0 5px var(--border-col, transparent), 0 20px 50px rgba(0,0,0,0.8);
+            background-color: var(--border-col, transparent);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
         }
 
         .card-gris { --bg-1: #4b4b4b; --bg-2: #2c2c2c; --border-col: #8c8c8c; color: #fff; }
@@ -79,16 +78,45 @@
         .card-oro { --bg-1: #ffe066; --bg-2: #aa8014; --border-col: #fff5ba; color: #222; }
         .card-leyenda { --bg-1: #ff007f; --bg-2: #00d4ff; --border-col: #ffffff; color: #fff; }
 
-        .fifa-card.historico {
-            clip-path: polygon(10% 0, 90% 0, 100% 10%, 100% 82%, 50% 100%, 0 82%, 0 10%);
-            background: linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 100%);
+        .card-bg {
+            position: absolute; top: 4px; left: 4px; right: 4px; bottom: 4px; z-index: 0;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.3);
         }
 
-        .fifa-card.temporada {
-            clip-path: polygon(0 8%, 50% 0, 100% 8%, 100% 82%, 50% 100%, 0 82%);
-            padding-top: 35px;
-            background: linear-gradient(0deg, var(--bg-1) 0%, var(--bg-2) 100%);
+        .fifa-card.historico, .fifa-card.historico .card-bg {
+            clip-path: polygon(10% 0, 90% 0, 100% 10%, 100% 82%, 50% 100%, 0 82%, 0 10%);
         }
+        .fifa-card.historico .card-bg {
+            background-image: 
+                radial-gradient(circle at 50% 0%, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 60%),
+                radial-gradient(rgba(0,0,0,0.15) 1.5px, rgba(0,0,0,0) 1.5px),
+                linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 100%);
+            background-size: 100% 100%, 8px 8px, 100% 100%;
+        }
+
+        .fifa-card.temporada, .fifa-card.temporada .card-bg {
+            clip-path: polygon(0 8%, 50% 0, 100% 8%, 100% 82%, 50% 100%, 0 82%);
+        }
+        .fifa-card.temporada .card-bg {
+            background-image: 
+                radial-gradient(circle at 50% 100%, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 50%),
+                radial-gradient(circle at 20% 90%, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 40%),
+                radial-gradient(circle at 80% 90%, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0) 40%),
+                linear-gradient(0deg, var(--bg-1) 0%, var(--bg-2) 100%);
+            background-size: 100% 100%;
+        }
+
+        .card-shine {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(125deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 40%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.05) 60%, rgba(255,255,255,0) 100%);
+            opacity: 0.7; pointer-events: none; z-index: 1;
+        }
+
+        .card-content {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 2;
+            display: flex; flex-direction: column; align-items: center; padding: 20px;
+        }
+        .fifa-card.temporada .card-content { padding-top: 35px; }
 
         .card-top { display: flex; width: 100%; justify-content: space-between; align-items: flex-start; z-index: 2; margin-top: 5px;}
         .card-info-left { display: flex; flex-direction: column; align-items: center; width: 35%; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);}
@@ -104,8 +132,12 @@
             width: 140px; height: 140px; border-radius: 50%; border: 4px solid #111;
             display: flex; justify-content: center; align-items: center;
             font-size: 4.5rem; font-weight: bold; color: white;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+            box-shadow: inset 0 -10px 20px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.6);
             text-transform: uppercase; margin-top: 10px; z-index: 2; text-shadow: 2px 2px 5px rgba(0,0,0,0.8);
+        }
+
+        .fifa-card.exportando .haxball-circle {
+            box-shadow: 0 10px 20px rgba(0,0,0,0.6) !important; 
         }
 
         .card-name { font-size: 1.8rem; font-weight: 900; text-transform: uppercase; margin: 15px 0 5px 0; letter-spacing: 1px; z-index: 2; width: 100%; text-align: center; border-bottom: 2px solid rgba(0,0,0,0.1); padding-bottom: 5px; text-shadow: 1px 1px 2px rgba(0,0,0,0.2);}
@@ -117,20 +149,49 @@
         .card-plata .stats-grid, .card-oro .stats-grid { border-top-color: rgba(0,0,0,0.2); }
         .card-gris .stats-grid, .card-bronce .stats-grid, .card-leyenda .stats-grid { border-top-color: rgba(255,255,255,0.3); }
         
-        .stats-col { display: flex; flex-direction: column; flex: 1; padding: 0 15px; gap: 8px;}
-        .stats-divider { width: 2px; background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.2), transparent); }
-        .card-plata .stats-divider, .card-oro .stats-divider { background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.3), transparent); }
-        .card-gris .stats-divider, .card-bronce .stats-divider, .card-leyenda .stats-divider { background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.4), transparent); }
+        .stats-col { 
+            display: flex; 
+            flex-direction: column; 
+            flex: 1; 
+            padding: 0 10px; 
+            gap: 8px; 
+            align-items: center;
+        }
+        .stats-divider { width: 2px; background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.2), rgba(0,0,0,0)); }
+        .card-plata .stats-divider, .card-oro .stats-divider { background: linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,0.3), rgba(0,0,0,0)); }
+        .card-gris .stats-divider, .card-bronce .stats-divider, .card-leyenda .stats-divider { background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0.4), rgba(255,255,255,0)); }
 
-        .stat-item { display: flex; gap: 8px; font-size: 1.25rem; align-items: center;}
-        .stat-val { font-weight: 900; width: 30px; text-align: right; }
-        .stat-label { font-weight: bold; opacity: 0.8; }
+        .stat-item { 
+            display: flex; 
+            gap: 10px; 
+            font-size: 1.25rem; 
+            align-items: center; 
+            justify-content: center;
+            width: 100%;
+        }
+        .stat-val { 
+            font-weight: 900; 
+            width: 40px;
+            text-align: right; 
+        }
+        .stat-label { 
+            font-weight: bold; 
+            opacity: 0.8; 
+            width: 40px;
+            text-align: left; 
+        }
         
         .stat-gk-wrapper { display: flex; justify-content: center; margin-top: 8px; width: 100%; }
         .stat-gk-wrapper .stat-item { justify-content: center; }
 
         .fifa-card.exportando {
+            background-color: transparent !important;
+            clip-path: none !important;
             box-shadow: none !important;
+        }
+        .fifa-card.exportando .card-bg {
+            top: 0; left: 0; right: 0; bottom: 0;
+            clip-path: none !important;
         }
     </style>
 </head>
@@ -234,37 +295,43 @@
 
             <div class="preview-container">
                 <div class="fifa-card historico card-oro" id="cartaFifa">
-                    <div class="card-top">
-                        <div class="card-info-left">
-                            <div class="card-ovr" id="c_ovr">99</div>
-                            <div class="card-pos" id="c_pos">DEL</div>
-                            <div class="card-rank" id="c_rank" title="Rango Toro">🐂</div>
-                            <img src="logo_torohax.png" class="card-logo" alt="ToroHax">
+                    <div class="card-bg"></div>
+                    <div class="card-shine"></div>
+                    
+                    <div class="card-content">
+                        <div class="card-top">
+                            <div class="card-info-left">
+                                <div class="card-ovr" id="c_ovr">99</div>
+                                <div class="card-pos" id="c_pos">DEL</div>
+                                <div class="card-rank" id="c_rank" title="Rango Toro">🐂</div>
+                                <img src="logo_torohax.png" class="card-logo" alt="ToroHax">
+                            </div>
+                            
+                            <div class="card-avatar-container">
+                                <div class="haxball-circle" id="c_avatar">10</div>
+                            </div>
                         </div>
-                        
-                        <div class="card-avatar-container">
-                            <div class="haxball-circle" id="c_avatar">10</div>
+
+                        <div class="card-name" id="c_name">Nick</div>
+
+                        <div class="card-stats">
+                            <div class="stats-grid">
+                                <div class="stats-col">
+                                    <div class="stat-item"><span class="stat-val" id="s_tir">99</span> <span class="stat-label">TIR</span></div>
+                                    <div class="stat-item"><span class="stat-val" id="s_pas">99</span> <span class="stat-label">PAS</span></div>
+                                </div>
+                                <div class="stats-divider"></div>
+                                <div class="stats-col">
+                                    <div class="stat-item"><span class="stat-val" id="s_hab">99</span> <span class="stat-label">HAB</span></div>
+                                    <div class="stat-item"><span class="stat-val" id="s_def">99</span> <span class="stat-label">DEF</span></div>
+                                </div>
+                            </div>
+                            <div class="stat-gk-wrapper">
+                                <div class="stat-item"><span class="stat-val" id="s_gk">99</span> <span class="stat-label">GK</span></div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="card-name" id="c_name">Nick</div>
-
-                    <div class="card-stats">
-                        <div class="stats-grid">
-                            <div class="stats-col">
-                                <div class="stat-item"><span class="stat-val" id="s_tir">99</span> <span class="stat-label">TIR</span></div>
-                                <div class="stat-item"><span class="stat-val" id="s_pas">99</span> <span class="stat-label">PAS</span></div>
-                            </div>
-                            <div class="stats-divider"></div>
-                            <div class="stats-col">
-                                <div class="stat-item"><span class="stat-val" id="s_hab">99</span> <span class="stat-label">HAB</span></div>
-                                <div class="stat-item"><span class="stat-val" id="s_def">99</span> <span class="stat-label">DEF</span></div>
-                            </div>
-                        </div>
-                        <div class="stat-gk-wrapper">
-                            <div class="stat-item"><span class="stat-val" id="s_gk">99</span> <span class="stat-label">GK</span></div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -294,7 +361,7 @@
             { name: "Colo-Colo", home: { colors: [COLORS.blanco, COLORS.blanco, COLORS.negro], text: COLORS.negro, angle: 90 }, away: { colors: [0x191919, 0x121212, COLORS.negro], text: COLORS.rojo, angle: 60 } },
             { name: "U. Española", home: { colors: [COLORS.rojo, COLORS.rojo, COLORS.azul], text: COLORS.amarillo, angle: 90 }, away: { colors: [0x212121, COLORS.negro, 0x212121], text: COLORS.amarillo, angle: 0 } },
             { name: "Cobreloa", home: { colors: [0xF77B00, COLORS.naranja, 0xC96500], text: COLORS.blanco, angle: 60 }, away: { colors: [COLORS.negro, 0x0F0F0F, 0x141414], text: COLORS.naranja, angle: 60 } },
-            { name: "Magallanes", home: { colors: [COLORS.celeste, COLORS.blanco, COLORS.celeste], text: COLORS.dorado, angle: 0 }, away: { colors: [0xED4292, 0xF573CE, 0xED4292], text: COLORS.dorado, angle: 0 } },
+            { name: "Magallanes", home: { colors: [COLORS.celeste, COLORS.blanco, COLORS.celeste], text: COLORS.dorado, angle: 0 }, away: { colors: [0xED4292, 0xF573CE, 0xED4292], text: 0x1F1F1F, angle: 0 } },
             { name: "D. Concepción", home: { colors: [0xA250D9, COLORS.morado, 0x783CA1], text: COLORS.dorado_oscuro, angle: 60 }, away: { colors: [COLORS.blanco, 0xF2F2F2, 0xE8E8E8], text: COLORS.morado, angle: 60 } },
             { name: "D. Temuco", home: { colors: [COLORS.blanco, COLORS.verde_oscuro, COLORS.blanco], text: COLORS.negro, angle: 90 }, away: { colors: [COLORS.negro, COLORS.verde_oscuro, COLORS.negro], text: COLORS.blanco, angle: 90 } },
             { name: "D. Iquique", home: { colors: [0x87D7FF, COLORS.celeste, COLORS.celeste], text: COLORS.negro, angle: 90 }, away: { colors: [0x1F1F1F, 0x191919, 0x1F1F1F], text: COLORS.celeste, angle: 0 } },
