@@ -16,7 +16,8 @@ function initRain() {
 
     const ctx = canvas.getContext('2d', { alpha: true });
     let width, height;
-    const pixelSize = 8;
+    const pixelSize = 3; 
+    
     let columns;
     let drops = [];
 
@@ -28,8 +29,8 @@ function initRain() {
         for (let i = 0; i < columns; i++) {
             drops[i] = {
                 y: Math.random() * -height * 2,
-                speed: Math.random() * 1.5 + 0.5,
-                length: Math.floor(Math.random() * 15 + 5),
+                speed: Math.random() * 0.3 + 0.15, 
+                length: Math.floor(Math.random() * 30 + 15), 
                 color: Math.random() > 0.8 ? '#FFD342' : '#2df2c1'
             };
         }
@@ -38,7 +39,7 @@ function initRain() {
     resize();
 
     function draw() {
-        ctx.fillStyle = 'rgba(3, 70, 65, 0.15)';
+        ctx.fillStyle = 'rgba(3, 70, 65, 0.08)';
         ctx.fillRect(0, 0, width, height);
 
         for (let i = 0; i < drops.length; i++) {
@@ -61,9 +62,9 @@ function initRain() {
 
             drop.y += drop.speed * pixelSize;
 
-            if (drop.y - (drop.length * pixelSize) > height && Math.random() > 0.95) {
+            if (drop.y - (drop.length * pixelSize) > height && Math.random() > 0.98) {
                 drop.y = Math.random() * -100;
-                drop.speed = Math.random() * 1.5 + 0.5;
+                drop.speed = Math.random() * 0.3 + 0.15;
             }
         }
         requestAnimationFrame(draw);
