@@ -61,8 +61,6 @@
 
         .btn-descargar { width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.1rem; border: none; background: #FFD342; color: #111; display: flex; justify-content: center; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 1px;}
         .btn-descargar:hover { background: #ffdf73; box-shadow: 0 0 20px rgba(255, 211, 66, 0.4); transform: translateY(-2px); }
-        
-        /* ESTILOS DE LA CARTA FIFA */
         .preview-container { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 20px;}
         
         .fifa-card { 
@@ -75,7 +73,6 @@
             box-shadow: inset 0 0 15px rgba(0,0,0,0.3), 0 20px 50px rgba(0,0,0,0.8);
         }
 
-        /* Clase crucial: Desactiva los cortes en HTML para que el Script matemático lo corte perfectamente */
         .fifa-card.exportando {
             clip-path: none !important;
             border: none !important;
@@ -89,7 +86,6 @@
         .card-oro { --bg-1: #ffe066; --bg-2: #aa8014; --border-col: #fff5ba; color: #222; }
         .card-leyenda { --bg-1: #ff007f; --bg-2: #00d4ff; --border-col: #ffffff; color: #fff; }
 
-        /* DISEÑO HISTÓRICO */
         .fifa-card.historico {
             clip-path: polygon(10% 0, 90% 0, 100% 10%, 100% 82%, 50% 100%, 0 82%, 0 10%);
             background-image: 
@@ -99,7 +95,6 @@
             background-size: 100% 100%, 8px 8px, 100% 100%;
         }
 
-        /* NUEVO DISEÑO TEMPORADA: Aura ascendente amigable con html2canvas */
         .fifa-card.temporada {
             clip-path: polygon(0 8%, 50% 0, 100% 8%, 100% 82%, 50% 100%, 0 82%);
             padding-top: 35px;
@@ -207,7 +202,6 @@
                             <option value="ToroHax_away">ToroHax (Visita)</option>
                         </select>
 
-                        <!-- Panel VIP -->
                         <div class="haxcolors-box" id="haxcolorsBox">
                             <div class="hc-row">
                                 <span class="hc-label">angle</span>
@@ -531,6 +525,21 @@
             else if (pos === "DEF") OVR = Math.round(TIR*0.02 + PAS*0.13 + HAB*0.05 + DEF*0.8);
             else if (pos === "GK") OVR = GK;
 
+            let boost = 0;
+            if (p_partidos >= 10) {
+                if (elo < 360) boost = 0;
+                else if (elo < 810) boost = 1;
+                else if (elo < 1400) boost = 2;
+                else if (elo < 2150) boost = 3;
+                else if (elo < 3050) boost = 4;
+                else if (elo < 3950) boost = 5;
+                else if (elo < 5000) boost = 6;
+                else boost = 7;
+            }
+
+            OVR += boost;
+            if (OVR > 99) OVR = 99;
+
             document.getElementById('s_tir').innerText = TIR;
             document.getElementById('s_pas').innerText = PAS;
             document.getElementById('s_hab').innerText = HAB;
@@ -574,14 +583,18 @@
                 logging: false
             }).then(canvas => {
                 cartaElement.classList.remove('exportando');
+                
+                const pad = 24; 
                 const finalCanvas = document.createElement('canvas');
-                finalCanvas.width = canvas.width;
-                finalCanvas.height = canvas.height;
+                finalCanvas.width = canvas.width + (pad * 2);
+                finalCanvas.height = canvas.height + (pad * 2);
                 const ctx = finalCanvas.getContext('2d');
 
                 const isTemp = document.getElementById('selModo').value === 'temp';
-                const w = finalCanvas.width;
-                const h = finalCanvas.height;
+                const w = canvas.width;
+                const h = canvas.height;
+
+                ctx.translate(pad, pad);
 
                 ctx.beginPath();
                 if (isTemp) {
@@ -609,7 +622,7 @@
 
                 const borderCol = getComputedStyle(cartaElement).getPropertyValue('--border-col').trim();
                 ctx.strokeStyle = borderCol || '#ffffff';
-                ctx.lineWidth = 12;
+                ctx.lineWidth = 14;
                 ctx.lineJoin = 'miter'; 
                 ctx.stroke();
 
