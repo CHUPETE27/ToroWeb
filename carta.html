@@ -308,6 +308,32 @@
             top: 0; left: 0; right: 0; bottom: 0;
             clip-path: none !important;
         }
+
+        .btn-volver {
+            background: rgba(0, 0, 0, 0.4);
+            color: #bdc3c7;
+            border: 1px solid #333;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .btn-volver:hover {
+            background: rgba(93, 200, 232, 0.1);
+            color: #5dc8e8;
+            border-color: #5dc8e8;
+            box-shadow: 0 0 10px rgba(93, 200, 232, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -317,6 +343,10 @@
         <div class="carta-wrapper" style="display: none;" id="mainContent">
             
             <div class="controles-box">
+                <button onclick="window.location.href='perfil.html'" class="btn-volver">
+                    <i class="fa-solid fa-arrow-left"></i> Volver
+                </button>
+
                 <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Crea tu Carta</h3>
 
                 <div class="control-section">
