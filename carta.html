@@ -29,20 +29,84 @@
 
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 6px; color: #fff; font-weight: bold; font-size: 0.95rem;}
-        
-        .form-group select {
-            width: 100%; padding: 12px 15px; font-size: 1rem; color: #fff; background-color: #1a1a1a;
-            border: 1px solid #444; border-radius: 8px; outline: none; cursor: pointer; transition: 0.2s;
-            appearance: none; -webkit-appearance: none;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFD342' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat; background-position: right 15px center; background-size: 15px;
-        }
-        .form-group select option { background-color: #1a1a1a; color: #fff; padding: 12px; }
-        .form-group select option:checked { background: linear-gradient(#005f73, #005f73) !important; background-color: #005f73 !important; color: white !important; }
-        .form-group select option:hover { background: linear-gradient(#5dc8e8, #5dc8e8) !important; background-color: #5dc8e8 !important; color: #111 !important; }
-
         .form-group input[type="text"], .form-group input[type="number"] { width: 100%; background: #1a1a1a; border: 1px solid #444; color: white; padding: 12px 15px; border-radius: 8px; outline: none; transition: 0.2s; font-size: 1rem;}
-        .form-group select:focus, .form-group input[type="text"]:focus { border-color: #5dc8e8; box-shadow: 0 0 10px rgba(93, 200, 232, 0.2);}
+
+        .custom-select-wrapper {
+            position: relative;
+            user-select: none;
+            width: 100%;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        .custom-select-trigger {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            padding: 12px 15px;
+            font-size: 1rem;
+            color: #fff;
+            background-color: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .custom-select-wrapper.open .custom-select-trigger {
+            border-color: #5dc8e8;
+            box-shadow: 0 0 10px rgba(93, 200, 232, 0.2);
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+        
+        .custom-select-options {
+            position: absolute;
+            display: block;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: #1a1a1a;
+            border: 1px solid #5dc8e8;
+            border-top: none;
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+            z-index: 100;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        
+        .custom-select-wrapper.open .custom-select-options {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: all;
+            transform: translateY(0);
+        }
+        
+        .custom-option {
+            padding: 10px 15px;
+            color: #ddd;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 0.95rem;
+        }
+        
+        .custom-option:hover {
+            background-color: #2a2a2a;
+            color: #fff;
+        }
+        
+        .custom-option.selected {
+            background-color: #0080FF;
+            color: #fff;
+            font-weight: bold;
+        }
 
         .radio-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; border: 1px solid #333;}
         .radio-label { display: flex; flex-direction: row; align-items: center; cursor: pointer; color: #fff; font-size: 0.95rem; font-weight: bold; line-height: 1; margin: 0; padding: 0;}
@@ -499,23 +563,26 @@
 
         function llenarSelectKits() {
             const select = document.getElementById('selKit');
+            select.innerHTML = '';
             KIT_COLORS.forEach((kit, i) => {
                 if (kit.name === "ToroHax") return;
                 select.innerHTML += `<option value="${i}_home">${kit.name} (Local)</option>`;
                 select.innerHTML += `<option value="${i}_away">${kit.name} (Visita)</option>`;
             });
+            
+            crearSelectsPersonalizados();
         }
 
         function toggleKitMode() {
             const mode = document.querySelector('input[name="kitMode"]:checked').value;
-            const selKit = document.getElementById('selKit');
+            const wrapperKit = document.querySelector('.wrapper-selKit'); 
             const hcBox = document.getElementById('haxcolorsBox');
 
             if (mode === 'server') {
-                selKit.style.display = 'block';
+                if (wrapperKit) wrapperKit.style.display = 'block';
                 hcBox.style.display = 'none';
             } else {
-                selKit.style.display = 'none';
+                if (wrapperKit) wrapperKit.style.display = 'none';
                 hcBox.style.display = 'block';
             }
             actualizarCarta();
@@ -575,6 +642,59 @@
 
         function actualizarAvatarTexto() {
             document.getElementById('c_avatar').innerText = document.getElementById('txtAvatar').value || " ";
+        }
+
+        function crearSelectsPersonalizados() {
+            document.querySelectorAll('select').forEach(select => {
+                if (select.nextElementSibling && select.nextElementSibling.classList.contains('custom-select-wrapper')) return;
+
+                select.style.display = 'none';
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'custom-select-wrapper';
+                wrapper.classList.add('wrapper-' + select.id);
+
+                const trigger = document.createElement('div');
+                trigger.className = 'custom-select-trigger';
+                trigger.innerHTML = `<span>${select.options[select.selectedIndex].text}</span> <i class="fa-solid fa-chevron-down" style="color:#FFD342; font-size: 0.8rem;"></i>`;
+
+                const optionsList = document.createElement('div');
+                optionsList.className = 'custom-select-options';
+
+                Array.from(select.options).forEach((option, index) => {
+                    const optDiv = document.createElement('div');
+                    optDiv.className = 'custom-option';
+                    if (option.selected) optDiv.classList.add('selected');
+                    optDiv.textContent = option.text;
+                    
+                    optDiv.addEventListener('click', () => {
+                        select.selectedIndex = index;
+                        select.dispatchEvent(new Event('change'));
+                        trigger.querySelector('span').textContent = option.text;
+                        
+                        optionsList.querySelectorAll('.custom-option').forEach(el => el.classList.remove('selected'));
+                        optDiv.classList.add('selected');
+                        wrapper.classList.remove('open');
+                    });
+                    optionsList.appendChild(optDiv);
+                });
+
+                wrapper.appendChild(trigger);
+                wrapper.appendChild(optionsList);
+                select.parentNode.insertBefore(wrapper, select.nextSibling);
+
+                trigger.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    document.querySelectorAll('.custom-select-wrapper').forEach(w => {
+                        if (w !== wrapper) w.classList.remove('open');
+                    });
+                    wrapper.classList.toggle('open');
+                });
+            });
+
+            document.addEventListener('click', () => {
+                document.querySelectorAll('.custom-select-wrapper').forEach(w => w.classList.remove('open'));
+            });
         }
 
         function getRankEmoji(elo, partidos) {
