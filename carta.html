@@ -66,8 +66,8 @@
             top: 100%;
             left: 0;
             right: 0;
-            background-color: #1a1a1a;
-            border: 1px solid #5dc8e8;
+            background-color: #022421;
+            border: 1px solid #FFD342;
             border-top: none;
             border-bottom-left-radius: 8px;
             border-bottom-right-radius: 8px;
@@ -103,7 +103,7 @@
         }
         
         .custom-option.selected {
-            background-color: #0080FF;
+            background-color: #12b99d;
             color: #fff;
             font-weight: bold;
         }
@@ -564,6 +564,9 @@
         function llenarSelectKits() {
             const select = document.getElementById('selKit');
             select.innerHTML = '';
+            select.innerHTML += `<option value="ToroHax_home" selected>ToroHax (Local)</option>`;
+            select.innerHTML += `<option value="ToroHax_away">ToroHax (Visita)</option>`;
+
             KIT_COLORS.forEach((kit, i) => {
                 if (kit.name === "ToroHax") return;
                 select.innerHTML += `<option value="${i}_home">${kit.name} (Local)</option>`;
