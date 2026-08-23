@@ -322,10 +322,10 @@
                 <div class="control-section">
                     <div class="section-title"><i class="fa-solid fa-chart-simple"></i> Atributos</div>
                     <div class="form-group">
-                        <label>Evaluación</label>
+                        <label>Tipo de carta</label>
                         <select id="selModo" onchange="actualizarCarta()">
-                            <option value="hist">Histórico (Carrera)</option>
-                            <option value="temp">Temporada Actual</option>
+                            <option value="hist">Histórico</option>
+                            <option value="temp">Temporada</option>
                         </select>
                     </div>
 
@@ -347,7 +347,7 @@
                         <div class="radio-group">
                             <label class="radio-label">
                                 <input type="radio" name="kitMode" value="server" checked onchange="toggleKitMode()"> 
-                                <span>Equipos del Servidor</span>
+                                <span>Equipos</span>
                             </label>
                             <label class="radio-label disabled" id="lblVipCustom">
                                 <input type="radio" name="kitMode" value="custom" id="radioCustom" onchange="toggleKitMode()" disabled> 
@@ -362,19 +362,19 @@
 
                         <div class="haxcolors-box" id="haxcolorsBox">
                             <div class="hc-row">
-                                <span class="hc-label">angle</span>
+                                <span class="hc-label">ángulo</span>
                                 <input type="number" id="hc_angle" class="hc-angle" value="60" oninput="actualizarCarta()">
                             </div>
                             
                             <div class="hc-row">
-                                <span class="hc-label">avatar text</span>
+                                <span class="hc-label">color avatar</span>
                                 <input id="txtTextCol" class="hc-input-styled" data-jscolor="{value:'FFFFFF', hash:false}" oninput="actualizarCarta()">
                             </div>
 
                             <hr style="border: 0; border-top: 1px solid rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255,255,255,0.2); margin: 15px 0;">
                             
                             <div class="hc-row">
-                                <span class="hc-label">capas (colores)</span>
+                                <span class="hc-label">estilo</span>
                                 <div style="display: flex; gap: 15px;">
                                     <label style="cursor: pointer; color: white; font-weight: bold;"><input type="radio" name="hc_layers" value="1" onchange="toggleLayers()"> 1</label>
                                     <label style="cursor: pointer; color: white; font-weight: bold;"><input type="radio" name="hc_layers" value="2" onchange="toggleLayers()"> 2</label>
@@ -398,7 +398,7 @@
                     </div>
 
                     <div class="form-group" style="margin-bottom: 0;">
-                        <label>Texto del Avatar (Max 2)</label>
+                        <label>Texto del Avatar</label>
                         <input type="text" id="txtAvatar" maxlength="2" value="10" oninput="actualizarAvatarTexto()" placeholder="Ej: 10 o LM">
                     </div>
                 </div>
