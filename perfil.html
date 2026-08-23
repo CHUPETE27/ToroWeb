@@ -85,6 +85,33 @@
 
         .loading-text { text-align: center; font-size: 1.5rem; color: #FFD342; margin-top: 100px; width: 100%;}
 
+        .profile-actions {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .btn-action {
+            pointer-events: auto;
+            background: rgba(0,0,0,0.6);
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+        .btn-carta { color: #FFD342; border: 1px solid #FFD342; }
+        .btn-guardar { color: #2df2c1; border: 1px solid #2df2c1; }
+        
+        .btn-carta:hover { background: rgba(255, 211, 66, 0.2); box-shadow: 0 0 10px rgba(255, 211, 66, 0.3); }
+        .btn-guardar:hover { background: rgba(45, 242, 193, 0.2); box-shadow: 0 0 10px rgba(45, 242, 193, 0.3); }
+
         @media (max-width: 768px) { 
             .vip-form-grid { grid-template-columns: 1fr; } 
             .save-btn { grid-column: span 1; } 
@@ -100,6 +127,11 @@
             #eloCenterText { width: 100%; text-align: center; order: 3; margin-top: 5px;}
             .tab-btn { font-size: 0.9rem; padding: 10px; }
             .chart-box { padding: 15px 10px; }
+            .profile-actions {
+                position: relative;
+                top: 0; left: 0; right: 0;
+                margin-bottom: 15px; 
+            }
         }
     </style>
 </head>
@@ -110,13 +142,14 @@
         <h2 id="loading" class="loading-text">⏳ Cargando perfil...</h2>
 
         <div class="profile-container" id="profileContainer">
-            <button onclick="descargarStats()" id="btnDownloadImg" style="position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.5); color: #2df2c1; border: 1px solid #2df2c1; padding: 8px 12px; border-radius: 5px; cursor: pointer; transition: 0.3s; z-index: 10; font-weight: bold;">
-                <i class="fa-solid fa-camera"></i> Guardar
-            </button>
-
-            <button onclick="window.location.href='carta.html'" id="btnGoCarta" style="position: absolute; top: 15px; left: 15px; background: rgba(0,0,0,0.5); color: #FFD342; border: 1px solid #FFD342; padding: 8px 12px; border-radius: 5px; cursor: pointer; transition: 0.3s; z-index: 10; font-weight: bold;">
-                <i class="fa-solid fa-id-card"></i> Carta
-            </button>
+            <div class="profile-actions" id="actionButtonsRow">
+                <button onclick="window.location.href='carta.html'" id="btnGoCarta" class="btn-action btn-carta">
+                    <i class="fa-solid fa-id-card"></i> Carta
+                </button>
+                <button onclick="descargarStats()" id="btnDownloadImg" class="btn-action btn-guardar">
+                    <i class="fa-solid fa-camera"></i> Guardar
+                </button>
+            </div>
 
             <div class="profile-header">
                 <h2 id="playerName">Nombre</h2>
@@ -503,13 +536,11 @@
             const container = document.getElementById('profileContainer');
             const tabButtons = container.querySelectorAll('.profile-tabs');
             const vipSection = document.getElementById('section-vip');
-            const saveBtn = document.getElementById('btnDownloadImg');
-            const cartaBtn = document.getElementById('btnGoCarta');
+            const actionRow = document.getElementById('actionButtonsRow');
             
             tabButtons.forEach(tab => tab.style.display = 'none');
             if (vipSection) vipSection.style.display = 'none';
-            if (saveBtn) saveBtn.style.display = 'none';
-            if (cartaBtn) cartaBtn.style.display = 'none';
+            if (actionRow) actionRow.style.display = 'none';
 
             html2canvas(container, { 
                 backgroundColor: "#141414", 
@@ -523,8 +554,7 @@
                 link.click();
 
                 tabButtons.forEach(tab => tab.style.display = 'flex');
-                if (saveBtn) saveBtn.style.display = 'inline-block';
-                if (cartaBtn) cartaBtn.style.display = 'inline-block';
+                if (actionRow) actionRow.style.display = 'flex';
             });
         }
     </script>
