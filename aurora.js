@@ -58,7 +58,7 @@ function initAurora() {
                 // Mezcla fluida entre Cyan y Dorado
                 vec3 layerCol = mix(
                     vec3(0.18, 0.95, 0.76), // #2df2c1 (Cyan)
-                    vec3(1.0, 0.83, 0.26),  // #FFD342 (Dorado)
+                    vec3(1.0, 0.83, 0.26),  // #0e9670 (Dorado)
                     sin(uv.x * 4.0 + t + i) * 0.5 + 0.5
                 );
                 

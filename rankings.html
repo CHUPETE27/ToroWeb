@@ -12,11 +12,27 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { box-sizing: border-box; }
-        body { overflow-x: hidden; width: 100%; position: relative; overflow-y: auto; }
+        body { overflow-x: hidden; width: 100%; position: relative; overflow-y: auto; background-color: #0a0a0a; color: white;}
 
         main { display: flex; flex-direction: column; align-items: center; width: 95%; max-width: 1000px; margin: 5vh auto 50px; text-align: center; }
         
-        .rankings-title { color: #FFD342; text-transform: uppercase; letter-spacing: 2px; font-size: 2.2rem; margin-bottom: 30px; }
+        .rankings-title { color: #FFD342; text-transform: uppercase; letter-spacing: 2px; font-size: 2.2rem; margin-bottom: 20px; }
+        
+        /* --- NUEVO: BANNER DE TEMPORADA --- */
+        .season-banner {
+            display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(135deg, rgba(204, 42, 42, 0.15) 0%, rgba(255, 211, 66, 0.1) 100%);
+            border: 1px solid #FFD342; border-radius: 15px; padding: 20px 30px;
+            width: 100%; max-width: 1000px; margin-bottom: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            flex-wrap: wrap; gap: 20px;
+        }
+        .season-info { text-align: left; }
+        .season-info h3 { margin: 0 0 5px 0; color: #FFD342; font-size: 1.8rem; text-transform: uppercase; }
+        .season-info p { margin: 0; color: #bdc3c7; font-size: 1.1rem; }
+        .season-info strong { color: white; }
+        .season-countdown { text-align: right; }
+        .season-countdown p { margin: 0 0 5px 0; color: #FFD342; font-weight: bold; font-size: 1rem; text-transform: uppercase;}
+        .countdown-timer { font-family: monospace; font-size: 2rem; font-weight: bold; color: #fff; background: rgba(0,0,0,0.5); padding: 5px 15px; border-radius: 8px; letter-spacing: 2px; border: 1px solid #333;}
         
         .search-container { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; max-width: 600px; }
         .search-container input { flex-grow: 1; background: #111; color: white; border: 1px solid #555; padding: 12px; border-radius: 8px; outline: none; text-align: center; font-size: 1rem;}
@@ -41,8 +57,8 @@
         .table-container::-webkit-scrollbar-thumb { background: #555; border-radius: 10px; }
 
         table { width: 100%; border-collapse: collapse; min-width: 600px; text-align: center; }
-        th { background: rgba(0,0,0,0.6); color: #FFD342; padding: 15px; font-size: 1.1rem; border-bottom: 2px solid #333; }
-        td { padding: 15px; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: middle; cursor: pointer; transition: 0.2s;} 
+        th { background: rgba(0,0,0,0.6); color: #FFD342; padding: 15px; font-size: 1.1rem; border-bottom: 2px solid #333; white-space: nowrap;}
+        td { padding: 15px; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: middle; cursor: pointer; transition: 0.2s; white-space: nowrap;} 
         tr:hover td { background: rgba(255,211,66,0.1); }
         
         .highlighted-row { background: rgba(255, 211, 66, 0.2) !important; outline: 2px solid #FFD342; animation: blinkRow 2s infinite;}
@@ -92,10 +108,17 @@
 
         .loading-text { color: #FFD342; padding: 50px; font-size: 1.2rem; }
 
+        /* --- RESPONSIVIDAD ESTRICTA --- */
         @media (max-width: 768px) { 
             .tab-btn { max-width: 48%; font-size: 0.95rem; padding: 10px; }
             .filter-container { flex-direction: row; flex-wrap: wrap; border-radius: 15px; padding: 10px; }
             .filter-btn { width: 45%; padding: 10px; font-size: 0.95rem;}
+        }
+
+        @media (max-width: 650px) {
+            .season-banner { flex-direction: column; text-align: center; padding: 15px; }
+            .season-info { text-align: center; }
+            .season-countdown { text-align: center; width: 100%; }
         }
 
         @media (max-width: 480px) {
@@ -106,6 +129,8 @@
             .player-id { display: block; margin-left: 0; margin-top: 2px; font-size: 0.75rem; }
             .tab-btn { max-width: 100%; }
 
+            .countdown-timer { font-size: 1.4rem; padding: 5px 10px; letter-spacing: 1px;}
+            
             .modal-content { padding: 20px 15px; }
             .modal-name { font-size: 1.6rem; }
             .modal-charts-grid { grid-template-columns: 1fr; }
@@ -117,6 +142,18 @@
 
     <main>
         <h2 class="rankings-title">TOPS de ToroHax</h2>
+
+        <!-- BANNER DE TEMPORADA CON CONTADOR -->
+        <div class="season-banner" id="seasonBanner" style="display: none;">
+            <div class="season-info">
+                <h3>🏆 Temporada <span id="seasonNumber">...</span></h3>
+                <p>Termina el: <strong id="seasonEndDate">...</strong></p>
+            </div>
+            <div class="season-countdown">
+                <p>⏳ Tiempo Restante:</p>
+                <div class="countdown-timer" id="countdownTimer">--:--:--:--</div>
+            </div>
+        </div>
 
         <div class="search-container">
             <input type="text" id="searchInput" placeholder="Buscar por Nombre o ID de host">
@@ -234,6 +271,7 @@
         let paginaActual = 1;
         let totalPaginas = 1;
         let targetHighlightId = null; 
+        let countdownInterval = null;
         const loggedUserId = localStorage.getItem('toroHaxLoggedId') || '';
 
         const encabezados = {
@@ -242,6 +280,60 @@
             'defensas': ['Recuperaciones', 'Recup. / Partido'],
             'arqueros': ['Atajadas', 'Porterías en 0'] 
         };
+
+        // --- FUNCIONES DEL CONTADOR DE TEMPORADA ---
+        async function cargarConfiguracionTemporada() {
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/config');
+                const data = await res.json();
+
+                document.getElementById('seasonNumber').innerText = data.temporada || 1;
+                
+                let targetDateStr = data.fechaReinicio || "2026-08-01T04:00:00Z";
+                const targetDate = new Date(targetDateStr);
+
+                document.getElementById('seasonEndDate').innerText = targetDate.toLocaleDateString('es-CL', { year: 'numeric', month: 'long', day: 'numeric' });
+                document.getElementById('seasonBanner').style.display = 'flex';
+
+                iniciarContador(targetDate);
+            } catch (e) {
+                console.error("Error cargando config de temporada", e);
+            }
+        }
+
+        function iniciarContador(targetDate) {
+            const timerEl = document.getElementById('countdownTimer');
+            if (countdownInterval) clearInterval(countdownInterval);
+            
+            function actualizar() {
+                const now = new Date();
+                const diff = targetDate - now;
+
+                if (diff <= 0) {
+                    timerEl.innerText = "¡TEMPORADA FINALIZADA!";
+                    timerEl.style.color = "#cc2a2a";
+                    return;
+                }
+
+                const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                const mins = Math.floor((diff / 1000 / 60) % 60);
+                const secs = Math.floor((diff / 1000) % 60);
+
+                const dStr = String(days).padStart(2, '0');
+                const hStr = String(hours).padStart(2, '0');
+                const mStr = String(mins).padStart(2, '0');
+                const sStr = String(secs).padStart(2, '0');
+
+                timerEl.innerText = `${dStr}d ${hStr}h ${mStr}m ${sStr}s`;
+            }
+
+            actualizar();
+            countdownInterval = setInterval(actualizar, 1000);
+        }
+
+        window.addEventListener('DOMContentLoaded', cargarConfiguracionTemporada);
+        // ---------------------------------------------
 
         function getNivelRango(elo, min, max) {
             const tercio = (max - min) / 3;
