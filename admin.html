@@ -81,15 +81,15 @@
         .modal-content { 
             background: rgba(20, 20, 20, 0.95); 
             border: 1px solid #FFD342; 
-            padding: 40px;
+            padding: 40px; 
             border-radius: 15px; 
             width: 100%; 
-            max-width: 650px;
+            max-width: 650px; 
             color: white; 
             position: relative; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            max-height: 90vh;
-            overflow-y: auto;
+            max-height: 90vh; 
+            overflow-y: auto; 
         }
         
         .modal-content::-webkit-scrollbar { width: 8px; }
@@ -118,7 +118,7 @@
         }
 
         @media (max-width: 650px) {
-            .modal-content { padding: 30px 20px; }
+            .modal-content { padding: 30px 20px; } 
             .admin-wrapper { padding: 0 15px; margin-top: 5vh; }
             .box { padding: 15px; }
             .duration-row { flex-direction: column; }
@@ -191,7 +191,7 @@
                             <input type="number" id="unbanId" placeholder="Ej: 150">
                         </div>
 
-                        <button class="btn-estandar btn-unban" id="btnSubmitUnban" onclick="ejecutarDesbaneo()">
+                        <button class="btn-estandar btn-unban" id="btnSubmitUnban" onclick="iniciarDesbaneoGlobal()">
                             <i class="fa-solid fa-circle-check"></i> Desbanear Jugador
                         </button>
                     </div>
@@ -335,26 +335,40 @@
             </div>
             
             <div style="text-align: left; margin-bottom: 25px; line-height: 1.8; font-size: 1.1rem;">
-                <p style="color: #bdc3c7; margin: 12px 0;"><strong>👤 Jugador:</strong> <span id="m_ban_name" style="color: white; font-weight:bold; font-size:1.15rem; margin-left: 5px;">...</span></p>
+                <p style="color: #bdc3c7; margin: 12px 0;"><strong>Jugador:</strong> <span id="m_ban_name" style="color: white; font-weight:bold; font-size:1.15rem; margin-left: 5px;">...</span></p>
                 
-                <p style="color: #bdc3c7; margin: 12px 0;"><strong>🆔 ID:</strong> <span id="m_ban_id" class="id-badge" style="margin-left: 8px; font-size: 1rem;">...</span></p>
+                <p style="color: #bdc3c7; margin: 12px 0;"><strong>ID:</strong> <span id="m_ban_id" class="id-badge" style="margin-left: 8px; font-size: 1rem;">...</span></p>
                 
-                <p style="color: #bdc3c7; margin: 12px 0;"><strong>🔑 Auth:</strong> 
+                <p style="color: #bdc3c7; margin: 12px 0;"><strong>Auth:</strong> 
                     <span id="m_ban_auth" class="data-block" style="color: #5dc8e8;">...</span>
                 </p>
                 
-                <p style="color: #bdc3c7; margin: 12px 0;"><strong>👮 Admin:</strong> <span id="m_ban_admin" style="color: #FFD342; font-weight:bold; margin-left: 5px;">...</span></p>
+                <p style="color: #bdc3c7; margin: 12px 0;"><strong>Admin:</strong> <span id="m_ban_admin" style="color: #FFD342; font-weight:bold; margin-left: 5px;">...</span></p>
                 
-                <p style="color: #bdc3c7; margin: 12px 0;"><strong>📝 Motivo:</strong> <span id="m_ban_reason" style="color: white; margin-left: 5px;">...</span></p>
+                <p style="color: #bdc3c7; margin: 12px 0;"><strong>Motivo:</strong> <span id="m_ban_reason" style="color: white; margin-left: 5px;">...</span></p>
                 
-                <p style="color: #bdc3c7; margin: 12px 0;"><strong>📅 Expira:</strong> <span id="m_ban_until" style="color: #2df2c1; font-weight:bold; margin-left: 5px;">...</span></p>
+                <p style="color: #bdc3c7; margin: 12px 0;"><strong>Expira:</strong> <span id="m_ban_until" style="color: #2df2c1; font-weight:bold; margin-left: 5px;">...</span></p>
             </div>
             
             <div style="margin-top: 25px; display:flex; gap:15px; justify-content: center; flex-wrap: wrap;">
-                <button class="btn-estandar btn-unban" style="margin-top:0; flex: 1; padding: 15px;" onclick="prepararDesbaneoModal()">
+                <button class="btn-estandar btn-unban" style="margin-top:0; flex: 1; padding: 15px;" onclick="iniciarDesbaneoDesdeModal()">
                     <i class="fa-solid fa-unlock"></i> Desbanear
                 </button>
                 <button class="btn-estandar" style="background:#333; color:white; border: 1px solid #555; margin-top:0; flex: 1; padding: 15px;" onclick="cerrarModalBan()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="confirmUnbanModal" onclick="cerrarConfirmUnbanClickFuera(event)" style="z-index: 10005;">
+        <div class="modal-content" style="max-width: 450px; border-color: #2df2c1; text-align: center;">
+            <h2 style="color: #2df2c1; margin-top: 0; font-size: 1.8rem;"><i class="fa-solid fa-circle-question"></i> Confirmación</h2>
+            <p style="font-size: 1.1rem; color: #bdc3c7; line-height: 1.5; margin: 20px 0;">¿Estás seguro que deseas retirar el ban de la ID <strong id="confirmUnbanIdText" style="color: white; font-size: 1.2rem;">...</strong>?</p>
+            
+            <div style="margin-top: 25px; display:flex; gap:15px; justify-content: center; flex-wrap: wrap;">
+                <button class="btn-estandar btn-unban" id="btnRealUnban" style="margin-top:0; flex: 1;" onclick="ejecutarDesbaneoReal()">
+                    <i class="fa-solid fa-check"></i> Sí, Desbanear
+                </button>
+                <button class="btn-estandar" style="background:#333; color:white; border: 1px solid #555; margin-top:0; flex: 1;" onclick="cerrarConfirmUnban()">Cancelar</button>
             </div>
         </div>
     </div>
@@ -368,7 +382,7 @@
         const loggedId = localStorage.getItem('toroHaxLoggedId');
         let adminData = null;
         let activeRoomsData = [];
-        let globalBans = [];
+        let globalBans = []; 
 
         if (!loggedId) {
             window.location.href = 'login.html';
@@ -429,7 +443,7 @@
                 const res = await fetch('https://torobot-izu5.onrender.com/list-bans');
                 globalBans = await res.json();
                 
-                document.getElementById('banSearchInput').value = "";
+                document.getElementById('banSearchInput').value = ""; 
                 renderBansList(globalBans);
             } catch (error) {
                 ul.innerHTML = '<li style="justify-content: center; color:#cc2a2a;"><i class="fa-solid fa-triangle-exclamation"></i> Error al conectar con la base de datos.</li>';
@@ -502,20 +516,90 @@
             if (e.target.id === 'banDetailsModal') cerrarModalBan();
         }
 
-        function prepararDesbaneoModal() {
+        let unbanTargetId = null;
+
+        function iniciarDesbaneoGlobal() {
+            const targetId = document.getElementById('unbanId').value;
+            if (!targetId || targetId <= 0) return alert("❌ Debes ingresar una ID válida.");
+            abrirConfirmUnban(targetId);
+        }
+
+        function iniciarDesbaneoDesdeModal() {
             const targetId = document.getElementById('banDetailsModal').dataset.targetId;
             if (targetId && targetId !== "undefined" && targetId !== "???") {
-                cerrarModalBan();
-                cerrarModalAdmin();
-
-                document.getElementById('unbanId').value = targetId;
-                switchMainView('administrar');
-                switchTab('global');
-                
-                const unbanBtn = document.getElementById('btnSubmitUnban');
-                unbanBtn.style.transform = "scale(1.05)";
-                setTimeout(() => unbanBtn.style.transform = "scale(1)", 300);
+                abrirConfirmUnban(targetId);
             }
+        }
+
+        function abrirConfirmUnban(id) {
+            unbanTargetId = id;
+            document.getElementById('confirmUnbanIdText').innerText = `#${id}`;
+            document.getElementById('confirmUnbanModal').style.display = 'flex';
+        }
+
+        function cerrarConfirmUnban() {
+            document.getElementById('confirmUnbanModal').style.display = 'none';
+            unbanTargetId = null;
+        }
+
+        function cerrarConfirmUnbanClickFuera(e) {
+            if (e.target.id === 'confirmUnbanModal') cerrarConfirmUnban();
+        }
+
+        async function ejecutarDesbaneoReal() {
+            if (!unbanTargetId) return;
+            const targetId = unbanTargetId;
+
+            const btn = document.getElementById('btnRealUnban');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Procesando...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch(`https://torobot-izu5.onrender.com/ban-remove`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ numericId: parseInt(targetId) })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const unbannedName = data.name || `ID #${targetId}`;
+                    
+                    alert(`✅ ¡Se retiró el ban de ${unbannedName} correctamente!`);
+
+                    const embed = {
+                        title: "✅ DESBANEO WEB",
+                        color: 0x00FF00,
+                        description: `**Jugador:** ${unbannedName}\n**ID:** #${targetId}`,
+                        fields: [
+                            { name: "👮 Admin", value: `${adminData.name} (ID: #${adminData.numericId})`, inline: true },
+                            { name: "🕐 Fecha Desbaneo", value: new Date().toLocaleString("es-CL"), inline: true }
+                        ],
+                        timestamp: new Date().toISOString(),
+                        footer: { text: "ToroHax - Sistema de Moderación Web" }
+                    };
+                    await sendToListaNegra(embed);
+
+                    document.getElementById('unbanId').value = "";
+                    cerrarConfirmUnban();
+                    cerrarModalBan();
+                    
+                    if (document.getElementById('baneos').classList.contains('active')) {
+                        cargarListaBaneos();
+                    }
+
+                } else {
+                    alert("❌ No se encontró ningún baneo activo para esta ID.");
+                    cerrarConfirmUnban();
+                }
+            } catch (err) { 
+                alert("❌ Error de red o servidor caído."); 
+                cerrarConfirmUnban();
+            }
+
+            btn.innerHTML = originalText;
+            btn.disabled = false;
         }
 
         async function buscarBanEnLista(numericId, auth) {
@@ -542,6 +626,10 @@
             btn.innerHTML = originalHTML;
             btn.disabled = false;
         }
+
+        // ==========================================
+        // FUNCIONES GENERALES
+        // ==========================================
 
         async function cargarSalasActivas() {
             const selector = document.getElementById('roomSelector');
@@ -727,52 +815,6 @@
             } catch (err) { alert("❌ Error de red o servidor caído."); }
 
             btn.innerHTML = '<i class="fa-solid fa-hammer"></i> Banear Jugador';
-            btn.disabled = false;
-        }
-
-        async function ejecutarDesbaneo() {
-            const targetId = document.getElementById('unbanId').value;
-            if (!targetId || targetId <= 0) return alert("❌ Debes ingresar una ID válida.");
-
-            if(!confirm(`¿Seguro que deseas retirar el ban de la ID #${targetId}?`)) return;
-
-            const btn = document.getElementById('btnSubmitUnban');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Procesando...';
-            btn.disabled = true;
-
-            try {
-                const response = await fetch(`https://torobot-izu5.onrender.com/ban-remove`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ numericId: parseInt(targetId) })
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    const unbannedName = data.name || `ID #${targetId}`;
-                    
-                    alert(`✅ ¡Se retiró el ban de ${unbannedName} correctamente!`);
-
-                    const embed = {
-                        title: "✅ DESBANEO WEB",
-                        color: 0x00FF00,
-                        description: `**Jugador:** ${unbannedName}\n**ID:** #${targetId}`,
-                        fields: [
-                            { name: "👮 Admin", value: `${adminData.name} (ID: #${adminData.numericId})`, inline: true },
-                            { name: "🕐 Fecha Desbaneo", value: new Date().toLocaleString("es-CL"), inline: true }
-                        ],
-                        timestamp: new Date().toISOString(),
-                        footer: { text: "ToroHax - Sistema de Moderación Web" }
-                    };
-                    await sendToListaNegra(embed);
-
-                    document.getElementById('unbanId').value = "";
-                } else {
-                    alert("❌ No se encontró ningún baneo activo para esta ID.");
-                }
-            } catch (err) { alert("❌ Error de red o servidor caído."); }
-
-            btn.innerHTML = '<i class="fa-solid fa-circle-check"></i> Desbanear Jugador';
             btn.disabled = false;
         }
 
