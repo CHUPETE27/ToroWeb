@@ -213,7 +213,7 @@
                 if (data.message === "Nuevo" || data.error || !data.numericId) {
                     alert(`❌ La ID #${targetId} no existe en la base de datos de ToroHax.`);
                     btnPagar.disabled = false;
-                    btnPagar.innerHTML = '<i class="fa-solid fa-handshake"></i> Pagar con Mercado Pago';
+                    btnPagar.innerHTML = '<i class="fa-solid fa-handshake"></i> Pagar';
                     return;
                 }
                 
@@ -225,13 +225,13 @@
                     irAMercadoPago(targetId, meses, precio);
                 } else {
                     btnPagar.disabled = false;
-                    btnPagar.innerHTML = '<i class="fa-solid fa-handshake"></i> Pagar con Mercado Pago';
+                    btnPagar.innerHTML = '<i class="fa-solid fa-handshake"></i> Pagar';
                 }
 
             } catch (error) {
                 alert("❌ Error al comunicarse con el servidor.");
                 btnPagar.disabled = false;
-                btnPagar.innerHTML = '<i class="fa-solid fa-handshake"></i> Pagar con Mercado Pago';
+                btnPagar.innerHTML = '<i class="fa-solid fa-handshake"></i> Pagar';
             }
         }
 
@@ -258,12 +258,12 @@
                 } else {
                     alert("❌ Error al generar el cobro. Intenta de nuevo.");
                     btnPagar.disabled = false;
-                    btnPagar.innerHTML = '<i class="fa-solid fa-handshake"></i> Pagar con Mercado Pago';
+                    btnPagar.innerHTML = '<i class="fa-solid fa-handshake"></i> Pagar';
                 }
             } catch (error) {
                 alert("❌ Error de conexión al intentar generar el pago.");
                 btnPagar.disabled = false;
-                btnPagar.innerHTML = '<i class="fa-solid fa-handshake"></i> Pagar con Mercado Pago';
+                btnPagar.innerHTML = '<i class="fa-solid fa-handshake"></i> Pagar';
             }
         }
     </script>
