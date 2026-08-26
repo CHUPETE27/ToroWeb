@@ -488,7 +488,10 @@
                             ulSecundarias.innerHTML += `
                                 <li style="display:flex; justify-content:space-between; align-items:center; padding:12px 15px; border-bottom:1px dashed #333;">
                                     <span><span class="id-badge" style="border-color:#5dc8e8; color:#5dc8e8;">#${alt.numericId}</span> <strong style="color:white;">${alt.name}</strong></span>
-                                    ${btnHtml}
+                                    <div style="display:flex; gap: 8px;">
+                                        ${btnHtml}
+                                        <button class="btn-estandar" style="width:auto; margin:0; padding:6px 10px; background:transparent; color:#cc2a2a; border: 1px solid #cc2a2a;" onclick="quitarCuentaSecundaria(${alt.numericId})" title="Quitar cuenta"><i class="fa-solid fa-trash"></i></button>
+                                    </div>
                                 </li>
                             `;
                         });
@@ -538,10 +541,31 @@
                 const data = await res.json();
                 
                 if (data.success) {
-                    alert("¡Permisos de Administrador actualizados correctamente!");
+                    alert("Permisos de Administrador actualizados correctamente");
                     cargarCuentasAdmin();
                 } else {
                     alert(data.message || "Error al activar cuenta.");
+                }
+            } catch (e) {
+                alert("Error de red al conectar.");
+            }
+        }
+
+        async function quitarCuentaSecundaria(altId) {
+            if (!confirm(`¿Seguro que deseas eliminar la cuenta #${altId} de tus secundarias? Si tiene permisos de Admin actualmente, los perderá.`)) return;
+
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/admin/cuentas/remove', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminId: loggedId, altId: parseInt(altId) })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    cargarCuentasAdmin();
+                } else {
+                    alert(data.message || "Error al quitar cuenta.");
                 }
             } catch (e) {
                 alert("Error de red al conectar.");
