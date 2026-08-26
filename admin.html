@@ -145,6 +145,7 @@
             <div class="main-toggle-container">
                 <button class="main-toggle-btn active" id="btnMainAdministrar" onclick="switchMainView('administrar')"><i class="fa-solid fa-sliders"></i> Administrar</button>
                 <button class="main-toggle-btn" id="btnMainBuscar" onclick="switchMainView('buscar')"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+                <button class="main-toggle-btn" id="btnMainCuentas" onclick="switchMainView('cuentas')"><i class="fa-solid fa-users-gear"></i> Cuentas</button>
             </div>
 
             <div class="box" id="panel-administrar">
@@ -265,6 +266,33 @@
                 </div>
             </div>
 
+            <div class="box" id="panel-cuentas" style="display: none;">
+                <h3><i class="fa-solid fa-users-gear"></i> Gestión de Cuentas Secundarias</h3>
+                <p style="color: #bdc3c7; text-align: center; margin-bottom: 20px; font-size: 0.95rem;">Mueve el rango de Administrador entre tu cuenta principal y tus alts registrados.</p>
+                
+                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #333; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h4 style="color: #FFD342; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px;">Cuenta Principal</h4>
+                    <div id="cuenta-principal-info" style="font-size: 1.1rem; margin-top: 15px;">
+                        <i class="fa-solid fa-spinner fa-spin"></i> Cargando...
+                    </div>
+                </div>
+
+                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #333; padding: 20px; border-radius: 10px;">
+                    <h4 style="color: #5dc8e8; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px;">Cuentas Secundarias (Máx 2)</h4>
+                    
+                    <ul id="lista-secundarias" class="player-list-room" style="margin-bottom: 15px; margin-top: 15px;">
+                        <li style="justify-content: center; color: #7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando cuentas...</li>
+                    </ul>
+
+                    <div class="search-row" style="margin-bottom: 0;">
+                        <input type="number" id="inputNewAlt" class="form-control" placeholder="ID de la cuenta secundaria" style="background:#111; color:white; border:1px solid #555; padding:12px; border-radius:8px; outline:none; flex:1;">
+                        <button class="btn-estandar" style="width:auto; margin:0; background:#5dc8e8; color:#111;" onclick="agregarCuentaSecundaria()">
+                            <i class="fa-solid fa-plus"></i> Agregar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </main>
 
@@ -336,17 +364,10 @@
             
             <div style="text-align: left; margin-bottom: 25px; line-height: 1.8; font-size: 1.1rem;">
                 <p style="color: #bdc3c7; margin: 12px 0;"><strong>Jugador:</strong> <span id="m_ban_name" style="color: white; font-weight:bold; font-size:1.15rem; margin-left: 5px;">...</span></p>
-                
                 <p style="color: #bdc3c7; margin: 12px 0;"><strong>ID:</strong> <span id="m_ban_id" class="id-badge" style="margin-left: 8px; font-size: 1rem;">...</span></p>
-                
-                <p style="color: #bdc3c7; margin: 12px 0;"><strong>Auth:</strong> 
-                    <span id="m_ban_auth" class="data-block" style="color: #5dc8e8;">...</span>
-                </p>
-                
+                <p style="color: #bdc3c7; margin: 12px 0;"><strong>Auth:</strong> <span id="m_ban_auth" class="data-block" style="color: #5dc8e8;">...</span></p>
                 <p style="color: #bdc3c7; margin: 12px 0;"><strong>Admin:</strong> <span id="m_ban_admin" style="color: #FFD342; font-weight:bold; margin-left: 5px;">...</span></p>
-                
                 <p style="color: #bdc3c7; margin: 12px 0;"><strong>Motivo:</strong> <span id="m_ban_reason" style="color: white; margin-left: 5px;">...</span></p>
-                
                 <p style="color: #bdc3c7; margin: 12px 0;"><strong>Expira:</strong> <span id="m_ban_until" style="color: #2df2c1; font-weight:bold; margin-left: 5px;">...</span></p>
             </div>
             
@@ -409,9 +430,15 @@
         function switchMainView(view) {
             document.getElementById('btnMainAdministrar').classList.toggle('active', view === 'administrar');
             document.getElementById('btnMainBuscar').classList.toggle('active', view === 'buscar');
+            document.getElementById('btnMainCuentas').classList.toggle('active', view === 'cuentas');
             
             document.getElementById('panel-administrar').style.display = view === 'administrar' ? 'block' : 'none';
             document.getElementById('panel-buscar').style.display = view === 'buscar' ? 'block' : 'none';
+            document.getElementById('panel-cuentas').style.display = view === 'cuentas' ? 'block' : 'none';
+
+            if (view === 'cuentas') {
+                cargarCuentasAdmin();
+            }
         }
 
         function switchTab(tabId) {
@@ -432,6 +459,92 @@
                 banDiasInput.value = "";
             } else {
                 banDiasInput.disabled = false;
+            }
+        }
+
+        async function cargarCuentasAdmin() {
+            const divPrincipal = document.getElementById('cuenta-principal-info');
+            const ulSecundarias = document.getElementById('lista-secundarias');
+            
+            divPrincipal.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cargando...';
+            ulSecundarias.innerHTML = '<li style="justify-content: center; color: #7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando cuentas...</li>';
+
+            try {
+                const res = await fetch(`https://torobot-izu5.onrender.com/api/admin/cuentas?numericId=${loggedId}`);
+                const data = await res.json();
+
+                if (data.success) {
+                    divPrincipal.innerHTML = `<span class="id-badge" style="border-color:#FFD342; color:#FFD342;">#${data.principal.numericId}</span> <strong style="color:white;">${data.principal.name}</strong>`;
+                    
+                    ulSecundarias.innerHTML = '';
+                    if (data.secundarias.length === 0) {
+                        ulSecundarias.innerHTML = '<li style="justify-content: center; color: #7d7d7d;">No tienes cuentas secundarias registradas.</li>';
+                    } else {
+                        data.secundarias.forEach(alt => {
+                            const btnHtml = alt.isAdmin 
+                                ? `<button class="btn-estandar" style="width:auto; margin:0; padding:6px 12px; font-size:0.9rem; background:#333; color:#2df2c1; border: 1px solid #2df2c1;" disabled><i class="fa-solid fa-check"></i> Activada</button>`
+                                : `<button class="btn-estandar" style="width:auto; margin:0; padding:6px 12px; font-size:0.9rem; background:#2df2c1; color:#111;" onclick="activarCuentaSecundaria(${alt.numericId})">Activar Admin</button>`;
+                                
+                            ulSecundarias.innerHTML += `
+                                <li style="display:flex; justify-content:space-between; align-items:center; padding:12px 15px; border-bottom:1px dashed #333;">
+                                    <span><span class="id-badge" style="border-color:#5dc8e8; color:#5dc8e8;">#${alt.numericId}</span> <strong style="color:white;">${alt.name}</strong></span>
+                                    ${btnHtml}
+                                </li>
+                            `;
+                        });
+                    }
+                } else {
+                    divPrincipal.innerHTML = '❌ Error de autorización';
+                    ulSecundarias.innerHTML = '<li style="justify-content: center; color: #cc2a2a;">No se pudieron cargar las cuentas.</li>';
+                }
+            } catch (e) {
+                divPrincipal.innerHTML = '❌ Error de red';
+                ulSecundarias.innerHTML = '<li style="justify-content: center; color: #cc2a2a;">Error de red.</li>';
+            }
+        }
+
+        async function agregarCuentaSecundaria() {
+            const inputId = document.getElementById('inputNewAlt').value;
+            if (!inputId) return alert("Debes ingresar una ID de HaxBall válida.");
+
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/admin/cuentas/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminId: loggedId, altId: parseInt(inputId) })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    document.getElementById('inputNewAlt').value = "";
+                    cargarCuentasAdmin();
+                } else {
+                    alert(data.message || "Error al agregar cuenta.");
+                }
+            } catch (e) {
+                alert("Error de red.");
+            }
+        }
+
+        async function activarCuentaSecundaria(altId) {
+            if (!confirm(`¿Estás seguro que deseas mover los permisos de Administrador a tu cuenta #${altId}? Las demás secundarias perderán el permiso.`)) return;
+
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/admin/cuentas/activate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminId: loggedId, altId: parseInt(altId) })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    alert("¡Permisos de Administrador actualizados correctamente!");
+                    cargarCuentasAdmin();
+                } else {
+                    alert(data.message || "Error al activar cuenta.");
+                }
+            } catch (e) {
+                alert("Error de red al conectar.");
             }
         }
 
@@ -601,35 +714,6 @@
             btn.innerHTML = originalText;
             btn.disabled = false;
         }
-
-        async function buscarBanEnLista(numericId, auth) {
-            const btn = document.getElementById('btnVerBanPlayer');
-            const originalHTML = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-            btn.disabled = true;
-
-            try {
-                if (globalBans.length === 0) {
-                    const res = await fetch('https://torobot-izu5.onrender.com/list-bans');
-                    globalBans = await res.json();
-                }
-                const ban = globalBans.find(b => b.numericId == numericId || b.auth === auth);
-                if (ban) {
-                    abrirModalBanByObj(ban);
-                } else {
-                    alert("El jugador está afectado por un ban de IP de otra cuenta. Búscalo directamente en la lista global de baneos.");
-                }
-            } catch(e) {
-                alert("Error de conexión al buscar el ban.");
-            }
-
-            btn.innerHTML = originalHTML;
-            btn.disabled = false;
-        }
-
-        // ==========================================
-        // FUNCIONES GENERALES
-        // ==========================================
 
         async function cargarSalasActivas() {
             const selector = document.getElementById('roomSelector');
