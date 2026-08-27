@@ -301,7 +301,7 @@
             if (modo === 'futsal') {
                 btnFutsal.classList.add('active');
                 btnReal.classList.remove('active');
-                document.getElementById('tituloJugadores').innerText = '⚽ Jugadores (principal)';
+                document.getElementById('tituloJugadores').innerText = '⚽ Jugadores (mayor)';
             } else {
                 btnReal.classList.add('active');
                 btnFutsal.classList.remove('active');
@@ -332,11 +332,23 @@
                     }
                     
                     ulJugadores.innerHTML = '';
-                    
+                    let tieneCuerpoTecnico = false;
+
                     if (data.dts && data.dts.length > 0) {
                         data.dts.forEach(dt => {
                             ulJugadores.innerHTML += `<li style="color: #1eb3a6; font-weight: bold; border-bottom: none; padding-bottom: 0;"><i class="fa-solid fa-user-tie"></i> DT: ${dt}</li>`;
                         });
+                        tieneCuerpoTecnico = true;
+                    }
+
+                    if (data.subDts && data.subDts.length > 0) {
+                        data.subDts.forEach(sub => {
+                            ulJugadores.innerHTML += `<li style="color: #5dc8e8; font-weight: bold; border-bottom: none; padding-bottom: 0;"><i class="fa-solid fa-user-pen"></i> Sub-DT: ${sub}</li>`;
+                        });
+                        tieneCuerpoTecnico = true;
+                    }
+
+                    if (tieneCuerpoTecnico) {
                         ulJugadores.innerHTML += '<hr style="border: 0; border-bottom: 1px dashed #444; margin: 7px 0 10px 0;">';
                     }
 
