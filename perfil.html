@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- 👇 ETIQUETAS ANTI-CACHÉ 👇 -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
@@ -29,7 +28,10 @@
         .profile-container { width: 100%; background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: none; overflow: hidden; position: relative;}
         .profile-header { text-align: center; border-bottom: 2px solid #FFD342; padding-bottom: 25px; margin-bottom: 20px; }
         .profile-header h2 { margin: 0; color: #FFD342; font-size: 2rem; text-transform: uppercase; word-break: break-word; }
-        .profile-header p { margin: 5px 0 15px; color: #5dc8e8; font-size: 1.1rem; }
+        .profile-header p { margin: 5px 0 15px; color: #5dc8e8; font-size: 1.1rem; display: flex; justify-content: center; align-items: center; gap: 8px;}
+
+        .btn-info-rank { background: transparent; color: #5dc8e8; border: none; font-size: 1.2rem; cursor: pointer; transition: 0.3s; padding: 0; display: inline-flex; align-items: center; justify-content: center;}
+        .btn-info-rank:hover { color: #FFD342; transform: scale(1.1); }
 
         .rank-progress-container { width: 100%; max-width: 500px; margin: 0 auto; background: rgba(0, 0, 0, 0.4); padding: 15px; border-radius: 10px; border: 1px solid #333; }
         .rank-progress-info { display: flex; justify-content: space-between; color: #bdc3c7; font-size: 0.9rem; margin-bottom: 8px; font-weight: bold; }
@@ -112,6 +114,20 @@
         .btn-carta:hover { background: rgba(255, 211, 66, 0.2); box-shadow: 0 0 10px rgba(255, 211, 66, 0.3); }
         .btn-guardar:hover { background: rgba(45, 242, 193, 0.2); box-shadow: 0 0 10px rgba(45, 242, 193, 0.3); }
 
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(8px); padding: 20px; }
+        .modal-content { background: rgba(20, 20, 20, 0.95); border: 1px solid #FFD342; padding: 30px; border-radius: 15px; width: 100%; max-width: 500px; color: white; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.8); max-height: 90vh; overflow-y: auto; }
+        .modal-content::-webkit-scrollbar { width: 8px; }
+        .modal-content::-webkit-scrollbar-track { background: transparent; }
+        .modal-content::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+        .close-modal { position: absolute; top: 20px; right: 25px; font-size: 1.8rem; color: #7d7d7d; cursor: pointer; transition: 0.3s; z-index: 10;}
+        .close-modal:hover { color: #cc2a2a; transform: scale(1.1); }
+
+        .rank-info-list { list-style: none; padding: 0; margin: 20px 0; text-align: left; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 15px; border: 1px solid #333;}
+        .rank-info-list li { margin-bottom: 8px; font-size: 1.05rem; display: flex; justify-content: space-between; border-bottom: 1px dashed #444; padding-bottom: 5px;}
+        .rank-info-list li:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .rank-info-list strong { color: #FFD342; }
+        .elo-info-box { background: rgba(45, 242, 193, 0.1); border: 1px dashed #2df2c1; padding: 15px; border-radius: 10px; text-align: left; color: #bdc3c7; line-height: 1.6;}
+
         @media (max-width: 768px) { 
             .vip-form-grid { grid-template-columns: 1fr; } 
             .save-btn { grid-column: span 1; } 
@@ -153,7 +169,10 @@
 
             <div class="profile-header">
                 <h2 id="playerName">Nombre</h2>
-                <p>ID: <strong id="playerID">#0</strong> | <span id="rangoLabelText">Rango</span>: <strong id="playerRank">...</strong></p>
+                <p>
+                    ID: <strong id="playerID">#0</strong> | <span id="rangoLabelText">Rango</span>: <strong id="playerRank">...</strong>
+                    <button class="btn-info-rank" onclick="abrirModalInfoRangos()" title="Ver info de rangos"><i class="fa-solid fa-circle-info"></i></button>
+                </p>
 
                 <div class="rank-progress-container" id="rankContainer">
                     <div class="rank-progress-info">
@@ -245,6 +264,35 @@
         </div>
     </main>
 
+    <div class="modal-overlay" id="infoRangosModal" onclick="cerrarModalInfoRangosClickFuera(event)">
+        <div class="modal-content">
+            <i class="fa-solid fa-xmark close-modal" onclick="cerrarModalInfoRangos()"></i>
+            <h3 style="color: #5dc8e8; margin-top: 0; font-size: 1.6rem; text-align: center;"><i class="fa-solid fa-ranking-star"></i> Sistema de Rangos</h3>
+            <p style="text-align: center; color: #bdc3c7; font-size: 0.95rem; margin-bottom: 5px;">Tu rango se basa en tu cantidad de Elo. Debes jugar un mínimo de 10 partidos para clasificar.</p>
+            
+            <ul class="rank-info-list">
+                <li><span>🐓 Gallina</span> <strong>0 - 359</strong></li>
+                <li><span>🦙 Llama</span> <strong>360 - 809</strong></li>
+                <li><span>🐑 Oveja</span> <strong>810 - 1399</strong></li>
+                <li><span>🐖 Cerdo</span> <strong>1400 - 2149</strong></li>
+                <li><span>🐄 Vaca</span> <strong>2150 - 3049</strong></li>
+                <li><span>🐎 Caballo</span> <strong>3050 - 3949</strong></li>
+                <li><span>🐃 Búfalo</span> <strong>3950 - 4999</strong></li>
+                <li><span>🐂 Toro</span> <strong>5000+</strong></li>
+            </ul>
+
+            <div class="elo-info-box">
+                <h4 style="margin: 0 0 10px 0; color: #2df2c1;"><i class="fa-solid fa-chart-line"></i> Distribución de Puntos</h4>
+                <p style="margin: 5px 0;"><strong>⚽ Juegan Todos:</strong> Ganas o pierdes <strong>±30 de Elo</strong> por partido.</p>
+                <p style="margin: 5px 0;"><strong>🔥 Real Futsal:</strong> Ganas o pierdes <strong>±50 de Elo</strong> por partido.</p>
+            </div>
+
+            <div style="margin-top: 20px; text-align: center;">
+                <button class="save-btn" style="background:#333; color:white; width: auto; padding: 10px 30px;" onclick="cerrarModalInfoRangos()">Entendido</button>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <p>© 2026 ToroHax. Todos los derechos reservados.</p>
     </footer>
@@ -259,6 +307,16 @@
         function checkLogin(page) {
             if (localStorage.getItem('toroHaxLoggedId')) { window.location.href = page; } 
             else { window.location.href = 'login.html'; }
+        }
+
+        function abrirModalInfoRangos() {
+            document.getElementById('infoRangosModal').style.display = 'flex';
+        }
+        function cerrarModalInfoRangos() {
+            document.getElementById('infoRangosModal').style.display = 'none';
+        }
+        function cerrarModalInfoRangosClickFuera(e) {
+            if (e.target.id === 'infoRangosModal') cerrarModalInfoRangos();
         }
 
         function cambiarPestana(pestana) {
@@ -372,9 +430,7 @@
 
             if (!isTemporada) {
                 document.getElementById('rangoLabelText').innerText = "Puntos Totales";
-                document.getElementById('playerRank').innerText = `${puntaje}`;
-                
-                // 👇 MAGIA DEL TERMÓMETRO DE RACHA 👇
+                document.getElementById('playerRank').innerText = `${puntaje}`;                
                 document.getElementById('rankContainer').style.display = 'block';
                 
                 let rachaPercentage = 0;
@@ -382,19 +438,17 @@
                     rachaPercentage = Math.max(0, Math.min(100, (rachaActual / rachaMax) * 100));
                 }
 
-                // Ajuste de textos de la barra de racha
                 document.getElementById('rankMinText').innerText = `🔥 Racha: ${rachaActual}`;
                 document.getElementById('rankMaxText').innerText = `👑 Récord: ${rachaMax}`;
                 document.getElementById('eloCenterText').innerText = `(${Math.floor(rachaPercentage)}%)`;
                 
                 setTimeout(() => { document.getElementById('rankProgressBar').style.width = `${rachaPercentage}%`; }, 100);
-                // 👆 FIN MAGIA TERMÓMETRO 👆
 
             } else {
                 document.getElementById('rangoLabelText').innerText = "Rango";
                 document.getElementById('rankContainer').style.display = 'block';
                 if (!rankData) {
-                    document.getElementById('playerRank').innerText = "⛔ Sin clasificar (10 partidos req.)";
+                    document.getElementById('playerRank').innerText = "⛔ Sin clasificar";
                     document.getElementById('rankContainer').style.display = 'none';
                 } else {
                     document.getElementById('playerRank').innerText = rankData.info.name;
@@ -430,16 +484,16 @@
             const precisionPases = pasesTotales > 0 ? ((pasesC / pasesTotales) * 100).toFixed(1) : 0;
             const promPasesC = partidos > 0 ? (pasesC / partidos).toFixed(1) : 0;
 
-            // 👇 Se quitaron las rachas de las listas 👇
             document.getElementById('listTotales').innerHTML = `
                 <li><span>Partidos:</span> <strong>${partidos}</strong></li>
                 <li><span>Victorias:</span> <strong>${ganados}</strong></li>
                 <li><span>Derrotas:</span> <strong>${perdidos}</strong></li>
                 <li><span>WinRate:</span> <strong>${winRate}%</strong></li>
                 <li><span>MVPs:</span> <strong>${mvps}</strong></li>
+                <li><span style="color:#FFD342;">Racha Actual:</span> <strong style="color:#FFD342;">${rachaActual}</strong></li>
+                <li><span style="color:#FFD342;">Racha Max:</span> <strong style="color:#FFD342;">${rachaMax}</strong></li>
             `;
             
-            // 👇 Se cambió el color de Goles Recibidos a blanco 👇
             document.getElementById('listEstadisticas').innerHTML = `
                 <li><span>Puntos:</span> <strong>${puntaje}</strong></li>
                 <li><span>Goles:</span> <strong>${goles}</strong></li>
@@ -486,7 +540,6 @@
                     else if (top1 === "asistencias") { posicionJugador = top2 === "goles" ? "Medio ofensivo" : top2 === "intercepciones" ? "Pivote" : "Poli"; }
                     else if (top1 === "intercepciones") { posicionJugador = top2 === "goles" ? "Medio" : "Defensa"; }
                     else if (top1 === "atajadas") { posicionJugador = top2 === "goles" ? "Poli" : "Arquero"; }
-                    
                     document.getElementById('playerPosition').innerText = posicionJugador;
 
                     const chartPieData = { type: 'pie', data: { labels: ['Goles', 'Asistencias', 'Atajadas', 'Recuperaciones'], datasets: [{ data: [Math.round((pG/totalPromedios)*100), Math.round((pA/totalPromedios)*100), Math.round((pAt/totalPromedios)*100), Math.round((pD/totalPromedios)*100)], backgroundColor: ['#8b1515', '#10af10', '#611161', '#2222a7'], borderColor: '#111', borderWidth: 2 }] }, options: { legend: { position: 'bottom', labels: { fontColor: '#fff' } }, plugins: { datalabels: { color: '#fff', font: { weight: 'bold'}, formatter: "function(value) { return value.toString().concat('%'); }", display: "function(context) { return context.dataset.data[context.dataIndex] > 0; }" } } } };
