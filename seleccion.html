@@ -163,8 +163,8 @@
 
     <main>
         <div class="mode-tabs">
-            <button id="btnFutsal" class="mode-btn active" onclick="cambiarModo('futsal')"><i class="fa-solid fa-futbol"></i> Futsal</button>
-            <button id="btnReal" class="mode-btn" onclick="cambiarModo('realsoccer')"><i class="fa-regular fa-futbol"></i> Real Soccer</button>
+            <button id="btnFutsal" class="mode-btn active" onclick="cambiarModo('futsal')"><i class="fa-solid fa-futbol"></i> Mayor</button>
+            <button id="btnReal" class="mode-btn" onclick="cambiarModo('realsoccer')"><i class="fa-regular fa-futbol"></i> Menor</button>
         </div>
 
         <div class="seleccion-wrapper">
@@ -301,11 +301,11 @@
             if (modo === 'futsal') {
                 btnFutsal.classList.add('active');
                 btnReal.classList.remove('active');
-                document.getElementById('tituloJugadores').innerText = '⚽ Jugadores (Futsal)';
+                document.getElementById('tituloJugadores').innerText = '⚽ Jugadores (principal)';
             } else {
                 btnReal.classList.add('active');
                 btnFutsal.classList.remove('active');
-                document.getElementById('tituloJugadores').innerText = '⚽ Jugadores (Real Soccer)';
+                document.getElementById('tituloJugadores').innerText = '⚽ Jugadores (menor)';
             }
             
             document.getElementById('listaJugadores').innerHTML = '<li><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</li>';
