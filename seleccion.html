@@ -142,6 +142,42 @@
         .carousel-btn.prev { left: 10px; }
         .carousel-btn.next { right: 10px; }
 
+        .btn-go-estadio-premium {
+            background: linear-gradient(135deg, #111 0%, #222 100%);
+            color: #FFD342;
+            border: 2px solid #FFD342;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 0 15px rgba(255, 211, 66, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            margin-bottom: 20px;
+            animation: floatBtn 2.5s ease-in-out infinite;
+        }
+        .btn-go-estadio-premium:hover {
+            background: linear-gradient(135deg, #FFD342 0%, #f39c12 100%);
+            color: #111;
+            box-shadow: 0 0 25px rgba(255, 211, 66, 0.4);
+            transform: translateY(-2px);
+        }
+        @keyframes floatBtn {
+            0% { box-shadow: 0 0 10px rgba(255, 211, 66, 0.2); }
+            50% { box-shadow: 0 0 20px rgba(255, 211, 66, 0.5); }
+            100% { box-shadow: 0 0 10px rgba(255, 211, 66, 0.2); }
+        }
+
+        .btn-back-seleccion { background: rgba(0,0,0,0.5); color: #bdc3c7; border: 1px solid #333; margin-bottom: 20px; }
+        .btn-back-seleccion:hover { background: #bdc3c7; color: #111; }
+
         @media (max-width: 900px) { .seleccion-wrapper { grid-template-columns: 1fr; } }
         @media (max-width: 480px) { 
             .mode-tabs { margin-top: 5vh; }
@@ -195,9 +231,11 @@
                 </div>
 
                 <div class="right-col">
-                    <button class="btn-estandar" style="background: #FFD342; color: #111; font-size: 1.1rem; padding: 15px; margin-bottom: 0px;" onclick="switchMainView('estadio')">
-                        <i class="fa-solid fa-stadium"></i> Estadio
-                    </button>
+                    <div id="estadioBtnContainer" style="display: none;">
+                        <button class="btn-go-estadio-premium" onclick="switchMainView('estadio')">
+                            <i class="fa-solid fa-stadium"></i> Acceder al Predio
+                        </button>
+                    </div>
 
                     <div class="box list-box">
                         <h3>🏆 Vitrina</h3>
@@ -254,8 +292,9 @@
         </div>
 
         <div id="panel-estadio" style="display: none; width: 95%; max-width: 800px; margin: 10vh auto 50px;">
-            <div style="text-align: center; margin-bottom: 20px;">
-                <button class="btn-estandar" style="background: rgba(0,0,0,0.5); color: #bdc3c7; border: 1px solid #333; display: inline-flex; width: auto; padding: 10px 25px;" onclick="switchMainView('seleccion')">
+            
+            <div style="text-align: center;">
+                <button class="btn-estandar btn-back-seleccion" style="display: inline-flex; width: auto; padding: 10px 25px;" onclick="switchMainView('seleccion')">
                     <i class="fa-solid fa-arrow-left"></i> Volver
                 </button>
             </div>
@@ -269,7 +308,8 @@
                     
                     <div id="predio-info" style="display:none; margin-top: 25px; background: #111; padding: 20px; border-radius: 8px; border: 1px dashed #5dc8e8; text-align: left;">
                         <p style="margin:5px 0; color:#bdc3c7; font-size: 1.1rem;">🌐 <strong>Link de Entrada:</strong> <a id="predio-link" href="#" target="_blank" style="color:#5dc8e8; font-weight: bold; text-decoration: none;">...</a></p>
-                        <p style="margin:15px 0 5px 0; color:#bdc3c7; font-size: 1.1rem;">🔑 <strong>Contraseña:</strong> <span id="predio-pass" style="color:#FFD342; font-family:monospace; font-size:1.2rem; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px; border: 1px solid #444;">...</span></p>
+                        <p style="margin:15px 0 5px 0; color:#bdc3c7; font-size: 1.1rem;">🔑 <strong>Clave Jugadores:</strong> <span id="predio-pass" style="color:#FFD342; font-family:monospace; font-size:1.2rem; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px; border: 1px solid #444;">...</span></p>
+                        <p style="margin:15px 0 5px 0; color:#bdc3c7; font-size: 1.1rem;">👔 <strong>Clave Admin (!admin):</strong> <span id="predio-adminpass" style="color:#2df2c1; font-family:monospace; font-size:1.2rem; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px; border: 1px solid #444;">...</span></p>
                     </div>
                 </div>
 
@@ -334,6 +374,7 @@
             }
         }
 
+        // --- LÓGICA DEL PREDIO ---
         async function cargarEstadoPredio() {
             try {
                 const res = await fetch(`https://torobot-izu5.onrender.com/api/predio/estado`);
@@ -344,6 +385,7 @@
                 const infoBox = document.getElementById('predio-info');
                 const linkEl = document.getElementById('predio-link');
                 const passEl = document.getElementById('predio-pass');
+                const adminPassEl = document.getElementById('predio-adminpass');
                 const btnStart = document.getElementById('btnStartPredio');
                 const btnStop = document.getElementById('btnStopPredio');
 
@@ -357,6 +399,7 @@
                     linkEl.href = data.link || '#';
                     linkEl.innerText = data.link || 'Esperando enlace...';
                     passEl.innerText = data.pass || 'Sin contraseña';
+                    adminPassEl.innerText = data.adminPass || 'No generada';
                     
                     if (btnStart) btnStart.style.display = 'none';
                     if (btnStop) btnStop.style.display = 'block';
@@ -373,7 +416,7 @@
                 else if (data.estado === 'stop_pending') {
                     statusText.innerHTML = '🔴 APAGANDO... <i class="fa-solid fa-spinner fa-spin"></i>';
                     statusText.style.color = '#e74c3c';
-                    statusDesc.innerText = 'Estamos limpiando la cancha...';
+                    statusDesc.innerText = 'Forzando el apagado y liberando la memoria...';
                     infoBox.style.display = 'none';
 
                     if (btnStart) btnStart.style.display = 'none';
@@ -382,7 +425,7 @@
                 else {
                     statusText.innerHTML = '🔴 APAGADO';
                     statusText.style.color = '#cc2a2a';
-                    statusDesc.innerText = 'El estadio está inactivo actualmente.';
+                    statusDesc.innerText = 'El estadio está inactivo.';
                     infoBox.style.display = 'none';
 
                     if (btnStart) btnStart.style.display = 'block';
@@ -394,7 +437,7 @@
         }
 
         async function controlarPredio(action) {
-            if (action === 'stop' && !confirm("¿Seguro que deseas APAGAR el estadio? Se cerrará la sala y expulsará a todos al instante para liberar la RAM.")) return;
+            if (action === 'stop' && !confirm("¿Seguro que deseas APAGAR el estadio? Se cerrará la sala y expulsará a todos al instante.")) return;
             
             const btnStart = document.getElementById('btnStartPredio');
             const btnStop = document.getElementById('btnStopPredio');
