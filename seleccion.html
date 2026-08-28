@@ -11,13 +11,6 @@
         * { box-sizing: border-box; }
         body { overflow-x: hidden; width: 100%; position: relative; overflow-y: auto; max-width: 100vw;}
 
-        .top-nav-container { text-align: center; margin: 12vh auto 20px; }
-        .top-nav-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: auto; padding: 10px 25px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.05rem; }
-        .btn-go-estadio { background: rgba(0,0,0,0.5); color: #FFD342; border: 1px solid #FFD342; }
-        .btn-go-estadio:hover { background: #FFD342; color: #111; box-shadow: 0 0 15px rgba(255, 211, 66, 0.4); }
-        .btn-back-seleccion { background: rgba(0,0,0,0.5); color: #bdc3c7; border: 1px solid #333; }
-        .btn-back-seleccion:hover { background: #bdc3c7; color: #111; }
-
         .mode-tabs { display: flex; background: rgba(0,0,0,0.5); border-radius: 10px; padding: 5px; margin: 12vh auto 0; width: 95%; max-width: 450px; border: 1px solid #333; }
         .mode-btn { flex: 1; padding: 12px; border: none; background: transparent; color: #7d7d7d; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; display: flex; justify-content: center; align-items: center; gap: 8px; font-size: 1rem;}
         .mode-btn.active { background: #FFD342; color: #111; box-shadow: 0 4px 10px rgba(255, 211, 66, 0.3); }
@@ -170,12 +163,6 @@
 
     <main>
         <div id="panel-seleccion">
-            <div class="top-nav-container">
-                <button class="top-nav-btn btn-go-estadio" onclick="switchMainView('estadio')">
-                    <i class="fa-solid fa-stadium"></i> Predio de Entrenamiento
-                </button>
-            </div>
-
             <div class="mode-tabs">
                 <button id="btnFutsal" class="mode-btn active" onclick="cambiarModo('futsal')"><i class="fa-solid fa-futbol"></i> Mayor</button>
                 <button id="btnReal" class="mode-btn" onclick="cambiarModo('realsoccer')"><i class="fa-regular fa-futbol"></i> Menor</button>
@@ -208,6 +195,10 @@
                 </div>
 
                 <div class="right-col">
+                    <button class="btn-estandar" style="background: #FFD342; color: #111; font-size: 1.1rem; padding: 15px; margin-bottom: 0px;" onclick="switchMainView('estadio')">
+                        <i class="fa-solid fa-stadium"></i> Estadio
+                    </button>
+
                     <div class="box list-box">
                         <h3>🏆 Vitrina</h3>
                         <ul id="listaVitrina"><li><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</li></ul>
@@ -262,15 +253,15 @@
             </div>
         </div>
 
-        <div id="panel-estadio" style="display: none; width: 95%; max-width: 800px; margin: 20px auto 50px;">
-            <div class="top-nav-container">
-                <button class="top-nav-btn btn-back-seleccion" onclick="switchMainView('seleccion')">
+        <div id="panel-estadio" style="display: none; width: 95%; max-width: 800px; margin: 10vh auto 50px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+                <button class="btn-estandar" style="background: rgba(0,0,0,0.5); color: #bdc3c7; border: 1px solid #333; display: inline-flex; width: auto; padding: 10px 25px;" onclick="switchMainView('seleccion')">
                     <i class="fa-solid fa-arrow-left"></i> Volver
                 </button>
             </div>
 
             <div class="box" style="text-align: center;">
-                <h3><i class="fa-solid fa-server"></i> Predio de Entrenamiento</h3>
+                <h3><i class="fa-solid fa-server"></i> Estadio</h3>
                 
                 <div style="padding: 25px; margin: 20px 0; border-radius: 10px; background: rgba(0,0,0,0.5); border: 1px solid #333;">
                     <h2 id="predio-status-text" style="color: #7d7d7d; font-size: 2.2rem; margin-top: 0;">🔴 APAGADO</h2>
@@ -332,9 +323,6 @@
         let predioInterval = null;
 
         function switchMainView(view) {
-            document.getElementById('btnMainSeleccion').classList.toggle('active', view === 'seleccion');
-            document.getElementById('btnMainEstadio').classList.toggle('active', view === 'estadio');
-            
             document.getElementById('panel-seleccion').style.display = view === 'seleccion' ? 'block' : 'none';
             document.getElementById('panel-estadio').style.display = view === 'estadio' ? 'block' : 'none';
 
@@ -364,7 +352,7 @@
                 if (data.estado === 'online') {
                     statusText.innerHTML = '🟢 ESTADIO ACTIVO';
                     statusText.style.color = '#2df2c1';
-                    statusDesc.innerText = 'El servidor está listo para usarse.';
+                    statusDesc.innerText = 'El servidor de entrenamiento está corriendo y listo para usarse.';
                     infoBox.style.display = 'block';
                     linkEl.href = data.link || '#';
                     linkEl.innerText = data.link || 'Esperando enlace...';
@@ -382,10 +370,19 @@
                     if (btnStart) btnStart.style.display = 'none';
                     if (btnStop) btnStop.style.display = 'none';
                 } 
+                else if (data.estado === 'stop_pending') {
+                    statusText.innerHTML = '🔴 APAGANDO... <i class="fa-solid fa-spinner fa-spin"></i>';
+                    statusText.style.color = '#e74c3c';
+                    statusDesc.innerText = 'Estamos limpiando la cancha...';
+                    infoBox.style.display = 'none';
+
+                    if (btnStart) btnStart.style.display = 'none';
+                    if (btnStop) btnStop.style.display = 'none';
+                }
                 else {
                     statusText.innerHTML = '🔴 APAGADO';
                     statusText.style.color = '#cc2a2a';
-                    statusDesc.innerText = 'El estadio está inactivo.';
+                    statusDesc.innerText = 'El estadio está inactivo actualmente.';
                     infoBox.style.display = 'none';
 
                     if (btnStart) btnStart.style.display = 'block';
@@ -397,7 +394,7 @@
         }
 
         async function controlarPredio(action) {
-            if (action === 'stop' && !confirm("¿Seguro que deseas APAGAR el estadio? Se cerrará la sala y expulsará a todos al instante.")) return;
+            if (action === 'stop' && !confirm("¿Seguro que deseas APAGAR el estadio? Se cerrará la sala y expulsará a todos al instante para liberar la RAM.")) return;
             
             const btnStart = document.getElementById('btnStartPredio');
             const btnStop = document.getElementById('btnStopPredio');
@@ -425,14 +422,6 @@
                 }
             } catch (e) {
                 alert("Error de conexión con el servidor.");
-            }
-
-            if(action === 'start') {
-                btnStart.innerHTML = '<i class="fa-solid fa-power-off"></i> Encender Estadio';
-                btnStart.disabled = false;
-            } else {
-                btnStop.innerHTML = '<i class="fa-solid fa-stop"></i> Apagar Estadio';
-                btnStop.disabled = false;
             }
         }
 
