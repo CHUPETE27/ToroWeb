@@ -703,7 +703,11 @@
                 const response = await fetch(`https://torobot-izu5.onrender.com/ban-remove`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ numericId: parseInt(targetId) })
+                    body: JSON.stringify({ 
+                        numericId: parseInt(targetId),
+                        adminId: loggedId,
+                        adminToken: token
+                    })
                 });
 
                 if (response.ok) {
