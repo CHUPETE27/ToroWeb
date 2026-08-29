@@ -401,24 +401,31 @@
 
     <script>
         const loggedId = localStorage.getItem('toroHaxLoggedId');
+        const token = localStorage.getItem('toroHaxToken');
         let adminData = null;
         let activeRoomsData = [];
         let globalBans = []; 
 
-        if (!loggedId) {
+        if (!loggedId || !token) {
             window.location.href = 'login.html';
         } else {
-            fetch(`https://torobot-izu5.onrender.com/get-player/${loggedId}`)
+            fetch(`https://torobot-izu5.onrender.com/api/auth/verify-admin`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ numericId: loggedId, token: token })
+            })
             .then(res => res.json())
             .then(data => {
-                if (data && data.isAdmin === true) {
-                    adminData = data;
+                if (data.success) {
+                    adminData = data.adminData;
                     document.getElementById('loader').style.display = 'none';
                     document.getElementById('main-content').style.display = 'block';
                     cargarSalasActivas();
                 } else {
-                    alert("⚠️ Acceso denegado. Esta área está restringida.");
-                    window.location.href = 'index.html';
+                    alert("⚠️ Sesión inválida, alterada o expirada.");
+                    localStorage.removeItem('toroHaxLoggedId');
+                    localStorage.removeItem('toroHaxToken');
+                    window.location.href = 'login.html';
                 }
             })
             .catch(err => {
@@ -882,6 +889,8 @@
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({
+                        adminId: loggedId, 
+                        adminToken: localStorage.getItem('toroHaxToken'),
                         numericId: targetData.numericId,
                         auth: targetData.auth,
                         ip: targetData.ip || targetData.lastKnownIP,

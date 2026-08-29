@@ -169,6 +169,7 @@
                     statusText.innerText = "✅ ¡Autorizado! Redirigiendo a tu perfil...";
                     
                     localStorage.setItem('toroHaxLoggedId', data.numericId);
+                    localStorage.setItem('toroHaxToken', data.authToken);
                     
                     setTimeout(() => {
                         window.location.href = "perfil.html";
