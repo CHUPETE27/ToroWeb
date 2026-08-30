@@ -358,6 +358,7 @@
 
     <script>
         const loggedId = localStorage.getItem('toroHaxLoggedId') || 'null';
+        const token = localStorage.getItem('toroHaxToken') || 'null';
         let isManager = false;
         let matchNumberGlobal = 0; 
         let equipoA_Global = "Equipo 1";
@@ -618,7 +619,8 @@
                 const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/abrir-postulaciones', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ 
-                        numericId: loggedId, 
+                        numericId: loggedId,
+                        token: token, 
                         modo: canchaSeleccionada, 
                         formato: modoSeleccionado 
                     })
@@ -649,7 +651,7 @@
             try {
                 const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/cerrar-postulaciones', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ numericId: loggedId })
+                    body: JSON.stringify({ numericId: loggedId, token: token })
                 });
                 const data = await res.json();
                 if(data.success) {
@@ -685,7 +687,7 @@
             try {
                 const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/inscribir', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ numericId: loggedId })
+                    body: JSON.stringify({ numericId: loggedId, token: token })
                 });
                 const data = await res.json();
                 
@@ -716,7 +718,7 @@
             try {
                 const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/cancelar', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ numericId: loggedId })
+                    body: JSON.stringify({ numericId: loggedId, token: token })
                 });
                 const data = await res.json();
                 
@@ -742,7 +744,7 @@
             try {
                 const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/asignar-equipo', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ managerNumericId: loggedId, targetDiscordId: targetDiscordId, equipo: equipo })
+                    body: JSON.stringify({ managerNumericId: loggedId, token: token, targetDiscordId: targetDiscordId, equipo: equipo })
                 });
                 const data = await res.json();
                 if(data.success) {
@@ -760,7 +762,7 @@
                 try {
                     const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/expulsar', {
                         method: 'POST', headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ managerNumericId: loggedId, targetDiscordId: targetDiscordId })
+                        body: JSON.stringify({ managerNumericId: loggedId, token: token, targetDiscordId: targetDiscordId })
                     });
                     const data = await res.json();
                     
@@ -784,7 +786,7 @@
                 const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/toggle-presence', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ managerNumericId: loggedId, targetNumericId: targetNumericId })
+                    body: JSON.stringify({ managerNumericId: loggedId, token: token, targetNumericId: targetNumericId })
                 });
                 const data = await res.json();
                 
@@ -844,8 +846,6 @@
                                     const btnPresenceColor = jug.isOnline ? "#cc2a2a" : "#2df2c1";
                                     const btnPresenceIcon = jug.isOnline ? "fa-user-slash" : "fa-user-check";
                                     const btnPresenceTitle = jug.isOnline ? "Forzar Ausencia" : "Forzar Presencia";
-
-                                    // Lógica actualizada para detectar "Barrio" sin importar el nombre de la cancha
                                     const esBarrio = (data.formato === "Barrio" || data.modo === "Barrio");
 
                                     if (esBarrio) {
@@ -1036,7 +1036,7 @@
                 const res = await fetch(`https://torobot-izu5.onrender.com/api/matches/${ratingMatchId}/rate`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ numericId: loggedId, score: currentRating })
+                    body: JSON.stringify({ numericId: loggedId, token: token, score: currentRating })
                 });
                 const data = await res.json();
                 
@@ -1115,7 +1115,7 @@
                     method: method,
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        numericId: loggedId, team: 'toromatch',
+                        numericId: loggedId, token: token, team: 'toromatch',
                         isHistory: true, rival: equipo2, matchType: equipo1, 
                         golesLocal: goles1, golesVisita: goles2, 
                         penalesLocal: pen1, penalesVisita: pen2, date: date
@@ -1138,7 +1138,7 @@
                     const res = await fetch(`https://torobot-izu5.onrender.com/api/matches/${id}`, {
                         method: 'DELETE',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ numericId: loggedId, team: 'toromatch' })
+                        body: JSON.stringify({ numericId: loggedId, token: token, team: 'toromatch' })
                     });
                     const data = await res.json();
                     if(data.success) cargarHistorial();
