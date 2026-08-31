@@ -313,13 +313,21 @@
                     </div>
                 </div>
 
-                <div id="predio-controls" style="display:none; justify-content: center; gap: 15px; flex-wrap: wrap; margin-top: 20px;">
-                    <button class="btn-estandar" style="background:#2df2c1; color:#111; width:auto; font-size: 1.1rem; padding: 15px 30px;" onclick="controlarPredio('start')" id="btnStartPredio">
-                        <i class="fa-solid fa-power-off"></i> Encender Estadio
-                    </button>
-                    <button class="btn-estandar" style="background:#cc2a2a; color:#fff; width:auto; font-size: 1.1rem; padding: 15px 30px;" onclick="controlarPredio('stop')" id="btnStopPredio">
-                        <i class="fa-solid fa-stop"></i> Apagar Estadio
-                    </button>
+                <div id="predio-controls" style="display:none; flex-direction:column; align-items:center; gap: 15px; margin-top: 20px;">
+                    <div id="tokenContainer" style="width: 100%; max-width: 400px; text-align: left;">
+                        <label style="color:#bdc3c7; font-size:0.9rem; font-weight:bold; margin-bottom:5px; display:block;">Token Headless de HaxBall:</label>
+                        <p style="font-size:0.85rem; color:#7d7d7d; margin-top:0; margin-bottom: 10px;">Obtén el token aquí: <a href="https://www.haxball.com/headlesstoken" target="_blank" style="color:#5dc8e8; text-decoration: none; font-weight: bold;">haxball.com/headlesstoken</a></p>
+                        <input type="text" id="haxballTokenInput" placeholder="Pega el token aquí..." style="width:100%; background:#111; border:1px solid #444; color:white; padding:12px; border-radius:8px; outline:none; font-family:monospace;">
+                    </div>
+
+                    <div style="display:flex; gap:15px; justify-content:center; flex-wrap:wrap; width: 100%;">
+                        <button class="btn-estandar" style="background:#2df2c1; color:#111; width:auto; font-size: 1.1rem; padding: 15px 30px;" onclick="controlarPredio('start')" id="btnStartPredio">
+                            <i class="fa-solid fa-power-off"></i> Encender Estadio
+                        </button>
+                        <button class="btn-estandar" style="background:#cc2a2a; color:#fff; width:auto; font-size: 1.1rem; padding: 15px 30px;" onclick="controlarPredio('stop')" id="btnStopPredio">
+                            <i class="fa-solid fa-stop"></i> Apagar Estadio
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -389,12 +397,14 @@
                 const btnStop = document.getElementById('btnStopPredio');
 
                 document.getElementById('predio-controls').style.display = isManager ? 'flex' : 'none';
+                const tokenBox = document.getElementById('tokenContainer');
 
                 if (data.estado === 'online') {
                     statusText.innerHTML = '🟢 ESTADIO ACTIVO';
                     statusText.style.color = '#2df2c1';
                     statusDesc.innerText = 'El servidor de entrenamiento está corriendo y listo para usarse.';
                     infoBox.style.display = 'block';
+                    tokenBox.style.display = 'none';
                     linkEl.href = data.link || '#';
                     linkEl.innerText = data.link || 'Esperando enlace...';
                     passEl.innerText = data.pass || 'Sin contraseña';
@@ -406,8 +416,9 @@
                 else if (data.estado === 'starting') {
                     statusText.innerHTML = '🟡 ENCENDIENDO... <i class="fa-solid fa-spinner fa-spin"></i>';
                     statusText.style.color = '#FFD342';
-                    statusDesc.innerText = 'El servidor se está iniciando. Espera unos segundos...';
+                    statusDesc.innerText = 'El servidor está validando el token. Espera unos segundos...';
                     infoBox.style.display = 'none';
+                    tokenBox.style.display = 'none';
 
                     if (btnStart) btnStart.style.display = 'none';
                     if (btnStop) btnStop.style.display = 'none';
@@ -415,8 +426,9 @@
                 else if (data.estado === 'stop_pending') {
                     statusText.innerHTML = '🔴 APAGANDO... <i class="fa-solid fa-spinner fa-spin"></i>';
                     statusText.style.color = '#e74c3c';
-                    statusDesc.innerText = 'Forzando el apagado y liberando la memoria...';
+                    statusDesc.innerText = 'Forzando el apagado y liberando la memoria de la laptop...';
                     infoBox.style.display = 'none';
+                    tokenBox.style.display = 'none';
 
                     if (btnStart) btnStart.style.display = 'none';
                     if (btnStop) btnStop.style.display = 'none';
@@ -424,8 +436,9 @@
                 else {
                     statusText.innerHTML = '🔴 APAGADO';
                     statusText.style.color = '#cc2a2a';
-                    statusDesc.innerText = 'El estadio está inactivo.';
+                    statusDesc.innerText = 'El estadio está inactivo. Requiere un Token de HaxBall para encender.';
                     infoBox.style.display = 'none';
+                    tokenBox.style.display = 'block';
 
                     if (btnStart) btnStart.style.display = 'block';
                     if (btnStop) btnStop.style.display = 'none';
@@ -441,7 +454,11 @@
             const btnStart = document.getElementById('btnStartPredio');
             const btnStop = document.getElementById('btnStopPredio');
             
+            let tokenHaxball = "";
             if(action === 'start') {
+                tokenHaxball = document.getElementById('haxballTokenInput').value.trim();
+                if (!tokenHaxball) return alert("❌ Debes pegar el Token de HaxBall para iniciar la sala.");
+                
                 btnStart.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando señal...';
                 btnStart.disabled = true;
             } else {
@@ -453,7 +470,7 @@
                 const res = await fetch('https://torobot-izu5.onrender.com/api/predio/control', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ numericId: loggedId, action: action })
+                    body: JSON.stringify({ numericId: loggedId, action: action, tokenHaxball: tokenHaxball })
                 });
                 const data = await res.json();
                 
