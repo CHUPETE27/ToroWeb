@@ -35,6 +35,10 @@ document.addEventListener("DOMContentLoaded", function() {
                 <a href="#" id="sidebar-admin-btn" onclick="checkLogin('admin.html')" style="display: none; color: #FFD342; border-top: 1px dashed #333; margin-top: 10px; padding-top: 15px;">
                     <i class="fa-solid fa-shield-halved fa-fw"></i> Panel Admin
                 </a>
+
+                <a href="#" id="sidebar-owner-btn" onclick="checkLogin('owner.html')" style="display: none; color: #e74c3c; margin-top: 5px;">
+                    <i class="fa-solid fa-key fa-fw"></i> Panel Owner
+                </a>
             </div>
             <div class="sidebar-bottom">
                 <a href="#" class="logout-btn" onclick="confirmarLogout()"><i class="fa-solid fa-right-from-bracket fa-fw"></i> Cerrar sesión</a>
@@ -71,6 +75,10 @@ document.addEventListener("DOMContentLoaded", function() {
             if (data && data.isAdmin === true) {
                 const adminBtn = document.getElementById('sidebar-admin-btn');
                 if (adminBtn) adminBtn.style.display = 'block';
+            }
+            if (data && parseInt(data.numericId) === 1) {
+                const ownerBtn = document.getElementById('sidebar-owner-btn');
+                if (ownerBtn) ownerBtn.style.display = 'block';
             }
         })
         .catch(err => console.log("Error verificando permisos de administrador en el menú lateral."));

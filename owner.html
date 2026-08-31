@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Panel Owner - ToroHax</title>
+    <link rel="icon" type="image/png" href="logo_torohax.png">
+    <link rel="stylesheet" href="styles.css?v=2.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #050505; color: white; overflow-x: hidden; width: 100%; }
+        
+        .owner-wrapper { width: 95%; max-width: 800px; margin: 10vh auto 50px; display: flex; flex-direction: column; gap: 25px; }
+        
+        .box { background: rgba(20, 0, 0, 0.6); border: 1px solid #4a0000; border-radius: 15px; padding: 25px; box-shadow: 0 5px 25px rgba(231, 76, 60, 0.15); }
+        .box h3 { margin-top: 0; color: #e74c3c; border-bottom: 1px solid #4a0000; padding-bottom: 10px; text-transform: uppercase; text-align: center; font-size: 1.3rem;}
+        
+        .admin-header { text-align: center; margin-bottom: 10px; }
+        .admin-header i { font-size: 3rem; color: #e74c3c; margin-bottom: 10px; text-shadow: 0 0 15px rgba(231, 76, 60, 0.4); }
+
+        .player-list-room { background: #0a0a0a; border: 1px solid #333; border-radius: 8px; max-height: 400px; overflow-y: auto; padding: 0; margin: 0; list-style: none; }
+        .player-list-room li { padding: 15px; border-bottom: 1px dashed #333; display: flex; justify-content: space-between; align-items: center; color: #fff;}
+        .player-list-room li:last-child { border-bottom: none; }
+        .player-list-room::-webkit-scrollbar { width: 6px; }
+        .player-list-room::-webkit-scrollbar-thumb { background: #e74c3c; border-radius: 5px; }
+
+        .id-badge { color: #FFD342; font-family: monospace; font-size: 0.95rem; background: rgba(255, 211, 66, 0.1); padding: 3px 8px; border-radius: 4px; margin-right: 8px; border: 1px solid rgba(255, 211, 66, 0.3);}
+        .discord-tag { color: #5dc8e8; font-size: 0.85rem; margin-left: 10px; }
+
+        .btn-estandar { width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.05rem; border: none; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .btn-estandar:disabled { filter: grayscale(100%); opacity: 0.6; cursor: not-allowed; }
+        
+        .btn-add { background: #2df2c1; color: #111; margin-top: 15px; }
+        .btn-add:hover:not(:disabled) { background: #40ffce; box-shadow: 0 0 15px rgba(45, 242, 193, 0.3); }
+
+        .btn-remove { width: auto; background: transparent; color: #e74c3c; border: 1px solid #e74c3c; padding: 6px 12px; font-size: 0.9rem; margin: 0; }
+        .btn-remove:hover { background: #e74c3c; color: white; }
+        .btn-remove.boss { color: #FFD342; border-color: #FFD342; cursor: default; }
+        .btn-remove.boss:hover { background: transparent; color: #FFD342; }
+
+        .form-group input { width: 100%; background: #111; border: 1px solid #444; color: white; padding: 12px; border-radius: 8px; outline: none; font-size: 1rem; text-align: center;}
+        .form-group input:focus { border-color: #e74c3c; box-shadow: 0 0 8px rgba(231, 76, 60, 0.2); }
+
+        .loader-screen { position: fixed; top:0; left:0; width:100%; height:100%; background:#050505; z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:#e74c3c; }
+    </style>
+</head>
+<body>
+    <header></header>
+
+    <div id="loader" class="loader-screen">
+        <i class="fa-solid fa-fingerprint fa-beat-fade fa-3x" style="margin-bottom: 15px;"></i>
+        <h2>Verificando Identidad de Owner...</h2>
+    </div>
+
+    <main id="main-content" style="display: none;">
+        <div class="owner-wrapper">
+            <div class="admin-header">
+                <i class="fa-solid fa-crown"></i>
+                <h1 style="margin: 0; color: white;">Centro de Mando Owner</h1>
+                <p style="color: #bdc3c7;">Gestión exclusiva de la cúpula de Administradores.</p>
+            </div>
+
+            <div class="box">
+                <h3><i class="fa-solid fa-users-shield"></i> Administradores Activos</h3>
+                <ul id="adminsUlList" class="player-list-room">
+                    <li style="justify-content: center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando lista...</li>
+                </ul>
+            </div>
+
+            <div class="box" style="border-color: #333; background: rgba(20,20,20,0.8);">
+                <h3 style="color: #2df2c1; border-color: #333;"><i class="fa-solid fa-user-plus"></i> Promover Administrador</h3>
+                <p style="text-align: center; color: #bdc3c7; font-size: 0.9rem; margin-bottom: 15px;">La ID ingresada obtendrá acceso inmediato al Panel Admin y los comandos del host.</p>
+                <div class="form-group">
+                    <input type="number" id="newAdminId" placeholder="Ej: Ingresa la ID #42">
+                </div>
+                <button class="btn-estandar btn-add" id="btnAddAdmin" onclick="agregarAdmin()">
+                    <i class="fa-solid fa-check"></i> Otorgar Permisos de Admin
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script src="header.js"></script>
+    <script src="sidebar.js"></script>
+
+    <script>
+        const loggedId = localStorage.getItem('toroHaxLoggedId');
+        const token = localStorage.getItem('toroHaxToken');
+
+        // BARRERA DE SEGURIDAD 1: Revisión inmediata en el Frontend
+        if (loggedId !== '1' || !token) {
+            window.location.href = 'index.html';
+        } else {
+            // BARRERA DE SEGURIDAD 2: Revisión criptográfica en el Backend
+            cargarListaAdmins();
+        }
+
+        async function cargarListaAdmins() {
+            const ul = document.getElementById('adminsUlList');
+            try {
+                const res = await fetch(`https://torobot-izu5.onrender.com/api/owner/admins?numericId=${loggedId}&token=${token}`);
+                const data = await res.json();
+                
+                if (data.success) {
+                    document.getElementById('loader').style.display = 'none';
+                    document.getElementById('main-content').style.display = 'block';
+                    
+                    ul.innerHTML = '';
+                    data.admins.forEach(admin => {
+                        const isBoss = admin.numericId === 1;
+                        const discordInfo = admin.discordId ? `<span class="discord-tag"><i class="fa-brands fa-discord"></i> ${admin.discordId}</span>` : `<span class="discord-tag" style="color:#7d7d7d;"><i class="fa-solid fa-link-slash"></i> No vinculado</span>`;
+                        
+                        const actionBtn = isBoss 
+                            ? `<button class="btn-estandar btn-remove boss"><i class="fa-solid fa-crown"></i> OWNER</button>`
+                            : `<button class="btn-estandar btn-remove" onclick="quitarAdmin(${admin.numericId}, '${admin.name}')"><i class="fa-solid fa-trash-can"></i> Quitar</button>`;
+
+                        ul.innerHTML += `
+                            <li>
+                                <div>
+                                    <span class="id-badge">#${admin.numericId}</span> 
+                                    <strong style="color:white; font-size: 1.1rem;">${admin.name}</strong><br>
+                                    ${discordInfo}
+                                </div>
+                                <div>
+                                    ${actionBtn}
+                                </div>
+                            </li>
+                        `;
+                    });
+                } else {
+                    // Si el servidor rechaza el token
+                    alert("⚠️ " + data.message);
+                    localStorage.removeItem('toroHaxLoggedId');
+                    window.location.href = 'index.html';
+                }
+            } catch (error) {
+                ul.innerHTML = '<li style="justify-content: center; color:#e74c3c;">Error de conexión con el servidor.</li>';
+            }
+        }
+
+        async function agregarAdmin() {
+            const inputId = document.getElementById('newAdminId').value.trim();
+            if (!inputId || isNaN(inputId)) return alert("Debes ingresar un número de ID válido.");
+
+            const btn = document.getElementById('btnAddAdmin');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Procesando...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/owner/admins/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ numericId: loggedId, token: token, targetId: inputId })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    alert(`✅ ¡El jugador ${data.name} (ID: #${inputId}) ahora es Administrador!`);
+                    document.getElementById('newAdminId').value = "";
+                    cargarListaAdmins();
+                } else {
+                    alert("❌ " + data.message);
+                }
+            } catch (e) {
+                alert("❌ Error de red.");
+            }
+            
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Otorgar Permisos de Admin';
+            btn.disabled = false;
+        }
+
+        async function quitarAdmin(targetId, targetName) {
+            if (!confirm(`🚨 ¿Estás absolutamente seguro de que deseas revocar los permisos de Administrador a ${targetName} (ID: #${targetId})?`)) return;
+
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/owner/admins/remove', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ numericId: loggedId, token: token, targetId: targetId })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    alert(`✅ Permisos revocados. ${targetName} ya no es Administrador.`);
+                    cargarListaAdmins();
+                } else {
+                    alert("❌ " + data.message);
+                }
+            } catch (e) {
+                alert("❌ Error de red al quitar administrador.");
+            }
+        }
+    </script>
+    <script src="scanner.js"></script>
+</body>
+</html>
