@@ -400,6 +400,9 @@
                 document.getElementById('predio-controls').style.display = isManager ? 'flex' : 'none';
                 const tokenBox = document.getElementById('tokenContainer');
 
+                const txtStart = '<i class="fa-solid fa-power-off"></i> Encender Estadio';
+                const txtStop = '<i class="fa-solid fa-stop"></i> Apagar Estadio';
+
                 if (data.estado === 'online') {
                     statusText.innerHTML = '🟢 ESTADIO ACTIVO';
                     statusText.style.color = '#2df2c1';
@@ -411,8 +414,14 @@
                     passEl.innerText = data.pass || 'Sin contraseña';
                     adminPassEl.innerText = data.adminPass || 'No generada';
                     
-                    if (btnStart) btnStart.style.display = 'none';
-                    if (btnStop) btnStop.style.display = 'block';
+                    if (btnStart) {
+                        btnStart.style.display = 'none';
+                    }
+                    if (btnStop) {
+                        btnStop.style.display = 'block';
+                        btnStop.innerHTML = txtStop;
+                        btnStop.disabled = false;
+                    }
                 } 
                 else if (data.estado === 'starting') {
                     statusText.innerHTML = '🟡 ENCENDIENDO... <i class="fa-solid fa-spinner fa-spin"></i>';
@@ -427,7 +436,7 @@
                 else if (data.estado === 'stop_pending') {
                     statusText.innerHTML = '🔴 APAGANDO... <i class="fa-solid fa-spinner fa-spin"></i>';
                     statusText.style.color = '#e74c3c';
-                    statusDesc.innerText = 'Forzando el apagado y liberando la memoria de la laptop...';
+                    statusDesc.innerText = 'Cerrando el estadio...';
                     infoBox.style.display = 'none';
                     tokenBox.style.display = 'none';
 
@@ -443,13 +452,19 @@
 
                     if (btnStart) {
                         btnStart.style.display = 'block';
-                        btnStart.innerHTML = '<i class="fa-solid fa-power-off"></i> Encender Estadio';
+                        btnStart.innerHTML = txtStart;
                         btnStart.disabled = false;
                     }
-                    if (btnStop) btnStop.style.display = 'none';
+                    if (btnStop) {
+                        btnStop.style.display = 'none';
+                    }
                 }
             } catch (e) {
                 console.error("Error cargando estado del predio:", e);
+                const btnStart = document.getElementById('btnStartPredio');
+                const btnStop = document.getElementById('btnStopPredio');
+                if (btnStart) { btnStart.innerHTML = '<i class="fa-solid fa-power-off"></i> Encender Estadio'; btnStart.disabled = false; }
+                if (btnStop) { btnStop.innerHTML = '<i class="fa-solid fa-stop"></i> Apagar Estadio'; btnStop.disabled = false; }
             }
         }
 
@@ -458,11 +473,11 @@
             
             const btnStart = document.getElementById('btnStartPredio');
             const btnStop = document.getElementById('btnStopPredio');
-            const originalStartText = btnStart.innerHTML;
-            const originalStopText = btnStop.innerHTML;
+            const originalStartText = '<i class="fa-solid fa-power-off"></i> Encender Estadio';
+            const originalStopText = '<i class="fa-solid fa-stop"></i> Apagar Estadio';
             
             let tokenHaxball = "";
-            if(action === 'start') {
+            if (action === 'start') {
                 tokenHaxball = document.getElementById('haxballTokenInput').value.trim();
                 if (!tokenHaxball) return alert("❌ Debes pegar el Token de HaxBall para iniciar la sala.");
                 
@@ -482,17 +497,27 @@
                 const data = await res.json();
                 
                 if (data.success) {
-                    cargarEstadoPredio();
+                    await cargarEstadoPredio(); 
                 } else {
                     alert("❌ " + (data.message || "Error al enviar el comando."));
-                    if (action === 'start') { btnStart.innerHTML = originalStartText; btnStart.disabled = false; }
-                    else { btnStop.innerHTML = originalStopText; btnStop.disabled = false; }
+                    if (action === 'start') { 
+                        btnStart.innerHTML = originalStartText; 
+                        btnStart.disabled = false; 
+                    } else { 
+                        btnStop.innerHTML = originalStopText; 
+                        btnStop.disabled = false; 
+                    }
                 }
             } catch (e) {
                 console.error(e);
                 alert("❌ Error de conexión con el servidor.");
-                if (action === 'start') { btnStart.innerHTML = originalStartText; btnStart.disabled = false; }
-                else { btnStop.innerHTML = originalStopText; btnStop.disabled = false; }
+                if (action === 'start') { 
+                    btnStart.innerHTML = originalStartText; 
+                    btnStart.disabled = false; 
+                } else { 
+                    btnStop.innerHTML = originalStopText; 
+                    btnStop.disabled = false; 
+                }
             }
         }
 
