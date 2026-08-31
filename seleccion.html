@@ -441,7 +441,11 @@
                     infoBox.style.display = 'none';
                     tokenBox.style.display = 'block';
 
-                    if (btnStart) btnStart.style.display = 'block';
+                    if (btnStart) {
+                        btnStart.style.display = 'block';
+                        btnStart.innerHTML = '<i class="fa-solid fa-power-off"></i> Encender Estadio';
+                        btnStart.disabled = false;
+                    }
                     if (btnStop) btnStop.style.display = 'none';
                 }
             } catch (e) {
