@@ -470,7 +470,7 @@
                 const res = await fetch('https://torobot-izu5.onrender.com/api/predio/control', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ numericId: loggedId, action: action, tokenHaxball: tokenHaxball })
+                    body: JSON.stringify({ numericId: loggedId, token: token, action: action, tokenHaxball: tokenHaxball })
                 });
                 const data = await res.json();
                 
