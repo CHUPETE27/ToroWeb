@@ -144,6 +144,43 @@
             border-color: #FFD342;
             animation: pulse-music 2s infinite;
         }
+
+        .countdown-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 5px;
+        }
+        .cd-box {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #444;
+            border-radius: 8px;
+            padding: 8px 12px;
+            text-align: center;
+            min-width: 60px;
+        }
+        .cd-number {
+            display: block;
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #2df2c1;
+            font-family: monospace;
+        }
+        .cd-label {
+            display: block;
+            font-size: 0.7rem;
+            color: #7d7d7d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 2px;
+        }
+        .cd-comenzando {
+            color: #FFD342;
+            font-weight: bold;
+            font-size: 1.3rem;
+            animation: pulse 1.5s infinite;
+        }
+
         @keyframes pulse-music {
             0% { box-shadow: 0 0 0 0 rgba(255, 211, 66, 0.7); }
             70% { box-shadow: 0 0 0 15px rgba(255, 211, 66, 0); }
@@ -1147,26 +1184,89 @@
             });
         }
 
+        let isRoomActive = false;
+        let roomLiveText = "Esperando conexión...";
+
         function actualizarMarcador() {
             fetch('https://torobot-izu5.onrender.com/api/toromatch/live')
             .then(res => res.json())
             .then(data => {
+                isRoomActive = data.active;
+                roomLiveText = data.text;
+                
                 const indOn = document.getElementById('liveIndicator');
                 const indOff = document.getElementById('liveIndicatorOff');
-                const score = document.getElementById('liveScore');
-                score.innerText = data.text;
-                if (data.active) {
+                
+                if (isRoomActive) {
                     indOn.style.display = 'flex'; indOff.style.display = 'none';
                     document.querySelector('.live-box').style.borderColor = '#2df2c1';
                 } else {
                     indOn.style.display = 'none'; indOff.style.display = 'flex';
                     document.querySelector('.live-box').style.borderColor = '#333';
-                    score.innerText = "No hay partido en vivo"; 
                 }
+                
+                updateCountdown();
             });
         }
-        actualizarMarcador();
+
+        function updateCountdown() {
+            const scoreElement = document.getElementById('liveScore');
+            
+            if (isRoomActive) {
+                scoreElement.innerText = roomLiveText;
+                return;
+            }
+
+            if (!displayDateGlobal) {
+                scoreElement.innerHTML = `<span style="font-size: 1.5rem; color: #7d7d7d;">Esperando datos...</span>`;
+                return;
+            }
+
+            const match = displayDateGlobal.match(/(\d{1,2})\/(\d{1,2})\/(\d{4}).*?(\d{2}):(\d{2})/);
+            if (!match) {
+                scoreElement.innerHTML = `<span style="font-size: 1.5rem; color: #7d7d7d;">${displayDateGlobal}</span>`;
+                return;
+            }
+
+            const targetDate = new Date(match[3], match[2] - 1, match[1], match[4], match[5]).getTime();
+            const now = new Date().getTime();
+            const diff = targetDate - now;
+
+            if (diff <= 0) {
+                scoreElement.innerHTML = `<span class="cd-comenzando"><i class="fa-solid fa-spinner fa-spin"></i> Comenzando...</span>`;
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+            const pad = (num) => num.toString().padStart(2, '0');
+
+            let html = `<div class="countdown-container">`;
+            
+            if (days > 0) {
+                html += `
+                    <div class="cd-box"><span class="cd-number">${pad(days)}</span><span class="cd-label">Días</span></div>
+                    <span style="font-size: 1.5rem; align-self: center; margin-top: -10px;">:</span>
+                `;
+            }
+
+            html += `
+                <div class="cd-box"><span class="cd-number">${pad(hours)}</span><span class="cd-label">Hrs</span></div>
+                <span style="font-size: 1.5rem; align-self: center; margin-top: -10px;">:</span>
+                <div class="cd-box"><span class="cd-number">${pad(mins)}</span><span class="cd-label">Min</span></div>
+                <span style="font-size: 1.5rem; align-self: center; margin-top: -10px;">:</span>
+                <div class="cd-box"><span class="cd-number" style="color:#5dc8e8;">${pad(secs)}</span><span class="cd-label">Sec</span></div>
+            </div>`;
+
+            scoreElement.innerHTML = html;
+        }
+
         setInterval(actualizarMarcador, 5000);
+        setInterval(updateCountdown, 1000);
+        actualizarMarcador();
     </script>
     <script src="scanner.js"></script>
 </body>
