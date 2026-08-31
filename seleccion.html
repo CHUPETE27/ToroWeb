@@ -365,6 +365,7 @@
 
     <script>
         const loggedId = localStorage.getItem('toroHaxLoggedId') || 'null';
+        const token = localStorage.getItem('toroHaxToken') || 'null';
         let isManager = false;
         let editingId = null;
         let currentMode = 'futsal';
@@ -453,6 +454,8 @@
             
             const btnStart = document.getElementById('btnStartPredio');
             const btnStop = document.getElementById('btnStopPredio');
+            const originalStartText = btnStart.innerHTML;
+            const originalStopText = btnStop.innerHTML;
             
             let tokenHaxball = "";
             if(action === 'start') {
@@ -470,17 +473,22 @@
                 const res = await fetch('https://torobot-izu5.onrender.com/api/predio/control', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ numericId: loggedId, token: token, action: action, tokenHaxball: tokenHaxball })
+                    body: JSON.stringify({ numericId: loggedId, token: token, action: action, tokenHaxball: tokenHaxball }) 
                 });
                 const data = await res.json();
                 
                 if (data.success) {
                     cargarEstadoPredio();
                 } else {
-                    alert(data.message || "Error al enviar el comando.");
+                    alert("❌ " + (data.message || "Error al enviar el comando."));
+                    if (action === 'start') { btnStart.innerHTML = originalStartText; btnStart.disabled = false; }
+                    else { btnStop.innerHTML = originalStopText; btnStop.disabled = false; }
                 }
             } catch (e) {
-                alert("Error de conexión con el servidor.");
+                console.error(e);
+                alert("❌ Error de conexión con el servidor.");
+                if (action === 'start') { btnStart.innerHTML = originalStartText; btnStart.disabled = false; }
+                else { btnStop.innerHTML = originalStopText; btnStop.disabled = false; }
             }
         }
 
