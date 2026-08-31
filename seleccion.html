@@ -521,6 +521,7 @@
             
             isManager = false;
             document.getElementById('btnEditar').style.display = 'none';
+            document.getElementById('estadioBtnContainer').style.display = 'none';
 
             fetch(`https://torobot-izu5.onrender.com/api/seleccion/data?numericId=${loggedId}&mode=${currentMode}`)
             .then(res => res.json())
@@ -529,6 +530,7 @@
                     if(data.canEdit) {
                         isManager = true;
                         document.getElementById('btnEditar').style.display = 'block';
+                        document.getElementById('estadioBtnContainer').style.display = 'block';
                     }
                     
                     ulJugadores.innerHTML = '';
