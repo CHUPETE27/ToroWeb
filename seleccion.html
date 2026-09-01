@@ -86,106 +86,28 @@
         .edit-action-icon { color: #3498db; cursor: pointer; }
         .edit-action-icon:hover { color: #5dade2; }
 
-        .carousel-container { 
-            position: relative; 
-            width: 100%; 
-            max-width: 300px; 
-            height: 280px;
-            margin: auto; 
-            overflow: hidden; 
-            border-radius: 10px; 
-            background: #111; 
-            border: 1px solid #333; 
-        }
+        .carousel-container { position: relative; width: 100%; max-width: 300px; height: 280px; margin: auto; overflow: hidden; border-radius: 10px; background: #111; border: 1px solid #333; }
+        .carousel-track { display: flex; transition: transform 0.4s ease-in-out; width: 100%; height: 100%; }
+        .carousel-slide { min-width: 100%; position: relative; }
+        .carousel-slide img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
         
-        .carousel-track { 
-            display: flex; 
-            transition: transform 0.4s ease-in-out; 
-            width: 100%; 
-            height: 100%;
-        }
-        
-        .carousel-slide { 
-            min-width: 100%; 
-            position: relative;
-        }
-        
-        .carousel-slide img { 
-            width: 100%; 
-            height: 100%; 
-            object-fit: cover;
-            object-position: center;
-        }
-        
-        .kit-info { 
-            position: absolute; 
-            bottom: 0; 
-            left: 0; 
-            width: 100%; 
-            background: rgba(0, 0, 0, 0.75);
-            padding: 12px 10px; 
-            text-align: center; 
-            border-top: 1px solid rgba(255,255,255,0.1);
-        }
-        
+        .kit-info { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0, 0, 0, 0.75); padding: 12px 10px; text-align: center; border-top: 1px solid rgba(255,255,255,0.1); }
         .kit-name { color: #FFD342; font-weight: bold; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; }
         .kit-type { color: #bdc3c7; font-size: 0.85rem; margin-top: 3px; }
         
-        .carousel-btn { 
-            position: absolute; top: 50%; transform: translateY(-50%); 
-            background: rgba(0,0,0,0.6); color: white; border: 1px solid #444; 
-            width: 35px; height: 35px; border-radius: 50%; cursor: pointer; 
-            display: flex; justify-content: center; align-items: center; 
-            transition: 0.3s; z-index: 10; backdrop-filter: blur(3px);
-        }
+        .carousel-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); color: white; border: 1px solid #444; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.3s; z-index: 10; backdrop-filter: blur(3px); }
         .carousel-btn:hover { background: #FFD342; color: #111; border-color: #FFD342; }
         .carousel-btn.prev { left: 10px; }
         .carousel-btn.next { right: 10px; }
 
         .btn-go-estadio-premium {
-            background: rgba(20, 20, 20, 0.8);
-            color: #FFD342;
-            border: 1px solid #FFD342;
-            padding: 20px;
-            border-radius: 15px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            width: 100%;
+            background: rgba(20, 20, 20, 0.8); color: #FFD342; border: 1px solid #FFD342; padding: 20px; border-radius: 15px; font-size: 1.2rem; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%;
         }
         .btn-go-estadio-premium i { font-size: 1.5rem; }
         .btn-go-estadio-premium:hover { background: #FFD342; color: #111; box-shadow: 0 5px 20px rgba(255, 211, 66, 0.3); transform: translateY(-2px); }
 
-        .btn-back-seleccion { 
-            background: rgba(20, 20, 20, 0.8); 
-            color: #bdc3c7; 
-            border: 1px solid #444; 
-            border-radius: 12px; 
-            padding: 12px 30px; 
-            transition: 0.3s; 
-            font-size: 1.1rem; 
-            font-weight: bold;
-            margin-bottom: 20px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-        }
-        .btn-back-seleccion:hover { 
-            background: #FFD342; 
-            color: #111; 
-            border-color: #FFD342; 
-            box-shadow: 0 5px 20px rgba(255,211,66,0.3); 
-            transform: translateY(-2px); 
-        }
+        .btn-back-seleccion { background: #111; color: #bdc3c7; border: 2px solid #444; border-radius: 15px; padding: 15px 40px; transition: 0.3s; font-size: 1.2rem; font-weight: bold; margin-bottom: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: inline-flex; align-items: center; gap: 12px; cursor: pointer; }
+        .btn-back-seleccion:hover { background: #FFD342; color: #111; border-color: #FFD342; box-shadow: 0 5px 20px rgba(255,211,66,0.4); transform: translateY(-3px); }
 
         .status-light { display: inline-block; width: 16px; height: 16px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
         .light-on { background: #2df2c1; box-shadow: 0 0 12px #2df2c1; animation: pulse 1.5s infinite; }
@@ -200,19 +122,24 @@
         .copy-btn:hover { background: #FFD342; color: #111; border-color: #FFD342; }
         .copy-btn:active { transform: scale(0.9); }
 
+        .cmd-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 15px; }
+        .btn-cmd { background: #1a1a1a; color: #bdc3c7; border: 1px solid #444; border-radius: 8px; padding: 12px 10px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 0.95rem;}
+        .btn-cmd:hover { background: #FFD342; color: #111; border-color: #FFD342; box-shadow: 0 4px 10px rgba(255, 211, 66, 0.2); transform: translateY(-2px);}
+        .btn-cmd.danger:hover { background: #e74c3c; color: white; border-color: #e74c3c; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.2);}
+        
+        .btn-transmit { background: #9b59b6; color: white; border: 1px solid #8e44ad; width: 100%; border-radius: 8px; padding: 15px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.1rem; margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;}
+        .btn-transmit:hover { background: #8e44ad; box-shadow: 0 5px 15px rgba(155, 89, 182, 0.4); transform: translateY(-2px);}
+
         #customAlertModal, #customConfirmModal { z-index: 10000; }
 
-        @media (max-width: 900px) { .seleccion-wrapper { grid-template-columns: 1fr; } }
         @media (max-width: 480px) { 
             .mode-tabs { margin-top: 5vh; }
             .seleccion-wrapper { padding: 0 10px; width: 100%; }
             .score-text { font-size: 1.8rem; }
             .box { padding: 15px; padding-bottom: 60px; } 
-            
             .match-row { flex-direction: column; gap: 8px; padding: 15px; align-items: center;}
             .match-teams { white-space: normal; word-break: break-word; width: 100%; font-size: 1.1rem;}
             .match-result, .match-type, .match-date, .action-icons { width: 100%; border-left: none; text-align: center; }
-            
             .action-icons { flex-direction: row; justify-content: center; padding-top: 10px; border-top: 1px dashed #444;}
             .match-date { border-top: 1px dashed #444; padding-top: 8px; }
         }
@@ -273,41 +200,12 @@
                         <h3>Camisetas</h3>
                         <div class="carousel-container">
                             <button class="carousel-btn prev" onclick="moverCarrusel(-1)"><i class="fa-solid fa-chevron-left"></i></button>
-                            
                             <div class="carousel-track" id="kitTrack">
-                                <div class="carousel-slide">
-                                    <img src="kit_local.png" alt="Local">
-                                    <div class="kit-info">
-                                        <div class="kit-name">Local</div>
-                                        <div class="kit-type">Titular</div>
-                                    </div>
-                                </div>
-                                
-                                <div class="carousel-slide">
-                                    <img src="kit_visita.png" alt="Visita">
-                                    <div class="kit-info">
-                                        <div class="kit-name">Visita</div>
-                                        <div class="kit-type">Secundaria</div>
-                                    </div>
-                                </div>
-                                
-                                <div class="carousel-slide">
-                                    <img src="kit_alternativa.png" alt="Alternativa">
-                                    <div class="kit-info">
-                                        <div class="kit-name">Alternativa</div>
-                                        <div class="kit-type">Alternativa</div>
-                                    </div>
-                                </div>
-                                
-                                <div class="carousel-slide">
-                                    <img src="kit_entreno.png" alt="Train">
-                                    <div class="kit-info">
-                                        <div class="kit-name">Entrenamiento</div>
-                                        <div class="kit-type">Train</div>
-                                    </div>
-                                </div>
+                                <div class="carousel-slide"><img src="kit_local.png" alt="Local"><div class="kit-info"><div class="kit-name">Local</div><div class="kit-type">Titular</div></div></div>
+                                <div class="carousel-slide"><img src="kit_visita.png" alt="Visita"><div class="kit-info"><div class="kit-name">Visita</div><div class="kit-type">Secundaria</div></div></div>
+                                <div class="carousel-slide"><img src="kit_alternativa.png" alt="Alternativa"><div class="kit-info"><div class="kit-name">Alternativa</div><div class="kit-type">Alternativa</div></div></div>
+                                <div class="carousel-slide"><img src="kit_entreno.png" alt="Train"><div class="kit-info"><div class="kit-name">Entrenamiento</div><div class="kit-type">Train</div></div></div>
                             </div>
-
                             <button class="carousel-btn next" onclick="moverCarrusel(1)"><i class="fa-solid fa-chevron-right"></i></button>
                         </div>
                     </div>
@@ -315,15 +213,13 @@
             </div>
         </div>
 
-        <div id="panel-estadio" style="display: none; width: 95%; max-width: 800px; margin: 10vh auto 50px;">
+        <div id="panel-estadio" style="display: none; width: 95%; max-width: 800px; margin: 5vh auto 50px; display: flex; flex-direction: column; align-items: center;">
             
-            <div style="text-align: center;">
-                <button class="btn-back-seleccion" onclick="switchMainView('seleccion')">
-                    <i class="fa-solid fa-arrow-left"></i> Volver a Selección
-                </button>
-            </div>
+            <button class="btn-back-seleccion" onclick="switchMainView('seleccion')">
+                <i class="fa-solid fa-arrow-left"></i> Volver
+            </button>
 
-            <div class="box" style="text-align: center;">
+            <div class="box" style="width: 100%; text-align: center;">
                 <h3><i class="fa-solid fa-server"></i> Gestión del Estadio</h3>
                 
                 <div style="padding: 25px; margin: 20px 0; border-radius: 10px; background: rgba(0,0,0,0.5); border: 1px solid #333;">
@@ -333,25 +229,18 @@
                     <p id="predio-status-desc" style="color: #bdc3c7; font-size: 1.1rem;">Verificando estado del servidor...</p>
                     
                     <div id="predio-info" style="display:none; margin-top: 25px; background: #111; padding: 20px; border-radius: 8px; border: 1px dashed #5dc8e8; text-align: center;">
-                        
                         <div style="margin:8px 0; color:#bdc3c7; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;">
-                            🌐 <strong>Link:</strong> 
-                            <a id="predio-link" href="#" target="_blank" style="color:#5dc8e8; font-weight: bold; text-decoration: none; word-break: break-all;">...</a>
+                            🌐 <strong>Link:</strong> <a id="predio-link" href="#" target="_blank" style="color:#5dc8e8; font-weight: bold; text-decoration: none; word-break: break-all;">...</a>
                             <button class="copy-btn" onclick="copiarDato('predio-link', 'link', this)" title="Copiar Link"><i class="fa-regular fa-copy"></i></button>
                         </div>
-                        
                         <div style="margin:15px 0 8px 0; color:#bdc3c7; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;">
-                            🔑 <strong>Ingreso:</strong> 
-                            <span id="predio-pass" style="color:#FFD342; font-family:monospace; font-size:1.2rem; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px; border: 1px solid #444;">...</span>
-                            <button class="copy-btn" onclick="copiarDato('predio-pass', 'texto', this)" title="Copiar Clave Jugadores"><i class="fa-regular fa-copy"></i></button>
+                            🔑 <strong>Ingreso:</strong> <span id="predio-pass" style="color:#FFD342; font-family:monospace; font-size:1.2rem; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px; border: 1px solid #444;">...</span>
+                            <button class="copy-btn" onclick="copiarDato('predio-pass', 'texto', this)" title="Copiar Clave"><i class="fa-regular fa-copy"></i></button>
                         </div>
-                        
                         <div style="margin:15px 0 8px 0; color:#bdc3c7; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;">
-                            👔 <strong>Admin (!admin):</strong> 
-                            <span id="predio-adminpass" style="color:#2df2c1; font-family:monospace; font-size:1.2rem; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px; border: 1px solid #444;">...</span>
+                            👔 <strong>Admin (!admin):</strong> <span id="predio-adminpass" style="color:#2df2c1; font-family:monospace; font-size:1.2rem; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px; border: 1px solid #444;">...</span>
                             <button class="copy-btn" onclick="copiarDato('predio-adminpass', 'texto', this)" title="Copiar Clave Admin"><i class="fa-regular fa-copy"></i></button>
                         </div>
-
                     </div>
                 </div>
 
@@ -361,15 +250,25 @@
                         <a href="https://www.haxball.com/headlesstoken" target="_blank" class="btn-token-link"><i class="fa-solid fa-key"></i> Generar Token</a>
                         <input type="text" id="haxballTokenInput" placeholder="Pega el token aquí..." style="width:100%; background:#111; border:1px solid #444; color:white; padding:12px; border-radius:8px; outline:none; font-family:monospace; text-align: center; transition: 0.3s;">
                     </div>
-
                     <div style="display:flex; gap:15px; justify-content:center; flex-wrap:wrap; width: 100%;">
-                        <button class="btn-estandar" style="background:#2df2c1; color:#111; width:auto; font-size: 1.1rem; padding: 15px 30px;" onclick="controlarPredio('start')" id="btnStartPredio">
-                            <i class="fa-solid fa-power-off"></i> Encender Estadio
-                        </button>
-                        <button class="btn-estandar" style="background:#cc2a2a; color:#fff; width:auto; font-size: 1.1rem; padding: 15px 30px;" onclick="controlarPredio('stop')" id="btnStopPredio">
-                            <i class="fa-solid fa-stop"></i> Apagar Estadio
-                        </button>
+                        <button class="btn-estandar" style="background:#2df2c1; color:#111; width:auto; font-size: 1.1rem; padding: 15px 30px;" onclick="controlarPredio('start')" id="btnStartPredio"><i class="fa-solid fa-power-off"></i> Encender Estadio</button>
+                        <button class="btn-estandar" style="background:#cc2a2a; color:#fff; width:auto; font-size: 1.1rem; padding: 15px 30px;" onclick="controlarPredio('stop')" id="btnStopPredio"><i class="fa-solid fa-stop"></i> Apagar Estadio</button>
                     </div>
+                </div>
+
+                <div id="room-commands-container" style="display:none; margin-top: 30px; text-align: center; padding-top: 20px; border-top: 1px dashed #333;">
+                    <h3 style="color: #bdc3c7; font-size: 1.1rem;"><i class="fa-solid fa-gamepad"></i> Control de Sala</h3>
+                    <div class="cmd-grid">
+                        <button class="btn-cmd" onclick="enviarComandoWeb('!x5')">🏟️ Cancha x5</button>
+                        <button class="btn-cmd" onclick="enviarComandoWeb('!x7')">🏟️ Cancha x7</button>
+                        <button class="btn-cmd" onclick="enviarComandoWeb('!previa')">⚽ Previa</button>
+                        <button class="btn-cmd" style="background: #2df2c1; color: #111; border-color: #2df2c1;" onclick="enviarComandoWeb('!go')">▶️ Start (!go)</button>
+                        <button class="btn-cmd" onclick="enviarComandoWeb('!segundo')">🔄 2do Tiempo</button>
+                        <button class="btn-cmd" onclick="enviarComandoWeb('!rr')">⏱️ Reiniciar Mitad</button>
+                        <button class="btn-cmd danger" onclick="enviarComandoWeb('!rrpartido')">⏪ Reiniciar Partido</button>
+                        <button class="btn-cmd danger" onclick="enviarComandoWeb('!rrtotal')">☢️ Fin de partido</button>
+                    </div>
+                    <button class="btn-transmit" onclick="solicitarTransmision()" id="btnTransmision"><i class="fa-solid fa-video"></i> Solicitar Transmisión en Discord</button>
                 </div>
             </div>
         </div>
@@ -437,64 +336,44 @@
             return new Promise(resolve => {
                 const icon = isSuccess ? '<i class="fa-solid fa-circle-check"></i>' : '<i class="fa-solid fa-triangle-exclamation"></i>';
                 const color = isSuccess ? '#2df2c1' : '#e74c3c';
-                
                 document.getElementById('customAlertTitle').innerHTML = `${icon} ${title}`;
                 document.getElementById('customAlertTitle').style.color = color;
                 document.getElementById('customAlertMsg').innerHTML = msg;
-                
                 const btn = document.querySelector('#customAlertModal .btn-estandar');
                 btn.style.background = color;
                 btn.style.color = isSuccess ? '#111' : 'white';
-
                 document.getElementById('customAlertModal').style.display = 'flex';
                 alertResolve = resolve;
             });
         }
-
         function closeCustomAlert() {
             document.getElementById('customAlertModal').style.display = 'none';
             if (alertResolve) alertResolve();
         }
-
         function showCustomConfirm(title, msg) {
             return new Promise(resolve => {
                 document.getElementById('customConfirmTitle').innerHTML = `<i class="fa-solid fa-circle-question"></i> ${title}`;
                 document.getElementById('customConfirmMsg').innerHTML = msg;
                 document.getElementById('customConfirmModal').style.display = 'flex';
-                
-                const btnYes = document.getElementById('btnConfirmYes');
-                const btnNo = document.getElementById('btnConfirmNo');
-                
-                btnYes.onclick = () => {
-                    document.getElementById('customConfirmModal').style.display = 'none';
-                    resolve(true);
-                };
-                
-                btnNo.onclick = () => {
-                    document.getElementById('customConfirmModal').style.display = 'none';
-                    resolve(false);
-                };
+                document.getElementById('btnConfirmYes').onclick = () => { document.getElementById('customConfirmModal').style.display = 'none'; resolve(true); };
+                document.getElementById('btnConfirmNo').onclick = () => { document.getElementById('customConfirmModal').style.display = 'none'; resolve(false); };
             });
         }
 
         function copiarDato(id, tipo, btn) {
             const el = document.getElementById(id);
             let texto = tipo === 'link' ? el.href : el.innerText;
-            
             navigator.clipboard.writeText(texto).then(() => {
                 const originalHTML = btn.innerHTML;
                 btn.innerHTML = '<i class="fa-solid fa-check" style="color:#2df2c1;"></i>';
                 btn.style.borderColor = '#2df2c1';
-                setTimeout(() => {
-                    btn.innerHTML = originalHTML;
-                    btn.style.borderColor = '#444';
-                }, 2000);
+                setTimeout(() => { btn.innerHTML = originalHTML; btn.style.borderColor = '#444'; }, 2000);
             }).catch(err => console.error("Error al copiar", err));
         }
 
         function switchMainView(view) {
             document.getElementById('panel-seleccion').style.display = view === 'seleccion' ? 'block' : 'none';
-            document.getElementById('panel-estadio').style.display = view === 'estadio' ? 'block' : 'none';
+            document.getElementById('panel-estadio').style.display = view === 'estadio' ? 'flex' : 'none';
 
             if (view === 'estadio') {
                 cargarEstadoPredio();
@@ -512,76 +391,62 @@
                 const statusText = document.getElementById('predio-status-text');
                 const statusDesc = document.getElementById('predio-status-desc');
                 const infoBox = document.getElementById('predio-info');
-                const linkEl = document.getElementById('predio-link');
-                const passEl = document.getElementById('predio-pass');
-                const adminPassEl = document.getElementById('predio-adminpass');
+                const tokenBox = document.getElementById('tokenContainer');
+                const cmdsContainer = document.getElementById('room-commands-container');
                 const btnStart = document.getElementById('btnStartPredio');
                 const btnStop = document.getElementById('btnStopPredio');
 
                 document.getElementById('predio-controls').style.display = isManager ? 'flex' : 'none';
-                const tokenBox = document.getElementById('tokenContainer');
-
-                const txtStart = '<i class="fa-solid fa-power-off"></i> Encender Estadio';
-                const txtStop = '<i class="fa-solid fa-stop"></i> Apagar Estadio';
 
                 if (data.estado === 'online') {
                     statusText.innerHTML = '<span class="status-light light-on"></span> ESTADIO ACTIVO';
                     statusText.style.color = '#2df2c1';
-                    statusDesc.innerText = 'El servidor de entrenamiento está corriendo y listo para usarse.';
+                    statusDesc.innerText = 'El servidor está corriendo y listo para usarse.';
                     infoBox.style.display = 'block';
                     tokenBox.style.display = 'none';
-                    linkEl.href = data.link || '#';
-                    linkEl.innerText = data.link || 'Esperando enlace...';
-                    passEl.innerText = data.pass || 'Sin contraseña';
-                    adminPassEl.innerText = data.adminPass || 'No generada';
+                    if(isManager) cmdsContainer.style.display = 'block';
                     
-                    if (btnStart) {
-                        btnStart.style.display = 'none';
-                    }
-                    if (btnStop) {
-                        btnStop.style.display = 'block';
-                        btnStop.innerHTML = txtStop;
-                        btnStop.disabled = false;
-                    }
+                    document.getElementById('predio-link').href = data.link || '#';
+                    document.getElementById('predio-link').innerText = data.link || 'Esperando enlace...';
+                    document.getElementById('predio-pass').innerText = data.pass || 'Sin contraseña';
+                    document.getElementById('predio-adminpass').innerText = data.adminPass || 'No generada';
+                    
+                    if (btnStart) btnStart.style.display = 'none';
+                    if (btnStop) { btnStop.style.display = 'block'; btnStop.innerHTML = '<i class="fa-solid fa-stop"></i> Apagar Estadio'; btnStop.disabled = false; }
                 } 
                 else if (data.estado === 'starting') {
                     statusText.innerHTML = '<span class="status-light light-starting"></span> ENCENDIENDO... <i class="fa-solid fa-spinner fa-spin" style="font-size:0.8em; margin-left:10px;"></i>';
                     statusText.style.color = '#FFD342';
-                    statusDesc.innerText = 'El servidor está validando el token. Espera unos segundos...';
+                    statusDesc.innerText = 'Validando token y construyendo el mapa...';
                     infoBox.style.display = 'none';
                     tokenBox.style.display = 'none';
-
+                    cmdsContainer.style.display = 'none';
                     if (btnStart) btnStart.style.display = 'none';
                     if (btnStop) btnStop.style.display = 'none';
                 } 
                 else if (data.estado === 'stop_pending') {
                     statusText.innerHTML = '<span class="status-light light-stopping"></span> APAGANDO... <i class="fa-solid fa-spinner fa-spin" style="font-size:0.8em; margin-left:10px;"></i>';
                     statusText.style.color = '#e74c3c';
-                    statusDesc.innerText = 'Cerrando el estadio...';
+                    statusDesc.innerText = 'Cerrando el estadio y expulsando jugadores...';
                     infoBox.style.display = 'none';
                     tokenBox.style.display = 'none';
-
+                    cmdsContainer.style.display = 'none';
                     if (btnStart) btnStart.style.display = 'none';
                     if (btnStop) btnStop.style.display = 'none';
                 }
                 else {
                     statusText.innerHTML = '<span class="status-light light-off"></span> APAGADO';
                     statusText.style.color = '#cc2a2a';
-                    statusDesc.innerText = 'El estadio está cerrado. Requiere de un Token para entrar.';
+                    statusDesc.innerText = 'El estadio está inactivo. Requiere Token de HaxBall para encender.';
                     infoBox.style.display = 'none';
+                    cmdsContainer.style.display = 'none';
                     tokenBox.style.display = 'block';
 
-                    if (btnStart) {
-                        btnStart.style.display = 'block';
-                        btnStart.innerHTML = txtStart;
-                        btnStart.disabled = false;
-                    }
-                    if (btnStop) {
-                        btnStop.style.display = 'none';
-                    }
+                    if (btnStart) { btnStart.style.display = 'block'; btnStart.innerHTML = '<i class="fa-solid fa-power-off"></i> Encender Estadio'; btnStart.disabled = false; }
+                    if (btnStop) btnStop.style.display = 'none';
                 }
             } catch (e) {
-                console.error("Error cargando estado del predio:", e);
+                console.error("Error cargando estado:", e);
                 const btnStart = document.getElementById('btnStartPredio');
                 const btnStop = document.getElementById('btnStopPredio');
                 if (btnStart) { btnStart.innerHTML = '<i class="fa-solid fa-power-off"></i> Encender Estadio'; btnStart.disabled = false; }
@@ -603,22 +468,15 @@
             let tokenHaxball = "";
             if (action === 'start') {
                 tokenHaxball = document.getElementById('haxballTokenInput').value.trim();
-                if (!tokenHaxball) {
-                    await showCustomAlert("Falta Token", "Debes pegar el Token de HaxBall para iniciar la sala.");
-                    return;
-                }
-                
-                btnStart.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando señal...';
-                btnStart.disabled = true;
+                if (!tokenHaxball) { await showCustomAlert("Falta Token", "Debes pegar el Token de HaxBall para iniciar la sala."); return; }
+                btnStart.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando señal...'; btnStart.disabled = true;
             } else {
-                btnStop.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Apagando...';
-                btnStop.disabled = true;
+                btnStop.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Apagando...'; btnStop.disabled = true;
             }
 
             try {
                 const res = await fetch('https://torobot-izu5.onrender.com/api/predio/control', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ numericId: loggedId, token: token, action: action, tokenHaxball: tokenHaxball }) 
                 });
                 const data = await res.json();
@@ -627,24 +485,51 @@
                     await cargarEstadoPredio(); 
                 } else {
                     await showCustomAlert("Error", data.message || "Error al enviar el comando.");
-                    if (action === 'start') { 
-                        btnStart.innerHTML = originalStartText; 
-                        btnStart.disabled = false; 
-                    } else { 
-                        btnStop.innerHTML = originalStopText; 
-                        btnStop.disabled = false; 
-                    }
+                    if (action === 'start') { btnStart.innerHTML = originalStartText; btnStart.disabled = false; } else { btnStop.innerHTML = originalStopText; btnStop.disabled = false; }
                 }
             } catch (e) {
-                console.error(e);
                 await showCustomAlert("Error de Red", "Error de conexión con el servidor.");
-                if (action === 'start') { 
-                    btnStart.innerHTML = originalStartText; 
-                    btnStart.disabled = false; 
-                } else { 
-                    btnStop.innerHTML = originalStopText; 
-                    btnStop.disabled = false; 
+                if (action === 'start') { btnStart.innerHTML = originalStartText; btnStart.disabled = false; } else { btnStop.innerHTML = originalStopText; btnStop.disabled = false; }
+            }
+        }
+
+        async function enviarComandoWeb(comando) {
+            if(comando.includes('total') || comando.includes('rrpartido')) {
+                const confirmed = await showCustomConfirm("Reiniciar Partido", "Estás a punto de borrar el progreso actual del partido y reiniciar la sala. ¿Deseas continuar?");
+                if (!confirmed) return;
+            }
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/predio/comando', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ numericId: loggedId, token: token, comando: comando })
+                });
+                const data = await res.json();
+                if(!data.success) await showCustomAlert("Error", data.message || "No se pudo enviar el comando.");
+            } catch(e) {
+                await showCustomAlert("Error de red", "No se pudo conectar al servidor.");
+            }
+        }
+
+        async function solicitarTransmision() {
+            const btn = document.getElementById('btnTransmision');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Solicitando...';
+            btn.disabled = true;
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/predio/transmision', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ numericId: loggedId, token: token })
+                });
+                if(res.ok) {
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i> Notificación Enviada';
+                    btn.style.background = '#2df2c1'; btn.style.color = '#111'; btn.style.borderColor = '#2df2c1';
+                } else {
+                    btn.innerHTML = '<i class="fa-solid fa-video"></i> Solicitar Transmisión en Discord';
+                    btn.disabled = false;
+                    await showCustomAlert("Error", "No se pudo enviar la solicitud.");
                 }
+            } catch(e) {
+                btn.innerHTML = '<i class="fa-solid fa-video"></i> Solicitar Transmisión en Discord';
+                btn.disabled = false;
             }
         }
 
@@ -701,28 +586,17 @@
                     let tieneCuerpoTecnico = false;
 
                     if (data.dts && data.dts.length > 0) {
-                        data.dts.forEach(dt => {
-                            ulJugadores.innerHTML += `<li style="color: #1eb3a6; font-weight: bold; border-bottom: none; padding-bottom: 0;"><i class="fa-solid fa-user-tie"></i> DT: ${dt}</li>`;
-                        });
+                        data.dts.forEach(dt => { ulJugadores.innerHTML += `<li style="color: #1eb3a6; font-weight: bold; border-bottom: none; padding-bottom: 0;"><i class="fa-solid fa-user-tie"></i> DT: ${dt}</li>`; });
                         tieneCuerpoTecnico = true;
                     }
-
                     if (data.subDts && data.subDts.length > 0) {
-                        data.subDts.forEach(sub => {
-                            ulJugadores.innerHTML += `<li style="color: #5dc8e8; font-weight: bold; border-bottom: none; padding-bottom: 0;"><i class="fa-solid fa-user-tie"></i> Sub-DT: ${sub}</li>`;
-                        });
+                        data.subDts.forEach(sub => { ulJugadores.innerHTML += `<li style="color: #5dc8e8; font-weight: bold; border-bottom: none; padding-bottom: 0;"><i class="fa-solid fa-user-tie"></i> Sub-DT: ${sub}</li>`; });
                         tieneCuerpoTecnico = true;
                     }
+                    if (tieneCuerpoTecnico) ulJugadores.innerHTML += '<hr style="border: 0; border-bottom: 1px dashed #444; margin: 7px 0 10px 0;">';
 
-                    if (tieneCuerpoTecnico) {
-                        ulJugadores.innerHTML += '<hr style="border: 0; border-bottom: 1px dashed #444; margin: 7px 0 10px 0;">';
-                    }
-
-                    if(data.jugadores && data.jugadores.length > 0) {
-                        data.jugadores.forEach(jug => ulJugadores.innerHTML += `<li>${jug}</li>`);
-                    } else {
-                        ulJugadores.innerHTML += '<li>No hay jugadores registrados.</li>';
-                    }
+                    if(data.jugadores && data.jugadores.length > 0) data.jugadores.forEach(jug => ulJugadores.innerHTML += `<li>${jug}</li>`);
+                    else ulJugadores.innerHTML += '<li>No hay jugadores registrados.</li>';
 
                     ulVitrina.innerHTML = '';
                     if(data.trofeos && data.trofeos.length > 0) data.trofeos.forEach(trofeo => ulVitrina.innerHTML += `<li>${trofeo}</li>`);
@@ -750,7 +624,6 @@
                 if(data.success) {
                     proxDiv.innerHTML = ''; 
                     histDiv.innerHTML = '';
-
                     const hoy = new Date();
                     hoy.setHours(0, 0, 0, 0);
 
@@ -767,8 +640,7 @@
                         if (!m.isHistory && m.date && fechaPartido < hoy) {
                             if (isManager) {
                                 fetch(`https://torobot-izu5.onrender.com/api/matches/${m._id}`, {
-                                    method: 'DELETE',
-                                    headers: { 'Content-Type': 'application/json' },
+                                    method: 'DELETE', headers: { 'Content-Type': 'application/json' },
                                     body: JSON.stringify({ numericId: loggedId, team: 'seleccion', mode: currentMode })
                                 }).catch(()=>{});
                             }
@@ -816,7 +688,6 @@
                 }
             })
             .catch(e => {
-                console.error(e);
                 document.getElementById('proximos-lista').innerHTML = '<p style="text-align:center; color:#cc2a2a;">Error de red. Reintentando...</p>';
                 document.getElementById('historial-lista').innerHTML = '<p style="text-align:center; color:#cc2a2a;">Error de red. Reintentando...</p>';
                 setTimeout(cargarPartidos, 5000);
@@ -854,7 +725,6 @@
         }
 
         function cerrarModal() { document.getElementById('editModal').style.display = 'none'; }
-        
         function toggleGoles() {
             const esHistorial = document.getElementById('m_target').value === 'historial';
             document.getElementById('goles_inputs').style.display = esHistorial ? 'flex' : 'none';
@@ -884,22 +754,12 @@
                 const res = await fetch(url, {
                     method: method,
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        numericId: loggedId, team: 'seleccion', mode: currentMode,
-                        isHistory, rival, golesLocal, golesVisita, matchType, date
-                    })
+                    body: JSON.stringify({ numericId: loggedId, team: 'seleccion', mode: currentMode, isHistory, rival, golesLocal, golesVisita, matchType, date })
                 });
                 const data = await res.json();
-                
-                if (data.success) {
-                    cerrarModal();
-                    cargarPartidos(); 
-                } else {
-                    await showCustomAlert("Acceso Denegado", "Error: No tienes permisos.");
-                }
-            } catch (err) { 
-                await showCustomAlert("Error de Red", "Error de conexión con el servidor.");
-            }
+                if (data.success) { cerrarModal(); cargarPartidos(); } 
+                else { await showCustomAlert("Acceso Denegado", "Error: No tienes permisos."); }
+            } catch (err) { await showCustomAlert("Error de Red", "Error de conexión con el servidor."); }
         }
 
         async function borrarPartido(id) {
@@ -908,16 +768,13 @@
             
             try {
                 const res = await fetch(`https://torobot-izu5.onrender.com/api/matches/${id}`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
+                    method: 'DELETE', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ numericId: loggedId, team: 'seleccion', mode: currentMode })
                 });
                 const data = await res.json();
                 if(data.success) cargarPartidos();
                 else await showCustomAlert("Error", "Error al borrar el partido.");
-            } catch (err) { 
-                await showCustomAlert("Error de Red", "Error de conexión con el servidor.");
-            }
+            } catch (err) { await showCustomAlert("Error de Red", "Error de conexión con el servidor."); }
         }
 
         function actualizarMarcador() {
@@ -948,13 +805,8 @@
             const totalSlides = slides.length;
 
             currentKitIndex += direccion;
-
-            if (currentKitIndex >= totalSlides) {
-                currentKitIndex = 0;
-            } else if (currentKitIndex < 0) {
-                currentKitIndex = totalSlides - 1;
-            }
-
+            if (currentKitIndex >= totalSlides) { currentKitIndex = 0; } 
+            else if (currentKitIndex < 0) { currentKitIndex = totalSlides - 1; }
             track.style.transform = `translateX(-${currentKitIndex * 100}%)`;
         }
     </script>
