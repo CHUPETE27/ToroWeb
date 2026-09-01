@@ -164,8 +164,28 @@
         .btn-go-estadio-premium i { font-size: 1.5rem; }
         .btn-go-estadio-premium:hover { background: #FFD342; color: #111; box-shadow: 0 5px 20px rgba(255, 211, 66, 0.3); transform: translateY(-2px); }
 
-        .btn-back-seleccion { background: transparent; color: #FFD342; border: 1px solid #FFD342; border-radius: 20px; padding: 8px 25px; transition: 0.3s; font-size: 0.95rem; margin-bottom: 20px; }
-        .btn-back-seleccion:hover { background: #FFD342; color: #111; box-shadow: 0 0 10px rgba(255,211,66,0.3); transform: scale(1.05); }
+        .btn-back-seleccion { 
+            background: rgba(20, 20, 20, 0.8); 
+            color: #bdc3c7; 
+            border: 1px solid #444; 
+            border-radius: 12px; 
+            padding: 12px 30px; 
+            transition: 0.3s; 
+            font-size: 1.1rem; 
+            font-weight: bold;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-back-seleccion:hover { 
+            background: #FFD342; 
+            color: #111; 
+            border-color: #FFD342; 
+            box-shadow: 0 5px 20px rgba(255,211,66,0.3); 
+            transform: translateY(-2px); 
+        }
 
         .status-light { display: inline-block; width: 16px; height: 16px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
         .light-on { background: #2df2c1; box-shadow: 0 0 12px #2df2c1; animation: pulse 1.5s infinite; }
@@ -179,6 +199,8 @@
         .copy-btn { background: #222; color: #bdc3c7; border: 1px solid #444; border-radius: 6px; cursor: pointer; padding: 6px 10px; margin-left: 10px; transition: 0.3s; font-size: 0.9rem;}
         .copy-btn:hover { background: #FFD342; color: #111; border-color: #FFD342; }
         .copy-btn:active { transform: scale(0.9); }
+
+        #customAlertModal, #customConfirmModal { z-index: 10000; }
 
         @media (max-width: 900px) { .seleccion-wrapper { grid-template-columns: 1fr; } }
         @media (max-width: 480px) { 
@@ -296,8 +318,8 @@
         <div id="panel-estadio" style="display: none; width: 95%; max-width: 800px; margin: 10vh auto 50px;">
             
             <div style="text-align: center;">
-                <button class="btn-estandar btn-back-seleccion" style="display: inline-flex; width: auto;" onclick="switchMainView('seleccion')">
-                    <i class="fa-solid fa-arrow-left"></i> Volver
+                <button class="btn-back-seleccion" onclick="switchMainView('seleccion')">
+                    <i class="fa-solid fa-arrow-left"></i> Volver a Selección
                 </button>
             </div>
 
@@ -310,21 +332,21 @@
                     </h2>
                     <p id="predio-status-desc" style="color: #bdc3c7; font-size: 1.1rem;">Verificando estado del servidor...</p>
                     
-                    <div id="predio-info" style="display:none; margin-top: 25px; background: #111; padding: 20px; border-radius: 8px; border: 1px dashed #5dc8e8; text-align: left;">
+                    <div id="predio-info" style="display:none; margin-top: 25px; background: #111; padding: 20px; border-radius: 8px; border: 1px dashed #5dc8e8; text-align: center;">
                         
-                        <div style="margin:8px 0; color:#bdc3c7; font-size: 1.1rem; display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <div style="margin:8px 0; color:#bdc3c7; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;">
                             🌐 <strong>Link:</strong> 
                             <a id="predio-link" href="#" target="_blank" style="color:#5dc8e8; font-weight: bold; text-decoration: none; word-break: break-all;">...</a>
                             <button class="copy-btn" onclick="copiarDato('predio-link', 'link', this)" title="Copiar Link"><i class="fa-regular fa-copy"></i></button>
                         </div>
                         
-                        <div style="margin:15px 0 8px 0; color:#bdc3c7; font-size: 1.1rem; display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
-                            🔑 <strong>Jugadores:</strong> 
+                        <div style="margin:15px 0 8px 0; color:#bdc3c7; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;">
+                            🔑 <strong>Ingreso:</strong> 
                             <span id="predio-pass" style="color:#FFD342; font-family:monospace; font-size:1.2rem; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px; border: 1px solid #444;">...</span>
                             <button class="copy-btn" onclick="copiarDato('predio-pass', 'texto', this)" title="Copiar Clave Jugadores"><i class="fa-regular fa-copy"></i></button>
                         </div>
                         
-                        <div style="margin:15px 0 8px 0; color:#bdc3c7; font-size: 1.1rem; display: flex; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <div style="margin:15px 0 8px 0; color:#bdc3c7; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;">
                             👔 <strong>Admin (!admin):</strong> 
                             <span id="predio-adminpass" style="color:#2df2c1; font-family:monospace; font-size:1.2rem; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px; border: 1px solid #444;">...</span>
                             <button class="copy-btn" onclick="copiarDato('predio-adminpass', 'texto', this)" title="Copiar Clave Admin"><i class="fa-regular fa-copy"></i></button>
@@ -334,10 +356,10 @@
                 </div>
 
                 <div id="predio-controls" style="display:none; flex-direction:column; align-items:center; gap: 15px; margin-top: 20px;">
-                    <div id="tokenContainer" style="width: 100%; max-width: 400px; text-align: left;">
-                        <label style="color:#bdc3c7; font-size:0.9rem; font-weight:bold; margin-bottom:8px; display:block;">Token de HaxBall:</label>
-                        <a href="https://www.haxball.com/headlesstoken" target="_blank" class="btn-token-link"><i class="fa-solid fa-key"></i> Obtener Token</a>
-                        <input type="text" id="haxballTokenInput" placeholder="Pega el token aquí..." style="width:100%; background:#111; border:1px solid #444; color:white; padding:12px; border-radius:8px; outline:none; font-family:monospace; transition: 0.3s;">
+                    <div id="tokenContainer" style="width: 100%; max-width: 400px; text-align: center;">
+                        <label style="color:#bdc3c7; font-size:0.9rem; font-weight:bold; margin-bottom:12px; display:block;">Token de HaxBall:</label>
+                        <a href="https://www.haxball.com/headlesstoken" target="_blank" class="btn-token-link"><i class="fa-solid fa-key"></i> Generar Token</a>
+                        <input type="text" id="haxballTokenInput" placeholder="Pega el token aquí..." style="width:100%; background:#111; border:1px solid #444; color:white; padding:12px; border-radius:8px; outline:none; font-family:monospace; text-align: center; transition: 0.3s;">
                     </div>
 
                     <div style="display:flex; gap:15px; justify-content:center; flex-wrap:wrap; width: 100%;">
@@ -378,6 +400,25 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="customAlertModal">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <h3 id="customAlertTitle" style="color: #e74c3c;"><i class="fa-solid fa-triangle-exclamation"></i> Error</h3>
+            <p id="customAlertMsg" style="color: #bdc3c7; font-size: 1.1rem; margin: 20px 0; line-height: 1.4;"></p>
+            <button class="btn-estandar" style="background: #e74c3c; color: white;" onclick="closeCustomAlert()">Aceptar</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="customConfirmModal">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <h3 id="customConfirmTitle" style="color: #FFD342;"><i class="fa-solid fa-circle-question"></i> Confirmar</h3>
+            <p id="customConfirmMsg" style="color: #bdc3c7; font-size: 1.1rem; margin: 20px 0; line-height: 1.4;"></p>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button class="btn-estandar" style="background: #2df2c1; color: #111;" id="btnConfirmYes">Sí, continuar</button>
+                <button class="btn-estandar" style="background: #cc2a2a; color: white;" id="btnConfirmNo">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <footer><p>© 2026 ToroHax. Todos los derechos reservados.</p></footer>
 
     <script src="header.js"></script>
@@ -390,6 +431,51 @@
         let editingId = null;
         let currentMode = 'futsal';
         let predioInterval = null;
+
+        let alertResolve = null;
+        function showCustomAlert(title, msg, isSuccess = false) {
+            return new Promise(resolve => {
+                const icon = isSuccess ? '<i class="fa-solid fa-circle-check"></i>' : '<i class="fa-solid fa-triangle-exclamation"></i>';
+                const color = isSuccess ? '#2df2c1' : '#e74c3c';
+                
+                document.getElementById('customAlertTitle').innerHTML = `${icon} ${title}`;
+                document.getElementById('customAlertTitle').style.color = color;
+                document.getElementById('customAlertMsg').innerHTML = msg;
+                
+                const btn = document.querySelector('#customAlertModal .btn-estandar');
+                btn.style.background = color;
+                btn.style.color = isSuccess ? '#111' : 'white';
+
+                document.getElementById('customAlertModal').style.display = 'flex';
+                alertResolve = resolve;
+            });
+        }
+
+        function closeCustomAlert() {
+            document.getElementById('customAlertModal').style.display = 'none';
+            if (alertResolve) alertResolve();
+        }
+
+        function showCustomConfirm(title, msg) {
+            return new Promise(resolve => {
+                document.getElementById('customConfirmTitle').innerHTML = `<i class="fa-solid fa-circle-question"></i> ${title}`;
+                document.getElementById('customConfirmMsg').innerHTML = msg;
+                document.getElementById('customConfirmModal').style.display = 'flex';
+                
+                const btnYes = document.getElementById('btnConfirmYes');
+                const btnNo = document.getElementById('btnConfirmNo');
+                
+                btnYes.onclick = () => {
+                    document.getElementById('customConfirmModal').style.display = 'none';
+                    resolve(true);
+                };
+                
+                btnNo.onclick = () => {
+                    document.getElementById('customConfirmModal').style.display = 'none';
+                    resolve(false);
+                };
+            });
+        }
 
         function copiarDato(id, tipo, btn) {
             const el = document.getElementById(id);
@@ -504,7 +590,10 @@
         }
 
         async function controlarPredio(action) {
-            if (action === 'stop' && !confirm("¿Seguro que deseas APAGAR el estadio? Se cerrará la sala y expulsará a todos al instante.")) return;
+            if (action === 'stop') {
+                const confirmed = await showCustomConfirm("Apagar Estadio", "¿Seguro que deseas APAGAR el estadio? Se cerrará la sala y expulsará a todos al instante.");
+                if (!confirmed) return;
+            }
             
             const btnStart = document.getElementById('btnStartPredio');
             const btnStop = document.getElementById('btnStopPredio');
@@ -514,7 +603,10 @@
             let tokenHaxball = "";
             if (action === 'start') {
                 tokenHaxball = document.getElementById('haxballTokenInput').value.trim();
-                if (!tokenHaxball) return alert("❌ Debes pegar el Token de HaxBall para iniciar la sala.");
+                if (!tokenHaxball) {
+                    await showCustomAlert("Falta Token", "Debes pegar el Token de HaxBall para iniciar la sala.");
+                    return;
+                }
                 
                 btnStart.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando señal...';
                 btnStart.disabled = true;
@@ -534,7 +626,7 @@
                 if (data.success) {
                     await cargarEstadoPredio(); 
                 } else {
-                    alert("❌ " + (data.message || "Error al enviar el comando."));
+                    await showCustomAlert("Error", data.message || "Error al enviar el comando.");
                     if (action === 'start') { 
                         btnStart.innerHTML = originalStartText; 
                         btnStart.disabled = false; 
@@ -545,7 +637,7 @@
                 }
             } catch (e) {
                 console.error(e);
-                alert("❌ Error de conexión con el servidor.");
+                await showCustomAlert("Error de Red", "Error de conexión con el servidor.");
                 if (action === 'start') { 
                     btnStart.innerHTML = originalStartText; 
                     btnStart.disabled = false; 
@@ -780,7 +872,10 @@
                 golesVisita = parseInt(document.getElementById('m_golesR').value) || 0;
             }
 
-            if(!rival || !date) return alert("Debes ingresar el nombre del rival y la fecha.");
+            if(!rival || !date) {
+                await showCustomAlert("Faltan Datos", "Debes ingresar el nombre del rival y la fecha.");
+                return;
+            }
 
             const url = editingId ? `https://torobot-izu5.onrender.com/api/matches/${editingId}` : 'https://torobot-izu5.onrender.com/api/matches';
             const method = editingId ? 'PUT' : 'POST';
@@ -800,13 +895,17 @@
                     cerrarModal();
                     cargarPartidos(); 
                 } else {
-                    alert("Error: No tienes permisos.");
+                    await showCustomAlert("Acceso Denegado", "Error: No tienes permisos.");
                 }
-            } catch (err) { alert("Error de conexión."); }
+            } catch (err) { 
+                await showCustomAlert("Error de Red", "Error de conexión con el servidor.");
+            }
         }
 
         async function borrarPartido(id) {
-            if(!confirm("¿Seguro que quieres borrar este partido?")) return;
+            const confirmed = await showCustomConfirm("Eliminar Partido", "¿Seguro que quieres borrar este partido de la lista?");
+            if(!confirmed) return;
+            
             try {
                 const res = await fetch(`https://torobot-izu5.onrender.com/api/matches/${id}`, {
                     method: 'DELETE',
@@ -815,8 +914,10 @@
                 });
                 const data = await res.json();
                 if(data.success) cargarPartidos();
-                else alert("Error al borrar.");
-            } catch (err) { alert("Error de conexión."); }
+                else await showCustomAlert("Error", "Error al borrar el partido.");
+            } catch (err) { 
+                await showCustomAlert("Error de Red", "Error de conexión con el servidor.");
+            }
         }
 
         function actualizarMarcador() {
