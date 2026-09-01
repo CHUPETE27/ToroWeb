@@ -268,7 +268,7 @@
                         <button class="btn-cmd danger" onclick="enviarComandoWeb('!rrpartido')">⏪ Reiniciar Partido</button>
                         <button class="btn-cmd danger" onclick="enviarComandoWeb('!rrtotal')">☢️ Fin de partido</button>
                     </div>
-                    <button class="btn-transmit" onclick="solicitarTransmision()" id="btnTransmision"><i class="fa-solid fa-video"></i> Solicitar Transmisión en Discord</button>
+                    <button class="btn-transmit" onclick="solicitarTransmision()" id="btnTransmision"><i class="fa-solid fa-video"></i> Solicitar Transmisión</button>
                 </div>
             </div>
         </div>
@@ -519,17 +519,20 @@
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ numericId: loggedId, token: token })
                 });
-                if(res.ok) {
+                const data = await res.json();
+                
+                if(data.success) {
                     btn.innerHTML = '<i class="fa-solid fa-check"></i> Notificación Enviada';
                     btn.style.background = '#2df2c1'; btn.style.color = '#111'; btn.style.borderColor = '#2df2c1';
                 } else {
                     btn.innerHTML = '<i class="fa-solid fa-video"></i> Solicitar Transmisión en Discord';
                     btn.disabled = false;
-                    await showCustomAlert("Error", "No se pudo enviar la solicitud.");
+                    await showCustomAlert("Error", data.message || "No se pudo enviar la solicitud.");
                 }
             } catch(e) {
                 btn.innerHTML = '<i class="fa-solid fa-video"></i> Solicitar Transmisión en Discord';
                 btn.disabled = false;
+                await showCustomAlert("Error de Red", "No se pudo conectar al servidor.");
             }
         }
 
