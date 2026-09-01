@@ -70,22 +70,6 @@
         #listaVitrina::-webkit-scrollbar-thumb, #listaJugadores::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
         #listaVitrina::-webkit-scrollbar-thumb:hover, #listaJugadores::-webkit-scrollbar-thumb:hover { background: #FFD342; }
 
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
-        .modal-content { background: #111; border: 1px solid #FFD342; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; color: white; }
-        .modal-content h3 { color: #FFD342; margin-top: 0; text-align: center; }
-        .modal-form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
-        .modal-form input, .modal-form select { padding: 10px; background: #222; border: 1px solid #444; color: white; border-radius: 5px; outline: none; width: 100%;}
-        .modal-form input:focus, .modal-form select:focus { border-color: #FFD342; }
-        .form-row { display: flex; gap: 10px; }
-        .form-row input { flex: 1; }
-        .modal-btn { background: #2df2c1; color: #111; padding: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
-        .modal-btn.cancel { background: #cc2a2a; color: white; margin-top: 10px;}
-        
-        .delete-icon { color: #cc2a2a; cursor: pointer; }
-        .delete-icon:hover { color: #ff4d4d; }
-        .edit-action-icon { color: #3498db; cursor: pointer; }
-        .edit-action-icon:hover { color: #5dade2; }
-
         .carousel-container { position: relative; width: 100%; max-width: 300px; height: 280px; margin: auto; overflow: hidden; border-radius: 10px; background: #111; border: 1px solid #333; }
         .carousel-track { display: flex; transition: transform 0.4s ease-in-out; width: 100%; height: 100%; }
         .carousel-slide { min-width: 100%; position: relative; }
@@ -122,16 +106,48 @@
         .copy-btn:hover { background: #FFD342; color: #111; border-color: #FFD342; }
         .copy-btn:active { transform: scale(0.9); }
 
-        .cmd-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-top: 15px; }
-        .btn-cmd { background: #1a1a1a; color: #bdc3c7; border: 1px solid #444; border-radius: 8px; padding: 12px 10px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 0.95rem;}
-        .btn-cmd:hover { background: #FFD342; color: #111; border-color: #FFD342; box-shadow: 0 4px 10px rgba(255, 211, 66, 0.2); transform: translateY(-2px);}
-        .btn-cmd.danger:hover { background: #e74c3c; color: white; border-color: #e74c3c; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.2);}
-        
-        .btn-transmit { background: #9b59b6; color: white; border: 1px solid #8e44ad; width: 100%; border-radius: 8px; padding: 15px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.1rem; margin-top: 15px; display: flex; align-items: center; justify-content: center; gap: 10px;}
-        .btn-transmit:hover { background: #8e44ad; box-shadow: 0 5px 15px rgba(155, 89, 182, 0.4); transform: translateY(-2px);}
+        .cmd-row { width: 100%; display: grid; gap: 10px; margin-bottom: 12px; }
+        .grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-4 { grid-template-columns: repeat(4, 1fr); }
+        .grid-1 { grid-template-columns: 1fr; }
 
+        .btn-cmd { background: rgba(0,0,0,0.4); color: #bdc3c7; border: 1px solid #444; border-radius: 8px; padding: 12px 10px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 0.95rem; display: flex; justify-content: center; align-items: center; gap: 8px;}
+        .btn-cmd:hover { background: #333; color: white; border-color: #7d7d7d; transform: translateY(-2px); }
+
+        .btn-cmd.play { background: #2df2c1; color: #111; border-color: #2df2c1; }
+        .btn-cmd.play:hover { background: #40ffce; box-shadow: 0 4px 10px rgba(45, 242, 193, 0.3); color: #111;}
+
+        .btn-cmd.warning { color: #FFD342; border-color: rgba(255, 211, 66, 0.5); }
+        .btn-cmd.warning:hover { background: #FFD342; color: #111; border-color: #FFD342; box-shadow: 0 4px 10px rgba(255, 211, 66, 0.2); }
+
+        .btn-cmd.danger { color: #e74c3c; border-color: rgba(231, 76, 60, 0.5); background: rgba(231, 76, 60, 0.05); }
+        .btn-cmd.danger:hover { background: #e74c3c; color: white; border-color: #e74c3c; box-shadow: 0 4px 10px rgba(231, 76, 60, 0.2); }
+
+        .btn-transmit { background: #9b59b6; color: white; border: 1px solid #8e44ad; width: 100%; border-radius: 8px; padding: 15px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-transmit:hover { background: #8e44ad; box-shadow: 0 5px 15px rgba(155, 89, 182, 0.4); transform: translateY(-2px); }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+        .modal-content { background: #111; border: 1px solid #FFD342; padding: 30px; border-radius: 15px; width: 90%; max-width: 500px; color: white; }
+        .modal-content h3 { color: #FFD342; margin-top: 0; text-align: center; }
+        .modal-form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
+        .modal-form input, .modal-form select { padding: 10px; background: #222; border: 1px solid #444; color: white; border-radius: 5px; outline: none; width: 100%;}
+        .modal-form input:focus, .modal-form select:focus { border-color: #FFD342; }
+        .form-row { display: flex; gap: 10px; }
+        .form-row input { flex: 1; }
+        .modal-btn { background: #2df2c1; color: #111; padding: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .modal-btn.cancel { background: #cc2a2a; color: white; margin-top: 10px;}
+        .delete-icon { color: #cc2a2a; cursor: pointer; }
+        .delete-icon:hover { color: #ff4d4d; }
+        .edit-action-icon { color: #3498db; cursor: pointer; }
+        .edit-action-icon:hover { color: #5dade2; }
         #customAlertModal, #customConfirmModal { z-index: 10000; }
 
+        @media (max-width: 900px) { .seleccion-wrapper { grid-template-columns: 1fr; } }
+        @media (max-width: 600px) { 
+            .grid-4 { grid-template-columns: repeat(2, 1fr); } 
+            .grid-3 { grid-template-columns: 1fr; }
+        }
         @media (max-width: 480px) { 
             .mode-tabs { margin-top: 5vh; }
             .seleccion-wrapper { padding: 0 10px; width: 100%; }
@@ -142,6 +158,7 @@
             .match-result, .match-type, .match-date, .action-icons { width: 100%; border-left: none; text-align: center; }
             .action-icons { flex-direction: row; justify-content: center; padding-top: 10px; border-top: 1px dashed #444;}
             .match-date { border-top: 1px dashed #444; padding-top: 8px; }
+            .grid-2 { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -213,16 +230,16 @@
             </div>
         </div>
 
-        <div id="panel-estadio" style="display: none; width: 95%; max-width: 800px; margin: 5vh auto 50px; display: flex; flex-direction: column; align-items: center;">
+        <div id="panel-estadio" style="display: none; width: 95%; max-width: 800px; margin: 5vh auto 50px; flex-direction: column; align-items: center;">
             
             <button class="btn-back-seleccion" onclick="switchMainView('seleccion')">
-                <i class="fa-solid fa-arrow-left"></i> Volver
+                <i class="fa-solid fa-arrow-left"></i> Volver a Selección
             </button>
 
-            <div class="box" style="width: 100%; text-align: center;">
+            <div class="box" style="width: 100%; text-align: center; display: flex; flex-direction: column; align-items: center;">
                 <h3><i class="fa-solid fa-server"></i> Gestión del Estadio</h3>
                 
-                <div style="padding: 25px; margin: 20px 0; border-radius: 10px; background: rgba(0,0,0,0.5); border: 1px solid #333;">
+                <div style="padding: 25px; margin: 15px 0; border-radius: 10px; background: rgba(0,0,0,0.5); border: 1px solid #333; width: 100%;">
                     <h2 id="predio-status-text" style="color: #7d7d7d; font-size: 2.2rem; margin-top: 0; display: flex; align-items: center; justify-content: center;">
                         <span class="status-light light-off"></span> APAGADO
                     </h2>
@@ -244,31 +261,43 @@
                     </div>
                 </div>
 
-                <div id="predio-controls" style="display:none; flex-direction:column; align-items:center; gap: 15px; margin-top: 20px;">
-                    <div id="tokenContainer" style="width: 100%; max-width: 400px; text-align: center;">
+                <div id="predio-interactive-area" style="display:none; flex-direction:column; align-items:center; width: 100%; max-width: 600px;">
+                    
+                    <div id="tokenContainer" style="width: 100%; text-align: center; margin-top: 10px;">
                         <label style="color:#bdc3c7; font-size:0.9rem; font-weight:bold; margin-bottom:12px; display:block;">Token de HaxBall:</label>
                         <a href="https://www.haxball.com/headlesstoken" target="_blank" class="btn-token-link"><i class="fa-solid fa-key"></i> Generar Token</a>
                         <input type="text" id="haxballTokenInput" placeholder="Pega el token aquí..." style="width:100%; background:#111; border:1px solid #444; color:white; padding:12px; border-radius:8px; outline:none; font-family:monospace; text-align: center; transition: 0.3s;">
                     </div>
-                    <div style="display:flex; gap:15px; justify-content:center; flex-wrap:wrap; width: 100%;">
-                        <button class="btn-estandar" style="background:#2df2c1; color:#111; width:auto; font-size: 1.1rem; padding: 15px 30px;" onclick="controlarPredio('start')" id="btnStartPredio"><i class="fa-solid fa-power-off"></i> Encender Estadio</button>
-                        <button class="btn-estandar" style="background:#cc2a2a; color:#fff; width:auto; font-size: 1.1rem; padding: 15px 30px;" onclick="controlarPredio('stop')" id="btnStopPredio"><i class="fa-solid fa-stop"></i> Apagar Estadio</button>
-                    </div>
-                </div>
+                    <button class="btn-estandar" style="background:#2df2c1; color:#111; width:auto; font-size: 1.1rem; padding: 15px 30px; margin-top: 20px;" onclick="controlarPredio('start')" id="btnStartPredio"><i class="fa-solid fa-power-off"></i> Encender Estadio</button>
 
-                <div id="room-commands-container" style="display:none; margin-top: 30px; text-align: center; padding-top: 20px; border-top: 1px dashed #333;">
-                    <h3 style="color: #bdc3c7; font-size: 1.1rem;"><i class="fa-solid fa-gamepad"></i> Control de Sala</h3>
-                    <div class="cmd-grid">
-                        <button class="btn-cmd" onclick="enviarComandoWeb('!x5')">🏟️ Cancha x5</button>
-                        <button class="btn-cmd" onclick="enviarComandoWeb('!x7')">🏟️ Cancha x7</button>
-                        <button class="btn-cmd" onclick="enviarComandoWeb('!previa')">⚽ Previa</button>
-                        <button class="btn-cmd" style="background: #2df2c1; color: #111; border-color: #2df2c1;" onclick="enviarComandoWeb('!go')">▶️ Start (!go)</button>
-                        <button class="btn-cmd" onclick="enviarComandoWeb('!segundo')">🔄 2do Tiempo</button>
-                        <button class="btn-cmd" onclick="enviarComandoWeb('!rr')">⏱️ Reiniciar Mitad</button>
-                        <button class="btn-cmd danger" onclick="enviarComandoWeb('!rrpartido')">⏪ Reiniciar Partido</button>
-                        <button class="btn-cmd danger" onclick="enviarComandoWeb('!rrtotal')">☢️ Fin de partido</button>
+                    <div id="room-commands-container" style="display:none; width: 100%; margin-top: 20px; padding-top: 20px; border-top: 1px dashed #444;">
+                        <h3 style="color: #bdc3c7; font-size: 1.1rem; margin-bottom: 15px;"><i class="fa-solid fa-gamepad"></i> Panel de Control</h3>
+                        
+                        <div class="cmd-row grid-2">
+                            <button class="btn-cmd play" onclick="enviarComandoWeb('!go')"><i class="fa-solid fa-play"></i> Start (!go)</button>
+                            <button class="btn-cmd" onclick="enviarComandoWeb('!segundo')"><i class="fa-solid fa-rotate"></i> 2do Tiempo</button>
+                        </div>
+                        
+                        <div class="cmd-row grid-4">
+                            <button class="btn-cmd" onclick="enviarComandoWeb('!train')">🏟️ Train</button>
+                            <button class="btn-cmd" onclick="enviarComandoWeb('!previa')">⚽ Previa</button>
+                            <button class="btn-cmd" onclick="enviarComandoWeb('!x5')">🏟️ x5</button>
+                            <button class="btn-cmd" onclick="enviarComandoWeb('!x7')">🏟️ x7</button>
+                        </div>
+                        
+                        <div class="cmd-row grid-3">
+                            <button class="btn-cmd warning" onclick="enviarComandoWeb('!rr')">⏱️ Reset Mitad</button>
+                            <button class="btn-cmd danger" onclick="enviarComandoWeb('!rrpartido')">⏪ Revancha</button>
+                            <button class="btn-cmd danger" onclick="enviarComandoWeb('!rrtotal')">☢️ Fin Jornada</button>
+                        </div>
+                        
+                        <div class="cmd-row grid-1">
+                            <button class="btn-transmit" onclick="solicitarTransmision()" id="btnTransmision"><i class="fa-solid fa-video"></i> Solicitar Transmisión en Discord</button>
+                        </div>
                     </div>
-                    <button class="btn-transmit" onclick="solicitarTransmision()" id="btnTransmision"><i class="fa-solid fa-video"></i> Solicitar Transmisión</button>
+                    
+                    <button class="btn-estandar" style="background:#cc2a2a; color:#fff; width:auto; font-size: 1.1rem; padding: 15px 30px; margin-top: 20px;" onclick="controlarPredio('stop')" id="btnStopPredio"><i class="fa-solid fa-stop"></i> Apagar Estadio</button>
+
                 </div>
             </div>
         </div>
@@ -391,18 +420,24 @@
                 const statusText = document.getElementById('predio-status-text');
                 const statusDesc = document.getElementById('predio-status-desc');
                 const infoBox = document.getElementById('predio-info');
+                
+                const interactiveArea = document.getElementById('predio-interactive-area');
                 const tokenBox = document.getElementById('tokenContainer');
                 const cmdsContainer = document.getElementById('room-commands-container');
                 const btnStart = document.getElementById('btnStartPredio');
                 const btnStop = document.getElementById('btnStopPredio');
 
-                document.getElementById('predio-controls').style.display = isManager ? 'flex' : 'none';
+                interactiveArea.style.display = isManager ? 'flex' : 'none';
+
+                const txtStart = '<i class="fa-solid fa-power-off"></i> Encender Estadio';
+                const txtStop = '<i class="fa-solid fa-stop"></i> Apagar Estadio';
 
                 if (data.estado === 'online') {
                     statusText.innerHTML = '<span class="status-light light-on"></span> ESTADIO ACTIVO';
                     statusText.style.color = '#2df2c1';
                     statusDesc.innerText = 'El servidor está corriendo y listo para usarse.';
                     infoBox.style.display = 'block';
+                    
                     tokenBox.style.display = 'none';
                     if(isManager) cmdsContainer.style.display = 'block';
                     
@@ -412,13 +447,14 @@
                     document.getElementById('predio-adminpass').innerText = data.adminPass || 'No generada';
                     
                     if (btnStart) btnStart.style.display = 'none';
-                    if (btnStop) { btnStop.style.display = 'block'; btnStop.innerHTML = '<i class="fa-solid fa-stop"></i> Apagar Estadio'; btnStop.disabled = false; }
+                    if (btnStop) { btnStop.style.display = 'block'; btnStop.innerHTML = txtStop; btnStop.disabled = false; }
                 } 
                 else if (data.estado === 'starting') {
                     statusText.innerHTML = '<span class="status-light light-starting"></span> ENCENDIENDO... <i class="fa-solid fa-spinner fa-spin" style="font-size:0.8em; margin-left:10px;"></i>';
                     statusText.style.color = '#FFD342';
                     statusDesc.innerText = 'Validando token y construyendo el mapa...';
                     infoBox.style.display = 'none';
+                    
                     tokenBox.style.display = 'none';
                     cmdsContainer.style.display = 'none';
                     if (btnStart) btnStart.style.display = 'none';
@@ -429,6 +465,7 @@
                     statusText.style.color = '#e74c3c';
                     statusDesc.innerText = 'Cerrando el estadio y expulsando jugadores...';
                     infoBox.style.display = 'none';
+                    
                     tokenBox.style.display = 'none';
                     cmdsContainer.style.display = 'none';
                     if (btnStart) btnStart.style.display = 'none';
@@ -439,10 +476,11 @@
                     statusText.style.color = '#cc2a2a';
                     statusDesc.innerText = 'El estadio está inactivo. Requiere Token de HaxBall para encender.';
                     infoBox.style.display = 'none';
+                    
                     cmdsContainer.style.display = 'none';
                     tokenBox.style.display = 'block';
 
-                    if (btnStart) { btnStart.style.display = 'block'; btnStart.innerHTML = '<i class="fa-solid fa-power-off"></i> Encender Estadio'; btnStart.disabled = false; }
+                    if (btnStart) { btnStart.style.display = 'block'; btnStart.innerHTML = txtStart; btnStart.disabled = false; }
                     if (btnStop) btnStop.style.display = 'none';
                 }
             } catch (e) {
@@ -573,7 +611,6 @@
             
             isManager = false;
             document.getElementById('btnEditar').style.display = 'none';
-            document.getElementById('estadioBtnContainer').style.display = 'none';
 
             fetch(`https://torobot-izu5.onrender.com/api/seleccion/data?numericId=${loggedId}&mode=${currentMode}`)
             .then(res => res.json())
@@ -686,7 +723,7 @@
                     if (proxDiv.innerHTML === '') proxDiv.innerHTML = '<p style="text-align:center; color:#7d7d7d;">No hay partidos programados.</p>';
                     if (histDiv.innerHTML === '') histDiv.innerHTML = '<p style="text-align:center; color:#7d7d7d;">El historial está vacío.</p>';
                 } else {
-                    proxDiv.innerHTML = '<p style="text-align:center; color:#cc2a2a;">Error al cargar partidos desde la DB.</p>';
+                    proxDiv.innerHTML = '<p style="text-align:center; color:#cc2a2a;">Error al cargar partidos.</p>';
                     histDiv.innerHTML = '<p style="text-align:center; color:#cc2a2a;">Error al cargar el historial.</p>';
                 }
             })
@@ -806,7 +843,6 @@
             const track = document.getElementById('kitTrack');
             const slides = document.querySelectorAll('.carousel-slide');
             const totalSlides = slides.length;
-
             currentKitIndex += direccion;
             if (currentKitIndex >= totalSlides) { currentKitIndex = 0; } 
             else if (currentKitIndex < 0) { currentKitIndex = totalSlides - 1; }
