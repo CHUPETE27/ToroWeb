@@ -10,7 +10,7 @@
     <style>
         body { background-color: #050505; color: white; overflow-x: hidden; width: 100%; }
         
-        .owner-wrapper { width: 95%; max-width: 800px; margin: 10vh auto 50px; display: flex; flex-direction: column; gap: 30px; }
+        .owner-wrapper { width: 95%; max-width: 900px; margin: 5vh auto 50px; display: flex; flex-direction: column; gap: 30px; }
         
         .box { background: rgba(20, 0, 0, 0.6); border: 1px solid #4a0000; border-radius: 15px; padding: 30px; box-shadow: 0 5px 25px rgba(231, 76, 60, 0.15); display: flex; flex-direction: column;}
         .box h3 { margin-top: 0; color: #e74c3c; border-bottom: 1px dashed #4a0000; padding-bottom: 15px; text-transform: uppercase; text-align: center; font-size: 1.3rem;}
@@ -49,6 +49,23 @@
 
         .loader-screen { position: fixed; top:0; left:0; width:100%; height:100%; background:#050505; z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:#e74c3c; }
 
+        .host-tabs { display: flex; border-bottom: 2px solid #4a0000; margin-bottom: 20px; }
+        .h-tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; color: #7d7d7d; font-weight: bold; transition: 0.3s; font-size: 1.1rem; }
+        .h-tab.active { border-bottom: 2px solid #e74c3c; color: #e74c3c; }
+        .h-tab:hover:not(.active) { color: white; }
+        
+        .status-light { display: inline-block; width: 16px; height: 16px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
+        .light-on { background: #2df2c1; box-shadow: 0 0 12px #2df2c1; animation: pulse 1.5s infinite; }
+        .light-starting { background: #FFD342; box-shadow: 0 0 12px #FFD342; animation: pulse 1s infinite; }
+        .light-stopping { background: #e74c3c; box-shadow: 0 0 12px #e74c3c; animation: pulse 1s infinite; }
+        .light-off { background: #cc2a2a; box-shadow: inset 0 0 5px rgba(0,0,0,0.5); }
+        
+        .btn-token-link { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #e74c3c; color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 0.95rem; transition: 0.3s; margin-bottom: 15px;}
+        .btn-token-link:hover { background: #c0392b; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3); }
+
+        .copy-btn { background: #222; color: #bdc3c7; border: 1px solid #444; border-radius: 6px; cursor: pointer; padding: 6px 10px; margin-left: 10px; transition: 0.3s; font-size: 0.9rem;}
+        .copy-btn:hover { background: #e74c3c; color: white; border-color: #e74c3c; }
+
         @media (max-width: 600px) {
             .owner-wrapper { margin-top: 5vh; gap: 15px;}
             .box { padding: 20px; }
@@ -72,6 +89,41 @@
                 <i class="fa-solid fa-crown"></i>
                 <h1 style="margin: 0; color: white;">Centro de Mando Owner</h1>
                 <p style="color: #bdc3c7;">Gestión exclusiva de la cúpula de Administradores.</p>
+            </div>
+
+            <div class="box" style="border-color: #e74c3c; background: rgba(20,0,0,0.8);">
+                <h3 style="color: white; border-color: #e74c3c;"><i class="fa-solid fa-server"></i> Gestión de Host 24/7</h3>
+                
+                <div class="host-tabs">
+                    <div class="h-tab active" onclick="switchHost('juegantodos')" id="tab-juegantodos">Juegan Todos</div>
+                    <div class="h-tab" onclick="switchHost('realfutsal')" id="tab-realfutsal">Real Futsal</div>
+                </div>
+
+                <div style="padding: 25px; margin-bottom: 20px; border-radius: 10px; background: rgba(0,0,0,0.5); border: 1px solid #333; text-align: center;">
+                    <h2 id="host-status-text" style="color: #7d7d7d; font-size: 2.2rem; margin-top: 0; display: flex; align-items: center; justify-content: center;">
+                        <span class="status-light light-off"></span> APAGADO
+                    </h2>
+                    
+                    <div id="host-info" style="display:none; margin-top: 25px; background: #111; padding: 20px; border-radius: 8px; border: 1px dashed #e74c3c;">
+                        <div style="margin:8px 0; color:#bdc3c7; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;">
+                            🌐 <strong>Link:</strong> <a id="host-link" href="#" target="_blank" style="color:#e74c3c; font-weight: bold; text-decoration: none; word-break: break-all;">...</a>
+                            <button class="copy-btn" onclick="copiarLinkHost()" title="Copiar Link"><i class="fa-regular fa-copy"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="host-controls" style="display:flex; flex-direction:column; align-items:center; gap: 15px;">
+                    <div id="host-tokenContainer" style="width: 100%; max-width: 400px; text-align: center;">
+                        <label style="color:#bdc3c7; font-size:0.9rem; font-weight:bold; margin-bottom:12px; display:block;">Token de HaxBall:</label>
+                        <a href="https://www.haxball.com/headlesstoken" target="_blank" class="btn-token-link"><i class="fa-solid fa-key"></i> Generar Token Fresco</a>
+                        <input type="text" id="hostTokenInput" placeholder="Pega el token aquí..." style="width:100%; background:#111; border:1px solid #444; color:white; padding:12px; border-radius:8px; outline:none; font-family:monospace; text-align: center; transition: 0.3s;">
+                    </div>
+                    
+                    <div style="display:flex; gap:15px; justify-content:center; flex-wrap:wrap; width: 100%;">
+                        <button class="btn-estandar" style="background:#2df2c1; color:#111; width:auto; padding: 15px 30px;" onclick="controlarHost('start')" id="btnStartHost"><i class="fa-solid fa-power-off"></i> Encender Sala</button>
+                        <button class="btn-estandar" style="background:#cc2a2a; color:#fff; width:auto; padding: 15px 30px; display: none;" onclick="controlarHost('stop')" id="btnStopHost"><i class="fa-solid fa-stop"></i> Apagar Sala</button>
+                    </div>
+                </div>
             </div>
 
             <div class="box">
@@ -101,11 +153,131 @@
     <script>
         const loggedId = localStorage.getItem('toroHaxLoggedId');
         const token = localStorage.getItem('toroHaxToken');
+        
+        let currentBot = 'juegantodos';
+        let statusInterval = null;
 
         if (loggedId !== '1' || !token) {
             window.location.href = 'index.html';
         } else {
             cargarListaAdmins();
+            cargarEstadoHost();
+            statusInterval = setInterval(cargarEstadoHost, 5000);
+        }
+
+        function switchHost(botName) {
+            if (currentBot === botName) return;
+            currentBot = botName;
+            
+            document.querySelectorAll('.h-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + botName).classList.add('active');
+            
+            document.getElementById('hostTokenInput').value = '';
+            document.getElementById('host-status-text').innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="color:#7d7d7d;"></i>';
+            document.getElementById('host-info').style.display = 'none';
+            document.getElementById('btnStartHost').style.display = 'none';
+            document.getElementById('btnStopHost').style.display = 'none';
+            document.getElementById('host-tokenContainer').style.display = 'none';
+            
+            cargarEstadoHost();
+        }
+
+        async function cargarEstadoHost() {
+            try {
+                const res = await fetch(`https://torobot-izu5.onrender.com/api/predio/estado?bot=${currentBot}`);
+                const data = await res.json();
+
+                const statusText = document.getElementById('host-status-text');
+                const infoBox = document.getElementById('host-info');
+                const tokenBox = document.getElementById('host-tokenContainer');
+                const btnStart = document.getElementById('btnStartHost');
+                const btnStop = document.getElementById('btnStopHost');
+
+                if (data.estado === 'online') {
+                    statusText.innerHTML = '<span class="status-light light-on"></span> SALA ACTIVA';
+                    statusText.style.color = '#2df2c1';
+                    infoBox.style.display = 'block';
+                    tokenBox.style.display = 'none';
+                    
+                    document.getElementById('host-link').href = data.link || '#';
+                    document.getElementById('host-link').innerText = data.link || 'Esperando enlace...';
+                    
+                    btnStart.style.display = 'none';
+                    btnStop.style.display = 'block'; 
+                    btnStop.innerHTML = '<i class="fa-solid fa-stop"></i> Apagar Sala'; 
+                    btnStop.disabled = false;
+                } 
+                else if (data.estado === 'starting') {
+                    statusText.innerHTML = '<span class="status-light light-starting"></span> ENCENDIENDO... <i class="fa-solid fa-spinner fa-spin" style="font-size:0.8em; margin-left:10px;"></i>';
+                    statusText.style.color = '#FFD342';
+                    infoBox.style.display = 'none';
+                    tokenBox.style.display = 'none';
+                    btnStart.style.display = 'none';
+                    btnStop.style.display = 'none';
+                } 
+                else if (data.estado === 'stop_pending') {
+                    statusText.innerHTML = '<span class="status-light light-stopping"></span> APAGANDO... <i class="fa-solid fa-spinner fa-spin" style="font-size:0.8em; margin-left:10px;"></i>';
+                    statusText.style.color = '#e74c3c';
+                    infoBox.style.display = 'none';
+                    tokenBox.style.display = 'none';
+                    btnStart.style.display = 'none';
+                    btnStop.style.display = 'none';
+                }
+                else {
+                    statusText.innerHTML = '<span class="status-light light-off"></span> APAGADO';
+                    statusText.style.color = '#cc2a2a';
+                    infoBox.style.display = 'none';
+                    tokenBox.style.display = 'block';
+
+                    btnStart.style.display = 'block'; 
+                    btnStart.innerHTML = '<i class="fa-solid fa-power-off"></i> Encender Sala'; 
+                    btnStart.disabled = false;
+                    btnStop.style.display = 'none';
+                }
+            } catch (e) {
+                console.error("Error cargando estado:", e);
+            }
+        }
+
+        async function controlarHost(action) {
+            if (action === 'stop' && !confirm(`¿Seguro que deseas APAGAR la sala ${currentBot.toUpperCase()}? Se expulsará a todos.`)) return;
+            
+            const btnStart = document.getElementById('btnStartHost');
+            const btnStop = document.getElementById('btnStopHost');
+            
+            let tokenHaxball = "";
+            if (action === 'start') {
+                tokenHaxball = document.getElementById('hostTokenInput').value.trim();
+                if (!tokenHaxball) return alert("❌ Debes pegar el Token de HaxBall.");
+                btnStart.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...'; btnStart.disabled = true;
+            } else {
+                btnStop.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Apagando...'; btnStop.disabled = true;
+            }
+
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/predio/control', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ numericId: loggedId, token: token, action: action, tokenHaxball: tokenHaxball, botName: currentBot }) 
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    await cargarEstadoHost(); 
+                } else {
+                    alert("❌ " + data.message);
+                    await cargarEstadoHost();
+                }
+            } catch (e) {
+                alert("❌ Error de Red.");
+                await cargarEstadoHost();
+            }
+        }
+
+        function copiarLinkHost() {
+            const link = document.getElementById('host-link').href;
+            navigator.clipboard.writeText(link).then(() => {
+                alert("✅ Link copiado al portapapeles.");
+            });
         }
 
         async function cargarListaAdmins() {
