@@ -3,1270 +3,654 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ToroMatch - ToroHax</title>
+    <title>Panel Owner - ToroHax</title>
     <link rel="icon" type="image/png" href="logo_torohax.png">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=2.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { box-sizing: border-box; }
-        body { overflow-x: hidden; width: 100%; position: relative; overflow-y: auto; max-width: 100vw;}
-
-        .seleccion-wrapper { width: 95%; max-width: 1200px; margin: 10vh auto 50px; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
-        .box { background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 25px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); position: relative; max-width: 100%; overflow: hidden;}
-        .box h3 { margin-top: 0; color: #FFD342; border-bottom: 1px solid #333; padding-bottom: 10px; text-transform: uppercase; text-align: center; font-size: 1.2rem;}
+        body { background-color: #0a0a0a; color: white; overflow-x: hidden; width: 100%; position: relative; }
         
-        .left-col { display: flex; flex-direction: column; gap: 20px; max-width: 100%; }
-        .live-box { text-align: center; min-height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-color: #2df2c1; box-shadow: 0 0 15px rgba(45, 242, 193, 0.1); }
-        .live-indicator { display: flex; align-items: center; gap: 8px; color: #2df2c1; font-weight: bold; margin-bottom: 15px; font-size: 1.1rem;}
-        .status-circle.green { width: 12px; height: 12px; background-color: #2df2c1; border-radius: 50%; box-shadow: 0 0 10px rgba(45, 242, 193, 0.8); animation: pulse 1.5s infinite; }
+        .owner-wrapper { width: 95%; max-width: 1100px; margin: 10vh auto 50px; display: flex; flex-direction: column; gap: 30px; }
+        
+        .admin-header { text-align: center; margin-bottom: 10px; }
+        .admin-header i { font-size: 3.5rem; color: #2df2c1; margin-bottom: 15px; text-shadow: 0 0 20px rgba(45, 242, 193, 0.4); }
+        .admin-header h1 { margin: 0; color: white; font-size: 2.2rem; letter-spacing: 1px; text-transform: uppercase; font-weight: 800;}
+        .admin-header p { color: #bdc3c7; font-size: 1.1rem; margin-top: 8px; font-weight: bold;}
+
+        .owner-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 30px; align-items: start; }
+        .right-col { display: flex; flex-direction: column; gap: 30px; }
+
+        .box { background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; position: relative; overflow: hidden;}
+        .box h3 { margin-top: 0; color: #2df2c1; border-bottom: 1px solid #333; padding-bottom: 15px; text-transform: uppercase; text-align: center; font-size: 1.25rem; letter-spacing: 1px;}
+        
+        .host-box { border-color: #2df2c1; box-shadow: 0 0 15px rgba(45, 242, 193, 0.1); }
+        .host-box h3 { border-color: rgba(45, 242, 193, 0.3); text-shadow: 0 0 10px rgba(45, 242, 193, 0.3); }
+
+        .host-tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 25px; }
+        .h-tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; color: #7d7d7d; font-weight: bold; transition: 0.3s; font-size: 1.1rem; }
+        .h-tab.active { border-bottom: 2px solid #2df2c1; color: #2df2c1; text-shadow: 0 0 10px rgba(45, 242, 193, 0.3); }
+        .h-tab:hover:not(.active) { color: white; }
+        
+        .status-light { display: inline-block; width: 16px; height: 16px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
+        .light-on { background: #2df2c1; box-shadow: 0 0 12px #2df2c1; animation: pulse 1.5s infinite; }
+        .light-starting { background: #FFD342; box-shadow: 0 0 12px #FFD342; animation: pulse 1s infinite; }
+        .light-stopping { background: #e74c3c; box-shadow: 0 0 12px #e74c3c; animation: pulse 1s infinite; }
+        .light-off { background: #cc2a2a; box-shadow: inset 0 0 5px rgba(0,0,0,0.5); }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
-        .score-text { font-size: 2.2rem; font-weight: bold; color: white; letter-spacing: 2px; text-align: center;}
 
-        .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; }
-        .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #7d7d7d; font-weight: bold; transition: 0.3s; }
-        .tab.active { border-bottom: 2px solid #FFD342; color: #FFD342; }
-        .tab:hover:not(.active) { color: white; }
-        
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        .player-list-room { background: rgba(0,0,0,0.5); border: 1px solid #333; border-radius: 8px; max-height: 400px; overflow-y: auto; padding: 0; margin: 0; list-style: none; }
+        .player-list-room li { padding: 15px 20px; border-bottom: 1px dashed #333; display: flex; justify-content: space-between; align-items: center; color: #fff; gap: 15px; transition: 0.2s;}
+        .player-list-room li:last-child { border-bottom: none; }
+        .player-list-room.interactive li:hover { background: rgba(45, 242, 193, 0.1); cursor: pointer; }
+        .player-list-room::-webkit-scrollbar { width: 6px; }
+        .player-list-room::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
+        .player-list-room::-webkit-scrollbar-thumb { background: #2df2c1; border-radius: 5px; }
 
-        .match-list-container { max-height: 300px; overflow-y: auto; padding-right: 5px; overflow-x: hidden;}
-        .match-list-container::-webkit-scrollbar { width: 6px; }
-        .match-list-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
-        .match-list-container::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
-        .match-list-container::-webkit-scrollbar-thumb:hover { background: #FFD342; }
-        
-        .match-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 1.05rem; background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 8px; width: 100%;}
-        .match-teams { flex: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
-        .match-date { width: 140px; text-align: center; color: #7d7d7d; font-size: 0.9rem; border-left: 1px solid #444; flex-shrink: 0;}
-        .action-icons { width: 50px; display: flex; gap: 10px; justify-content: center; margin-left: 0; flex-shrink: 0;}
+        .info-col { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+        .id-badge { color: #111; font-family: monospace; font-weight: bold; font-size: 0.95rem; background: #2df2c1; padding: 4px 10px; border-radius: 6px; box-shadow: 0 0 8px rgba(45, 242, 193, 0.4);}
+        .discord-tag { color: #7d7d7d; font-size: 0.85rem; }
 
-        .inscripcion-container { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;}
-        
-        .btn-estandar { 
-            width: 260px; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; 
-            font-size: 1.05rem; border: none; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 8px;
-        }
+        .btn-estandar { width: 100%; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.05rem; border: 2px solid transparent; display: flex; justify-content: center; align-items: center; gap: 10px; }
         .btn-estandar:disabled { filter: grayscale(100%); opacity: 0.6; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
-
-        .btn-inscribir { background: #5dc8e8; color: #111; }
-        .btn-inscribir:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(93, 200, 232, 0.4); }
         
-        .btn-cancelar { background: #cc2a2a; color: #fff; }
-        .btn-cancelar:hover { background: #e74c3c; box-shadow: 0 0 15px rgba(204, 42, 42, 0.4); transform: scale(1.05); }
+        .btn-primary { background: #2df2c1; color: #111; }
+        .btn-primary:hover:not(:disabled) { background: #40ffce; box-shadow: 0 4px 15px rgba(45, 242, 193, 0.3); transform: translateY(-2px); }
 
-        .btn-abrir { background: #FFD342; color: #111; }
-        .btn-abrir:hover { background: #ffdf73; transform: scale(1.05); box-shadow: 0 0 15px rgba(255, 211, 66, 0.4); }
+        .btn-danger { background: #cc2a2a; color: white; }
+        .btn-danger:hover:not(:disabled) { background: #e74c3c; box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3); transform: translateY(-2px); }
 
-        .edit-btn { position: absolute; bottom: 20px; right: 20px; background: transparent; color: #2df2c1; border: 2px solid #2df2c1; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: none; transition: 0.3s; }
-        .edit-btn:hover { background: #2df2c1; color: #111; }
+        .btn-outline-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: transparent; color: #2df2c1; border: 2px solid #2df2c1; text-decoration: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 0.95rem; transition: 0.3s; width: 100%; margin-bottom: 10px;}
+        .btn-outline-primary:hover { background: #2df2c1; color: #111; box-shadow: 0 4px 10px rgba(45, 242, 193, 0.2); }
 
-        .right-col { display: flex; flex-direction: column; gap: 20px; max-width: 100%;}
-        .list-box ul { list-style-type: none; padding: 0; margin: 0; }
-        .list-box li { padding: 10px; border-bottom: 1px dashed #333; color: #bdc3c7; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center;}
-        .list-box li:last-child { border-bottom: none; }
-        
-        .roster-container { max-height: 250px; overflow-y: auto; padding-right: 5px; }
-        .roster-container::-webkit-scrollbar { width: 6px; }
-        .roster-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
-        .roster-container::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
+        .btn-revocar { width: auto; background: rgba(204, 42, 42, 0.1); color: #cc2a2a; border: 1px solid #cc2a2a; padding: 8px 15px; font-size: 0.95rem; margin: 0; border-radius: 6px; cursor: pointer; transition: 0.3s; white-space: nowrap;}
+        .btn-revocar:hover { background: #e74c3c; color: white; box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);}
+        .btn-boss { width: auto; background: rgba(45, 242, 193, 0.1); color: #2df2c1; border: 1px solid #2df2c1; padding: 8px 15px; font-size: 0.95rem; border-radius: 6px; cursor: default;}
 
-        .assign-btn { background: #333; border: 1px solid #555; color: #fff; border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: 0.8rem; margin-left: 5px; transition: 0.2s;}
-        .assign-btn:hover { background: #444; }
-        .assign-btn.eq1 { color: #3498db; border-color: #3498db; }
-        .assign-btn.eq1.active { background: #3498db; color: #111;}
-        .assign-btn.eq2 { color: #e74c3c; border-color: #e74c3c; }
-        .assign-btn.eq2.active { background: #e74c3c; color: #111;}
-
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); padding: 20px; }
-        .modal-content { 
-            background: #111; 
-            border: 1px solid #FFD342; 
-            padding: 35px; 
-            border-radius: 15px; 
+        .action-container { 
             width: 100%; 
-            max-width: 550px; 
-            color: white; 
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            max-height: 90vh;
-            overflow-y: auto;
+            max-width: 320px;
+            margin: 0 auto;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 12px; 
         }
-        .modal-content::-webkit-scrollbar { width: 8px; }
-        .modal-content::-webkit-scrollbar-track { background: transparent; }
-        .modal-content::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
-
-        .modal-content h3 { color: #FFD342; margin-top: 0; text-align: center; font-size: 1.6rem; margin-bottom: 20px;}
-        .modal-content p { color: #bdc3c7; line-height: 1.5; margin-bottom: 25px; font-size: 1.1rem;}
-        .modal-form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; text-align: left;}
-        .modal-form input { padding: 12px; background: #222; border: 1px solid #444; color: white; border-radius: 8px; outline: none; width: 100%; font-size: 1rem;}
-        .modal-form input:focus { border-color: #FFD342; }
-        .form-row { display: flex; gap: 10px; }
-        .form-row input { flex: 1; }
-        .penalties-section { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border: 1px dashed #555;}
         
-        .modal-btn { background: #2df2c1; color: #111; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 1.05rem; cursor: pointer; flex: 1; transition: 0.3s;}
-        .modal-btn:hover:not(:disabled) { filter: brightness(1.1); transform: scale(1.02); }
-        .modal-btn.cancel { background: #cc2a2a; color: white;}
-        .modal-btn-row { display: flex; gap: 15px; width: 100%; justify-content: center; flex-wrap: wrap;}
-
-        .delete-icon { color: #cc2a2a; cursor: pointer; }
-        .delete-icon:hover { color: #ff4d4d; }
-        .edit-action-icon { color: #3498db; cursor: pointer; }
-        .edit-action-icon:hover { color: #5dade2; }
-
-        .floating-music-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            background: rgba(20, 20, 20, 0.9);
-            border: 2px solid #555;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.6rem;
-            color: #bdc3c7;
-            cursor: grab;
-            z-index: 9999;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.8);
-            transition: transform 0.2s, border-color 0.3s;
-            user-select: none;
-            touch-action: none;
-        }
-        .floating-music-btn:active { cursor: grabbing; }
-        .floating-music-btn:hover { transform: scale(1.1); }
-        .floating-music-btn.playing {
-            background: #FFD342;
-            color: #111;
-            border-color: #FFD342;
-            animation: pulse-music 2s infinite;
-        }
-
-        .countdown-container {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 5px;
-        }
-        .cd-box {
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid #444;
-            border-radius: 8px;
-            padding: 8px 12px;
-            text-align: center;
-            min-width: 60px;
-        }
-        .cd-number {
-            display: block;
-            font-size: 1.6rem;
-            font-weight: bold;
-            color: #2df2c1;
+        .owner-input { 
+            width: 100%; 
+            background: #111; 
+            border: 2px solid #333; 
+            color: white; 
+            padding: 14px; 
+            border-radius: 8px; 
+            outline: none; 
+            font-size: 1.05rem; 
+            text-align: center; 
+            transition: 0.3s; 
             font-family: monospace;
         }
-        .cd-label {
-            display: block;
-            font-size: 0.7rem;
-            color: #7d7d7d;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 2px;
-        }
-        .cd-comenzando {
-            color: #FFD342;
-            font-weight: bold;
-            font-size: 1.3rem;
-            animation: pulse 1.5s infinite;
-        }
+        .owner-input:focus { border-color: #2df2c1; box-shadow: 0 0 10px rgba(45, 242, 193, 0.2); }
+        .owner-input::-webkit-outer-spin-button, .owner-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .owner-input[type=number] { -moz-appearance: textfield; appearance: textfield; }
 
-        @keyframes pulse-music {
-            0% { box-shadow: 0 0 0 0 rgba(255, 211, 66, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(255, 211, 66, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 211, 66, 0); }
+        .copy-btn { background: #111; color: #bdc3c7; border: 1px solid #333; border-radius: 6px; cursor: pointer; padding: 8px 12px; margin-left: 10px; transition: 0.3s; font-size: 0.95rem;}
+        .copy-btn:hover { background: #2df2c1; color: #111; border-color: #2df2c1; }
+        .copy-btn:active { transform: scale(0.9); }
+
+        .loader-screen { position: fixed; top:0; left:0; width:100%; height:100%; background:#0a0a0a; z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:#2df2c1; }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); padding: 20px;}
+        .modal-content { background: #111; border: 1px solid #2df2c1; padding: 30px; border-radius: 15px; width: 100%; max-width: 450px; color: white; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.8); position: relative;}
+        .modal-content h3 { margin-top: 0; font-size: 1.4rem; color: #2df2c1;}
+        .close-modal { position: absolute; top: 20px; right: 25px; font-size: 1.8rem; color: #7d7d7d; cursor: pointer; transition: 0.3s; z-index: 10;}
+        .close-modal:hover { color: #e74c3c; transform: scale(1.1); }
+
+        @media (max-width: 900px) {
+            .owner-grid { grid-template-columns: 1fr; }
         }
-
-        @media (max-width: 900px) { .seleccion-wrapper { grid-template-columns: 1fr; } }
-        
-        @media (max-width: 480px) { 
-            .seleccion-wrapper { padding: 0 10px; width: 100%; margin-top: 3vh;}
-            .score-text { font-size: 1.8rem; }
-            .box { padding: 15px; padding-bottom: 60px; } 
-
-            .match-row { flex-direction: column; gap: 8px; padding: 15px; align-items: center;}
-            .match-teams { white-space: normal; word-break: break-word; width: 100%; font-size: 1.1rem; text-align: center;}
-            .match-date { width: 100%; border-left: none; text-align: center; border-top: 1px dashed #444; padding-top: 8px;}
-            .action-icons { flex-direction: row; justify-content: center; padding-top: 10px; border-top: 1px dashed #444; width: 100%;}
-            
-            .modal-content { padding: 20px; }
-            .modal-btn-row { flex-direction: column; }
-            .modal-btn { width: 100%; }
+        @media (max-width: 600px) {
+            .owner-wrapper { margin-top: 5vh; gap: 20px;}
+            .box { padding: 20px; }
+            .player-list-room li { flex-direction: column; text-align: center; gap: 12px; }
+            .info-col { align-items: center; }
+            .btn-revocar, .btn-boss { width: 100%; }
         }
     </style>
 </head>
 <body>
     <header></header>
 
-    <main>
-        <div id="musicToggleBtn" class="floating-music-btn" onclick="toggleMusic()">
-            <i class="fa-solid fa-music"></i>
-        </div>
-        <div id="yt-player" style="display:none;"></div>
+    <div id="loader" class="loader-screen">
+        <i class="fa-solid fa-fingerprint fa-beat-fade fa-3x" style="margin-bottom: 15px;"></i>
+        <h2>Verificando Identidad de Owner...</h2>
+    </div>
 
-        <div class="seleccion-wrapper">
-            <div class="left-col">
-                <div class="box live-box">
-                    <div id="liveIndicator" style="display: none;" class="live-indicator"><span class="status-circle green"></span> En vivo</div>
-                    <div id="liveIndicatorOff" class="live-indicator" style="color: #7d7d7d;"><span class="status-circle" style="background:#cc2a2a;"></span> Inicio partido:</div>
-                    <div class="score-text" id="liveScore">Esperando conexión...</div>
-                </div>
+    <main id="main-content" style="display: none;">
+        <div class="owner-wrapper">
+            
+            <div class="admin-header">
+                <i class="fa-solid fa-shield-halved"></i>
+                <h1>Centro de Mando Owner</h1>
+                <p>Gestión de infraestructura y cúpula de Administradores.</p>
+            </div>
 
-                <div class="box" style="padding-bottom: 70px;">
-                    <div class="tabs">
-                        <div class="tab active" onclick="switchTab('proximos')">Próximo express</div>
-                        <div class="tab" onclick="switchTab('historial')">Historial</div>
+            <div class="owner-grid">
+                <div class="box host-box">
+                    <h3><i class="fa-solid fa-server"></i> Control de Salas Públicas</h3>
+                    
+                    <div class="host-tabs">
+                        <div class="h-tab active" onclick="switchHost('juegantodos')" id="tab-juegantodos">Juegan Todos</div>
+                        <div class="h-tab" onclick="switchHost('realfutsal')" id="tab-realfutsal">Real Futsal</div>
                     </div>
 
-                    <div id="proximos" class="tab-content active">
-                        <div class="match-list-container" id="proximos-lista">
-                            <p style="text-align:center; color:#7d7d7d;">Calculando fecha...</p>
+                    <div style="padding: 30px 20px; margin-bottom: 25px; border-radius: 12px; background: rgba(0,0,0,0.4); border: 1px solid #333; text-align: center;">
+                        <h2 id="host-status-text" style="color: #7d7d7d; font-size: 2.2rem; margin-top: 0; display: flex; align-items: center; justify-content: center;">
+                            <span class="status-light light-off"></span> APAGADO
+                        </h2>
+                        
+                        <div id="host-info" style="display:none; margin-top: 25px; background: rgba(0,0,0,0.6); padding: 20px; border-radius: 8px; border: 1px dashed #2df2c1;">
+                            <div style="margin:0; color:#bdc3c7; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;">
+                                🌐 <strong>Link:</strong> <a id="host-link" href="#" target="_blank" style="color:#2df2c1; font-weight: bold; text-decoration: none; word-break: break-all;">...</a>
+                                <button class="copy-btn" onclick="copiarLinkHost()" title="Copiar Link"><i class="fa-regular fa-copy"></i></button>
+                            </div>
                         </div>
                     </div>
 
-                    <div id="historial" class="tab-content">
-                        <div class="match-list-container" id="historial-lista">
-                            <p style="text-align:center; color:#7d7d7d;">Cargando historial...</p>
+                    <div id="host-controls" style="display:flex; flex-direction:column; align-items:center; justify-content: flex-end; flex-grow: 1;">
+                        <div class="action-container" id="host-tokenContainer" style="max-width: 100%;">
+                            <a href="https://www.haxball.com/headlesstoken" target="_blank" class="btn-outline-primary">
+                                <i class="fa-solid fa-key"></i> Generar Token Fresco
+                            </a>
+                            <input type="text" id="hostTokenInput" placeholder="Pega el token aquí..." class="owner-input">
+                            <button class="btn-estandar btn-primary" onclick="controlarHost('start')" id="btnStartHost">
+                                <i class="fa-solid fa-power-off"></i> Encender Sala
+                            </button>
+                        </div>
+                        
+                        <div class="action-container" style="justify-content: flex-end; margin-top: 15px; max-width: 100%;">
+                            <button class="btn-estandar btn-danger" style="display: none;" onclick="controlarHost('stop')" id="btnStopHost">
+                                <i class="fa-solid fa-stop"></i> Apagar Sala
+                            </button>
                         </div>
                     </div>
-
-                    <button id="btnEditar" class="edit-btn" onclick="abrirModalNuevo()"><i class="fa-solid fa-plus"></i> Añadir Resultado</button>
                 </div>
 
-                <div class="box" id="box-inscripcion">
-                    <div class="inscripcion-container">
-                        <h3 style="color: #5dc8e8; margin-top:0; font-size: 1.2rem; border-bottom: none;"><i class="fa-solid fa-clipboard-user"></i> ¡Inscríbete aquí!</h3>
-                        <p id="msgInscripcion" style="color: #bdc3c7; font-size: 0.95rem; margin-bottom: 15px;">Verificando estado en Discord...</p>
-                        
-                        <button id="btnInscribir" class="btn-estandar" style="display:none;" onclick="abrirModalInscripcion()"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</button>
-                        
-                        <div id="managerButtons" style="display:none; flex-direction: column; align-items: center; width: 100%;">
-                            <button id="btnAbrirPostulaciones" class="btn-estandar btn-abrir" onclick="abrirModalModo()"><i class="fa-solid fa-unlock"></i> Abrir Inscripciones</button>
-                            <button id="btnCerrarPostulaciones" class="btn-estandar btn-cancelar" onclick="confirmarAccionSegura('¿Seguro que deseas cerrar las postulaciones? Se bloqueará el foro en Discord y nadie más podrá inscribirse.', cerrarPostulaciones)"><i class="fa-solid fa-lock"></i> Cerrar Inscripciones</button>
+                <div class="right-col">
+                    <div class="box" style="padding: 0; background: transparent; border: none; box-shadow: none;">
+                        <div class="box" style="margin-bottom: 25px; border-color: #333; background: rgba(20, 20, 20, 0.8);">
+                            <h3 style="border-bottom: 1px solid #333;"><i class="fa-solid fa-magnifying-glass"></i> Buscar y Promover</h3>
+                            <p style="text-align: center; color: #bdc3c7; font-size: 0.95rem; margin-bottom: 20px; line-height: 1.5;">Busca a un jugador para ver su perfil Owner, gestionar sus permisos y ver multicuentas.</p>
+                            
+                            <div class="action-container" style="max-width: 100%;">
+                                <input type="text" id="ownerSearchInput" class="owner-input" placeholder="Nombre o ID del jugador" style="font-family: inherit;">
+                                <button class="btn-estandar btn-primary" id="btnOwnerSearch" onclick="ejecutarBusquedaOwner()">
+                                    <i class="fa-solid fa-search"></i> Buscar Jugador
+                                </button>
+                            </div>
+
+                            <ul id="ownerSearchResults" class="player-list-room interactive" style="margin-top: 15px; display: none;">
+                            </ul>
+                        </div>
+
+                        <div class="box">
+                            <h3><i class="fa-solid fa-users-shield"></i> Administradores Activos</h3>
+                            <ul id="adminsUlList" class="player-list-room">
+                                <li style="justify-content: center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando lista...</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="right-col">
-                <div class="box list-box">
-                    <h3>📋 Inscritos</h3>
-                    <div class="roster-container">
-                        <ul id="listaInscritos"><li><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</li></ul>
-                    </div>
-                </div>
-                
-                <div class="box list-box">
-                    <h3 style="color: #bdc3c7;">🩹 Parches</h3>
-                    <div class="roster-container">
-                        <ul id="listaParches"><li><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</li></ul>
-                    </div>
-                </div>
-            </div>
         </div>
     </main>
 
-    <div class="modal-overlay" id="confirmActionModal">
-        <div class="modal-content" style="max-width: 450px; border-color: #FFD342;">
-            <h3 style="color: #FFD342; font-size: 1.8rem;"><i class="fa-solid fa-triangle-exclamation"></i> Confirmar Acción</h3>
-            <p id="confirmActionMsg" style="font-size: 1.1rem; color: #bdc3c7;">¿Estás seguro de continuar?</p>
-            <div class="modal-btn-row">
-                <button class="modal-btn cancel" onclick="cerrarModalConfirmacionSegura()">Cancelar</button>
-                <button class="modal-btn" id="btnAceptarAccionSegura" style="background:#2df2c1; color:#111;">Aceptar</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="modeModal">
-        <div class="modal-content">
-            <h3><i class="fa-solid fa-gear"></i> Configurar Partido</h3>
-            <p style="margin-bottom: 15px;">Selecciona el formato y la cancha para este ToroMatch:</p>
-            <div class="modal-form" style="align-items: flex-start; gap: 10px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;">
-                <div style="width: 100%; border-bottom: 1px dashed #444; padding-bottom: 10px; margin-bottom: 5px;">
-                    <span style="color: #FFD342; font-weight: bold; font-size: 0.95rem; display: block; margin-bottom: 10px;"><i class="fa-solid fa-users"></i> Formato de Equipos</span>
-                    <label style="cursor: pointer; font-size: 1.05rem; display: flex; align-items: center; gap: 10px; color: #fff;">
-                        <input type="radio" name="tm_mode" value="Organizado" style="width: auto; cursor:pointer;"> 
-                        📋 Organizado (Equipos predefinidos)
-                    </label>
-                    <label style="cursor: pointer; font-size: 1.05rem; display: flex; align-items: center; gap: 10px; color: #fff; margin-top: 10px;">
-                        <input type="radio" name="tm_mode" value="Barrio" style="width: auto; cursor:pointer;"> 
-                        ⚽ Barrio (Capitanes eligen en sala)
-                    </label>
-                </div>
-
-                <div style="width: 100%; padding-top: 5px;">
-                    <span style="color: #FFD342; font-weight: bold; font-size: 0.95rem; display: block; margin-bottom: 10px;"><i class="fa-solid fa-map-location-dot"></i> Tipo de Cancha</span>
-                    <label style="cursor: pointer; font-size: 1.05rem; display: flex; align-items: center; gap: 10px; color: #fff;">
-                        <input type="radio" name="tm_cancha" value="Futsal" style="width: auto; cursor:pointer;"> 
-                        🏟️ Futsal
-                    </label>
-                    <label style="cursor: pointer; font-size: 1.05rem; display: flex; align-items: center; gap: 10px; color: #fff; margin-top: 10px;">
-                        <input type="radio" name="tm_cancha" value="RealFutsal" style="width: auto; cursor:pointer;"> 
-                        🚩 Real Futsal
-                    </label>
-                </div>
-
-            </div>
-            <div class="modal-btn-row">
-                <button class="modal-btn cancel" onclick="cerrarModalModo()">Cancelar</button>
-                <button class="modal-btn" id="btnConfirmarModo" onclick="prepararAperturaPostulaciones()" disabled>Aceptar</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="termsModal">
-        <div class="modal-content">
-            <h3><i class="fa-solid fa-file-contract"></i> Compromiso de Juego</h3>
-            <p id="termsText">"Yo como jugador me comprometo a presentarme al partido express ToroMatch conectándome a la hora acordada, o en su defecto, cancelar y avisar mi cancelación."</p>
-            <div class="modal-btn-row">
-                <button class="modal-btn cancel" onclick="cerrarModalTerms()">Volver</button>
-                <button class="modal-btn" onclick="confirmarInscripcion()">Aceptar</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="cancelModal">
-        <div class="modal-content" style="border-color: #e74c3c;">
-            <h3 style="color: #e74c3c;"><i class="fa-solid fa-triangle-exclamation"></i> Cancelar Inscripción</h3>
-            <p>¿Estás seguro de que ya no podrás asistir al ToroMatch? Al cancelar perderás tu cupo y deberás volver a postular si cambias de opinión.</p>
-            <div class="modal-btn-row">
-                <button class="modal-btn" style="background: #333; color: white;" onclick="cerrarModalCancel()">Volver</button>
-                <button class="modal-btn cancel" onclick="confirmarCancelacion()">Sí, Cancelar</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="ratingModal">
-        <div class="modal-content">
-            <h3><i class="fa-solid fa-star"></i> Calificar Partido</h3>
-            <p>Del 1 al 10, ¿qué calificación le das a este express?</p>
-            <div id="ratingStarsContainer" style="display:flex; justify-content:center; gap:5px; font-size:1.8rem; color:#555; margin-bottom: 20px; cursor:pointer;">
-            </div>
-            <div class="modal-btn-row">
-                <button class="modal-btn cancel" onclick="cerrarModalRating()">Cancelar</button>
-                <button class="modal-btn" onclick="guardarRating()">Guardar</button>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="editModal">
-        <div class="modal-content">
-            <h3 id="modalTitle"><i class="fa-solid fa-plus"></i> Añadir al Historial</h3>
-            <div class="modal-form">
-                <div class="form-row">
-                    <input type="text" id="m_eq1" placeholder="Nombre Eq 1">
-                    <input type="text" id="m_eq2" placeholder="Nombre Eq 2">
-                </div>
-                <div class="form-row">
-                    <input type="number" id="m_goles1" placeholder="Goles Eq 1" oninput="checkPenales()">
-                    <input type="number" id="m_goles2" placeholder="Goles Eq 2" oninput="checkPenales()">
-                </div>
-                <div class="penalties-section" id="penales_div" style="display: none;">
-                    <p style="margin-top:0; margin-bottom: 10px; color:#FFD342; font-size: 0.9rem; text-align: center;">Tanda de Penales</p>
-                    <div class="form-row">
-                        <input type="number" id="m_pen1" placeholder="Penales Eq 1">
-                        <input type="number" id="m_pen2" placeholder="Penales Eq 2">
-                    </div>
-                </div>
-                <input type="date" id="m_date">
+    <div class="modal-overlay" id="ownerPlayerModal" onclick="cerrarModalOwnerClickFuera(event)">
+        <div class="modal-content" style="max-width: 500px;">
+            <i class="fa-solid fa-xmark close-modal" onclick="cerrarModalOwner()"></i>
+            
+            <div style="text-align: center; border-bottom: 1px solid #333; padding-bottom: 20px; margin-bottom: 20px;">
+                <h2 id="modal_o_name" style="color: #2df2c1; margin: 0 0 5px 0; font-size: 2rem; word-break: break-word;">Cargando...</h2>
+                <p style="color: #bdc3c7; margin: 0; font-size: 1.1rem;">ID: <strong id="modal_o_id" style="color:white; font-family: monospace;">#0</strong></p>
                 
-                <div class="modal-btn-row" style="margin-top: 10px;">
-                    <button class="modal-btn cancel" onclick="cerrarModal()">Cancelar</button>
-                    <button class="modal-btn" id="modalSubmitBtn" onclick="guardarPartido()">Guardar Resultado</button>
+                <div id="modal_o_admin_badge" style="display:none; margin-top:15px; padding:6px 20px; background:rgba(45,242,193,0.1); color:#2df2c1; border-radius:8px; font-weight:bold; border: 1px solid #2df2c1; font-size: 1.1rem; letter-spacing: 1px;">
+                    <i class="fa-solid fa-crown"></i> ADMINISTRADOR
                 </div>
+            </div>
+
+            <div style="text-align: left; margin-bottom: 25px;">
+                <h4 style="color: #2df2c1; margin-top:0; margin-bottom: 10px; font-size: 1.1rem;"><i class="fa-solid fa-network-wired"></i> Cuentas Vinculadas (Misma IP)</h4>
+                <ul id="modal_o_alts" class="player-list-room interactive" style="max-height: 200px;">
+                    <li style="justify-content: center; color: #7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Buscando cuentas...</li>
+                </ul>
+            </div>
+
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button class="btn-estandar btn-primary" id="btnToggleAdminObj" onclick="toggleAdminFromModal()" style="width: 100%;">
+                    Acción Admin
+                </button>
             </div>
         </div>
     </div>
 
-    <footer><p>© 2026 ToroHax. Todos los derechos reservados.</p></footer>
+    <div class="modal-overlay" id="customAlertModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <h3 id="customAlertTitle" style="color: #2df2c1;"><i class="fa-solid fa-circle-check"></i> Éxito</h3>
+            <p id="customAlertMsg" style="color: #bdc3c7; font-size: 1.1rem; margin: 20px 0; line-height: 1.4;"></p>
+            <button class="btn-estandar btn-primary" onclick="closeCustomAlert()" style="margin: 0;">Aceptar</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="customConfirmModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <h3 id="customConfirmTitle" style="color: #e74c3c;"><i class="fa-solid fa-triangle-exclamation"></i> Atención</h3>
+            <p id="customConfirmMsg" style="color: #bdc3c7; font-size: 1.1rem; margin: 20px 0; line-height: 1.4;"></p>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button class="btn-estandar" style="background: #cc2a2a; color: white; width: 50%; border: 2px solid transparent;" id="btnConfirmYes">Confirmar</button>
+                <button class="btn-estandar" style="background: transparent; border: 2px solid #7d7d7d; color: #bdc3c7; width: 50%;" id="btnConfirmNo">Cancelar</button>
+            </div>
+        </div>
+    </div>
 
     <script src="header.js"></script>
     <script src="sidebar.js"></script>
 
     <script>
-        const loggedId = localStorage.getItem('toroHaxLoggedId') || 'null';
-        const token = localStorage.getItem('toroHaxToken') || 'null';
-        let isManager = false;
-        let matchNumberGlobal = 0; 
-        let equipoA_Global = "Equipo 1";
-        let equipoB_Global = "Equipo 2";
-        let displayDateGlobal = "";
-        let historialCargado = false;
-        let ytPlayer;
-        let isMusicPlaying = false;
-        let isDraggingMusic = false;
-        const VIDEO_ID = "JcRqQWDPJcE";
-        const MAX_SECONDS = 7000;
-        let editingId = null; 
+        const loggedId = localStorage.getItem('toroHaxLoggedId');
+        const token = localStorage.getItem('toroHaxToken');
+        
+        let currentBot = 'juegantodos';
+        let statusInterval = null;
 
-        const tag = document.createElement('script');
-        tag.src = "https://www.youtube.com/iframe_api";
-        const firstScriptTag = document.getElementsByTagName('script')[0];
-        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-        function onYouTubeIframeAPIReady() {
-            const randomStart = Math.floor(Math.random() * MAX_SECONDS);
-            ytPlayer = new YT.Player('yt-player', {
-                height: '0', width: '0',
-                videoId: VIDEO_ID,
-                playerVars: { 
-                    'autoplay': 1, 
-                    'controls': 0, 
-                    'loop': 1, 
-                    'playlist': VIDEO_ID,
-                    'start': randomStart
-                },
-                events: { 
-                    'onReady': (event) => {
-                        event.target.playVideo();
-                    },
-                    'onStateChange': (event) => {
-                        const btn = document.getElementById('musicToggleBtn');
-                        const icon = btn.querySelector('i');
-                        if (event.data === YT.PlayerState.PLAYING) {
-                            isMusicPlaying = true;
-                            btn.classList.add('playing');
-                            icon.classList.remove('fa-music-slash', 'fa-volume-xmark');
-                            icon.classList.add('fa-music');
-                        } else if (event.data === YT.PlayerState.PAUSED || event.data === YT.PlayerState.ENDED) {
-                            isMusicPlaying = false;
-                            btn.classList.remove('playing');
-                            icon.classList.remove('fa-music');
-                            icon.classList.add('fa-volume-xmark');
-                        }
-                    }
+        let alertResolve = null;
+        function showCustomAlert(title, msg, isSuccess = false) {
+            return new Promise(resolve => {
+                const icon = isSuccess ? '<i class="fa-solid fa-circle-check"></i>' : '<i class="fa-solid fa-triangle-exclamation"></i>';
+                const color = isSuccess ? '#2df2c1' : '#cc2a2a';
+                document.getElementById('customAlertTitle').innerHTML = `${icon} ${title}`;
+                document.getElementById('customAlertTitle').style.color = color;
+                document.getElementById('customAlertMsg').innerHTML = msg;
+                const btn = document.querySelector('#customAlertModal .btn-estandar');
+                
+                if(isSuccess) {
+                    btn.className = 'btn-estandar btn-primary';
+                } else {
+                    btn.className = 'btn-estandar btn-danger';
                 }
+                
+                document.getElementById('customAlertModal').style.display = 'flex';
+                alertResolve = resolve;
+            });
+        }
+        function closeCustomAlert() {
+            document.getElementById('customAlertModal').style.display = 'none';
+            if (alertResolve) alertResolve();
+        }
+        function showCustomConfirm(title, msg, isDestructive = true) {
+            return new Promise(resolve => {
+                const color = isDestructive ? '#cc2a2a' : '#2df2c1';
+                document.getElementById('customConfirmTitle').innerHTML = `<i class="fa-solid ${isDestructive ? 'fa-triangle-exclamation' : 'fa-circle-question'}"></i> ${title}`;
+                document.getElementById('customConfirmTitle').style.color = color;
+                document.getElementById('customConfirmMsg').innerHTML = msg;
+                
+                const btnYes = document.getElementById('btnConfirmYes');
+                if(isDestructive) {
+                    btnYes.style.background = '#cc2a2a';
+                    btnYes.style.color = 'white';
+                } else {
+                    btnYes.style.background = '#2df2c1';
+                    btnYes.style.color = '#111';
+                }
+
+                document.getElementById('customConfirmModal').style.display = 'flex';
+                document.getElementById('btnConfirmYes').onclick = () => { document.getElementById('customConfirmModal').style.display = 'none'; resolve(true); };
+                document.getElementById('btnConfirmNo').onclick = () => { document.getElementById('customConfirmModal').style.display = 'none'; resolve(false); };
             });
         }
 
-        function toggleMusic() {
-            if (isDraggingMusic) return; 
-            if (!ytPlayer || !ytPlayer.playVideo) return;
+        if (loggedId !== '1' || !token) {
+            window.location.href = 'index.html';
+        } else {
+            cargarListaAdmins();
+            cargarEstadoHost();
+            statusInterval = setInterval(cargarEstadoHost, 5000);
+        }
+
+        function switchHost(botName) {
+            if (currentBot === botName) return;
+            currentBot = botName;
             
-            if (isMusicPlaying) {
-                ytPlayer.pauseVideo();
+            document.querySelectorAll('.h-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById('tab-' + botName).classList.add('active');
+            
+            document.getElementById('hostTokenInput').value = '';
+            document.getElementById('host-status-text').innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="color:#7d7d7d;"></i>';
+            document.getElementById('host-info').style.display = 'none';
+            document.getElementById('btnStartHost').style.display = 'none';
+            document.getElementById('btnStopHost').style.display = 'none';
+            document.getElementById('host-tokenContainer').style.display = 'none';
+            
+            cargarEstadoHost();
+        }
+
+        async function cargarEstadoHost() {
+            try {
+                const res = await fetch(`https://torobot-izu5.onrender.com/api/predio/estado?bot=${currentBot}`);
+                const data = await res.json();
+
+                const statusText = document.getElementById('host-status-text');
+                const infoBox = document.getElementById('host-info');
+                const tokenBox = document.getElementById('host-tokenContainer');
+                const btnStart = document.getElementById('btnStartHost');
+                const btnStop = document.getElementById('btnStopHost');
+
+                if (data.estado === 'online') {
+                    statusText.innerHTML = '<span class="status-light light-on"></span> SALA ACTIVA';
+                    statusText.style.color = '#2df2c1';
+                    infoBox.style.display = 'block';
+                    tokenBox.style.display = 'none';
+                    
+                    document.getElementById('host-link').href = data.link || '#';
+                    document.getElementById('host-link').innerText = data.link || 'Esperando enlace...';
+                    
+                    btnStart.style.display = 'none';
+                    btnStop.style.display = 'flex'; 
+                    btnStop.innerHTML = '<i class="fa-solid fa-stop"></i> Apagar Sala'; 
+                    btnStop.disabled = false;
+                } 
+                else if (data.estado === 'starting') {
+                    statusText.innerHTML = '<span class="status-light light-starting"></span> ENCENDIENDO... <i class="fa-solid fa-spinner fa-spin" style="font-size:0.8em; margin-left:10px;"></i>';
+                    statusText.style.color = '#FFD342';
+                    infoBox.style.display = 'none';
+                    tokenBox.style.display = 'none';
+                    btnStart.style.display = 'none';
+                    btnStop.style.display = 'none';
+                } 
+                else if (data.estado === 'stop_pending') {
+                    statusText.innerHTML = '<span class="status-light light-stopping"></span> APAGANDO... <i class="fa-solid fa-spinner fa-spin" style="font-size:0.8em; margin-left:10px;"></i>';
+                    statusText.style.color = '#e74c3c';
+                    infoBox.style.display = 'none';
+                    tokenBox.style.display = 'none';
+                    btnStart.style.display = 'none';
+                    btnStop.style.display = 'none';
+                }
+                else {
+                    statusText.innerHTML = '<span class="status-light light-off"></span> APAGADO';
+                    statusText.style.color = '#cc2a2a';
+                    infoBox.style.display = 'none';
+                    tokenBox.style.display = 'flex';
+
+                    btnStart.style.display = 'flex'; 
+                    btnStart.innerHTML = '<i class="fa-solid fa-power-off"></i> Encender Sala'; 
+                    btnStart.disabled = false;
+                    btnStop.style.display = 'none';
+                }
+            } catch (e) {
+                console.error("Error cargando estado:", e);
+            }
+        }
+
+        async function controlarHost(action) {
+            if (action === 'stop') {
+                const confirmed = await showCustomConfirm("Apagar Sala", `¿Seguro que deseas APAGAR la sala ${currentBot.toUpperCase()}? Se expulsará a todos al instante.`, true);
+                if (!confirmed) return;
+            }
+            
+            const btnStart = document.getElementById('btnStartHost');
+            const btnStop = document.getElementById('btnStopHost');
+            const originalStartText = '<i class="fa-solid fa-power-off"></i> Encender Sala';
+            const originalStopText = '<i class="fa-solid fa-stop"></i> Apagar Sala';
+            
+            let tokenHaxball = "";
+            if (action === 'start') {
+                tokenHaxball = document.getElementById('hostTokenInput').value.trim();
+                if (!tokenHaxball) return showCustomAlert("Falta Token", "Debes pegar el Token de HaxBall en la caja de texto.");
+                btnStart.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando señal...'; btnStart.disabled = true;
             } else {
-                ytPlayer.playVideo();
+                btnStop.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Apagando...'; btnStop.disabled = true;
             }
-        }
-
-        const musicBtn = document.getElementById('musicToggleBtn');
-        let startY, startX, initialX, initialY;
-
-        musicBtn.addEventListener('mousedown', dragStart);
-        musicBtn.addEventListener('touchstart', dragStart, {passive: false});
-
-        function dragStart(e) {
-            const evt = e.type === 'touchstart' ? e.touches[0] : e;
-            startX = evt.clientX;
-            startY = evt.clientY;
-            
-            const rect = musicBtn.getBoundingClientRect();
-            initialX = rect.left;
-            initialY = rect.top;
-            
-            isDraggingMusic = false; 
-            
-            document.addEventListener('mousemove', drag);
-            document.addEventListener('touchmove', drag, {passive: false});
-            document.addEventListener('mouseup', dragEnd);
-            document.addEventListener('touchend', dragEnd);
-        }
-
-        function drag(e) {
-            const evt = e.type === 'touchmove' ? e.touches[0] : e;
-            const dx = evt.clientX - startX;
-            const dy = evt.clientY - startY;
-            
-            if(Math.abs(dx) > 5 || Math.abs(dy) > 5) {
-                isDraggingMusic = true;
-            }
-            
-            if(isDraggingMusic) {
-                e.preventDefault(); 
-                let newX = initialX + dx;
-                let newY = initialY + dy;
-
-                newX = Math.max(0, Math.min(window.innerWidth - musicBtn.offsetWidth, newX));
-                newY = Math.max(0, Math.min(window.innerHeight - musicBtn.offsetHeight, newY));
-                
-                musicBtn.style.left = newX + 'px';
-                musicBtn.style.top = newY + 'px';
-                musicBtn.style.right = 'auto';
-                musicBtn.style.bottom = 'auto';
-                musicBtn.style.transition = 'none';
-            }
-        }
-
-        function dragEnd(e) {
-            document.removeEventListener('mousemove', drag);
-            document.removeEventListener('touchmove', drag);
-            document.removeEventListener('mouseup', dragEnd);
-            document.removeEventListener('touchend', dragEnd);
-            
-            if(isDraggingMusic) {
-                const rect = musicBtn.getBoundingClientRect();
-                const centerX = rect.left + rect.width / 2;
-                const screenWidth = window.innerWidth;
-                
-                musicBtn.style.transition = 'left 0.3s ease, top 0.3s ease';
-                
-                if (centerX < screenWidth / 2) {
-                    musicBtn.style.left = '20px';
-                } else {
-                    musicBtn.style.left = (screenWidth - rect.width - 20) + 'px';
-                }
-                
-                setTimeout(() => isDraggingMusic = false, 50);
-            }
-        }
-
-        let funcionConfirmacionActual = null;
-
-        function confirmarAccionSegura(mensaje, funcionEjecutar) {
-            document.getElementById('confirmActionMsg').innerText = mensaje;
-            funcionConfirmacionActual = funcionEjecutar;
-            document.getElementById('confirmActionModal').style.display = 'flex';
-        }
-
-        function cerrarModalConfirmacionSegura() {
-            document.getElementById('confirmActionModal').style.display = 'none';
-            funcionConfirmacionActual = null;
-        }
-
-        document.getElementById('btnAceptarAccionSegura').addEventListener('click', () => {
-            if (funcionConfirmacionActual) {
-                funcionConfirmacionActual();
-            }
-            cerrarModalConfirmacionSegura();
-        });
-
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            event.target.classList.add('active');
-            document.getElementById(tabId).classList.add('active');
-        }
-
-        function getNextSaturday() {
-            const now = new Date();
-            const dayOfWeek = now.getDay();
-            const daysUntilSaturday = (6 - dayOfWeek + 7) % 7;
-            let nextSat = new Date(now);
-            if (daysUntilSaturday === 0 && now.getHours() >= 20) { nextSat.setDate(now.getDate() + 7); } 
-            else { nextSat.setDate(now.getDate() + daysUntilSaturday); }
-            const dd = String(nextSat.getDate()).padStart(2, '0');
-            const mm = String(nextSat.getMonth() + 1).padStart(2, '0');
-            return `${dd}/${mm}/${nextSat.getFullYear()} a las 20:30`;
-        }
-
-        function checkEstadoPostulaciones() {
-            fetch(`https://torobot-izu5.onrender.com/api/toromatch/estado?numericId=${loggedId}`)
-            .then(res => res.json())
-            .then(data => {
-                const btnInscribir = document.getElementById('btnInscribir');
-                const msg = document.getElementById('msgInscripcion');
-                const btnAbrir = document.getElementById('btnAbrirPostulaciones');
-                const btnCerrar = document.getElementById('btnCerrarPostulaciones');
-                
-                if (isManager) {
-                    document.getElementById('managerButtons').style.display = 'flex';
-                }
-
-                if (data.abiertas) {
-                    btnInscribir.style.display = 'flex';
-                    btnInscribir.disabled = false;
-                    matchNumberGlobal = data.matchNumber;
-                    
-                    if (btnAbrir) btnAbrir.style.display = 'none';
-                    if (btnCerrar) btnCerrar.style.display = 'flex';
-                    
-                    if (data.inscrito) {
-                        msg.innerText = "¡Ya estás en la lista para este partido!";
-                        msg.style.color = '#2df2c1';
-                        btnInscribir.innerHTML = '<i class="fa-solid fa-xmark"></i> Cancelar Inscripción';
-                        btnInscribir.className = "btn-estandar btn-cancelar";
-                        btnInscribir.onclick = abrirModalCancelacion;
-                    } else {
-                        msg.innerText = `ToroMatch #${data.matchNumber} abierto. Asegura tu cupo.`;
-                        msg.style.color = '#bdc3c7';
-                        btnInscribir.innerHTML = '<i class="fa-solid fa-check"></i> Inscribirme al Partido';
-                        btnInscribir.className = "btn-estandar btn-inscribir";
-                        btnInscribir.onclick = abrirModalInscripcion;
-                    }
-                } else {
-                    btnInscribir.style.display = 'none';
-                    msg.innerText = "Las inscripciones están cerradas.";
-                    msg.style.color = '#cc2a2a';
-                    
-                    if (btnAbrir) btnAbrir.style.display = 'flex';
-                    if (btnCerrar) btnCerrar.style.display = 'none';
-                }
-            }).catch(e => console.log(e));
-        }
-
-        document.querySelectorAll('input[name="tm_mode"], input[name="tm_cancha"]').forEach(radio => {
-            radio.addEventListener('change', () => {
-                const modeChecked = document.querySelector('input[name="tm_mode"]:checked');
-                const canchaChecked = document.querySelector('input[name="tm_cancha"]:checked');
-                if (modeChecked && canchaChecked) {
-                    document.getElementById('btnConfirmarModo').disabled = false;
-                }
-            });
-        });
-
-        function abrirModalModo() {
-            document.querySelectorAll('input[name="tm_mode"]').forEach(r => r.checked = false);
-            document.querySelectorAll('input[name="tm_cancha"]').forEach(r => r.checked = false);
-            document.getElementById('btnConfirmarModo').disabled = true;
-            document.getElementById('modeModal').style.display = 'flex';
-        }
-
-        function cerrarModalModo() {
-            document.getElementById('modeModal').style.display = 'none';
-        }
-
-        function prepararAperturaPostulaciones() {
-            const modoSeleccionado = document.querySelector('input[name="tm_mode"]:checked').value;
-            const canchaSeleccionada = document.querySelector('input[name="tm_cancha"]:checked').value;
-            cerrarModalModo();
-            
-            confirmarAccionSegura(`¿Seguro que deseas abrir inscripciones para ${canchaSeleccionada} (${modoSeleccionado})? Se creará el anuncio oficial en Discord.`, () => {
-                abrirPostulacionesReal(modoSeleccionado, canchaSeleccionada);
-            });
-        }
-
-        async function abrirPostulacionesReal(modoSeleccionado, canchaSeleccionada) {
-            const btn = document.getElementById('btnAbrirPostulaciones');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Abriendo...'; 
-            btn.disabled = true;
 
             try {
-                const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/abrir-postulaciones', {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/predio/control', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        numericId: loggedId,
-                        token: token, 
-                        modo: canchaSeleccionada, 
-                        formato: modoSeleccionado 
-                    })
-                });
-                const data = await res.json();
-                
-                if(data.success) {
-                    checkEstadoPostulaciones();
-                    iniciarCargaJugadores();
-                } else {
-                    confirmarAccionSegura(data.message, () => {});
-                    document.getElementById('btnAceptarAccionSegura').innerText = "Entendido";
-                    document.querySelector('.modal-btn.cancel').style.display = 'none';
-                }
-            } catch (e) { 
-                alert("Error de conexión al abrir postulaciones."); 
-            }
-            
-            btn.innerHTML = '<i class="fa-solid fa-door-open"></i> Abrir Inscripciones'; 
-            btn.disabled = false;
-        }
-
-        async function cerrarPostulaciones() {
-            const btn = document.getElementById('btnCerrarPostulaciones');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cerrando...'; 
-            btn.disabled = true;
-
-            try {
-                const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/cerrar-postulaciones', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ numericId: loggedId, token: token })
-                });
-                const data = await res.json();
-                if(data.success) {
-                    checkEstadoPostulaciones();
-                } else {
-                    alert(data.message);
-                }
-            } catch (e) { alert("Error de conexión al cerrar."); }
-            
-            btn.innerHTML = '<i class="fa-solid fa-door-closed"></i> Cerrar Inscripciones'; 
-            btn.disabled = false;
-        }
-
-        function abrirModalInscripcion() {
-            if (loggedId === 'null' || !loggedId) {
-                window.location.href = 'login.html';
-                return;
-            }
-            document.getElementById('termsText').innerText = `"Yo como jugador me comprometo a presentarme al partido express ToroMatch #${matchNumberGlobal} "${equipoA_Global} vs ${equipoB_Global}" conectándome antes de la hora acordada a la sala de juego."`;
-            document.getElementById('termsModal').style.display = 'flex';
-        }
-
-        function cerrarModalTerms() {
-            document.getElementById('termsModal').style.display = 'none';
-        }
-
-        async function confirmarInscripcion() {
-            cerrarModalTerms();
-            const btn = document.getElementById('btnInscribir');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Procesando...'; 
-            btn.disabled = true;
-
-            try {
-                const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/inscribir', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ numericId: loggedId, token: token })
-                });
-                const data = await res.json();
-                
-                if(data.success) {
-                    checkEstadoPostulaciones();
-                    iniciarCargaJugadores(); 
-                } else { 
-                    alert(data.message);
-                    btn.innerHTML = '<i class="fa-solid fa-check"></i> Inscribirme al Partido'; 
-                    btn.disabled = false; 
-                }
-            } catch(e) {
-                alert("Error al conectar con el servidor.");
-                btn.innerHTML = '<i class="fa-solid fa-check"></i> Inscribirme al Partido'; 
-                btn.disabled = false;
-            }
-        }
-
-        function abrirModalCancelacion() { document.getElementById('cancelModal').style.display = 'flex'; }
-        function cerrarModalCancel() { document.getElementById('cancelModal').style.display = 'none'; }
-
-        async function confirmarCancelacion() {
-            cerrarModalCancel();
-            const btn = document.getElementById('btnInscribir');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Cancelando...'; 
-            btn.disabled = true;
-
-            try {
-                const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/cancelar', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ numericId: loggedId, token: token })
-                });
-                const data = await res.json();
-                
-                if(data.success) {
-                    checkEstadoPostulaciones();
-                    iniciarCargaJugadores();
-                } else { 
-                    alert(data.message);
-                    btn.innerHTML = '<i class="fa-solid fa-xmark"></i> Cancelar Inscripción'; 
-                    btn.disabled = false; 
-                }
-            } catch(e) {
-                alert("Error al conectar con el servidor.");
-                btn.innerHTML = '<i class="fa-solid fa-xmark"></i> Cancelar Inscripción'; 
-                btn.disabled = false;
-            }
-        }
-
-        async function asignarEquipo(targetDiscordId, equipo, btnElement) {
-            const row = btnElement.parentElement;
-            row.querySelectorAll('.assign-btn').forEach(b => b.classList.remove('active'));
-            
-            try {
-                const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/asignar-equipo', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ managerNumericId: loggedId, token: token, targetDiscordId: targetDiscordId, equipo: equipo })
-                });
-                const data = await res.json();
-                if(data.success) {
-                    if (equipo !== 0) btnElement.classList.add('active');
-                } else {
-                    alert(data.message);
-                }
-            } catch(e) {
-                alert("Error de conexión al asignar equipo.");
-            }
-        }
-
-        function expulsarJugador(targetDiscordId, playerName) {
-            confirmarAccionSegura(`¿Estás completamente seguro que deseas EXPULSAR a ${playerName} de las inscripciones?`, async () => {
-                try {
-                    const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/expulsar', {
-                        method: 'POST', headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ managerNumericId: loggedId, token: token, targetDiscordId: targetDiscordId })
-                    });
-                    const data = await res.json();
-                    
-                    if(data.success) {
-                        iniciarCargaJugadores(); 
-                    } else {
-                        alert(data.message);
-                    }
-                } catch(e) {
-                    alert("Error de conexión al expulsar al jugador.");
-                }
-            });
-        }
-
-        async function togglePresence(targetNumericId, btnElement) {
-            const originalHTML = btnElement.innerHTML;
-            btnElement.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-            btnElement.disabled = true;
-
-            try {
-                const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/toggle-presence', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ managerNumericId: loggedId, token: token, targetNumericId: targetNumericId })
-                });
-                const data = await res.json();
-                
-                if(data.success) {
-                    iniciarCargaJugadores();
-                } else {
-                    alert(data.message);
-                    btnElement.innerHTML = originalHTML;
-                    btnElement.disabled = false;
-                }
-            } catch(e) {
-                alert("Error de conexión al cambiar presencia.");
-                btnElement.innerHTML = originalHTML;
-                btnElement.disabled = false;
-            }
-        }
-
-        function iniciarCargaJugadores() {
-            const ulInscritos = document.getElementById('listaInscritos');
-            const ulParches = document.getElementById('listaParches');
-
-            fetch('https://torobot-izu5.onrender.com/api/toromatch/live')
-            .then(resLive => resLive.json())
-            .then(dataLive => {
-                const salaEstaActiva = dataLive.active;
-
-                fetch(`https://torobot-izu5.onrender.com/api/toromatch/data?numericId=${loggedId}`)
-                .then(res => res.json())
-                .then(data => {
-                    if(data.success) {
-                        if(data.canEdit) {
-                            isManager = true;
-                            document.getElementById('btnEditar').style.display = 'block';
-                        }
-
-                        equipoA_Global = data.equipoA;
-                        equipoB_Global = data.equipoB;
-                        
-                        displayDateGlobal = data.customDate ? data.customDate : `Sábado ${getNextSaturday()}`;
-
-                        if (!historialCargado) {
-                            cargarHistorial();
-                            historialCargado = true;
-                        }
-
-                        ulInscritos.innerHTML = '';
-                        if (data.inscritos && data.inscritos.length > 0) {
-                            data.inscritos.forEach((jug, i) => {
-                                const mostrarOnline = salaEstaActiva ? jug.isOnline : false;
-
-                                let statusIcon = mostrarOnline 
-                                    ? '<i class="fa-solid fa-circle" style="color:#2df2c1; font-size: 0.6rem; margin-right: 6px; text-shadow: 0 0 6px #2df2c1;" title="Conectado"></i>' 
-                                    : '<i class="fa-solid fa-circle" style="color:#cc2a2a; font-size: 0.6rem; margin-right: 6px;" title="Desconectado"></i>';
-                                
-                                let botonesManager = "";
-                                if (isManager) {
-                                    const btnPresenceColor = jug.isOnline ? "#cc2a2a" : "#2df2c1";
-                                    const btnPresenceIcon = jug.isOnline ? "fa-user-slash" : "fa-user-check";
-                                    const btnPresenceTitle = jug.isOnline ? "Forzar Ausencia" : "Forzar Presencia";
-                                    const esBarrio = (data.formato === "Barrio" || data.modo === "Barrio");
-
-                                    if (esBarrio) {
-                                        botonesManager = `
-                                            <div style="flex-shrink:0; display:flex; gap:5px; align-items:center;">
-                                                <button class="assign-btn" style="background:transparent; color:${btnPresenceColor}; border-color:${btnPresenceColor}; font-size: 0.9rem; padding: 2px 5px;" onclick="togglePresence('${jug.numericId}', this)" title="${btnPresenceTitle}"><i class="fa-solid ${btnPresenceIcon}"></i></button>
-                                                <button class="assign-btn" style="background:#cc2a2a; border-color:#cc2a2a;" onclick="expulsarJugador('${jug.discordId}', '${jug.name}')" title="Expulsar jugador"><i class="fa-solid fa-trash"></i></button>
-                                            </div>
-                                        `;
-                                    } else {
-                                        const eq1Active = jug.teamAssigned === "1" ? "active" : "";
-                                        const eq2Active = jug.teamAssigned === "2" ? "active" : "";
-                                        botonesManager = `
-                                            <div style="flex-shrink:0; display:flex; gap:5px; align-items:center;">
-                                                <button class="assign-btn eq1 ${eq1Active}" onclick="asignarEquipo('${jug.discordId}', 1, this)" title="Asignar al Eq 1">1</button>
-                                                <button class="assign-btn eq2 ${eq2Active}" onclick="asignarEquipo('${jug.discordId}', 2, this)" title="Asignar al Eq 2">2</button>
-                                                <button class="assign-btn" onclick="asignarEquipo('${jug.discordId}', 0, this)" title="Quitar equipo">X</button>
-                                                <button class="assign-btn" style="background:transparent; color:${btnPresenceColor}; border-color:${btnPresenceColor}; font-size: 0.9rem; padding: 2px 5px;" onclick="togglePresence('${jug.numericId}', this)" title="${btnPresenceTitle}"><i class="fa-solid ${btnPresenceIcon}"></i></button>
-                                                <button class="assign-btn" style="background:#cc2a2a; border-color:#cc2a2a;" onclick="expulsarJugador('${jug.discordId}', '${jug.name}')" title="Expulsar jugador"><i class="fa-solid fa-trash"></i></button>
-                                            </div>
-                                        `;
-                                    }
-                                }
-                                ulInscritos.innerHTML += `
-                                    <li>
-                                        <span style="flex-grow:1;">${statusIcon}<strong>${i+1}.</strong> ${jug.name} <span style="color:#7d7d7d; font-size:0.8rem;">(#${jug.numericId})</span> - <span style="color:#5dc8e8;">${jug.discordName}</span></span>
-                                        ${botonesManager}
-                                    </li>`;
-                            });
-                        } else {
-                            ulInscritos.innerHTML = '<li style="color:#7d7d7d; justify-content:center;">Nadie inscrito aún.</li>';
-                        }
-
-                        ulParches.innerHTML = '';
-                        if (data.parches && data.parches.length > 0) {
-                            data.parches.forEach((jug, i) => {
-                                const mostrarOnline = salaEstaActiva ? jug.isOnline : false;
-
-                                let statusIcon = mostrarOnline 
-                                    ? '<i class="fa-solid fa-circle" style="color:#2df2c1; font-size: 0.6rem; margin-right: 6px; text-shadow: 0 0 6px #2df2c1;" title="Conectado"></i>' 
-                                    : '<i class="fa-solid fa-circle" style="color:#cc2a2a; font-size: 0.6rem; margin-right: 6px;" title="Desconectado"></i>';
-                                
-                                let botonesManager = "";
-                                if (isManager) {
-                                    const btnPresenceColor = jug.isOnline ? "#cc2a2a" : "#2df2c1";
-                                    const btnPresenceIcon = jug.isOnline ? "fa-user-slash" : "fa-user-check";
-                                    const btnPresenceTitle = jug.isOnline ? "Forzar Ausencia" : "Forzar Presencia";
-
-                                    botonesManager = `
-                                        <div style="flex-shrink:0; display:flex; gap:5px; align-items:center;">
-                                            <button class="assign-btn" style="background:transparent; color:${btnPresenceColor}; border-color:${btnPresenceColor}; font-size: 0.9rem; padding: 2px 5px;" onclick="togglePresence('${jug.numericId}', this)" title="${btnPresenceTitle}"><i class="fa-solid ${btnPresenceIcon}"></i></button>
-                                            <button class="assign-btn" style="background:#cc2a2a; border-color:#cc2a2a;" onclick="expulsarJugador('${jug.discordId}', '${jug.name}')" title="Expulsar parche"><i class="fa-solid fa-trash"></i></button>
-                                        </div>
-                                    `;
-                                }
-                                ulParches.innerHTML += `
-                                    <li>
-                                        <span style="flex-grow:1;">${statusIcon}<strong>${i+1}.</strong> ${jug.name} <span style="color:#7d7d7d; font-size:0.8rem;">(#${jug.numericId})</span> - <span style="color:#5dc8e8;">${jug.discordName}</span></span>
-                                        ${botonesManager}
-                                    </li>`;
-                            });
-                        } else {
-                            ulParches.innerHTML = '<li style="color:#7d7d7d; justify-content:center;">No hay parches en espera.</li>';
-                        }
-
-                        document.getElementById('proximos-lista').innerHTML = `
-                            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; padding: 30px 15px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-top: 15px;">
-                                <div style="font-size: 1.5rem; color: #FFD342; font-weight: bold; text-align: center;">
-                                    ${equipoA_Global} <span style="color:white; margin: 0 10px; font-size: 1.2rem;">vs</span> ${equipoB_Global} 
-                                </div>
-                                <div style="color: #7d7d7d; font-size: 1.1rem; border-top: 1px dashed #444; padding-top: 15px; width: 80%; text-align: center;">
-                                    <i class="fa-regular fa-clock" style="margin-right: 5px;"></i> <span id="toroMatchDateDisplay">${displayDateGlobal}</span>
-                                </div>
-                            </div>
-                        `;
-                        
-                        checkEstadoPostulaciones(); 
-                    }
-                })
-                .catch(err => {
-                    ulInscritos.innerHTML = '<li><i class="fa-solid fa-spinner fa-spin"></i> Reintentando...</li>';
-                    setTimeout(iniciarCargaJugadores, 5000);
-                });
-            })
-            .catch(err => console.log("Error revisando sala activa", err));
-        }
-
-        setInterval(iniciarCargaJugadores, 10000); 
-
-        function cargarHistorial() {
-            const histDiv = document.getElementById('historial-lista');
-            
-            fetch('https://torobot-izu5.onrender.com/api/matches/toromatch')
-            .then(res => res.json())
-            .then(data => {
-                if(data.success) {
-                    histDiv.innerHTML = '';
-                    const formatFecha = (dateStr) => {
-                        if(!dateStr) return '';
-                        const parts = dateStr.split('-');
-                        return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : dateStr;
-                    };
-
-                    const partidosHistorial = data.matches.filter(m => m.isHistory).reverse();
-
-                    partidosHistorial.forEach(m => {
-                        const acciones = isManager ? `
-                        <div class="action-icons">
-                            <i class="fa-solid fa-pen edit-action-icon" onclick="abrirModalEditar('${m._id}', '${m.matchType}', '${m.rival}', ${m.golesLocal}, ${m.golesVisita}, ${m.penalesLocal}, ${m.penalesVisita}, '${m.date}')"></i>
-                            <i class="fa-solid fa-trash delete-icon" onclick="borrarPartido('${m._id}')"></i>
-                        </div>` : '';
-                        
-                        let scoreText = `${m.golesLocal} - ${m.golesVisita}`;
-                        if (m.penalesLocal > 0 || m.penalesVisita > 0) {
-                            scoreText = `<span style="color:#7d7d7d; font-size:0.9rem;">(${m.penalesLocal})</span> ${scoreText} <span style="color:#7d7d7d; font-size:0.9rem;">(${m.penalesVisita})</span>`;
-                        }
-
-                        let avgScore = 0;
-                        let myScore = 0;
-                        if (m.ratings && m.ratings.length > 0) {
-                            const sum = m.ratings.reduce((acc, r) => acc + r.score, 0);
-                            avgScore = (sum / m.ratings.length).toFixed(1);
-                            const myR = m.ratings.find(r => r.numericId == loggedId);
-                            if (myR) myScore = myR.score;
-                        }
-
-                        const starColor = myScore > 0 ? '#FFD342' : '#555';
-                        const avgDisplay = avgScore > 0 ? avgScore : '-';
-                        
-                        let starAction = `onclick="confirmarAccionSegura('Debes iniciar sesión para calificar un partido.', ()=>{}); document.getElementById('btnAceptarAccionSegura').innerText = 'Entendido'; document.querySelector('.modal-btn.cancel').style.display = 'none';"`;
-                        if (loggedId !== 'null') {
-                            starAction = `onclick="abrirModalRating('${m._id}', ${myScore})"`;
-                        }
-
-                        const ratingHtml = `
-                        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; cursor:${loggedId !== 'null' ? 'pointer' : 'not-allowed'}; padding: 0 10px; border-left: 1px dashed #444;" ${starAction} title="Calificar partido">
-                            <i class="fa-solid fa-star" style="color: ${starColor}; font-size:1.1rem; transition: 0.2s;"></i>
-                            <span style="font-size:0.8rem; color:#bdc3c7; margin-top:2px; font-weight:bold;">${avgDisplay}</span>
-                        </div>`;
-
-                        histDiv.innerHTML += `
-                            <div class="match-row">
-                                <div class="match-teams">${m.matchType} ${scoreText} ${m.rival}</div>
-                                <div class="match-date" style="border-left:none;">${formatFecha(m.date)}</div>
-                                ${ratingHtml}
-                                ${acciones}
-                            </div>
-                        `;
-                    });
-                    
-                    if (histDiv.innerHTML === '') histDiv.innerHTML = '<p style="text-align:center; color:#7d7d7d;">El historial está vacío.</p>';
-                }
-            }).catch(()=>{
-                histDiv.innerHTML = '<p style="text-align:center; color:#cc2a2a;">Error al cargar historial.</p>';
-            });
-        }
-
-        let ratingMatchId = null;
-        let currentRating = 0;
-
-        function abrirModalRating(matchId, myScore) {
-            ratingMatchId = matchId;
-            currentRating = myScore || 0;
-            renderStars(currentRating);
-            document.getElementById('ratingModal').style.display = 'flex';
-        }
-
-        function cerrarModalRating() {
-            document.getElementById('ratingModal').style.display = 'none';
-        }
-
-        function renderStars(score) {
-            const container = document.getElementById('ratingStarsContainer');
-            container.innerHTML = '';
-            for(let i=1; i<=10; i++) {
-                container.innerHTML += `<i class="fa-solid fa-star" style="color: ${i <= score ? '#FFD342' : '#444'}; transition: 0.2s;" onclick="seleccionarRating(${i})"></i>`;
-            }
-        }
-
-        function seleccionarRating(score) {
-            currentRating = score;
-            renderStars(currentRating);
-        }
-
-        async function guardarRating() {
-            if (currentRating === 0) return alert("Por favor selecciona al menos 1 estrella.");
-            try {
-                const res = await fetch(`https://torobot-izu5.onrender.com/api/matches/${ratingMatchId}/rate`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ numericId: loggedId, token: token, score: currentRating })
-                });
-                const data = await res.json();
-                
-                if(data.success) {
-                    cerrarModalRating();
-                    cargarHistorial();
-                } else {
-                    alert(data.message || "Error al guardar calificación.");
-                }
-            } catch(e) {
-                alert("Error de conexión.");
-            }
-        }
-        iniciarCargaJugadores();
-
-        function checkPenales() {
-            const g1 = document.getElementById('m_goles1').value;
-            const g2 = document.getElementById('m_goles2').value;
-            if (g1 !== "" && g2 !== "" && g1 === g2) {
-                document.getElementById('penales_div').style.display = 'block';
-            } else {
-                document.getElementById('penales_div').style.display = 'none';
-                document.getElementById('m_pen1').value = '';
-                document.getElementById('m_pen2').value = '';
-            }
-        }
-
-        function abrirModalNuevo() { 
-            editingId = null;
-            document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-plus"></i> Añadir Resultado';
-            document.getElementById('modalSubmitBtn').innerText = 'Guardar Resultado';
-            document.getElementById('m_eq1').value = '';
-            document.getElementById('m_eq2').value = '';
-            document.getElementById('m_goles1').value = '';
-            document.getElementById('m_goles2').value = '';
-            document.getElementById('m_pen1').value = '';
-            document.getElementById('m_pen2').value = '';
-            document.getElementById('m_date').value = '';
-            checkPenales();
-            document.getElementById('editModal').style.display = 'flex'; 
-        }
-
-        function abrirModalEditar(id, eq1, eq2, g1, g2, p1, p2, date) {
-            editingId = id;
-            document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen"></i> Editar Resultado';
-            document.getElementById('modalSubmitBtn').innerText = 'Actualizar Resultado';
-            document.getElementById('m_eq1').value = eq1;
-            document.getElementById('m_eq2').value = eq2;
-            document.getElementById('m_goles1').value = g1;
-            document.getElementById('m_goles2').value = g2;
-            document.getElementById('m_pen1').value = p1 || '';
-            document.getElementById('m_pen2').value = p2 || '';
-            document.getElementById('m_date').value = date;
-            checkPenales();
-            document.getElementById('editModal').style.display = 'flex';
-        }
-
-        function cerrarModal() { document.getElementById('editModal').style.display = 'none'; }
-
-        async function guardarPartido() {
-            const equipo1 = document.getElementById('m_eq1').value.trim();
-            const equipo2 = document.getElementById('m_eq2').value.trim();
-            const date = document.getElementById('m_date').value;
-            const goles1 = parseInt(document.getElementById('m_goles1').value) || 0;
-            const goles2 = parseInt(document.getElementById('m_goles2').value) || 0;
-            const pen1 = parseInt(document.getElementById('m_pen1').value) || 0;
-            const pen2 = parseInt(document.getElementById('m_pen2').value) || 0;
-
-            if(!equipo1 || !equipo2 || !date) return alert("Debes llenar los nombres de los equipos y la fecha.");
-
-            const url = editingId ? `https://torobot-izu5.onrender.com/api/matches/${editingId}` : 'https://torobot-izu5.onrender.com/api/matches';
-            const method = editingId ? 'PUT' : 'POST';
-
-            try {
-                const res = await fetch(url, {
-                    method: method,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        numericId: loggedId, token: token, team: 'toromatch',
-                        isHistory: true, rival: equipo2, matchType: equipo1, 
-                        golesLocal: goles1, golesVisita: goles2, 
-                        penalesLocal: pen1, penalesVisita: pen2, date: date
-                    })
+                    body: JSON.stringify({ numericId: loggedId, token: token, action: action, tokenHaxball: tokenHaxball, botName: currentBot }) 
                 });
                 const data = await res.json();
                 
                 if (data.success) {
-                    cerrarModal();
-                    cargarHistorial(); 
+                    await cargarEstadoHost(); 
                 } else {
-                    alert("Error: No tienes permisos.");
+                    await showCustomAlert("Error", data.message);
+                    await cargarEstadoHost();
                 }
-            } catch (err) { alert("Error de conexión."); }
+            } catch (e) {
+                await showCustomAlert("Error de Red", "No se pudo conectar con el servidor.");
+                await cargarEstadoHost();
+            }
         }
 
-        function borrarPartido(id) {
-            confirmarAccionSegura("¿Seguro que quieres borrar este resultado permanentemente del historial?", async () => {
+        function copiarLinkHost() {
+            const link = document.getElementById('host-link').href;
+            const btn = document.querySelector('#host-info .copy-btn');
+            navigator.clipboard.writeText(link).then(() => {
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check" style="color:#2df2c1;"></i>';
+                btn.style.borderColor = '#2df2c1';
+                setTimeout(() => { btn.innerHTML = originalHTML; btn.style.borderColor = '#333'; }, 2000);
+            });
+        }
+
+        let modalCurrentPlayerId = null;
+        let modalCurrentPlayerIsAdmin = false;
+        let modalCurrentPlayerName = "";
+
+        document.getElementById('ownerSearchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') ejecutarBusquedaOwner();
+        });
+
+        async function ejecutarBusquedaOwner() {
+            const query = document.getElementById('ownerSearchInput').value.trim();
+            if (!query) return;
+
+            const btn = document.getElementById('btnOwnerSearch');
+            const ul = document.getElementById('ownerSearchResults');
+            
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            ul.style.display = 'block';
+            ul.innerHTML = '<li style="color: #7d7d7d; justify-content: center;"><i class="fa-solid fa-spinner fa-spin"></i> Buscando...</li>';
+
+            try {
+                const res = await fetch(`https://torobot-izu5.onrender.com/api/admin/search-players?q=${encodeURIComponent(query)}`);
+                const data = await res.json();
+                
+                if (data.success) {
+                    ul.innerHTML = '';
+                    if (data.players.length === 0) {
+                        ul.innerHTML = '<li style="color: #cc2a2a; justify-content: center;">No se encontraron jugadores.</li>';
+                    } else {
+                        data.players.forEach(p => {
+                            ul.innerHTML += `
+                                <li onclick="abrirPlayerDetailsOwner(${p.numericId})">
+                                    <span><span class="id-badge">#${p.numericId}</span> ${p.name}</span>
+                                    <i class="fa-solid fa-chevron-right" style="color:#2df2c1;"></i>
+                                </li>
+                            `;
+                        });
+                    }
+                } else {
+                    ul.innerHTML = '<li style="color: #cc2a2a; justify-content: center;">Error al buscar.</li>';
+                }
+            } catch (error) {
+                ul.innerHTML = '<li style="color: #cc2a2a; justify-content: center;">Error de conexión.</li>';
+            }
+            btn.innerHTML = '<i class="fa-solid fa-search"></i> Buscar Jugador';
+        }
+
+        async function abrirPlayerDetailsOwner(numericId) {
+            document.getElementById('ownerPlayerModal').style.display = 'flex';
+            document.getElementById('modal_o_name').innerText = "Cargando...";
+            document.getElementById('modal_o_id').innerText = `#${numericId}`;
+            document.getElementById('modal_o_admin_badge').style.display = 'none';
+            
+            const altsList = document.getElementById('modal_o_alts');
+            altsList.innerHTML = '<li style="color: #7d7d7d; justify-content: center;"><i class="fa-solid fa-spinner fa-spin"></i> Buscando cuentas...</li>';
+            
+            try {
+                const res = await fetch(`https://torobot-izu5.onrender.com/api/admin/player-details/${numericId}`);
+                const data = await res.json();
+
+                if (!data.success) {
+                    document.getElementById('modal_o_name').innerText = "Jugador no encontrado";
+                    return;
+                }
+
+                const p = data.player;
+                modalCurrentPlayerId = p.numericId;
+                modalCurrentPlayerIsAdmin = p.isAdmin || false;
+                modalCurrentPlayerName = p.name;
+
+                document.getElementById('modal_o_name').innerText = p.name;
+                
+                const btnToggle = document.getElementById('btnToggleAdminObj');
+                if (p.isAdmin) {
+                    document.getElementById('modal_o_admin_badge').style.display = 'inline-block';
+                    btnToggle.innerHTML = '<i class="fa-solid fa-trash-can"></i> Revocar Permisos de Admin';
+                    btnToggle.className = 'btn-estandar btn-danger';
+                } else {
+                    document.getElementById('modal_o_admin_badge').style.display = 'none';
+                    btnToggle.innerHTML = '<i class="fa-solid fa-shield-halved"></i> Otorgar Permisos de Admin';
+                    btnToggle.className = 'btn-estandar btn-primary';
+                }
+
+                if (!p.ip) {
+                    altsList.innerHTML = '<li style="color: #FFD342; justify-content: center;"><i class="fa-solid fa-triangle-exclamation"></i> No tiene IP registrada.</li>';
+                } else if (data.alts.length === 0) {
+                    altsList.innerHTML = '<li style="color: #2df2c1; justify-content: center;"><i class="fa-solid fa-check"></i> No se encontraron otras cuentas.</li>';
+                } else {
+                    altsList.innerHTML = '';
+                    data.alts.forEach(alt => {
+                        const altAdminBadge = alt.isAdmin ? `<span style="background:rgba(45,242,193,0.1); color:#2df2c1; padding: 3px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; border: 1px solid #2df2c1;">ADMIN</span>` : '';
+                        altsList.innerHTML += `
+                            <li onclick="abrirPlayerDetailsOwner(${alt.numericId})">
+                                <span><span class="id-badge">#${alt.numericId}</span> ${alt.name}</span>
+                                ${altAdminBadge}
+                            </li>
+                        `;
+                    });
+                }
+            } catch (e) {
+                document.getElementById('modal_o_name').innerText = "Error de Conexión";
+            }
+        }
+
+        async function toggleAdminFromModal() {
+            if (!modalCurrentPlayerId) return;
+            
+            if (modalCurrentPlayerIsAdmin) {
+                const confirmed = await showCustomConfirm("Revocar Permisos", `🚨 ¿Seguro que deseas REVOCAR el Admin a ${modalCurrentPlayerName} (ID: #${modalCurrentPlayerId})?`, true);
+                if (!confirmed) return;
+
                 try {
-                    const res = await fetch(`https://torobot-izu5.onrender.com/api/matches/${id}`, {
-                        method: 'DELETE',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ numericId: loggedId, token: token, team: 'toromatch' })
+                    const res = await fetch('https://torobot-izu5.onrender.com/api/owner/admins/remove', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ numericId: loggedId, token: token, targetId: modalCurrentPlayerId })
                     });
                     const data = await res.json();
-                    if(data.success) cargarHistorial();
-                    else alert("Error al borrar.");
-                } catch (err) { alert("Error de conexión."); }
-            });
+                    if (data.success) {
+                        await showCustomAlert("Éxito", `Permisos revocados a ${modalCurrentPlayerName}.`, true);
+                        cargarListaAdmins();
+                        abrirPlayerDetailsOwner(modalCurrentPlayerId); 
+                    } else showCustomAlert("Error", data.message);
+                } catch(e) { showCustomAlert("Error de Red", "Fallo al conectar."); }
+            } else {
+                const confirmed = await showCustomConfirm("Otorgar Permisos", `¿Deseas promover a ${modalCurrentPlayerName} (ID: #${modalCurrentPlayerId}) a Administrador?`, false);
+                if (!confirmed) return;
+
+                try {
+                    const res = await fetch('https://torobot-izu5.onrender.com/api/owner/admins/add', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ numericId: loggedId, token: token, targetId: modalCurrentPlayerId })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        await showCustomAlert("Éxito", `¡${modalCurrentPlayerName} ahora es Administrador!`, true);
+                        cargarListaAdmins();
+                        abrirPlayerDetailsOwner(modalCurrentPlayerId); 
+                    } else showCustomAlert("Error", data.message);
+                } catch(e) { showCustomAlert("Error de Red", "Fallo al conectar."); }
+            }
         }
 
-        let isRoomActive = false;
-        let roomLiveText = "Esperando conexión...";
+        function cerrarModalOwner() { document.getElementById('ownerPlayerModal').style.display = 'none'; }
+        function cerrarModalOwnerClickFuera(e) { if (e.target.id === 'ownerPlayerModal') cerrarModalOwner(); }
 
-        function actualizarMarcador() {
-            fetch('https://torobot-izu5.onrender.com/api/toromatch/live')
-            .then(res => res.json())
-            .then(data => {
-                isRoomActive = data.active;
-                roomLiveText = data.text;
+        async function cargarListaAdmins() {
+            const ul = document.getElementById('adminsUlList');
+            try {
+                const res = await fetch(`https://torobot-izu5.onrender.com/api/owner/admins?numericId=${loggedId}&token=${token}`);
+                const data = await res.json();
                 
-                const indOn = document.getElementById('liveIndicator');
-                const indOff = document.getElementById('liveIndicatorOff');
-                
-                if (isRoomActive) {
-                    indOn.style.display = 'flex'; indOff.style.display = 'none';
-                    document.querySelector('.live-box').style.borderColor = '#2df2c1';
+                if (data.success) {
+                    document.getElementById('loader').style.display = 'none';
+                    document.getElementById('main-content').style.display = 'block';
+                    
+                    ul.innerHTML = '';
+                    data.admins.forEach(admin => {
+                        const isBoss = admin.numericId === 1;
+                        const discordInfo = admin.discordId ? `<span class="discord-tag"><i class="fa-brands fa-discord"></i> ${admin.discordId}</span>` : `<span class="discord-tag"><i class="fa-solid fa-link-slash"></i> No vinculado</span>`;
+                        
+                        const actionBtn = isBoss 
+                            ? `<button class="btn-boss"><i class="fa-solid fa-crown"></i> OWNER</button>`
+                            : `<button class="btn-revocar" onclick="quitarAdminDirecto(${admin.numericId}, '${admin.name}')"><i class="fa-solid fa-trash-can"></i> Revocar</button>`;
+
+                        ul.innerHTML += `
+                            <li>
+                                <div class="info-col" style="cursor: pointer;" onclick="abrirPlayerDetailsOwner(${admin.numericId})">
+                                    <span style="display: flex; align-items: center; gap: 10px;">
+                                        <span class="id-badge">#${admin.numericId}</span> 
+                                        <strong style="color:white; font-size: 1.15rem; letter-spacing: 0.5px;">${admin.name}</strong>
+                                    </span>
+                                    ${discordInfo}
+                                </div>
+                                <div>
+                                    ${actionBtn}
+                                </div>
+                            </li>
+                        `;
+                    });
                 } else {
-                    indOn.style.display = 'none'; indOff.style.display = 'flex';
-                    document.querySelector('.live-box').style.borderColor = '#333';
+                    await showCustomAlert("Acceso Denegado", data.message);
+                    localStorage.removeItem('toroHaxLoggedId');
+                    window.location.href = 'index.html';
                 }
+            } catch (error) {
+                ul.innerHTML = '<li style="justify-content: center; color:#cc2a2a;">Error de conexión con el servidor.</li>';
+            }
+        }
+
+        async function quitarAdminDirecto(targetId, targetName) {
+            const confirmed = await showCustomConfirm("Revocar Permisos", `🚨 ¿Estás absolutamente seguro de que deseas revocar los permisos de Administrador a ${targetName} (ID: #${targetId})?`, true);
+            if (!confirmed) return;
+
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/owner/admins/remove', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ numericId: loggedId, token: token, targetId: targetId })
+                });
+                const data = await res.json();
                 
-                updateCountdown();
-            });
+                if (data.success) {
+                    await showCustomAlert("Permisos Revocados", `${targetName} ya no es Administrador.`, true);
+                    cargarListaAdmins();
+                } else {
+                    await showCustomAlert("Error", data.message);
+                }
+            } catch (e) {
+                await showCustomAlert("Error de Red", "No se pudo conectar al servidor.");
+            }
         }
-
-        function updateCountdown() {
-            const scoreElement = document.getElementById('liveScore');
-            
-            if (isRoomActive) {
-                scoreElement.innerText = roomLiveText;
-                return;
-            }
-
-            if (!displayDateGlobal) {
-                scoreElement.innerHTML = `<span style="font-size: 1.5rem; color: #7d7d7d;">Esperando datos...</span>`;
-                return;
-            }
-
-            const match = displayDateGlobal.match(/(\d{1,2})\/(\d{1,2})\/(\d{4}).*?(\d{2}):(\d{2})/);
-            if (!match) {
-                scoreElement.innerHTML = `<span style="font-size: 1.5rem; color: #7d7d7d;">${displayDateGlobal}</span>`;
-                return;
-            }
-
-            const targetDate = new Date(match[3], match[2] - 1, match[1], match[4], match[5]).getTime();
-            const now = new Date().getTime();
-            const diff = targetDate - now;
-
-            if (diff <= 0) {
-                scoreElement.innerHTML = `<span class="cd-comenzando"><i class="fa-solid fa-spinner fa-spin"></i> Comenzando...</span>`;
-                return;
-            }
-
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const secs = Math.floor((diff % (1000 * 60)) / 1000);
-
-            const pad = (num) => num.toString().padStart(2, '0');
-
-            let html = `<div class="countdown-container">`;
-            
-            if (days > 0) {
-                html += `
-                    <div class="cd-box"><span class="cd-number">${pad(days)}</span><span class="cd-label">Días</span></div>
-                    <span style="font-size: 1.5rem; align-self: center; margin-top: -10px;">:</span>
-                `;
-            }
-
-            html += `
-                <div class="cd-box"><span class="cd-number">${pad(hours)}</span><span class="cd-label">Hrs</span></div>
-                <span style="font-size: 1.5rem; align-self: center; margin-top: -10px;">:</span>
-                <div class="cd-box"><span class="cd-number">${pad(mins)}</span><span class="cd-label">Min</span></div>
-                <span style="font-size: 1.5rem; align-self: center; margin-top: -10px;">:</span>
-                <div class="cd-box"><span class="cd-number" style="color:#5dc8e8;">${pad(secs)}</span><span class="cd-label">Sec</span></div>
-            </div>`;
-
-            scoreElement.innerHTML = html;
-        }
-
-        setInterval(actualizarMarcador, 5000);
-        setInterval(updateCountdown, 1000);
-        actualizarMarcador();
     </script>
     <script src="scanner.js"></script>
 </body>
