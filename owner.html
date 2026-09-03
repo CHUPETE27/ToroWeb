@@ -12,24 +12,20 @@
         
         .owner-wrapper { width: 95%; max-width: 1100px; margin: 5vh auto 50px; display: flex; flex-direction: column; gap: 30px; }
         
-        /* HEADER OWNER */
         .admin-header { text-align: center; margin-bottom: 10px; }
         .admin-header i { font-size: 3.5rem; color: #2df2c1; margin-bottom: 15px; text-shadow: 0 0 20px rgba(45, 242, 193, 0.4); }
         .admin-header h1 { margin: 0; color: white; font-size: 2.2rem; letter-spacing: 1px; }
         .admin-header p { color: #bdc3c7; font-size: 1.1rem; margin-top: 8px; }
 
-        /* GRID LAYOUT PARA ESCRITORIO */
         .owner-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 30px; align-items: start; }
         .right-col { display: flex; flex-direction: column; gap: 30px; }
 
-        /* ESTILOS DE CAJAS */
         .box { background: rgba(5, 20, 19, 0.7); border: 1px solid #11423e; border-radius: 12px; padding: 30px; box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5); display: flex; flex-direction: column;}
         .box h3 { margin-top: 0; color: #2df2c1; border-bottom: 1px dashed #11423e; padding-bottom: 15px; text-transform: uppercase; text-align: center; font-size: 1.25rem; letter-spacing: 1px;}
         
         .host-box { background: rgba(10, 46, 44, 0.4); border-color: #2df2c1; box-shadow: 0 5px 30px rgba(45, 242, 193, 0.1); }
         .host-box h3 { border-color: #2df2c1; text-shadow: 0 0 10px rgba(45, 242, 193, 0.3); }
 
-        /* TABS DE HOST */
         .host-tabs { display: flex; border-bottom: 2px solid #11423e; margin-bottom: 25px; }
         .h-tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; color: #7d7d7d; font-weight: bold; transition: 0.3s; font-size: 1.1rem; }
         .h-tab.active { border-bottom: 2px solid #2df2c1; color: #2df2c1; text-shadow: 0 0 10px rgba(45, 242, 193, 0.3); }
@@ -42,7 +38,6 @@
         .light-off { background: #cc2a2a; box-shadow: inset 0 0 5px rgba(0,0,0,0.5); }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
-        /* LISTA DE ADMINS */
         .player-list-room { background: #030a09; border: 1px solid #11423e; border-radius: 8px; max-height: 400px; overflow-y: auto; padding: 0; margin: 0; list-style: none; }
         .player-list-room li { padding: 15px 20px; border-bottom: 1px dashed #11423e; display: flex; justify-content: space-between; align-items: center; color: #fff; gap: 15px;}
         .player-list-room li:last-child { border-bottom: none; }
@@ -54,7 +49,6 @@
         .id-badge { color: #111; font-family: monospace; font-weight: bold; font-size: 0.95rem; background: #2df2c1; padding: 4px 10px; border-radius: 6px; box-shadow: 0 0 8px rgba(45, 242, 193, 0.4);}
         .discord-tag { color: #bdc3c7; font-size: 0.85rem; }
 
-        /* BOTONES GLOBALES: Borde 2px transparente para emparejar pixel con pixel al Input */
         .btn-estandar { width: 100%; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.05rem; border: 2px solid transparent; display: flex; justify-content: center; align-items: center; gap: 10px; }
         .btn-estandar:disabled { filter: grayscale(100%); opacity: 0.6; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
         
@@ -71,11 +65,10 @@
         .btn-revocar:hover { background: #e74c3c; color: white; box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);}
         .btn-boss { width: auto; background: rgba(45, 242, 193, 0.1); color: #2df2c1; border: 1px solid #2df2c1; padding: 8px 15px; font-size: 0.95rem; border-radius: 6px; cursor: default;}
 
-        /* CAJA DE CONTROLES: Perfectamente simétrica */
         .action-container { 
             width: 100%; 
-            max-width: 320px; /* Evita que los inputs sean gigantes en PC */
-            margin: 0 auto; /* Centrado absoluto horizontal */
+            max-width: 320px;
+            margin: 0 auto;
             display: flex; 
             flex-direction: column; 
             align-items: center; 
@@ -163,7 +156,7 @@
                     <div id="host-controls" style="display:flex; flex-direction:column; align-items:center; justify-content: flex-end; flex-grow: 1;">
                         <div class="action-container" id="host-tokenContainer">
                             <a href="https://www.haxball.com/headlesstoken" target="_blank" class="btn-outline-primary">
-                                <i class="fa-solid fa-key"></i> Generar Token Fresco
+                                <i class="fa-solid fa-key"></i> Generar Token
                             </a>
                             <input type="text" id="hostTokenInput" placeholder="Pega el token aquí..." class="owner-input">
                             <button class="btn-estandar btn-primary" onclick="controlarHost('start')" id="btnStartHost">
@@ -182,19 +175,17 @@
                 <div class="right-col">
                     <div class="box" style="padding: 0; background: transparent; border: none; box-shadow: none;">
                         <div class="box" style="margin-bottom: 25px;">
-                            <h3><i class="fa-solid fa-user-plus"></i> Promover Administrador</h3>
-                            <p style="text-align: center; color: #bdc3c7; font-size: 0.95rem; margin-bottom: 20px; line-height: 1.5;">Otorga acceso inmediato al Panel Admin y comandos de host in-game.</p>
-                            
+                            <h3><i class="fa-solid fa-user-plus"></i> Añadir Admin</h3>                            
                             <div class="action-container">
-                                <input type="number" id="newAdminId" class="owner-input" placeholder="Ej: Ingresa la ID #42">
+                                <input type="number" id="newAdminId" class="owner-input" placeholder="Ingresa la ID del jugador">
                                 <button class="btn-estandar btn-primary" id="btnAddAdmin" onclick="agregarAdmin()">
-                                    <i class="fa-solid fa-check"></i> Otorgar Permisos
+                                    <i class="fa-solid fa-check"></i> Otorgar Admin
                                 </button>
                             </div>
                         </div>
 
                         <div class="box">
-                            <h3><i class="fa-solid fa-users-shield"></i> Administradores Activos</h3>
+                            <h3><i class="fa-solid fa-users-shield"></i> Admins actuales</h3>
                             <ul id="adminsUlList" class="player-list-room">
                                 <li style="justify-content: center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando lista...</li>
                             </ul>
