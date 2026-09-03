@@ -12,20 +12,27 @@
         
         .owner-wrapper { width: 95%; max-width: 1100px; margin: 5vh auto 50px; display: flex; flex-direction: column; gap: 30px; }
         
+        /* HEADER OWNER */
         .admin-header { text-align: center; margin-bottom: 10px; }
-        .admin-header i { font-size: 3.5rem; color: #ca9e23; margin-bottom: 15px; text-shadow: 0 0 20px rgba(45, 242, 193, 0.4); }
+        .admin-header i { font-size: 3.5rem; color: #2df2c1; margin-bottom: 15px; text-shadow: 0 0 20px rgba(45, 242, 193, 0.4); }
         .admin-header h1 { margin: 0; color: white; font-size: 2.2rem; letter-spacing: 1px; }
         .admin-header p { color: #bdc3c7; font-size: 1.1rem; margin-top: 8px; }
 
+        /* GRID LAYOUT PARA ESCRITORIO */
         .owner-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 30px; align-items: start; }
         .right-col { display: flex; flex-direction: column; gap: 30px; }
 
+        /* ESTILOS DE CAJAS */
         .box { background: rgba(5, 20, 19, 0.7); border: 1px solid #11423e; border-radius: 12px; padding: 30px; box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5); display: flex; flex-direction: column;}
-        .box h3 { margin-top: 0; color: #ca9e23; border-bottom: 1px dashed #11423e; padding-bottom: 15px; text-transform: uppercase; text-align: center; font-size: 1.25rem; letter-spacing: 1px;}
+        .box h3 { margin-top: 0; color: #2df2c1; border-bottom: 1px dashed #11423e; padding-bottom: 15px; text-transform: uppercase; text-align: center; font-size: 1.25rem; letter-spacing: 1px;}
         
+        .host-box { background: rgba(10, 46, 44, 0.4); border-color: #2df2c1; box-shadow: 0 5px 30px rgba(45, 242, 193, 0.1); }
+        .host-box h3 { border-color: #2df2c1; text-shadow: 0 0 10px rgba(45, 242, 193, 0.3); }
+
+        /* TABS DE HOST */
         .host-tabs { display: flex; border-bottom: 2px solid #11423e; margin-bottom: 25px; }
         .h-tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; color: #7d7d7d; font-weight: bold; transition: 0.3s; font-size: 1.1rem; }
-        .h-tab.active { border-bottom: 2px solid #ca9e23; color: #ca9e23; text-shadow: 0 0 10px rgba(45, 242, 193, 0.3); }
+        .h-tab.active { border-bottom: 2px solid #2df2c1; color: #2df2c1; text-shadow: 0 0 10px rgba(45, 242, 193, 0.3); }
         .h-tab:hover:not(.active) { color: white; }
         
         .status-light { display: inline-block; width: 16px; height: 16px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
@@ -35,6 +42,7 @@
         .light-off { background: #cc2a2a; box-shadow: inset 0 0 5px rgba(0,0,0,0.5); }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
+        /* LISTA DE ADMINS */
         .player-list-room { background: #030a09; border: 1px solid #11423e; border-radius: 8px; max-height: 400px; overflow-y: auto; padding: 0; margin: 0; list-style: none; }
         .player-list-room li { padding: 15px 20px; border-bottom: 1px dashed #11423e; display: flex; justify-content: space-between; align-items: center; color: #fff; gap: 15px;}
         .player-list-room li:last-child { border-bottom: none; }
@@ -43,10 +51,11 @@
         .player-list-room::-webkit-scrollbar-thumb { background: #2df2c1; border-radius: 5px; }
 
         .info-col { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
-        .id-badge { color: #111; font-family: monospace; font-weight: bold; font-size: 0.95rem; background: #2df2c1; padding: 4px 10px; border-radius: 6px;}
-        .discord-tag { color: #7d7d7d; font-size: 0.85rem; }
+        .id-badge { color: #111; font-family: monospace; font-weight: bold; font-size: 0.95rem; background: #2df2c1; padding: 4px 10px; border-radius: 6px; box-shadow: 0 0 8px rgba(45, 242, 193, 0.4);}
+        .discord-tag { color: #bdc3c7; font-size: 0.85rem; }
 
-        .btn-estandar { width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.1rem; border: none; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        /* BOTONES GLOBALES: Borde 2px transparente para emparejar pixel con pixel al Input */
+        .btn-estandar { width: 100%; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.05rem; border: 2px solid transparent; display: flex; justify-content: center; align-items: center; gap: 10px; }
         .btn-estandar:disabled { filter: grayscale(100%); opacity: 0.6; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
         
         .btn-primary { background: #2df2c1; color: #111; }
@@ -55,22 +64,44 @@
         .btn-danger { background: #e74c3c; color: white; }
         .btn-danger:hover:not(:disabled) { background: #ff4d4d; box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3); transform: translateY(-2px); }
 
-        .btn-outline-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: transparent; color: #2df2c1; border: 1px solid #2df2c1; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 0.95rem; transition: 0.3s; margin-bottom: 10px;}
+        .btn-outline-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: transparent; color: #2df2c1; border: 2px solid #2df2c1; text-decoration: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 0.95rem; transition: 0.3s; width: 100%;}
         .btn-outline-primary:hover { background: #2df2c1; color: #111; box-shadow: 0 4px 10px rgba(45, 242, 193, 0.2); }
 
-        .btn-revocar { width: auto; background: transparent; color: #e74c3c; border: 1px solid #e74c3c; padding: 8px 15px; font-size: 0.95rem; border-radius: 6px; cursor: pointer; transition: 0.3s; white-space: nowrap;}
-        .btn-revocar:hover { background: rgba(231, 76, 60, 0.1); }
-        
+        .btn-revocar { width: auto; background: rgba(231, 76, 60, 0.1); color: #e74c3c; border: 1px solid #e74c3c; padding: 8px 15px; font-size: 0.95rem; margin: 0; border-radius: 6px; cursor: pointer; transition: 0.3s; white-space: nowrap;}
+        .btn-revocar:hover { background: #e74c3c; color: white; box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);}
         .btn-boss { width: auto; background: rgba(45, 242, 193, 0.1); color: #2df2c1; border: 1px solid #2df2c1; padding: 8px 15px; font-size: 0.95rem; border-radius: 6px; cursor: default;}
 
-        .action-container { width: 100%; display: flex; flex-direction: column; gap: 15px; }
-        .owner-input { width: 80%; background: #030a09; border: 1px solid #11423e; color: white; padding: 15px; border-radius: 8px; outline: none; font-size: 1.1rem; text-align: center; transition: 0.3s; font-family: monospace;}
-        .owner-input:focus { border-color: #2df2c1; box-shadow: 0 0 10px rgba(45, 242, 193, 0.1); }
+        /* CAJA DE CONTROLES: Perfectamente simétrica */
+        .action-container { 
+            width: 100%; 
+            max-width: 320px; /* Evita que los inputs sean gigantes en PC */
+            margin: 0 auto; /* Centrado absoluto horizontal */
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            gap: 12px; 
+        }
+        
+        .owner-input { 
+            width: 100%; 
+            background: #030a09; 
+            border: 2px solid #11423e; 
+            color: white; 
+            padding: 14px; 
+            border-radius: 8px; 
+            outline: none; 
+            font-size: 1.05rem; 
+            text-align: center; 
+            transition: 0.3s; 
+            font-family: monospace;
+        }
+        .owner-input:focus { border-color: #2df2c1; box-shadow: 0 0 10px rgba(45, 242, 193, 0.2); }
         .owner-input::-webkit-outer-spin-button, .owner-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .owner-input[type=number] { -moz-appearance: textfield; appearance: textfield; }
 
         .copy-btn { background: #111; color: #bdc3c7; border: 1px solid #333; border-radius: 6px; cursor: pointer; padding: 8px 12px; margin-left: 10px; transition: 0.3s; font-size: 0.95rem;}
         .copy-btn:hover { background: #2df2c1; color: #111; border-color: #2df2c1; }
+        .copy-btn:active { transform: scale(0.9); }
 
         .loader-screen { position: fixed; top:0; left:0; width:100%; height:100%; background:#050505; z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:#2df2c1; }
 
@@ -108,7 +139,7 @@
             </div>
 
             <div class="owner-grid">
-                <div class="box">
+                <div class="box host-box">
                     <h3><i class="fa-solid fa-server"></i> Control de Salas Públicas</h3>
                     
                     <div class="host-tabs">
@@ -129,18 +160,22 @@
                         </div>
                     </div>
 
-                    <div id="host-controls" style="display:flex; flex-direction:column; align-items:center; gap: 15px; flex-grow: 1; justify-content: flex-end;">
-                        <div id="host-tokenContainer" style="width: 100%; text-align: center; display: flex; flex-direction: column; align-items: center;">
-                            <a href="https://www.haxball.com/headlesstoken" target="_blank" class="btn-outline-primary"><i class="fa-solid fa-key"></i> Generar Token Fresco</a>
+                    <div id="host-controls" style="display:flex; flex-direction:column; align-items:center; justify-content: flex-end; flex-grow: 1;">
+                        <div class="action-container" id="host-tokenContainer">
+                            <a href="https://www.haxball.com/headlesstoken" target="_blank" class="btn-outline-primary">
+                                <i class="fa-solid fa-key"></i> Generar Token Fresco
+                            </a>
                             <input type="text" id="hostTokenInput" placeholder="Pega el token aquí..." class="owner-input">
+                            <button class="btn-estandar btn-primary" onclick="controlarHost('start')" id="btnStartHost">
+                                <i class="fa-solid fa-power-off"></i> Encender Sala
+                            </button>
                         </div>
                         
-                        <button class="btn-estandar btn-primary" onclick="controlarHost('start')" id="btnStartHost">
-                            <i class="fa-solid fa-power-off"></i> Encender Sala
-                        </button>
-                        <button class="btn-estandar btn-danger" style="display: none;" onclick="controlarHost('stop')" id="btnStopHost">
-                            <i class="fa-solid fa-stop"></i> Apagar Sala
-                        </button>
+                        <div class="action-container" style="justify-content: flex-end; margin-top: 15px;">
+                            <button class="btn-estandar btn-danger" style="display: none;" onclick="controlarHost('stop')" id="btnStopHost">
+                                <i class="fa-solid fa-stop"></i> Apagar Sala
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -149,6 +184,7 @@
                         <div class="box" style="margin-bottom: 25px;">
                             <h3><i class="fa-solid fa-user-plus"></i> Promover Administrador</h3>
                             <p style="text-align: center; color: #bdc3c7; font-size: 0.95rem; margin-bottom: 20px; line-height: 1.5;">Otorga acceso inmediato al Panel Admin y comandos de host in-game.</p>
+                            
                             <div class="action-container">
                                 <input type="number" id="newAdminId" class="owner-input" placeholder="Ej: Ingresa la ID #42">
                                 <button class="btn-estandar btn-primary" id="btnAddAdmin" onclick="agregarAdmin()">
@@ -184,7 +220,7 @@
             <p id="customConfirmMsg" style="color: #bdc3c7; font-size: 1.1rem; margin: 20px 0; line-height: 1.4;"></p>
             <div style="display: flex; gap: 15px; justify-content: center;">
                 <button class="btn-estandar" style="background: #cc2a2a; color: white; width: 50%;" id="btnConfirmYes">Confirmar</button>
-                <button class="btn-estandar" style="background: transparent; border: 1px solid #7d7d7d; color: #bdc3c7; width: 50%;" id="btnConfirmNo">Cancelar</button>
+                <button class="btn-estandar" style="background: transparent; border: 2px solid #7d7d7d; color: #bdc3c7; width: 50%;" id="btnConfirmNo">Cancelar</button>
             </div>
         </div>
     </div>
@@ -198,8 +234,8 @@
         
         let currentBot = 'juegantodos';
         let statusInterval = null;
-        let alertResolve = null;
 
+        let alertResolve = null;
         function showCustomAlert(title, msg, isSuccess = false) {
             return new Promise(resolve => {
                 const icon = isSuccess ? '<i class="fa-solid fa-circle-check"></i>' : '<i class="fa-solid fa-triangle-exclamation"></i>';
@@ -228,7 +264,7 @@
                 const btnYes = document.getElementById('btnConfirmYes');
                 btnYes.style.background = color;
                 btnYes.style.color = isDestructive ? 'white' : '#111';
-                btnYes.style.border = 'none';
+                btnYes.style.border = '2px solid transparent';
 
                 document.getElementById('customConfirmModal').style.display = 'flex';
                 document.getElementById('btnConfirmYes').onclick = () => { document.getElementById('customConfirmModal').style.display = 'none'; resolve(true); };
@@ -320,7 +356,7 @@
 
         async function controlarHost(action) {
             if (action === 'stop') {
-                const confirmed = await showCustomConfirm("Apagar Sala", `¿Seguro que deseas APAGAR la sala ${currentBot.toUpperCase()}? Se expulsará a todos los jugadores.`, true);
+                const confirmed = await showCustomConfirm("Apagar Sala", `¿Seguro que deseas APAGAR la sala ${currentBot.toUpperCase()}? Se expulsará a todos.`, true);
                 if (!confirmed) return;
             }
             
@@ -332,8 +368,8 @@
             let tokenHaxball = "";
             if (action === 'start') {
                 tokenHaxball = document.getElementById('hostTokenInput').value.trim();
-                if (!tokenHaxball) return showCustomAlert("Falta Token", "Debes pegar el Token de HaxBall en la caja de texto.");
-                btnStart.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando señal...'; btnStart.disabled = true;
+                if (!tokenHaxball) return showCustomAlert("Falta Token", "Debes pegar el Token de HaxBall.");
+                btnStart.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando...'; btnStart.disabled = true;
             } else {
                 btnStop.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Apagando...'; btnStop.disabled = true;
             }
@@ -349,11 +385,11 @@
                     await cargarEstadoHost(); 
                 } else {
                     await showCustomAlert("Error", data.message);
-                    await cargarEstadoHost();
+                    if (action === 'start') { btnStart.innerHTML = originalStartText; btnStart.disabled = false; } else { btnStop.innerHTML = originalStopText; btnStop.disabled = false; }
                 }
             } catch (e) {
                 await showCustomAlert("Error de Red", "No se pudo conectar con el servidor.");
-                await cargarEstadoHost();
+                if (action === 'start') { btnStart.innerHTML = originalStartText; btnStart.disabled = false; } else { btnStop.innerHTML = originalStopText; btnStop.disabled = false; }
             }
         }
 
@@ -364,7 +400,7 @@
                 const originalHTML = btn.innerHTML;
                 btn.innerHTML = '<i class="fa-solid fa-check" style="color:#2df2c1;"></i>';
                 btn.style.borderColor = '#2df2c1';
-                setTimeout(() => { btn.innerHTML = originalHTML; btn.style.borderColor = '#444'; }, 2000);
+                setTimeout(() => { btn.innerHTML = originalHTML; btn.style.borderColor = '#11423e'; }, 2000);
             });
         }
 
@@ -414,7 +450,7 @@
 
         async function agregarAdmin() {
             const inputId = document.getElementById('newAdminId').value.trim();
-            if (!inputId || isNaN(inputId)) return showCustomAlert("Error", "Debes ingresar un número de ID válido.");
+            if (!inputId || isNaN(inputId)) return showCustomAlert("ID Inválida", "Debes ingresar un número de ID válido.");
 
             const btn = document.getElementById('btnAddAdmin');
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Procesando...';
@@ -429,14 +465,14 @@
                 const data = await res.json();
                 
                 if (data.success) {
-                    await showCustomAlert("Admin Agregado", `¡El jugador ${data.name} (ID: #${inputId}) ahora es Administrador!`, true);
+                    await showCustomAlert("Éxito", `¡El jugador ${data.name} (ID: #${inputId}) ahora es Administrador!`, true);
                     document.getElementById('newAdminId').value = "";
                     cargarListaAdmins();
                 } else {
                     await showCustomAlert("Error", data.message);
                 }
             } catch (e) {
-                await showCustomAlert("Error de Red", "No se pudo conectar con el servidor.");
+                await showCustomAlert("Error de Red", "No se pudo conectar al servidor.");
             }
             
             btn.innerHTML = '<i class="fa-solid fa-check"></i> Otorgar Permisos';
@@ -462,7 +498,7 @@
                     await showCustomAlert("Error", data.message);
                 }
             } catch (e) {
-                await showCustomAlert("Error de Red", "No se pudo conectar con el servidor.");
+                await showCustomAlert("Error de Red", "No se pudo conectar al servidor.");
             }
         }
     </script>
