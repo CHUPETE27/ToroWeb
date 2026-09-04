@@ -151,7 +151,7 @@
         .cd-number { display: block; font-size: 1.6rem; font-weight: bold; color: #2df2c1; font-family: monospace; }
         .cd-label { display: block; font-size: 0.7rem; color: #7d7d7d; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
         .cd-comenzando { color: #FFD342; font-weight: bold; font-size: 1.3rem; animation: pulse 1.5s infinite; }
-        .cd-separator { font-size: 1.5rem; align-self: center; margin-top: -10px; display: none; } /* Oculto en móviles */
+        .cd-separator { font-size: 1.5rem; align-self: center; margin-top: -10px; display: none; }
 
         @keyframes pulse-music {
             0% { box-shadow: 0 0 0 0 rgba(255, 211, 66, 0.7); }
@@ -415,7 +415,19 @@
                 },
                 events: { 
                     'onReady': (event) => {
+                        event.target.setVolume(0);
                         event.target.playVideo();
+                        
+                        let vol = 0;
+                        const fadeInterval = setInterval(() => {
+                            vol += 5;
+                            if (vol >= 100) {
+                                event.target.setVolume(100);
+                                clearInterval(fadeInterval);
+                            } else {
+                                event.target.setVolume(vol);
+                            }
+                        }, 200);
                     },
                     'onStateChange': (event) => {
                         const btn = document.getElementById('musicToggleBtn');
