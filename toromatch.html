@@ -23,7 +23,7 @@
         .score-text { font-size: 2.2rem; font-weight: bold; color: white; letter-spacing: 2px; text-align: center;}
 
         .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; }
-        .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #7d7d7d; font-weight: bold; transition: 0.3s; }
+        .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #7d7d7d; font-weight: bold; transition: 0.3s; font-size: 1rem;}
         .tab.active { border-bottom: 2px solid #FFD342; color: #FFD342; }
         .tab:hover:not(.active) { color: white; }
         
@@ -46,6 +46,7 @@
         .btn-estandar { 
             width: 260px; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; 
             font-size: 1.05rem; border: none; margin-bottom: 10px; display: flex; justify-content: center; align-items: center; gap: 8px;
+            max-width: 100%;
         }
         .btn-estandar:disabled { filter: grayscale(100%); opacity: 0.6; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
 
@@ -63,7 +64,7 @@
 
         .right-col { display: flex; flex-direction: column; gap: 20px; max-width: 100%;}
         .list-box ul { list-style-type: none; padding: 0; margin: 0; }
-        .list-box li { padding: 10px; border-bottom: 1px dashed #333; color: #bdc3c7; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center;}
+        .list-box li { padding: 10px; border-bottom: 1px dashed #333; color: #bdc3c7; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; word-break: break-word;}
         .list-box li:last-child { border-bottom: none; }
         
         .roster-container { max-height: 250px; overflow-y: auto; padding-right: 5px; }
@@ -82,7 +83,7 @@
         .modal-content { 
             background: #111; 
             border: 1px solid #FFD342; 
-            padding: 35px; 
+            padding: 35px 25px; 
             border-radius: 15px; 
             width: 100%; 
             max-width: 550px; 
@@ -96,13 +97,13 @@
         .modal-content::-webkit-scrollbar-track { background: transparent; }
         .modal-content::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
 
-        .modal-content h3 { color: #FFD342; margin-top: 0; text-align: center; font-size: 1.6rem; margin-bottom: 20px;}
-        .modal-content p { color: #bdc3c7; line-height: 1.5; margin-bottom: 25px; font-size: 1.1rem;}
+        .modal-content h3 { color: #FFD342; margin-top: 0; text-align: center; font-size: 1.4rem; margin-bottom: 15px;}
+        .modal-content p { color: #bdc3c7; line-height: 1.5; margin-bottom: 20px; font-size: 1rem;}
         .modal-form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; text-align: left;}
         .modal-form input { padding: 12px; background: #222; border: 1px solid #444; color: white; border-radius: 8px; outline: none; width: 100%; font-size: 1rem;}
         .modal-form input:focus { border-color: #FFD342; }
-        .form-row { display: flex; gap: 10px; }
-        .form-row input { flex: 1; }
+        .form-row { display: flex; gap: 10px; flex-wrap: wrap; }
+        .form-row input { flex: 1; min-width: 120px; }
         .penalties-section { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border: 1px dashed #555;}
         
         .modal-btn { background: #2df2c1; color: #111; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 1.05rem; cursor: pointer; flex: 1; transition: 0.3s;}
@@ -145,41 +146,12 @@
             animation: pulse-music 2s infinite;
         }
 
-        .countdown-container {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 5px;
-        }
-        .cd-box {
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid #444;
-            border-radius: 8px;
-            padding: 8px 12px;
-            text-align: center;
-            min-width: 60px;
-        }
-        .cd-number {
-            display: block;
-            font-size: 1.6rem;
-            font-weight: bold;
-            color: #2df2c1;
-            font-family: monospace;
-        }
-        .cd-label {
-            display: block;
-            font-size: 0.7rem;
-            color: #7d7d7d;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 2px;
-        }
-        .cd-comenzando {
-            color: #FFD342;
-            font-weight: bold;
-            font-size: 1.3rem;
-            animation: pulse 1.5s infinite;
-        }
+        .countdown-container { display: flex; gap: 10px; justify-content: center; margin-top: 5px; flex-wrap: wrap; }
+        .cd-box { background: rgba(0, 0, 0, 0.5); border: 1px solid #444; border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 60px; flex: 1; }
+        .cd-number { display: block; font-size: 1.6rem; font-weight: bold; color: #2df2c1; font-family: monospace; }
+        .cd-label { display: block; font-size: 0.7rem; color: #7d7d7d; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+        .cd-comenzando { color: #FFD342; font-weight: bold; font-size: 1.3rem; animation: pulse 1.5s infinite; }
+        .cd-separator { font-size: 1.5rem; align-self: center; margin-top: -10px; display: none; } /* Oculto en móviles */
 
         @keyframes pulse-music {
             0% { box-shadow: 0 0 0 0 rgba(255, 211, 66, 0.7); }
@@ -187,21 +159,37 @@
             100% { box-shadow: 0 0 0 0 rgba(255, 211, 66, 0); }
         }
 
-        @media (max-width: 900px) { .seleccion-wrapper { grid-template-columns: 1fr; } }
+        @media (min-width: 481px) {
+            .cd-separator { display: block; }
+        }
+
+        @media (max-width: 900px) { 
+            .seleccion-wrapper { grid-template-columns: 1fr; } 
+            .left-col { order: 1; }
+            .right-col { order: 2; }
+            .floating-music-btn { bottom: 20px; right: 20px; width: 50px; height: 50px; font-size: 1.3rem;}
+        }
         
         @media (max-width: 480px) { 
             .seleccion-wrapper { padding: 0 10px; width: 100%; margin-top: 3vh;}
-            .score-text { font-size: 1.8rem; }
+            .score-text { font-size: 1.6rem; }
+            .live-box { min-height: 120px; }
             .box { padding: 15px; padding-bottom: 60px; } 
 
             .match-row { flex-direction: column; gap: 8px; padding: 15px; align-items: center;}
-            .match-teams { white-space: normal; word-break: break-word; width: 100%; font-size: 1.1rem; text-align: center;}
-            .match-date { width: 100%; border-left: none; text-align: center; border-top: 1px dashed #444; padding-top: 8px;}
+            .match-teams { white-space: normal; word-break: break-word; width: 100%; font-size: 1rem; text-align: center;}
+            .match-date { width: 100%; border-left: none; text-align: center; border-top: 1px dashed #444; padding-top: 8px; font-size: 0.85rem;}
             .action-icons { flex-direction: row; justify-content: center; padding-top: 10px; border-top: 1px dashed #444; width: 100%;}
             
             .modal-content { padding: 20px; }
             .modal-btn-row { flex-direction: column; }
             .modal-btn { width: 100%; }
+
+            .cd-number { font-size: 1.3rem; }
+            .cd-box { min-width: 50px; padding: 6px 8px; }
+            
+            .list-box li { flex-direction: column; align-items: center; text-align: center; gap: 10px;}
+            .list-box li span { width: 100%; }
         }
     </style>
 </head>
@@ -277,9 +265,9 @@
     </main>
 
     <div class="modal-overlay" id="confirmActionModal">
-        <div class="modal-content" style="max-width: 450px; border-color: #FFD342;">
-            <h3 style="color: #FFD342; font-size: 1.8rem;"><i class="fa-solid fa-triangle-exclamation"></i> Confirmar Acción</h3>
-            <p id="confirmActionMsg" style="font-size: 1.1rem; color: #bdc3c7;">¿Estás seguro de continuar?</p>
+        <div class="modal-content" style="border-color: #FFD342;">
+            <h3 style="color: #FFD342; font-size: 1.5rem;"><i class="fa-solid fa-triangle-exclamation"></i> Confirmar Acción</h3>
+            <p id="confirmActionMsg">¿Estás seguro de continuar?</p>
             <div class="modal-btn-row">
                 <button class="modal-btn cancel" onclick="cerrarModalConfirmacionSegura()">Cancelar</button>
                 <button class="modal-btn" id="btnAceptarAccionSegura" style="background:#2df2c1; color:#111;">Aceptar</button>
@@ -290,32 +278,31 @@
     <div class="modal-overlay" id="modeModal">
         <div class="modal-content">
             <h3><i class="fa-solid fa-gear"></i> Configurar Partido</h3>
-            <p style="margin-bottom: 15px;">Selecciona el formato y la cancha para este ToroMatch:</p>
+            <p>Selecciona el formato y la cancha para este ToroMatch:</p>
             <div class="modal-form" style="align-items: flex-start; gap: 10px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;">
                 <div style="width: 100%; border-bottom: 1px dashed #444; padding-bottom: 10px; margin-bottom: 5px;">
                     <span style="color: #FFD342; font-weight: bold; font-size: 0.95rem; display: block; margin-bottom: 10px;"><i class="fa-solid fa-users"></i> Formato de Equipos</span>
-                    <label style="cursor: pointer; font-size: 1.05rem; display: flex; align-items: center; gap: 10px; color: #fff;">
+                    <label style="cursor: pointer; font-size: 1rem; display: flex; align-items: center; gap: 10px; color: #fff;">
                         <input type="radio" name="tm_mode" value="Organizado" style="width: auto; cursor:pointer;"> 
-                        📋 Organizado (Equipos predefinidos)
+                        📋 Organizado (Predefinidos)
                     </label>
-                    <label style="cursor: pointer; font-size: 1.05rem; display: flex; align-items: center; gap: 10px; color: #fff; margin-top: 10px;">
+                    <label style="cursor: pointer; font-size: 1rem; display: flex; align-items: center; gap: 10px; color: #fff; margin-top: 10px;">
                         <input type="radio" name="tm_mode" value="Barrio" style="width: auto; cursor:pointer;"> 
-                        ⚽ Barrio (Capitanes eligen en sala)
+                        ⚽ Barrio (Capitanes eligen)
                     </label>
                 </div>
 
                 <div style="width: 100%; padding-top: 5px;">
                     <span style="color: #FFD342; font-weight: bold; font-size: 0.95rem; display: block; margin-bottom: 10px;"><i class="fa-solid fa-map-location-dot"></i> Tipo de Cancha</span>
-                    <label style="cursor: pointer; font-size: 1.05rem; display: flex; align-items: center; gap: 10px; color: #fff;">
+                    <label style="cursor: pointer; font-size: 1rem; display: flex; align-items: center; gap: 10px; color: #fff;">
                         <input type="radio" name="tm_cancha" value="Futsal" style="width: auto; cursor:pointer;"> 
                         🏟️ Futsal
                     </label>
-                    <label style="cursor: pointer; font-size: 1.05rem; display: flex; align-items: center; gap: 10px; color: #fff; margin-top: 10px;">
+                    <label style="cursor: pointer; font-size: 1rem; display: flex; align-items: center; gap: 10px; color: #fff; margin-top: 10px;">
                         <input type="radio" name="tm_cancha" value="RealFutsal" style="width: auto; cursor:pointer;"> 
                         🚩 Real Futsal
                     </label>
                 </div>
-
             </div>
             <div class="modal-btn-row">
                 <button class="modal-btn cancel" onclick="cerrarModalModo()">Cancelar</button>
@@ -350,7 +337,7 @@
         <div class="modal-content">
             <h3><i class="fa-solid fa-star"></i> Calificar Partido</h3>
             <p>Del 1 al 10, ¿qué calificación le das a este express?</p>
-            <div id="ratingStarsContainer" style="display:flex; justify-content:center; gap:5px; font-size:1.8rem; color:#555; margin-bottom: 20px; cursor:pointer;">
+            <div id="ratingStarsContainer" style="display:flex; justify-content:center; gap:5px; font-size:1.5rem; color:#555; margin-bottom: 20px; cursor:pointer; flex-wrap: wrap;">
             </div>
             <div class="modal-btn-row">
                 <button class="modal-btn cancel" onclick="cerrarModalRating()">Cancelar</button>
@@ -795,7 +782,7 @@
         }
 
         function expulsarJugador(targetDiscordId, playerName) {
-            confirmarAccionSegura(`¿Estás completamente seguro que deseas EXPULSAR a ${playerName} de las inscripciones?`, async () => {
+            confirmarAccionSegura(`¿Estás seguro que deseas EXPULSAR a ${playerName} de las inscripciones?`, async () => {
                 try {
                     const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/expulsar', {
                         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -908,7 +895,7 @@
                                 }
                                 ulInscritos.innerHTML += `
                                     <li>
-                                        <span style="flex-grow:1;">${statusIcon}<strong>${i+1}.</strong> ${jug.name} <span style="color:#7d7d7d; font-size:0.8rem;">(#${jug.numericId})</span> - <span style="color:#5dc8e8;">${jug.discordName}</span></span>
+                                        <span style="flex-grow:1; display:flex; align-items:center;">${statusIcon}<strong>${i+1}.</strong> <span style="margin-left:5px;">${jug.name}</span> <span style="color:#7d7d7d; font-size:0.8rem; margin:0 5px;">(#${jug.numericId})</span> - <span style="color:#5dc8e8; margin-left:5px;">${jug.discordName}</span></span>
                                         ${botonesManager}
                                     </li>`;
                             });
@@ -940,7 +927,7 @@
                                 }
                                 ulParches.innerHTML += `
                                     <li>
-                                        <span style="flex-grow:1;">${statusIcon}<strong>${i+1}.</strong> ${jug.name} <span style="color:#7d7d7d; font-size:0.8rem;">(#${jug.numericId})</span> - <span style="color:#5dc8e8;">${jug.discordName}</span></span>
+                                        <span style="flex-grow:1; display:flex; align-items:center;">${statusIcon}<strong>${i+1}.</strong> <span style="margin-left:5px;">${jug.name}</span> <span style="color:#7d7d7d; font-size:0.8rem; margin:0 5px;">(#${jug.numericId})</span> - <span style="color:#5dc8e8; margin-left:5px;">${jug.discordName}</span></span>
                                         ${botonesManager}
                                     </li>`;
                             });
@@ -1087,7 +1074,6 @@
                 alert("Error de conexión.");
             }
         }
-        iniciarCargaJugadores();
 
         function checkPenales() {
             const g1 = document.getElementById('m_goles1').value;
@@ -1249,15 +1235,15 @@
             if (days > 0) {
                 html += `
                     <div class="cd-box"><span class="cd-number">${pad(days)}</span><span class="cd-label">Días</span></div>
-                    <span style="font-size: 1.5rem; align-self: center; margin-top: -10px;">:</span>
+                    <span class="cd-separator">:</span>
                 `;
             }
 
             html += `
                 <div class="cd-box"><span class="cd-number">${pad(hours)}</span><span class="cd-label">Hrs</span></div>
-                <span style="font-size: 1.5rem; align-self: center; margin-top: -10px;">:</span>
+                <span class="cd-separator">:</span>
                 <div class="cd-box"><span class="cd-number">${pad(mins)}</span><span class="cd-label">Min</span></div>
-                <span style="font-size: 1.5rem; align-self: center; margin-top: -10px;">:</span>
+                <span class="cd-separator">:</span>
                 <div class="cd-box"><span class="cd-number" style="color:#5dc8e8;">${pad(secs)}</span><span class="cd-label">Sec</span></div>
             </div>`;
 
