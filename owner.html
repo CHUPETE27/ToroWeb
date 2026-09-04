@@ -157,7 +157,7 @@
                     <div id="host-controls" style="display:flex; flex-direction:column; align-items:center; justify-content: flex-end; flex-grow: 1;">
                         <div class="action-container" id="host-tokenContainer">
                             <a href="https://www.haxball.com/headlesstoken" target="_blank" class="btn-outline-primary">
-                                <i class="fa-solid fa-key"></i> Generar Token Fresco
+                                <i class="fa-solid fa-key"></i> Generar Token
                             </a>
                             <input type="text" id="hostTokenInput" placeholder="Pega el token aquí..." class="owner-input">
                             <button class="btn-estandar btn-primary" onclick="controlarHost('start')" id="btnStartHost">
@@ -176,9 +176,7 @@
                 <div class="right-col">
                     <div class="box" style="padding: 0; background: transparent; border: none; box-shadow: none;">
                         <div class="box" style="margin-bottom: 25px; border-color: #333; background: rgba(20, 20, 20, 0.8);">
-                            <h3 style="border-bottom: 1px solid #333;"><i class="fa-solid fa-magnifying-glass"></i> Buscar y Promover</h3>
-                            <p style="text-align: center; color: #bdc3c7; font-size: 0.95rem; margin-bottom: 20px; line-height: 1.5;">Busca a un jugador para ver su perfil Owner, gestionar sus permisos y ver multicuentas.</p>
-                            
+                            <h3 style="border-bottom: 1px solid #333;"><i class="fa-solid fa-magnifying-glass"></i> Buscar</h3>                            
                             <div class="action-container">
                                 <input type="text" id="ownerSearchInput" class="owner-input" placeholder="Nombre o ID del jugador" style="font-family: inherit;">
                                 <button class="btn-estandar btn-primary" id="btnOwnerSearch" onclick="ejecutarBusquedaOwner()">
@@ -191,7 +189,7 @@
                         </div>
 
                         <div class="box">
-                            <h3><i class="fa-solid fa-users-shield"></i> Administradores Activos</h3>
+                            <h3><i class="fa-solid fa-users-shield"></i> Admins Activos</h3>
                             <ul id="adminsUlList" class="player-list-room">
                                 <li style="justify-content: center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando lista...</li>
                             </ul>
@@ -212,7 +210,7 @@
                 <p style="color: #bdc3c7; margin: 0; font-size: 1.1rem;">ID: <strong id="modal_o_id" style="color:white; font-family: monospace;">#0</strong></p>
                 
                 <div id="modal_o_admin_badge" style="display:none; margin-top:15px; padding:6px 20px; background:rgba(45,242,193,0.1); color:#2df2c1; border-radius:8px; font-weight:bold; border: 1px solid #2df2c1; font-size: 1.1rem; letter-spacing: 1px;">
-                    <i class="fa-solid fa-crown"></i> ADMINISTRADOR
+                    <i class="fa-solid fa-crown"></i> ADMIN
                 </div>
             </div>
 
