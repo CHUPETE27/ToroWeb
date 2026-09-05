@@ -14,7 +14,7 @@
         .owner-wrapper { width: 95%; max-width: 1100px; margin: 10vh auto 50px; display: flex; flex-direction: column; gap: 30px; }
         
         .admin-header { text-align: center; margin-bottom: 10px; }
-        .admin-header i { font-size: 3.5rem; color: #2df2c1; margin-bottom: 15px; text-shadow: 0 0 20px rgba(45, 242, 193, 0.4); }
+        .admin-header i { font-size: 3.5rem; color: #FFD342; margin-bottom: 15px; text-shadow: 0 0 20px rgba(255, 211, 66, 0.3); }
         .admin-header h1 { margin: 0; color: white; font-size: 2.2rem; letter-spacing: 1px; text-transform: uppercase; font-weight: 800;}
         .admin-header p { color: #bdc3c7; font-size: 1.1rem; margin-top: 8px; font-weight: bold;}
 
@@ -22,14 +22,14 @@
         .right-col { display: flex; flex-direction: column; gap: 30px; }
 
         .box { background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 30px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); display: flex; flex-direction: column; position: relative; overflow: hidden;}
-        .box h3 { margin-top: 0; color: #2df2c1; border-bottom: 1px solid #333; padding-bottom: 15px; text-transform: uppercase; text-align: center; font-size: 1.25rem; letter-spacing: 1px;}
+        .box h3 { margin-top: 0; color: #FFD342; border-bottom: 1px solid #333; padding-bottom: 15px; text-transform: uppercase; text-align: center; font-size: 1.25rem; letter-spacing: 1px;}
         
-        .host-box { border-color: #2df2c1; box-shadow: 0 0 15px rgba(45, 242, 193, 0.1); }
-        .host-box h3 { border-color: rgba(45, 242, 193, 0.3); text-shadow: 0 0 10px rgba(45, 242, 193, 0.3); }
+        .host-box { border-color: #FFD342; box-shadow: 0 0 15px rgba(255, 211, 66, 0.1); }
+        .host-box h3 { border-color: rgba(255, 211, 66, 0.3); text-shadow: 0 0 10px rgba(255, 211, 66, 0.3); }
 
         .host-tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 25px; }
         .h-tab { flex: 1; text-align: center; padding: 12px; cursor: pointer; color: #7d7d7d; font-weight: bold; transition: 0.3s; font-size: 1.1rem; }
-        .h-tab.active { border-bottom: 2px solid #2df2c1; color: #2df2c1; text-shadow: 0 0 10px rgba(45, 242, 193, 0.3); }
+        .h-tab.active { border-bottom: 2px solid #FFD342; color: #FFD342; text-shadow: 0 0 10px rgba(255, 211, 66, 0.3); }
         .h-tab:hover:not(.active) { color: white; }
         
         .status-light { display: inline-block; width: 16px; height: 16px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
@@ -42,30 +42,30 @@
         .player-list-room { background: rgba(0,0,0,0.5); border: 1px solid #333; border-radius: 8px; max-height: 400px; overflow-y: auto; padding: 0; margin: 0; list-style: none; }
         .player-list-room li { padding: 15px 20px; border-bottom: 1px dashed #333; display: flex; justify-content: space-between; align-items: center; color: #fff; gap: 15px; transition: 0.2s;}
         .player-list-room li:last-child { border-bottom: none; }
-        .player-list-room.interactive li:hover { background: rgba(45, 242, 193, 0.1); cursor: pointer; }
+        .player-list-room.interactive li:hover { background: rgba(255, 211, 66, 0.1); cursor: pointer; }
         .player-list-room::-webkit-scrollbar { width: 6px; }
         .player-list-room::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
-        .player-list-room::-webkit-scrollbar-thumb { background: #2df2c1; border-radius: 5px; }
+        .player-list-room::-webkit-scrollbar-thumb { background: #FFD342; border-radius: 5px; }
 
         .info-col { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
-        .id-badge { color: #111; font-family: monospace; font-weight: bold; font-size: 0.95rem; background: #2df2c1; padding: 4px 10px; border-radius: 6px; box-shadow: 0 0 8px rgba(45, 242, 193, 0.4);}
-        .discord-tag { color: #7d7d7d; font-size: 0.85rem; }
+        .id-badge { color: #111; font-family: monospace; font-weight: bold; font-size: 0.95rem; background: #FFD342; padding: 4px 10px; border-radius: 6px; box-shadow: 0 0 8px rgba(255, 211, 66, 0.4);}
+        .discord-tag { color: #5dc8e8; font-size: 0.85rem; font-weight: bold; }
 
         .btn-estandar { width: 100%; padding: 14px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.05rem; border: 2px solid transparent; display: flex; justify-content: center; align-items: center; gap: 10px; }
         .btn-estandar:disabled { filter: grayscale(100%); opacity: 0.6; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
         
-        .btn-primary { background: #2df2c1; color: #111; }
-        .btn-primary:hover:not(:disabled) { background: #40ffce; box-shadow: 0 4px 15px rgba(45, 242, 193, 0.3); transform: translateY(-2px); }
+        .btn-primary { background: #FFD342; color: #111; }
+        .btn-primary:hover:not(:disabled) { background: #ffdf73; box-shadow: 0 4px 15px rgba(255, 211, 66, 0.3); transform: translateY(-2px); }
 
         .btn-danger { background: #cc2a2a; color: white; }
         .btn-danger:hover:not(:disabled) { background: #e74c3c; box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3); transform: translateY(-2px); }
 
-        .btn-outline-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: transparent; color: #2df2c1; border: 2px solid #2df2c1; text-decoration: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 0.95rem; transition: 0.3s; width: 100%; margin-bottom: 10px;}
-        .btn-outline-primary:hover { background: #2df2c1; color: #111; box-shadow: 0 4px 10px rgba(45, 242, 193, 0.2); }
+        .btn-outline-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: transparent; color: #FFD342; border: 2px solid #FFD342; text-decoration: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 0.95rem; transition: 0.3s; width: 100%; margin-bottom: 10px;}
+        .btn-outline-primary:hover { background: #FFD342; color: #111; box-shadow: 0 4px 10px rgba(255, 211, 66, 0.2); }
 
         .btn-revocar { width: auto; background: rgba(204, 42, 42, 0.1); color: #cc2a2a; border: 1px solid #cc2a2a; padding: 8px 15px; font-size: 0.95rem; margin: 0; border-radius: 6px; cursor: pointer; transition: 0.3s; white-space: nowrap;}
         .btn-revocar:hover { background: #e74c3c; color: white; box-shadow: 0 0 10px rgba(231, 76, 60, 0.3);}
-        .btn-boss { width: auto; background: rgba(45, 242, 193, 0.1); color: #2df2c1; border: 1px solid #2df2c1; padding: 8px 15px; font-size: 0.95rem; border-radius: 6px; cursor: default;}
+        .btn-boss { width: auto; background: rgba(255, 211, 66, 0.1); color: #FFD342; border: 1px solid #FFD342; padding: 8px 15px; font-size: 0.95rem; border-radius: 6px; cursor: default;}
 
         .action-container { 
             width: 100%; 
@@ -87,21 +87,23 @@
             transition: 0.3s; 
             font-family: monospace;
         }
-        .owner-input:focus { border-color: #2df2c1; box-shadow: 0 0 10px rgba(45, 242, 193, 0.2); }
+        .owner-input:focus { border-color: #FFD342; box-shadow: 0 0 10px rgba(255, 211, 66, 0.2); }
         .owner-input::-webkit-outer-spin-button, .owner-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .owner-input[type=number] { -moz-appearance: textfield; appearance: textfield; }
 
         .copy-btn { background: #111; color: #bdc3c7; border: 1px solid #333; border-radius: 6px; cursor: pointer; padding: 8px 12px; margin-left: 10px; transition: 0.3s; font-size: 0.95rem;}
-        .copy-btn:hover { background: #2df2c1; color: #111; border-color: #2df2c1; }
+        .copy-btn:hover { background: #FFD342; color: #111; border-color: #FFD342; }
         .copy-btn:active { transform: scale(0.9); }
 
-        .loader-screen { position: fixed; top:0; left:0; width:100%; height:100%; background:#0a0a0a; z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:#2df2c1; }
+        .loader-screen { position: fixed; top:0; left:0; width:100%; height:100%; background:#0a0a0a; z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:#FFD342; }
 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); padding: 20px;}
-        .modal-content { background: #111; border: 1px solid #2df2c1; padding: 30px; border-radius: 12px; width: 100%; max-width: 450px; color: white; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.8); position: relative;}
-        .modal-content h3 { margin-top: 0; font-size: 1.4rem; color: #2df2c1;}
+        .modal-content { background: #111; border: 1px solid #FFD342; padding: 30px; border-radius: 12px; width: 100%; max-width: 450px; color: white; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.8); position: relative;}
+        .modal-content h3 { margin-top: 0; font-size: 1.4rem; color: #FFD342;}
         .close-modal { position: absolute; top: 20px; right: 25px; font-size: 1.8rem; color: #7d7d7d; cursor: pointer; transition: 0.3s; z-index: 10;}
         .close-modal:hover { color: #e74c3c; transform: scale(1.1); }
+
+        .search-row { display:flex; gap:10px; margin-bottom: 20px; }
 
         @media (max-width: 900px) {
             .owner-grid { grid-template-columns: 1fr; }
@@ -112,6 +114,7 @@
             .player-list-room li { flex-direction: column; text-align: center; gap: 12px; }
             .info-col { align-items: center; }
             .btn-revocar, .btn-boss { width: 100%; }
+            .search-row { flex-direction: column; }
         }
     </style>
 </head>
@@ -178,10 +181,12 @@
                         <div class="box" style="margin-bottom: 25px; border-color: #333; background: rgba(20, 20, 20, 0.8);">
                             <h3 style="border-bottom: 1px solid #333;"><i class="fa-solid fa-magnifying-glass"></i> Buscar</h3>                            
                             <div class="action-container">
-                                <input type="text" id="ownerSearchInput" class="owner-input" placeholder="Nombre o ID del jugador" style="font-family: inherit;">
-                                <button class="btn-estandar btn-primary" id="btnOwnerSearch" onclick="ejecutarBusquedaOwner()">
-                                    <i class="fa-solid fa-search"></i> Buscar Jugador
-                                </button>
+                                <div class="search-row" style="margin-bottom: 0;">
+                                    <input type="text" id="ownerSearchInput" class="owner-input" placeholder="Nombre o ID del jugador" style="font-family: inherit;">
+                                    <button class="btn-estandar btn-primary" style="width:auto; margin:0;" id="btnOwnerSearch" onclick="ejecutarBusquedaOwner()">
+                                        <i class="fa-solid fa-search"></i>
+                                    </button>
+                                </div>
                             </div>
 
                             <ul id="ownerSearchResults" class="player-list-room interactive" style="margin-top: 15px; display: none;">
@@ -194,9 +199,11 @@
                                 <li style="justify-content: center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando lista...</li>
                             </ul>
                         </div>
+
                     </div>
                 </div>
             </div>
+
         </div>
     </main>
 
@@ -205,17 +212,28 @@
             <i class="fa-solid fa-xmark close-modal" onclick="cerrarModalOwner()"></i>
             
             <div style="text-align: center; border-bottom: 1px dashed #333; padding-bottom: 20px; margin-bottom: 20px;">
-                <h2 id="modal_o_name" style="color: #2df2c1; margin: 0 0 5px 0; font-size: 2rem; word-break: break-word;">Cargando...</h2>
+                <h2 id="modal_o_name" style="color: #FFD342; margin: 0 0 5px 0; font-size: 2rem; word-break: break-word;">Cargando...</h2>
                 <p style="color: #bdc3c7; margin: 0; font-size: 1.1rem;">ID: <strong id="modal_o_id" style="color:white; font-family: monospace;">#0</strong></p>
+                <p id="modal_o_discord" class="discord-tag" style="margin-top: 8px; font-size: 1.05rem; color: #5dc8e8;"></p>
                 
-                <div id="modal_o_admin_badge" style="display:none; margin-top:15px; padding:6px 20px; background:rgba(45,242,193,0.1); color:#2df2c1; border-radius:8px; font-weight:bold; border: 1px solid #2df2c1; font-size: 1.1rem; letter-spacing: 1px;">
+                <div id="modal_o_admin_badge" style="display:none; margin-top:15px; padding:6px 20px; background:rgba(255, 211, 66,0.1); color:#FFD342; border-radius:8px; font-weight:bold; border: 1px solid #FFD342; font-size: 1.1rem; letter-spacing: 1px;">
                     <i class="fa-solid fa-crown"></i> ADMIN
                 </div>
             </div>
 
             <div style="text-align: left; margin-bottom: 25px;">
-                <h4 style="color: #2df2c1; margin-top:0; margin-bottom: 10px; font-size: 1.1rem;"><i class="fa-solid fa-network-wired"></i> Cuentas Vinculadas (Misma IP)</h4>
-                <ul id="modal_o_alts" class="player-list-room interactive" style="max-height: 200px;">
+                <h4 style="color: #5dc8e8; margin-top:0; margin-bottom: 10px; font-size: 1.1rem;"><i class="fa-solid fa-link"></i> Cuentas Enlazadas (Mismo Usuario)</h4>
+                <p style="color: #7d7d7d; font-size: 0.85rem; margin-top: -5px; margin-bottom: 10px;">Cuentas añadidas manualmente mediante el Panel Admin de este jugador.</p>
+                <ul id="modal_o_alts_enlazadas" class="player-list-room interactive" style="max-height: 150px;">
+                    <li style="justify-content: center; color: #7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Buscando cuentas...</li>
+                </ul>
+            </div>
+
+            <!-- SECCIÓN: Cuentas Misma IP -->
+            <div style="text-align: left; margin-bottom: 25px;">
+                <h4 style="color: #FFD342; margin-top:0; margin-bottom: 10px; font-size: 1.1rem;"><i class="fa-solid fa-network-wired"></i> Cuentas Encontradas (Misma IP)</h4>
+                <p style="color: #7d7d7d; font-size: 0.85rem; margin-top: -5px; margin-bottom: 10px;">Otras cuentas que han usado la misma conexión.</p>
+                <ul id="modal_o_alts_ip" class="player-list-room interactive" style="max-height: 150px;">
                     <li style="justify-content: center; color: #7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Buscando cuentas...</li>
                 </ul>
             </div>
@@ -241,7 +259,7 @@
             <h3 id="customConfirmTitle" style="color: #e74c3c;"><i class="fa-solid fa-triangle-exclamation"></i> Atención</h3>
             <p id="customConfirmMsg" style="color: #bdc3c7; font-size: 1.1rem; margin: 20px 0; line-height: 1.4;"></p>
             <div style="display: flex; gap: 15px; justify-content: center; width: 100%;">
-                <button class="btn-estandar" style="background: #cc2a2a; color: white; border: 2px solid transparent;" id="btnConfirmYes">Confirmar</button>
+                <button class="btn-estandar btn-danger" id="btnConfirmYes">Confirmar</button>
                 <button class="btn-estandar" style="background: transparent; border: 2px solid #7d7d7d; color: #bdc3c7;" id="btnConfirmNo">Cancelar</button>
             </div>
         </div>
@@ -269,6 +287,7 @@
                 
                 if(isSuccess) {
                     btn.className = 'btn-estandar btn-primary';
+                    btn.style.background = '#2df2c1'; 
                 } else {
                     btn.className = 'btn-estandar btn-danger';
                 }
@@ -283,18 +302,16 @@
         }
         function showCustomConfirm(title, msg, isDestructive = true) {
             return new Promise(resolve => {
-                const color = isDestructive ? '#cc2a2a' : '#2df2c1';
+                const color = isDestructive ? '#cc2a2a' : '#FFD342';
                 document.getElementById('customConfirmTitle').innerHTML = `<i class="fa-solid ${isDestructive ? 'fa-triangle-exclamation' : 'fa-circle-question'}"></i> ${title}`;
                 document.getElementById('customConfirmTitle').style.color = color;
                 document.getElementById('customConfirmMsg').innerHTML = msg;
                 
                 const btnYes = document.getElementById('btnConfirmYes');
                 if(isDestructive) {
-                    btnYes.style.background = '#cc2a2a';
-                    btnYes.style.color = 'white';
+                    btnYes.className = 'btn-estandar btn-danger';
                 } else {
-                    btnYes.style.background = '#2df2c1';
-                    btnYes.style.color = '#111';
+                    btnYes.className = 'btn-estandar btn-primary';
                 }
 
                 document.getElementById('customConfirmModal').style.display = 'flex';
@@ -393,8 +410,6 @@
             
             const btnStart = document.getElementById('btnStartHost');
             const btnStop = document.getElementById('btnStopHost');
-            const originalStartText = '<i class="fa-solid fa-power-off"></i> Encender Sala';
-            const originalStopText = '<i class="fa-solid fa-stop"></i> Apagar Sala';
             
             let tokenHaxball = "";
             if (action === 'start') {
@@ -464,10 +479,16 @@
                         ul.innerHTML = '<li style="color: #cc2a2a; justify-content: center;">No se encontraron jugadores.</li>';
                     } else {
                         data.players.forEach(p => {
+                            const discordStr = p.discordName ? `<i class="fa-brands fa-discord"></i> ${p.discordName}` : (p.discordId ? `<i class="fa-brands fa-discord"></i> ID: ${p.discordId}` : `<i class="fa-solid fa-link-slash"></i> Sin Discord`);
+                            const discordColor = p.discordId ? '#5dc8e8' : '#7d7d7d';
+                            
                             ul.innerHTML += `
-                                <li onclick="abrirPlayerDetailsOwner(${p.numericId})">
-                                    <span><span class="id-badge">#${p.numericId}</span> ${p.name}</span>
-                                    <i class="fa-solid fa-chevron-right" style="color:#2df2c1;"></i>
+                                <li class="search-item" onclick="abrirPlayerDetailsOwner(${p.numericId})">
+                                    <div style="display:flex; flex-direction:column; gap:5px; align-items:flex-start;">
+                                        <span><span class="id-badge">#${p.numericId}</span> <strong style="color:white; font-size:1.1rem;">${p.name}</strong></span>
+                                        <span class="discord-tag" style="color:${discordColor}; font-size:0.9rem;">${discordStr}</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right" style="color:#FFD342;"></i>
                                 </li>
                             `;
                         });
@@ -478,17 +499,18 @@
             } catch (error) {
                 ul.innerHTML = '<li style="color: #cc2a2a; justify-content: center;">Error de conexión.</li>';
             }
-            btn.innerHTML = '<i class="fa-solid fa-search"></i> Buscar Jugador';
+            btn.innerHTML = '<i class="fa-solid fa-search"></i>';
         }
 
         async function abrirPlayerDetailsOwner(numericId) {
             document.getElementById('ownerPlayerModal').style.display = 'flex';
             document.getElementById('modal_o_name').innerText = "Cargando...";
             document.getElementById('modal_o_id').innerText = `#${numericId}`;
+            document.getElementById('modal_o_discord').innerHTML = "";
             document.getElementById('modal_o_admin_badge').style.display = 'none';
             
-            const altsList = document.getElementById('modal_o_alts');
-            altsList.innerHTML = '<li style="color: #7d7d7d; justify-content: center;"><i class="fa-solid fa-spinner fa-spin"></i> Buscando cuentas...</li>';
+            document.getElementById('modal_o_alts_ip').innerHTML = '<li style="color: #7d7d7d; justify-content: center;"><i class="fa-solid fa-spinner fa-spin"></i> Buscando cuentas...</li>';
+            document.getElementById('modal_o_alts_enlazadas').innerHTML = '<li style="color: #7d7d7d; justify-content: center;"><i class="fa-solid fa-spinner fa-spin"></i> Buscando cuentas...</li>';
             
             try {
                 const res = await fetch(`https://torobot-izu5.onrender.com/api/admin/player-details/${numericId}`);
@@ -506,6 +528,18 @@
 
                 document.getElementById('modal_o_name').innerText = p.name;
                 
+                const elDiscord = document.getElementById('modal_o_discord');
+                if (p.discordName) {
+                    elDiscord.innerHTML = `<i class="fa-brands fa-discord"></i> ${p.discordName}`;
+                    elDiscord.style.color = "#5dc8e8";
+                } else if (p.discordId) {
+                    elDiscord.innerHTML = `<i class="fa-brands fa-discord"></i> ID: ${p.discordId}`;
+                    elDiscord.style.color = "#5dc8e8";
+                } else {
+                    elDiscord.innerHTML = `<i class="fa-solid fa-link-slash"></i> Sin Discord`;
+                    elDiscord.style.color = "#7d7d7d";
+                }
+
                 const btnToggle = document.getElementById('btnToggleAdminObj');
                 if (p.isAdmin) {
                     document.getElementById('modal_o_admin_badge').style.display = 'inline-block';
@@ -517,22 +551,46 @@
                     btnToggle.className = 'btn-estandar btn-primary';
                 }
 
+                const ulIp = document.getElementById('modal_o_alts_ip');
+                ulIp.innerHTML = '';
                 if (!p.ip) {
-                    altsList.innerHTML = '<li style="color: #FFD342; justify-content: center;"><i class="fa-solid fa-triangle-exclamation"></i> No tiene IP registrada.</li>';
+                    ulIp.innerHTML = '<li style="color: #FFD342; justify-content: center;"><i class="fa-solid fa-triangle-exclamation"></i> Sin registro de IP.</li>';
                 } else if (data.alts.length === 0) {
-                    altsList.innerHTML = '<li style="color: #2df2c1; justify-content: center;"><i class="fa-solid fa-check"></i> No se encontraron otras cuentas.</li>';
+                    ulIp.innerHTML = '<li style="color: #7d7d7d; justify-content: center;">No hay más cuentas en esta IP.</li>';
                 } else {
-                    altsList.innerHTML = '';
+                    let hayOtrasIp = false;
                     data.alts.forEach(alt => {
-                        const altAdminBadge = alt.isAdmin ? `<span style="background:rgba(45,242,193,0.1); color:#2df2c1; padding: 3px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; border: 1px solid #2df2c1;">ADMIN</span>` : '';
-                        altsList.innerHTML += `
-                            <li onclick="abrirPlayerDetailsOwner(${alt.numericId})">
-                                <span><span class="id-badge">#${alt.numericId}</span> ${alt.name}</span>
+                        if(alt.numericId !== p.numericId) {
+                            hayOtrasIp = true;
+                            const altAdminBadge = alt.isAdmin ? `<span style="background:rgba(255,211,66,0.1); color:#FFD342; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; border: 1px solid #FFD342;">ADMIN</span>` : '';
+                            ulIp.innerHTML += `
+                                <li class="search-item" onclick="abrirPlayerDetailsOwner(${alt.numericId})">
+                                    <span><span class="id-badge">#${alt.numericId}</span> ${alt.name}</span>
+                                    ${altAdminBadge}
+                                </li>
+                            `;
+                        }
+                    });
+                    if(!hayOtrasIp) ulIp.innerHTML = '<li style="color: #7d7d7d; justify-content: center;">No hay más cuentas en esta IP.</li>';
+                }
+
+                const ulEnlazadas = document.getElementById('modal_o_alts_enlazadas');
+                ulEnlazadas.innerHTML = '';
+                if (data.enlazadas && data.enlazadas.length > 0) {
+                    data.enlazadas.forEach(alt => {
+                        const altAdminBadge = alt.isAdmin ? `<span style="background:rgba(255,211,66,0.1); color:#FFD342; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; border: 1px solid #FFD342;">ADMIN</span>` : '';
+                        const altDiscordBadge = alt.discordId ? `<i class="fa-brands fa-discord" style="color:#5dc8e8; margin-left:8px;" title="Discord Vinculado"></i>` : '';
+                        ulEnlazadas.innerHTML += `
+                            <li class="search-item" onclick="abrirPlayerDetailsOwner(${alt.numericId})">
+                                <span><span class="id-badge" style="background:#5dc8e8; color:#111; border:none;">#${alt.numericId}</span> ${alt.name} ${altDiscordBadge}</span>
                                 ${altAdminBadge}
                             </li>
                         `;
                     });
+                } else {
+                    ulEnlazadas.innerHTML = '<li style="color: #7d7d7d; justify-content: center;">Este usuario no ha enlazado cuentas manuales.</li>';
                 }
+
             } catch (e) {
                 document.getElementById('modal_o_name').innerText = "Error de Conexión";
             }
@@ -590,29 +648,33 @@
                     document.getElementById('main-content').style.display = 'block';
                     
                     ul.innerHTML = '';
-                    data.admins.forEach(admin => {
-                        const isBoss = admin.numericId === 1;
-                        const discordInfo = admin.discordId ? `<span class="discord-tag"><i class="fa-brands fa-discord"></i> ${admin.discordId}</span>` : `<span class="discord-tag"><i class="fa-solid fa-link-slash"></i> No vinculado</span>`;
-                        
-                        const actionBtn = isBoss 
-                            ? `<button class="btn-boss"><i class="fa-solid fa-crown"></i> OWNER</button>`
-                            : `<button class="btn-revocar" onclick="quitarAdminDirecto(${admin.numericId}, '${admin.name}')"><i class="fa-solid fa-trash-can"></i> Revocar</button>`;
+                    if(data.admins.length === 0) {
+                        ul.innerHTML = '<li style="justify-content: center; color:#7d7d7d;">No hay administradores con Discord.</li>';
+                    } else {
+                        data.admins.forEach(admin => {
+                            const isBoss = admin.numericId === 1;
+                            const discordInfo = admin.discordName ? `<span class="discord-tag" style="color:#5dc8e8;"><i class="fa-brands fa-discord"></i> ${admin.discordName}</span>` : `<span class="discord-tag"><i class="fa-brands fa-discord"></i> ID: ${admin.discordId}</span>`;
+                            
+                            const actionBtn = isBoss 
+                                ? `<button class="btn-boss"><i class="fa-solid fa-crown"></i> OWNER</button>`
+                                : `<button class="btn-revocar" onclick="quitarAdminDirecto(${admin.numericId}, '${admin.name}')"><i class="fa-solid fa-trash-can"></i> Revocar</button>`;
 
-                        ul.innerHTML += `
-                            <li>
-                                <div class="info-col" style="cursor: pointer;" onclick="abrirPlayerDetailsOwner(${admin.numericId})">
-                                    <span style="display: flex; align-items: center; gap: 10px;">
-                                        <span class="id-badge">#${admin.numericId}</span> 
-                                        <strong style="color:white; font-size: 1.15rem; letter-spacing: 0.5px;">${admin.name}</strong>
-                                    </span>
-                                    ${discordInfo}
-                                </div>
-                                <div>
-                                    ${actionBtn}
-                                </div>
-                            </li>
-                        `;
-                    });
+                            ul.innerHTML += `
+                                <li>
+                                    <div class="info-col search-item" style="cursor: pointer; flex-grow: 1;" onclick="abrirPlayerDetailsOwner(${admin.numericId})">
+                                        <span style="display: flex; align-items: center; gap: 10px;">
+                                            <span class="id-badge">#${admin.numericId}</span> 
+                                            <strong style="color:white; font-size: 1.15rem; letter-spacing: 0.5px;">${admin.name}</strong>
+                                        </span>
+                                        ${discordInfo}
+                                    </div>
+                                    <div>
+                                        ${actionBtn}
+                                    </div>
+                                </li>
+                            `;
+                        });
+                    }
                 } else {
                     await showCustomAlert("Acceso Denegado", data.message);
                     localStorage.removeItem('toroHaxLoggedId');
