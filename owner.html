@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Panel Owner - ToroHax</title>
     <link rel="icon" type="image/png" href="logo_torohax.png">
     <link rel="stylesheet" href="styles.css?v=2.0">
@@ -108,13 +111,35 @@
         @media (max-width: 900px) {
             .owner-grid { grid-template-columns: 1fr; }
         }
-        @media (max-width: 600px) {
-            .owner-wrapper { margin-top: 5vh; gap: 20px;}
-            .box { padding: 20px; }
-            .player-list-room li { flex-direction: column; text-align: center; gap: 12px; }
-            .info-col { align-items: center; }
-            .btn-revocar, .btn-boss { width: 100%; }
+        
+        @media (max-width: 650px) {
+            .modal-content { padding: 30px 20px; } 
+            .admin-wrapper { padding: 0 15px; margin-top: 5vh; }
+            .box { padding: 20px 15px; }
+            #modal_o_name { font-size: 1.6rem !important; }
+        }
+
+        @media (max-width: 480px) {
+            .main-toggle-container { flex-direction: column; border: none; background: transparent; padding: 0;}
+            .main-toggle-btn { border: 1px solid #333; margin-bottom: 8px; width: 100%; border-radius: 8px;}
+            .main-toggle-btn.active { border-color: #FFD342; }
+
+            .host-tabs { flex-direction: column; border-bottom: none; gap: 8px; margin-bottom: 15px;}
+            .h-tab { border: 1px solid #333; border-radius: 8px; padding: 10px; }
+            .h-tab.active { border: 1px solid #FFD342; border-bottom: 1px solid #FFD342; }
+
             .search-row { flex-direction: column; }
+            .search-row button { width: 100% !important; margin-top: 5px !important;}
+
+            .player-list-room li { flex-direction: column; text-align: center; gap: 12px; }
+            .info-col { align-items: center !important; text-align: center; }
+            .btn-revocar, .btn-boss { width: 100%; }
+
+            #host-info div { flex-direction: column; gap: 10px; text-align: center; }
+            .copy-btn { width: 100%; margin-left: 0; padding: 12px; }
+
+            #customConfirmModal .btn-estandar { width: 100% !important; margin: 5px 0 !important; }
+            #customConfirmModal div[style*="display: flex"] { flex-direction: column; gap: 5px !important; }
         }
     </style>
 </head>
@@ -127,80 +152,43 @@
     </div>
 
     <main id="main-content" style="display: none;">
-        <div class="owner-wrapper">
+        <div class="admin-wrapper">
             
             <div class="admin-header">
-                <i class="fa-solid fa-shield-halved"></i>
-                <h1>Centro de Mando Owner</h1>
-                <p>Gestión de infraestructura y cúpula de Administradores.</p>
+                <i class="fa-solid fa-crown"></i>
+                <h1 style="margin: 0; color: white;">Centro de Mando</h1>
             </div>
 
-            <div class="owner-grid">
-                <div class="box host-box">
-                    <h3><i class="fa-solid fa-server"></i> Control de Salas Públicas</h3>
-                    
-                    <div class="host-tabs">
-                        <div class="h-tab active" onclick="switchHost('juegantodos')" id="tab-juegantodos">Juegan Todos</div>
-                        <div class="h-tab" onclick="switchHost('realfutsal')" id="tab-realfutsal">Real Futsal</div>
-                    </div>
+            <div class="main-toggle-container">
+                <button class="main-toggle-btn active" id="btnMainBuscar" onclick="switchMainView('buscar')"><i class="fa-solid fa-magnifying-glass"></i> Buscar Jugadores</button>
+                <button class="main-toggle-btn" id="btnMainCuentas" onclick="switchMainView('cuentas')"><i class="fa-solid fa-users-gear"></i> Gestión de Admins</button>
+            </div>
 
-                    <div style="padding: 30px 20px; margin-bottom: 25px; border-radius: 12px; background: rgba(0,0,0,0.4); border: 1px solid #333; text-align: center;">
-                        <h2 id="host-status-text" style="color: #7d7d7d; font-size: 2.2rem; margin-top: 0; display: flex; align-items: center; justify-content: center;">
-                            <span class="status-light light-off"></span> APAGADO
-                        </h2>
-                        
-                        <div id="host-info" style="display:none; margin-top: 25px; background: rgba(0,0,0,0.6); padding: 20px; border-radius: 8px; border: 1px dashed #2df2c1;">
-                            <div style="margin:0; color:#bdc3c7; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;">
-                                🌐 <strong>Link:</strong> <a id="host-link" href="#" target="_blank" style="color:#2df2c1; font-weight: bold; text-decoration: none; word-break: break-all;">...</a>
-                                <button class="copy-btn" onclick="copiarLinkHost()" title="Copiar Link"><i class="fa-regular fa-copy"></i></button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="host-controls" style="display:flex; flex-direction:column; align-items:center; justify-content: flex-end; flex-grow: 1;">
-                        <div class="action-container" id="host-tokenContainer">
-                            <a href="https://www.haxball.com/headlesstoken" target="_blank" class="btn-outline-primary">
-                                <i class="fa-solid fa-key"></i> Generar Token
-                            </a>
-                            <input type="text" id="hostTokenInput" placeholder="Pega el token aquí..." class="owner-input">
-                            <button class="btn-estandar btn-primary" onclick="controlarHost('start')" id="btnStartHost">
-                                <i class="fa-solid fa-power-off"></i> Encender Sala
-                            </button>
-                        </div>
-                        
-                        <div class="action-container" style="justify-content: flex-end; margin-top: 15px;">
-                            <button class="btn-estandar btn-danger" style="display: none;" onclick="controlarHost('stop')" id="btnStopHost">
-                                <i class="fa-solid fa-stop"></i> Apagar Sala
-                            </button>
-                        </div>
-                    </div>
+            <div class="box" id="panel-buscar">
+                <h3><i class="fa-solid fa-magnifying-glass"></i> Buscador y Perfiles</h3>
+                
+                <div class="search-row">
+                    <input type="text" id="ownerSearchInput" class="owner-input" placeholder="Nombre o ID del jugador" style="font-family: inherit;">
+                    <button class="btn-estandar btn-primary" style="width:auto; margin:0;" onclick="ejecutarBusquedaOwner()" id="btnOwnerSearch">
+                        <i class="fa-solid fa-search"></i>
+                    </button>
                 </div>
 
-                <div class="right-col">
-                    <div class="box" style="padding: 0; background: transparent; border: none; box-shadow: none;">
-                        <div class="box" style="margin-bottom: 25px; border-color: #333; background: rgba(20, 20, 20, 0.8);">
-                            <h3 style="border-bottom: 1px solid #333;"><i class="fa-solid fa-magnifying-glass"></i> Buscar</h3>                            
-                            <div class="action-container">
-                                <div class="search-row" style="margin-bottom: 0;">
-                                    <input type="text" id="ownerSearchInput" class="owner-input" placeholder="Nombre o ID del jugador" style="font-family: inherit;">
-                                    <button class="btn-estandar btn-primary" style="width:auto; margin:0;" id="btnOwnerSearch" onclick="ejecutarBusquedaOwner()">
-                                        <i class="fa-solid fa-search"></i>
-                                    </button>
-                                </div>
-                            </div>
+                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #333; padding: 15px; border-radius: 10px;">
+                    <ul id="ownerSearchResults" class="player-list-room interactive" style="max-height: 400px;">
+                        <li style="color: #7d7d7d; justify-content: center;">Ingresa un nombre o ID y presiona buscar.</li>
+                    </ul>
+                </div>
+            </div>
 
-                            <ul id="ownerSearchResults" class="player-list-room interactive" style="margin-top: 15px; display: none;">
-                            </ul>
-                        </div>
-
-                        <div class="box">
-                            <h3><i class="fa-solid fa-users-shield"></i> Admins Activos</h3>
-                            <ul id="adminsUlList" class="player-list-room">
-                                <li style="justify-content: center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando lista...</li>
-                            </ul>
-                        </div>
-
-                    </div>
+            <div class="box" id="panel-cuentas" style="display: none;">
+                <h3><i class="fa-solid fa-users-shield"></i> Administradores Activos</h3>
+                <p style="color: #bdc3c7; text-align: center; margin-bottom: 20px; font-size: 0.95rem;">Lista del equipo administrativo. Cuentas sin Discord son filtradas.</p>
+                
+                <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid #333; padding: 20px; border-radius: 10px;">
+                    <ul id="adminsUlList" class="player-list-room" style="max-height: 500px;">
+                        <li style="justify-content: center; color: #7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando lista...</li>
+                    </ul>
                 </div>
             </div>
 
@@ -229,7 +217,6 @@
                 </ul>
             </div>
 
-            <!-- SECCIÓN: Cuentas Misma IP -->
             <div style="text-align: left; margin-bottom: 25px;">
                 <h4 style="color: #FFD342; margin-top:0; margin-bottom: 10px; font-size: 1.1rem;"><i class="fa-solid fa-network-wired"></i> Cuentas Encontradas (Misma IP)</h4>
                 <p style="color: #7d7d7d; font-size: 0.85rem; margin-top: -5px; margin-bottom: 10px;">Otras cuentas que han usado la misma conexión.</p>
@@ -247,15 +234,15 @@
     </div>
 
     <div class="modal-overlay" id="customAlertModal">
-        <div class="modal-content" style="max-width: 400px;">
-            <h3 id="customAlertTitle" style="color: #2df2c1;"><i class="fa-solid fa-circle-check"></i> Éxito</h3>
+        <div class="modal-content" style="max-width: 400px; padding: 30px;">
+            <h3 id="customAlertTitle" style="color: #FFD342;"><i class="fa-solid fa-circle-check"></i> Éxito</h3>
             <p id="customAlertMsg" style="color: #bdc3c7; font-size: 1.1rem; margin: 20px 0; line-height: 1.4;"></p>
             <button class="btn-estandar btn-primary" onclick="closeCustomAlert()" style="margin: 0;">Aceptar</button>
         </div>
     </div>
 
     <div class="modal-overlay" id="customConfirmModal">
-        <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-content" style="max-width: 400px; padding: 30px;">
             <h3 id="customConfirmTitle" style="color: #e74c3c;"><i class="fa-solid fa-triangle-exclamation"></i> Atención</h3>
             <p id="customConfirmMsg" style="color: #bdc3c7; font-size: 1.1rem; margin: 20px 0; line-height: 1.4;"></p>
             <div style="display: flex; gap: 15px; justify-content: center; width: 100%;">
@@ -288,6 +275,7 @@
                 if(isSuccess) {
                     btn.className = 'btn-estandar btn-primary';
                     btn.style.background = '#2df2c1'; 
+                    btn.style.color = '#111';
                 } else {
                     btn.className = 'btn-estandar btn-danger';
                 }
@@ -324,130 +312,18 @@
             window.location.href = 'index.html';
         } else {
             cargarListaAdmins();
-            cargarEstadoHost();
-            statusInterval = setInterval(cargarEstadoHost, 5000);
         }
 
-        function switchHost(botName) {
-            if (currentBot === botName) return;
-            currentBot = botName;
+        function switchMainView(view) {
+            document.getElementById('btnMainBuscar').classList.toggle('active', view === 'buscar');
+            document.getElementById('btnMainCuentas').classList.toggle('active', view === 'cuentas');
             
-            document.querySelectorAll('.h-tab').forEach(t => t.classList.remove('active'));
-            document.getElementById('tab-' + botName).classList.add('active');
-            
-            document.getElementById('hostTokenInput').value = '';
-            document.getElementById('host-status-text').innerHTML = '<i class="fa-solid fa-spinner fa-spin" style="color:#7d7d7d;"></i>';
-            document.getElementById('host-info').style.display = 'none';
-            document.getElementById('btnStartHost').style.display = 'none';
-            document.getElementById('btnStopHost').style.display = 'none';
-            document.getElementById('host-tokenContainer').style.display = 'none';
-            
-            cargarEstadoHost();
-        }
+            document.getElementById('panel-buscar').style.display = view === 'buscar' ? 'block' : 'none';
+            document.getElementById('panel-cuentas').style.display = view === 'cuentas' ? 'block' : 'none';
 
-        async function cargarEstadoHost() {
-            try {
-                const res = await fetch(`https://torobot-izu5.onrender.com/api/predio/estado?bot=${currentBot}`);
-                const data = await res.json();
-
-                const statusText = document.getElementById('host-status-text');
-                const infoBox = document.getElementById('host-info');
-                const tokenBox = document.getElementById('host-tokenContainer');
-                const btnStart = document.getElementById('btnStartHost');
-                const btnStop = document.getElementById('btnStopHost');
-
-                if (data.estado === 'online') {
-                    statusText.innerHTML = '<span class="status-light light-on"></span> SALA ACTIVA';
-                    statusText.style.color = '#2df2c1';
-                    infoBox.style.display = 'block';
-                    tokenBox.style.display = 'none';
-                    
-                    document.getElementById('host-link').href = data.link || '#';
-                    document.getElementById('host-link').innerText = data.link || 'Esperando enlace...';
-                    
-                    btnStart.style.display = 'none';
-                    btnStop.style.display = 'flex'; 
-                    btnStop.innerHTML = '<i class="fa-solid fa-stop"></i> Apagar Sala'; 
-                    btnStop.disabled = false;
-                } 
-                else if (data.estado === 'starting') {
-                    statusText.innerHTML = '<span class="status-light light-starting"></span> ENCENDIENDO... <i class="fa-solid fa-spinner fa-spin" style="font-size:0.8em; margin-left:10px;"></i>';
-                    statusText.style.color = '#FFD342';
-                    infoBox.style.display = 'none';
-                    tokenBox.style.display = 'none';
-                    btnStart.style.display = 'none';
-                    btnStop.style.display = 'none';
-                } 
-                else if (data.estado === 'stop_pending') {
-                    statusText.innerHTML = '<span class="status-light light-stopping"></span> APAGANDO... <i class="fa-solid fa-spinner fa-spin" style="font-size:0.8em; margin-left:10px;"></i>';
-                    statusText.style.color = '#e74c3c';
-                    infoBox.style.display = 'none';
-                    tokenBox.style.display = 'none';
-                    btnStart.style.display = 'none';
-                    btnStop.style.display = 'none';
-                }
-                else {
-                    statusText.innerHTML = '<span class="status-light light-off"></span> APAGADO';
-                    statusText.style.color = '#cc2a2a';
-                    infoBox.style.display = 'none';
-                    tokenBox.style.display = 'flex';
-
-                    btnStart.style.display = 'flex'; 
-                    btnStart.innerHTML = '<i class="fa-solid fa-power-off"></i> Encender Sala'; 
-                    btnStart.disabled = false;
-                    btnStop.style.display = 'none';
-                }
-            } catch (e) {
-                console.error("Error cargando estado:", e);
+            if (view === 'cuentas') {
+                cargarListaAdmins();
             }
-        }
-
-        async function controlarHost(action) {
-            if (action === 'stop') {
-                const confirmed = await showCustomConfirm("Apagar Sala", `¿Seguro que deseas APAGAR la sala ${currentBot.toUpperCase()}? Se expulsará a todos al instante.`, true);
-                if (!confirmed) return;
-            }
-            
-            const btnStart = document.getElementById('btnStartHost');
-            const btnStop = document.getElementById('btnStopHost');
-            
-            let tokenHaxball = "";
-            if (action === 'start') {
-                tokenHaxball = document.getElementById('hostTokenInput').value.trim();
-                if (!tokenHaxball) return showCustomAlert("Falta Token", "Debes pegar el Token de HaxBall en la caja de texto.");
-                btnStart.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Enviando señal...'; btnStart.disabled = true;
-            } else {
-                btnStop.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Apagando...'; btnStop.disabled = true;
-            }
-
-            try {
-                const res = await fetch('https://torobot-izu5.onrender.com/api/predio/control', {
-                    method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ numericId: loggedId, token: token, action: action, tokenHaxball: tokenHaxball, botName: currentBot }) 
-                });
-                const data = await res.json();
-                
-                if (data.success) {
-                    await cargarEstadoHost(); 
-                } else {
-                    await showCustomAlert("Error", data.message);
-                    await cargarEstadoHost();
-                }
-            } catch (e) {
-                await showCustomAlert("Error de Red", "No se pudo conectar con el servidor.");
-                await cargarEstadoHost();
-            }
-        }
-
-        function copiarLinkHost() {
-            const link = document.getElementById('host-link').href;
-            const btn = document.querySelector('#host-info .copy-btn');
-            navigator.clipboard.writeText(link).then(() => {
-                const originalHTML = btn.innerHTML;
-                btn.innerHTML = '<i class="fa-solid fa-check" style="color:#2df2c1;"></i>';
-                btn.style.borderColor = '#2df2c1';
-                setTimeout(() => { btn.innerHTML = originalHTML; btn.style.borderColor = '#333'; }, 2000);
-            });
         }
 
         let modalCurrentPlayerId = null;
@@ -483,8 +359,8 @@
                             const discordColor = p.discordId ? '#5dc8e8' : '#7d7d7d';
                             
                             ul.innerHTML += `
-                                <li class="search-item" onclick="abrirPlayerDetailsOwner(${p.numericId})">
-                                    <div style="display:flex; flex-direction:column; gap:5px; align-items:flex-start;">
+                                <li onclick="abrirPlayerDetailsOwner(${p.numericId})">
+                                    <div class="info-col" style="flex-grow: 1;">
                                         <span><span class="id-badge">#${p.numericId}</span> <strong style="color:white; font-size:1.1rem;">${p.name}</strong></span>
                                         <span class="discord-tag" style="color:${discordColor}; font-size:0.9rem;">${discordStr}</span>
                                     </div>
@@ -499,7 +375,7 @@
             } catch (error) {
                 ul.innerHTML = '<li style="color: #cc2a2a; justify-content: center;">Error de conexión.</li>';
             }
-            btn.innerHTML = '<i class="fa-solid fa-search"></i>';
+            btn.innerHTML = '<i class="fa-solid fa-search"></i> Buscar Jugador';
         }
 
         async function abrirPlayerDetailsOwner(numericId) {
@@ -527,7 +403,7 @@
                 modalCurrentPlayerName = p.name;
 
                 document.getElementById('modal_o_name').innerText = p.name;
-                
+
                 const elDiscord = document.getElementById('modal_o_discord');
                 if (p.discordName) {
                     elDiscord.innerHTML = `<i class="fa-brands fa-discord"></i> ${p.discordName}`;
@@ -564,7 +440,7 @@
                             hayOtrasIp = true;
                             const altAdminBadge = alt.isAdmin ? `<span style="background:rgba(255,211,66,0.1); color:#FFD342; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; border: 1px solid #FFD342;">ADMIN</span>` : '';
                             ulIp.innerHTML += `
-                                <li class="search-item" onclick="abrirPlayerDetailsOwner(${alt.numericId})">
+                                <li onclick="abrirPlayerDetailsOwner(${alt.numericId})" class="search-item">
                                     <span><span class="id-badge">#${alt.numericId}</span> ${alt.name}</span>
                                     ${altAdminBadge}
                                 </li>
@@ -581,7 +457,7 @@
                         const altAdminBadge = alt.isAdmin ? `<span style="background:rgba(255,211,66,0.1); color:#FFD342; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; border: 1px solid #FFD342;">ADMIN</span>` : '';
                         const altDiscordBadge = alt.discordId ? `<i class="fa-brands fa-discord" style="color:#5dc8e8; margin-left:8px;" title="Discord Vinculado"></i>` : '';
                         ulEnlazadas.innerHTML += `
-                            <li class="search-item" onclick="abrirPlayerDetailsOwner(${alt.numericId})">
+                            <li onclick="abrirPlayerDetailsOwner(${alt.numericId})" class="search-item">
                                 <span><span class="id-badge" style="background:#5dc8e8; color:#111; border:none;">#${alt.numericId}</span> ${alt.name} ${altDiscordBadge}</span>
                                 ${altAdminBadge}
                             </li>
