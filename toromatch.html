@@ -22,10 +22,33 @@
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
         .score-text { font-size: 2.2rem; font-weight: bold; color: white; letter-spacing: 2px; text-align: center;}
 
-        .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; }
+        .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; align-items: flex-end; }
         .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #7d7d7d; font-weight: bold; transition: 0.3s; font-size: 1rem;}
         .tab.active { border-bottom: 2px solid #FFD342; color: #FFD342; }
         .tab:hover:not(.active) { color: white; }
+        
+        .info-btn-tab {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid #7d7d7d;
+            color: #7d7d7d;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            margin-bottom: 8px;
+            margin-left: 10px;
+        }
+        .info-btn-tab:hover {
+            color: #5dc8e8;
+            border-color: #5dc8e8;
+            background: rgba(93, 200, 232, 0.1);
+            transform: scale(1.1);
+        }
         
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -92,6 +115,7 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             max-height: 90vh;
             overflow-y: auto;
+            position: relative;
         }
         .modal-content::-webkit-scrollbar { width: 8px; }
         .modal-content::-webkit-scrollbar-track { background: transparent; }
@@ -152,6 +176,9 @@
         .cd-label { display: block; font-size: 0.7rem; color: #7d7d7d; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
         .cd-comenzando { color: #FFD342; font-weight: bold; font-size: 1.3rem; animation: pulse 1.5s infinite; }
         .cd-separator { font-size: 1.5rem; align-self: center; margin-top: -10px; display: none; }
+        
+        .close-modal-info { position: absolute; top: 15px; right: 20px; font-size: 1.8rem; color: #7d7d7d; cursor: pointer; transition: 0.3s;}
+        .close-modal-info:hover { color: #e74c3c; transform: scale(1.1); }
 
         @keyframes pulse-music {
             0% { box-shadow: 0 0 0 0 rgba(255, 211, 66, 0.7); }
@@ -214,6 +241,7 @@
                     <div class="tabs">
                         <div class="tab active" onclick="switchTab('proximos')">Próximo express</div>
                         <div class="tab" onclick="switchTab('historial')">Historial</div>
+                        <div class="info-btn-tab" onclick="abrirModalInfo()" title="¿Qué es ToroMatch?"><i class="fa-solid fa-info"></i></div>
                     </div>
 
                     <div id="proximos" class="tab-content active">
@@ -263,6 +291,28 @@
             </div>
         </div>
     </main>
+
+    <div class="modal-overlay" id="infoModal" onclick="cerrarModalInfoClickFuera(event)">
+        <div class="modal-content" style="max-width: 500px; border-color: #5dc8e8;">
+            <i class="fa-solid fa-xmark close-modal-info" onclick="cerrarModalInfo()"></i>
+            <h3 style="color: #5dc8e8; font-size: 1.6rem; margin-bottom: 20px;"><i class="fa-solid fa-trophy"></i> ¿Qué es ToroMatch?</h3>
+            <div style="text-align: left; color: #bdc3c7; font-size: 1.05rem; line-height: 1.6; margin-bottom: 25px; background: rgba(0,0,0,0.4); padding: 20px; border-radius: 12px; border: 1px dashed #333;">
+                <p style="margin-top: 0;"><strong>ToroMatch</strong> son partidos express oficiales organizados por ToroHax.</p>
+                <p>Aquí, 2 equipos conformados por <strong>10 jugadores cada uno</strong> (1 capitán, 7 titulares y 3 suplentes) jugarán un partido mucho más competitivo, táctico y emocionante que una partida pública normal. ¡Es una oportunidad para demostrar tu nivel y dejar una marca en ToroHax!</p>
+                
+                <div style="background: rgba(255, 211, 66, 0.1); border-left: 4px solid #FFD342; padding: 12px; margin-top: 20px; border-radius: 4px;">
+                    <p style="color: #FFD342; font-weight: bold; margin: 0; font-size: 0.95rem;"><i class="fa-regular fa-clock"></i> Las inscripciones suelen abrir 5 horas antes del comienzo del partido.</p>
+                </div>
+
+                <div style="background: rgba(231, 76, 60, 0.1); border-left: 4px solid #e74c3c; padding: 12px; margin-top: 15px; border-radius: 4px;">
+                    <p style="color: white; margin: 0; font-size: 0.95rem;">⚠️ <strong style="color:#e74c3c;">Recuerda haberte registrado e iniciado sesión</strong> antes de intentar inscribirte.</p>
+                </div>
+            </div>
+            <div class="modal-btn-row">
+                <button class="btn-estandar btn-primary" style="background:#5dc8e8; color:#111; border:none;" onclick="cerrarModalInfo()">¡Entendido!</button>
+            </div>
+        </div>
+    </div>
 
     <div class="modal-overlay" id="confirmActionModal">
         <div class="modal-content" style="border-color: #FFD342;">
@@ -558,6 +608,10 @@
             event.target.classList.add('active');
             document.getElementById(tabId).classList.add('active');
         }
+
+        function abrirModalInfo() { document.getElementById('infoModal').style.display = 'flex'; }
+        function cerrarModalInfo() { document.getElementById('infoModal').style.display = 'none'; }
+        function cerrarModalInfoClickFuera(e) { if (e.target.id === 'infoModal') cerrarModalInfo(); }
 
         function getNextSaturday() {
             const now = new Date();
