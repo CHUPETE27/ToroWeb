@@ -224,12 +224,12 @@
                 if (data.success && data.redirectUrl) {
                     window.location.href = data.redirectUrl;
                 } else {
-                    alert("❌ Ocurrió un error al generar el cobro. Intenta más tarde.");
+                    alert("❌ Mercado Pago rechazó la orden: " + (data.message || "Error desconocido."));
                     btnPagar.disabled = false;
                     btnPagar.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pagar';
                 }
             } catch (error) {
-                alert("❌ Error de conexión al intentar generar el pago.");
+                alert("❌ Error de red al intentar generar el pago.");
                 btnPagar.disabled = false;
                 btnPagar.innerHTML = '<i class="fa-solid fa-credit-card"></i> Pagar';
             }
