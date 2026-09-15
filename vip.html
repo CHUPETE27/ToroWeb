@@ -187,7 +187,7 @@
             const esPermanente = document.getElementById('vipPerm').checked;
             aplicarMinimoMeses();
             const meses = esPermanente ? 999 : parseInt(mesesInput.value);
-            const precio = clpTotal.innerText;
+            const precio = clpTotal.innerText.replace(/[^0-9]/g, '');
             const isGift = document.querySelector('input[name="destino"]:checked').value === 'gift';
             
             let targetId = loggedId;
