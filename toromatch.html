@@ -18,9 +18,10 @@
         .left-col { display: flex; flex-direction: column; gap: 20px; max-width: 100%; }
         .live-box { text-align: center; min-height: 150px; display: flex; flex-direction: column; justify-content: center; align-items: center; border-color: #2df2c1; box-shadow: 0 0 15px rgba(45, 242, 193, 0.1); }
         .live-indicator { display: flex; align-items: center; gap: 8px; color: #2df2c1; font-weight: bold; margin-bottom: 15px; font-size: 1.1rem;}
-        .status-circle.green { width: 12px; height: 12px; background-color: #2df2c1; border-radius: 50%; box-shadow: 0 0 10px rgba(45, 242, 193, 0.8); animation: pulse 1.5s infinite; }
+        .status-circle { width: 12px; height: 12px; border-radius: 50%; }
+        .status-circle.green { background-color: #2df2c1; box-shadow: 0 0 10px rgba(45, 242, 193, 0.8); animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
-        .score-text { font-size: 2.2rem; font-weight: bold; color: white; letter-spacing: 2px; text-align: center;}
+        .score-text { font-size: 2.2rem; font-weight: bold; color: white; letter-spacing: 2px; text-align: center; width: 100%;}
 
         .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; align-items: flex-end; }
         .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #7d7d7d; font-weight: bold; transition: 0.3s; font-size: 1rem;}
@@ -28,27 +29,11 @@
         .tab:hover:not(.active) { color: white; }
         
         .info-btn-tab {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            border: 2px solid #5dc8e8;
-            color: #5dc8e8;
-            cursor: pointer;
-            transition: 0.3s;
-            font-size: 1.1rem;
-            flex-shrink: 0;
-            margin-bottom: 8px;
-            margin-left: 10px;
+            display: flex; align-items: center; justify-content: center;
+            width: 32px; height: 32px; border-radius: 50%; border: 2px solid #5dc8e8; color: #5dc8e8;
+            cursor: pointer; transition: 0.3s; font-size: 1.1rem; flex-shrink: 0; margin-bottom: 8px; margin-left: 10px;
         }
-        .info-btn-tab:hover {
-            color: #FFD342;
-            border-color: #FFD342;
-            background: rgba(93, 200, 232, 0.1);
-            transform: scale(1.1);
-        }
+        .info-btn-tab:hover { color: #FFD342; border-color: #FFD342; background: rgba(93, 200, 232, 0.1); transform: scale(1.1); }
         
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -87,7 +72,8 @@
 
         .right-col { display: flex; flex-direction: column; gap: 20px; max-width: 100%;}
         .list-box ul { list-style-type: none; padding: 0; margin: 0; }
-        .list-box li { padding: 10px; border-bottom: 1px dashed #333; color: #bdc3c7; font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; word-break: break-word;}
+        
+        .list-box li { padding: 10px; border-bottom: 1px dashed #333; color: #bdc3c7; font-size: 0.9rem; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px;}
         .list-box li:last-child { border-bottom: none; }
         
         .roster-container { max-height: 250px; overflow-y: auto; padding-right: 5px; }
@@ -95,27 +81,17 @@
         .roster-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
         .roster-container::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
 
-        .assign-btn { background: #333; border: 1px solid #555; color: #fff; border-radius: 4px; padding: 2px 6px; cursor: pointer; font-size: 0.8rem; margin-left: 5px; transition: 0.2s;}
+        .assign-btn { background: #333; border: 1px solid #555; color: #fff; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 0.8rem; margin-left: 2px; transition: 0.2s;}
         .assign-btn:hover { background: #444; }
         .assign-btn.eq1 { color: #3498db; border-color: #3498db; }
         .assign-btn.eq1.active { background: #3498db; color: #111;}
         .assign-btn.eq2 { color: #e74c3c; border-color: #e74c3c; }
         .assign-btn.eq2.active { background: #e74c3c; color: #111;}
 
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); padding: 20px; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); padding: 15px; }
         .modal-content { 
-            background: #111; 
-            border: 1px solid #FFD342; 
-            padding: 35px 25px; 
-            border-radius: 15px; 
-            width: 100%; 
-            max-width: 550px; 
-            color: white; 
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
+            background: #111; border: 1px solid #FFD342; padding: 30px 20px; border-radius: 15px; width: 100%; max-width: 550px; color: white; text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); max-height: 90vh; overflow-y: auto; position: relative;
         }
         .modal-content::-webkit-scrollbar { width: 8px; }
         .modal-content::-webkit-scrollbar-track { background: transparent; }
@@ -141,43 +117,23 @@
         .edit-action-icon:hover { color: #5dade2; }
 
         .floating-music-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            background: rgba(20, 20, 20, 0.9);
-            border: 2px solid #555;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 1.6rem;
-            color: #bdc3c7;
-            cursor: grab;
-            z-index: 9999;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.8);
-            transition: transform 0.2s, border-color 0.3s;
-            user-select: none;
-            touch-action: none;
+            position: fixed; bottom: 30px; right: 30px; width: 60px; height: 60px; background: rgba(20, 20, 20, 0.9);
+            border: 2px solid #555; border-radius: 50%; display: flex; justify-content: center; align-items: center;
+            font-size: 1.6rem; color: #bdc3c7; cursor: grab; z-index: 9999; box-shadow: 0 5px 15px rgba(0,0,0,0.8);
+            transition: transform 0.2s, border-color 0.3s; user-select: none; touch-action: none;
         }
         .floating-music-btn:active { cursor: grabbing; }
         .floating-music-btn:hover { transform: scale(1.1); }
-        .floating-music-btn.playing {
-            background: #FFD342;
-            color: #111;
-            border-color: #FFD342;
-            animation: pulse-music 2s infinite;
-        }
+        .floating-music-btn.playing { background: #FFD342; color: #111; border-color: #FFD342; animation: pulse-music 2s infinite; }
 
-        .countdown-container { display: flex; gap: 10px; justify-content: center; margin-top: 5px; flex-wrap: wrap; }
-        .cd-box { background: rgba(0, 0, 0, 0.5); border: 1px solid #444; border-radius: 8px; padding: 8px 12px; text-align: center; min-width: 60px; flex: 1; }
-        .cd-number { display: block; font-size: 1.6rem; font-weight: bold; color: #2df2c1; font-family: monospace; }
-        .cd-label { display: block; font-size: 0.7rem; color: #7d7d7d; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+        .countdown-container { display: flex; gap: 8px; justify-content: center; margin-top: 5px; flex-wrap: nowrap; width: 100%; }
+        .cd-box { background: rgba(0, 0, 0, 0.5); border: 1px solid #444; border-radius: 8px; padding: 10px 5px; text-align: center; flex: 1; min-width: 0;}
+        .cd-number { display: block; font-size: 1.5rem; font-weight: bold; color: #2df2c1; font-family: monospace; line-height: 1;}
+        .cd-label { display: block; font-size: 0.65rem; color: #7d7d7d; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; }
         .cd-comenzando { color: #FFD342; font-weight: bold; font-size: 1.3rem; animation: pulse 1.5s infinite; }
-        .cd-separator { font-size: 1.5rem; align-self: center; margin-top: -10px; display: none; }
+        .cd-separator { font-size: 1.5rem; align-self: center; display: none; }
         
-        .close-modal-info { position: absolute; top: 15px; right: 20px; font-size: 1.8rem; color: #7d7d7d; cursor: pointer; transition: 0.3s;}
+        .close-modal-info { position: absolute; top: 15px; right: 15px; font-size: 1.5rem; color: #7d7d7d; cursor: pointer; transition: 0.3s;}
         .close-modal-info:hover { color: #e74c3c; transform: scale(1.1); }
 
         @keyframes pulse-music {
@@ -188,6 +144,9 @@
 
         @media (min-width: 481px) {
             .cd-separator { display: block; }
+            .cd-number { font-size: 1.8rem; }
+            .cd-box { padding: 10px 15px; }
+            .countdown-container { max-width: 80%; margin: 0 auto; }
         }
 
         @media (max-width: 900px) { 
@@ -198,25 +157,26 @@
         }
         
         @media (max-width: 480px) { 
-            .seleccion-wrapper { padding: 0 10px; width: 100%; margin-top: 3vh;}
-            .score-text { font-size: 1.6rem; }
+            .seleccion-wrapper { padding: 0; width: 95%; margin-top: 5vh;}
+            .score-text { font-size: 1.5rem; letter-spacing: 1px;}
             .live-box { min-height: 120px; }
-            .box { padding: 15px; padding-bottom: 60px; } 
+            .box { padding: 15px; } 
 
             .match-row { flex-direction: column; gap: 8px; padding: 15px; align-items: center;}
             .match-teams { white-space: normal; word-break: break-word; width: 100%; font-size: 1rem; text-align: center;}
             .match-date { width: 100%; border-left: none; text-align: center; border-top: 1px dashed #444; padding-top: 8px; font-size: 0.85rem;}
             .action-icons { flex-direction: row; justify-content: center; padding-top: 10px; border-top: 1px dashed #444; width: 100%;}
             
-            .modal-content { padding: 20px; }
+            .modal-content { padding: 25px 15px; }
             .modal-btn-row { flex-direction: column; }
             .modal-btn { width: 100%; }
 
-            .cd-number { font-size: 1.3rem; }
-            .cd-box { min-width: 50px; padding: 6px 8px; }
-            
-            .list-box li { flex-direction: column; align-items: center; text-align: center; gap: 10px;}
-            .list-box li span { width: 100%; }
+            .modal-content h3 { font-size: 1.2rem; }
+            #infoModal .modal-content div { font-size: 0.95rem !important; padding: 15px !important; }
+
+            .list-box li { flex-direction: column; align-items: flex-start; text-align: left;}
+            .list-box li > span { width: 100%; justify-content: flex-start; margin-bottom: 8px;}
+            .list-box li > div { width: 100%; justify-content: flex-start; }
         }
     </style>
 </head>
@@ -293,15 +253,15 @@
     </main>
 
     <div class="modal-overlay" id="infoModal" onclick="cerrarModalInfoClickFuera(event)">
-        <div class="modal-content" style="max-width: 500px; border-color: #5dc8e8;">
+        <div class="modal-content" style="border-color: #5dc8e8;">
             <i class="fa-solid fa-xmark close-modal-info" onclick="cerrarModalInfo()"></i>
-            <h3 style="color: #5dc8e8; font-size: 1.6rem; margin-bottom: 20px;"><i class="fa-solid fa-trophy"></i> ¿Qué es ToroMatch?</h3>
-            <div style="text-align: left; color: #bdc3c7; font-size: 1.05rem; line-height: 1.6; margin-bottom: 25px; background: rgba(0,0,0,0.4); padding: 20px; border-radius: 12px; border: 1px dashed #333;">
+            <h3 style="color: #5dc8e8; margin-bottom: 20px;"><i class="fa-solid fa-trophy"></i> ¿Qué es ToroMatch?</h3>
+            <div style="text-align: left; color: #bdc3c7; line-height: 1.6; margin-bottom: 25px; background: rgba(0,0,0,0.4); padding: 20px; border-radius: 12px; border: 1px dashed #333;">
                 <p style="margin-top: 0;"><strong>ToroMatch</strong> son partidos express oficiales organizados por ToroHax.</p>
-                <p>Aquí, 2 equipos conformados por <strong>10 jugadores cada uno</strong> (1 capitán, 7 titulares y 3 suplentes) jugarán un partido mucho más competitivo, táctico y emocionante que una partida pública normal. ¡Es una oportunidad para demostrar tu nivel y dejar una marca en ToroHax!</p>
+                <p>Aquí, 2 equipos conformados por <strong>10 jugadores cada uno</strong> jugarán un partido mucho más competitivo, táctico y emocionante que una partida normal. ¡Es una oportunidad para demostrar tu nivel y dejar una marca!</p>
                 
                 <div style="background: rgba(255, 211, 66, 0.1); border-left: 4px solid #FFD342; padding: 12px; margin-top: 20px; border-radius: 4px;">
-                    <p style="color: #FFD342; font-weight: bold; margin: 0; font-size: 0.95rem;"><i class="fa-regular fa-clock"></i> Las inscripciones suelen abrir 5 horas antes del comienzo del partido.</p>
+                    <p style="color: #FFD342; font-weight: bold; margin: 0; font-size: 0.95rem;"><i class="fa-regular fa-clock"></i> Las inscripciones suelen abrir 5 horas antes.</p>
                 </div>
 
                 <div style="background: rgba(231, 76, 60, 0.1); border-left: 4px solid #e74c3c; padding: 12px; margin-top: 15px; border-radius: 4px;">
@@ -316,7 +276,7 @@
 
     <div class="modal-overlay" id="confirmActionModal">
         <div class="modal-content" style="border-color: #FFD342;">
-            <h3 style="color: #FFD342; font-size: 1.5rem;"><i class="fa-solid fa-triangle-exclamation"></i> Confirmar Acción</h3>
+            <h3 style="color: #FFD342;"><i class="fa-solid fa-triangle-exclamation"></i> Confirmar</h3>
             <p id="confirmActionMsg">¿Estás seguro de continuar?</p>
             <div class="modal-btn-row">
                 <button class="modal-btn cancel" onclick="cerrarModalConfirmacionSegura()">Cancelar</button>
@@ -674,7 +634,7 @@
                                 if (esBarrio) {
                                     botonesManager = `
                                         <div style="flex-shrink:0; display:flex; gap:5px; align-items:center;">
-                                            <button class="assign-btn" style="background:transparent; color:${btnPresenceColor}; border-color:${btnPresenceColor}; font-size: 0.9rem; padding: 2px 5px;" onclick="togglePresence('${jug.numericId}', this)" title="${btnPresenceTitle}"><i class="fa-solid ${btnPresenceIcon}"></i></button>
+                                            <button class="assign-btn" style="background:transparent; color:${btnPresenceColor}; border-color:${btnPresenceColor}; font-size: 0.9rem; padding: 4px 8px;" onclick="togglePresence('${jug.numericId}', this)" title="${btnPresenceTitle}"><i class="fa-solid ${btnPresenceIcon}"></i></button>
                                             <button class="assign-btn" style="background:#cc2a2a; border-color:#cc2a2a;" onclick="expulsarJugador('${jug.discordId}', '${jug.name}')" title="Expulsar jugador"><i class="fa-solid fa-trash"></i></button>
                                         </div>
                                     `;
@@ -686,7 +646,7 @@
                                             <button class="assign-btn eq1 ${eq1Active}" onclick="asignarEquipo('${jug.discordId}', 1, this)" title="Asignar al Eq 1">1</button>
                                             <button class="assign-btn eq2 ${eq2Active}" onclick="asignarEquipo('${jug.discordId}', 2, this)" title="Asignar al Eq 2">2</button>
                                             <button class="assign-btn" onclick="asignarEquipo('${jug.discordId}', 0, this)" title="Quitar equipo">X</button>
-                                            <button class="assign-btn" style="background:transparent; color:${btnPresenceColor}; border-color:${btnPresenceColor}; font-size: 0.9rem; padding: 2px 5px;" onclick="togglePresence('${jug.numericId}', this)" title="${btnPresenceTitle}"><i class="fa-solid ${btnPresenceIcon}"></i></button>
+                                            <button class="assign-btn" style="background:transparent; color:${btnPresenceColor}; border-color:${btnPresenceColor}; font-size: 0.9rem; padding: 4px 8px;" onclick="togglePresence('${jug.numericId}', this)" title="${btnPresenceTitle}"><i class="fa-solid ${btnPresenceIcon}"></i></button>
                                             <button class="assign-btn" style="background:#cc2a2a; border-color:#cc2a2a;" onclick="expulsarJugador('${jug.discordId}', '${jug.name}')" title="Expulsar jugador"><i class="fa-solid fa-trash"></i></button>
                                         </div>
                                     `;
@@ -694,7 +654,7 @@
                             }
                             ulInscritos.innerHTML += `
                                 <li>
-                                    <span style="flex-grow:1; display:flex; align-items:center;">${statusIcon}<strong>${i+1}.</strong> <span style="margin-left:5px;">${jug.name}</span> <span style="color:#7d7d7d; font-size:0.8rem; margin:0 5px;">(#${jug.numericId})</span> - <span style="color:#5dc8e8; margin-left:5px;">${jug.discordName}</span></span>
+                                    <span style="flex-grow:1; display:flex; align-items:center; word-break: break-word;">${statusIcon}<strong>${i+1}.</strong> <span style="margin-left:5px;">${jug.name}</span> <span style="color:#7d7d7d; font-size:0.8rem; margin:0 5px;">(#${jug.numericId})</span> - <span style="color:#5dc8e8; margin-left:5px;">${jug.discordName}</span></span>
                                     ${botonesManager}
                                 </li>`;
                         });
@@ -719,14 +679,14 @@
 
                                 botonesManager = `
                                     <div style="flex-shrink:0; display:flex; gap:5px; align-items:center;">
-                                        <button class="assign-btn" style="background:transparent; color:${btnPresenceColor}; border-color:${btnPresenceColor}; font-size: 0.9rem; padding: 2px 5px;" onclick="togglePresence('${jug.numericId}', this)" title="${btnPresenceTitle}"><i class="fa-solid ${btnPresenceIcon}"></i></button>
+                                        <button class="assign-btn" style="background:transparent; color:${btnPresenceColor}; border-color:${btnPresenceColor}; font-size: 0.9rem; padding: 4px 8px;" onclick="togglePresence('${jug.numericId}', this)" title="${btnPresenceTitle}"><i class="fa-solid ${btnPresenceIcon}"></i></button>
                                         <button class="assign-btn" style="background:#cc2a2a; border-color:#cc2a2a;" onclick="expulsarJugador('${jug.discordId}', '${jug.name}')" title="Expulsar parche"><i class="fa-solid fa-trash"></i></button>
                                     </div>
                                 `;
                             }
                             ulParches.innerHTML += `
                                 <li>
-                                    <span style="flex-grow:1; display:flex; align-items:center;">${statusIcon}<strong>${i+1}.</strong> <span style="margin-left:5px;">${jug.name}</span> <span style="color:#7d7d7d; font-size:0.8rem; margin:0 5px;">(#${jug.numericId})</span> - <span style="color:#5dc8e8; margin-left:5px;">${jug.discordName}</span></span>
+                                    <span style="flex-grow:1; display:flex; align-items:center; word-break: break-word;">${statusIcon}<strong>${i+1}.</strong> <span style="margin-left:5px;">${jug.name}</span> <span style="color:#7d7d7d; font-size:0.8rem; margin:0 5px;">(#${jug.numericId})</span> - <span style="color:#5dc8e8; margin-left:5px;">${jug.discordName}</span></span>
                                     ${botonesManager}
                                 </li>`;
                         });
