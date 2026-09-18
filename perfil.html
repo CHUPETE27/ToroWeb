@@ -45,7 +45,7 @@
         .tab-btn:hover { background: rgba(255, 211, 66, 0.1); border-color: #FFD342; color: #FFD342; }
         .tab-btn.active { background: #FFD342; color: #111; border-color: #FFD342; box-shadow: 0 0 15px rgba(255, 211, 66, 0.4); }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px; width: 100%;}
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 30px; width: 100%;}
         .stat-box { background: #111; border: 1px solid #444; border-radius: 10px; padding: 20px; width: 100%;}
         .stat-box h3 { margin: 0 0 15px; color: #FFD342; font-size: 1.2rem; text-align: center; border-bottom: 1px solid #333; padding-bottom: 10px;}
         .stat-box ul { list-style: none; padding: 0; margin: 0; }
@@ -207,8 +207,12 @@
                         <ul id="listEstadisticas"></ul>
                     </div>
                     <div class="stat-box">
+                        <h3>🧤 Estadísticas (GK)</h3>
+                        <ul id="listArquero"></ul>
+                    </div>
+                    <div class="stat-box" style="grid-column: 1 / -1;">
                         <h3>📈 Promedios</h3>
-                        <ul id="listPromedios"></ul>
+                        <ul id="listPromedios" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px;"></ul>
                     </div>
                 </div>
 
@@ -224,9 +228,19 @@
                         <img id="chartPie" src="" alt="Gráfico Circular">
                     </div>
                     <div class="chart-box">
-                        <h3><i class="fa-solid fa-clock-rotate-left"></i> Historial</h3>
+                        <h3><i class="fa-solid fa-clock-rotate-left"></i> Historial de Partidos</h3>
                         <p>Distribución de resultados.</p>
                         <img id="chartDoughnut" src="" alt="Gráfico de Historial">
+                    </div>
+                    <div class="chart-box">
+                        <h3><i class="fa-solid fa-bullseye"></i> Penales Lanzados</h3>
+                        <p>Efectividad en Penales</p>
+                        <img id="chartPenalesLanzados" src="" alt="Gráfico Penales Lanzados">
+                    </div>
+                    <div class="chart-box">
+                        <h3><i class="fa-solid fa-hands"></i> Penales Recibidos</h3>
+                        <p>Efectividad Atajando Penales</p>
+                        <img id="chartPenalesAtajados" src="" alt="Gráfico Penales Atajados">
                     </div>
                 </div>
                 <div id="noChartsMsg" style="text-align: center; color: #ccc; margin-bottom: 20px;"></div>
@@ -412,18 +426,28 @@
             const ganados = isTemporada ? (p.temp_ganados || 0) : (p.ganados || 0);
             const perdidos = isTemporada ? (p.temp_perdidos || 0) : (p.perdidos || 0);
             const mvps = isTemporada ? (p.temp_mvps || 0) : (p.mvps || 0);
+            const rachaActual = p.racha || 0;
+            const rachaMax = p.racha_max || 0;
+
             const puntaje = isTemporada ? (p.temp_puntajeTotal || 0) : (p.puntajeTotal || 0);
             const goles = isTemporada ? (p.temp_golesAnotados || 0) : (p.golesAnotados || 0);
             const asist = isTemporada ? (p.temp_asistencias || 0) : (p.asistencias || 0);
-            const atajadas = isTemporada ? (p.temp_atajadas || 0) : (p.atajadas || 0);
             const recup = isTemporada ? (p.temp_intercepciones || 0) : (p.intercepciones || 0);
             const pasesC = isTemporada ? (p.temp_pasesCompletados || 0) : (p.pasesCompletados || 0);
             const pasesP = isTemporada ? (p.temp_pasesPerdidos || 0) : (p.pasesPerdidos || 0);
             
-            const rachaActual = p.racha || 0;
-            const rachaMax = p.racha_max || 0;
-            const port0 = isTemporada ? (p.temp_porteria_0 || 0) : (p.porteria_0 || 0);
+            const golesTiroLibre = isTemporada ? (p.temp_golesTiroLibre || 0) : (p.golesTiroLibre || 0);
+            const golesPenal = isTemporada ? (p.temp_golesPenal || 0) : (p.golesPenal || 0);
+            const penalesLanzados = isTemporada ? (p.temp_penalesLanzados || 0) : (p.penalesLanzados || 0);
+
+            const partidos_gk = isTemporada ? (p.temp_partidos_gk || 0) : (p.partidos_gk || 0);
+            const atajadas = isTemporada ? (p.temp_atajadas || 0) : (p.atajadas || 0);
             const golesRec = isTemporada ? (p.temp_golesRecibidos || 0) : (p.golesRecibidos || 0);
+            const port0 = isTemporada ? (p.temp_porteria_0 || 0) : (p.porteria_0 || 0);
+            
+            const penalesAtajados = isTemporada ? (p.temp_penalesAtajados || 0) : (p.penalesAtajados || 0);
+            const penalesRecibidos = isTemporada ? (p.temp_penalesRecibidos || 0) : (p.penalesRecibidos || 0);
+
 
             const elo = p.elo || 200;
             const rankData = processRankData(elo, p.temp_partidos || 0);
@@ -476,9 +500,10 @@
             const promPuntos = partidos > 0 ? (puntaje / partidos).toFixed(1) : 0;
             const promGoles = partidos > 0 ? (goles / partidos).toFixed(2) : 0;
             const promAsist = partidos > 0 ? (asist / partidos).toFixed(2) : 0;
-            const promAtajadas = partidos > 0 ? (atajadas / partidos).toFixed(2) : 0;
             const promDefensas = partidos > 0 ? (recup / partidos).toFixed(2) : 0;
-            const promGolesRec = partidos > 0 ? (golesRec / partidos).toFixed(2) : 0;
+            
+            const promAtajadas = partidos_gk > 0 ? (atajadas / partidos_gk).toFixed(2) : 0;
+            const promGolesRec = partidos_gk > 0 ? (golesRec / partidos_gk).toFixed(2) : 0;
 
             const pasesTotales = pasesC + pasesP;
             const precisionPases = pasesTotales > 0 ? ((pasesC / pasesTotales) * 100).toFixed(1) : 0;
@@ -496,22 +521,32 @@
             
             document.getElementById('listEstadisticas').innerHTML = `
                 <li><span>Puntos:</span> <strong>${puntaje}</strong></li>
-                <li><span>Goles:</span> <strong>${goles}</strong></li>
+                <li><span>Goles Totales:</span> <strong>${goles}</strong></li>
+                <li><span>Goles (Tiro Libre):</span> <strong>${golesTiroLibre}</strong></li>
+                <li><span>Goles (Penal):</span> <strong>${golesPenal}</strong></li>
                 <li><span>Asistencias:</span> <strong>${asist}</strong></li>
                 <li><span>Pases Completos:</span> <strong>${pasesC}</strong></li>
-                <li><span>Atajadas:</span> <strong>${atajadas}</strong></li>
                 <li><span>Recuperaciones:</span> <strong>${recup}</strong></li>
-                <li><span>Porterías en 0:</span> <strong>${port0}</strong></li>
-                <li><span>Goles Recibidos:</span> <strong>${golesRec}</strong></li>
+                <li><span>Penales Lanzados:</span> <strong>${penalesLanzados}</strong></li>
             `;
+
+            document.getElementById('listArquero').innerHTML = `
+                <li><span>Partidos como GK:</span> <strong>${partidos_gk}</strong></li>
+                <li><span>Atajadas:</span> <strong>${atajadas}</strong></li>
+                <li><span>Goles Recibidos:</span> <strong>${golesRec}</strong></li>
+                <li><span>Porterías en 0:</span> <strong>${port0}</strong></li>
+                <li><span>Penales Atajados:</span> <strong>${penalesAtajados}</strong></li>
+                <li><span>Penales Recibidos:</span> <strong>${penalesRecibidos}</strong></li>
+            `;
+
             document.getElementById('listPromedios').innerHTML = `
                 <li><span>Puntos:</span> <strong>${promPuntos} p/p</strong></li>
                 <li><span>Goles:</span> <strong>${promGoles} g/p</strong></li>
                 <li><span>Asistencias:</span> <strong>${promAsist} a/p</strong></li>
                 <li><span>Pases:</span> <strong>${pasesC} ✅ / ${pasesP} ❌</strong></li>
-                <li><span>Atajadas:</span> <strong>${promAtajadas} at/p</strong></li>
                 <li><span>Recuperaciones:</span> <strong>${promDefensas} r/p</strong></li>
-                <li><span>Goles Recibidos:</span> <strong>${promGolesRec} g/p</strong></li>
+                <li><span>Atajadas:</span> <strong>${promAtajadas} at/p</strong> <span style="font-size:0.75rem; color:#7d7d7d;">(GK)</span></li>
+                <li><span>Goles Recibidos:</span> <strong>${promGolesRec} g/p</strong> <span style="font-size:0.75rem; color:#7d7d7d;">(GK)</span></li>
             `;
 
             if (partidos > 0) {
@@ -524,6 +559,15 @@
                 document.getElementById('passPct').innerText = precisionPases + "%";
                 const chartPasesData = { type: 'horizontalBar', data: { labels: ['Completados', 'Perdidos'], datasets: [{ data: [pasesC, pasesP], backgroundColor: ['#2df2c1', '#cc2a2a'], borderColor: '#111', borderWidth: 2 }] }, options: { legend: { display: false }, scales: { xAxes: [{ ticks: { min: 0, max: pasesTotales > 0 ? pasesTotales : 1, fontColor: '#fff' }, gridLines: { color: 'rgba(255, 255, 255, 0.1)' } }], yAxes: [{ ticks: { fontColor: '#fff', fontSize: 13, fontStyle: 'bold' }, gridLines: { display: false } }] }, plugins: { datalabels: { color: '#111', font: { weight: 'bold', size: 14 }, align: 'center', formatter: "function(value) { return value; }" } } } };
                 document.getElementById('chartPases').src = `https://quickchart.io/chart?w=300&h=250&c=${encodeURIComponent(JSON.stringify(chartPasesData))}&bkg=transparent`;
+
+                const penalesFallados = penalesLanzados - golesPenal;
+                const chartPenLanzadosData = { type: 'doughnut', data: { labels: ['Convertidos', 'Fallados'], datasets: [{ data: [golesPenal, penalesFallados > 0 ? penalesFallados : 0], backgroundColor: ['#2df2c1', '#cc2a2a'], borderColor: '#111', borderWidth: 3 }] }, options: { legend: { position: 'bottom', labels: { fontColor: '#fff' } }, plugins: { datalabels: { color: '#fff', font: { weight: 'bold' }, display: "function(context) { return context.dataset.data[context.dataIndex] > 0; }" } } } };
+                document.getElementById('chartPenalesLanzados').src = `https://quickchart.io/chart?w=300&h=250&c=${encodeURIComponent(JSON.stringify(chartPenLanzadosData))}&bkg=transparent`;
+
+                const totalPenalesArquero = penalesAtajados + penalesRecibidos;
+                const chartPenAtajadosData = { type: 'doughnut', data: { labels: ['Atajados', 'Goles Recibidos'], datasets: [{ data: [penalesAtajados, penalesRecibidos], backgroundColor: ['#3498db', '#cc2a2a'], borderColor: '#111', borderWidth: 3 }] }, options: { legend: { position: 'bottom', labels: { fontColor: '#fff' } }, plugins: { datalabels: { color: '#fff', font: { weight: 'bold' }, display: "function(context) { return context.dataset.data[context.dataIndex] > 0; }" } } } };
+                document.getElementById('chartPenalesAtajados').src = `https://quickchart.io/chart?w=300&h=250&c=${encodeURIComponent(JSON.stringify(chartPenAtajadosData))}&bkg=transparent`;
+
 
                 const pG = parseFloat(promGoles) * 12; const pA = parseFloat(promAsist) * 10; const pAt = parseFloat(promAtajadas) * 8; const pD = parseFloat(promDefensas) * 1;
                 const totalPromedios = pG + pA + pAt + pD;
