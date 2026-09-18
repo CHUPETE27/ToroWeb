@@ -47,10 +47,10 @@
         .match-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 1.05rem; background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 8px; width: 100%;}
         
         .mode-col { display: flex; align-items: center; justify-content: center; padding-right: 15px; border-right: 1px dashed #444; flex-shrink: 0; }
-        .mode-badge { font-size: 0.85rem; font-weight: bold; border-radius: 6px; display: flex; justify-content: center; align-items: center; width: 36px; height: 36px; }
-        .mode-fs { background: rgba(255, 211, 66, 0.15); color: #FFD342; border: 1px solid #FFD342; }
-        .mode-rf { background: rgba(231, 76, 60, 0.15); color: #e74c3c; border: 1px solid #e74c3c; }
-        .mode-na { background: rgba(125, 125, 125, 0.15); color: #7d7d7d; border: 1px solid #7d7d7d; }
+        .mode-badge { font-size: 1.5rem; font-weight: 900; display: flex; justify-content: center; align-items: center; width: 40px; height: 36px; flex-shrink: 0; letter-spacing: -1px; }
+        .mode-fs { color: #FFD342; text-shadow: 0 0 8px rgba(255, 211, 66, 0.4); }
+        .mode-rf { color: #e74c3c; text-shadow: 0 0 8px rgba(231, 76, 60, 0.4); }
+        .mode-na { color: #7d7d7d; }
 
         .match-teams { flex: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; display: flex; justify-content: center; align-items: center; gap: 10px; }
         .match-date { width: 140px; text-align: center; color: #7d7d7d; font-size: 0.9rem; border-left: 1px solid #444; flex-shrink: 0;}
@@ -131,16 +131,15 @@
         }
         .editor-input:focus { border-color: #FFD342; box-shadow: 0 0 10px rgba(255, 211, 66, 0.2); }
         
-        .editor-select {
-            flex: 1; padding: 12px 15px; font-size: 1rem; color: #fff; background-color: #1a1a1a;
-            border: 1px solid #444; border-radius: 8px; outline: none; cursor: pointer; transition: 0.2s;
-            appearance: none; -webkit-appearance: none; text-align: center;
-            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFD342' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-            background-repeat: no-repeat; background-position: right 15px center; background-size: 15px;
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
         }
-        .editor-select option { background-color: #1a1a1a; color: #fff; padding: 12px; }
-        .editor-select option:checked { background: linear-gradient(#005f73, #005f73) !important; background-color: #005f73 !important; color: white !important; }
-        .editor-select option:hover { background: linear-gradient(#5dc8e8, #5dc8e8) !important; background-color: #5dc8e8 !important; color: #111 !important; }
+        input[type=number] {
+            appearance: textfield;
+            -moz-appearance: textfield;
+        }
 
         .score-box { width: 55px; min-width: 55px; font-size: 1.2rem; font-weight: bold; background: #222; padding: 12px 5px;}
         .vs-text { font-size: 1.1rem; font-weight: bold; color: #7d7d7d; text-align: center; }
@@ -215,7 +214,7 @@
             .list-box li { flex-direction: column; align-items: flex-start; text-align: left;}
             .list-box li > span { width: 100%; justify-content: flex-start; margin-bottom: 8px;}
             .list-box li > div { width: 100%; justify-content: flex-start; }
-            
+
             .editor-match-grid { grid-template-columns: 1fr 40px 1fr; gap: 5px; }
             .team-side.left { flex-direction: column !important; width: 100%; gap: 5px; }
             .team-side.right { flex-direction: column-reverse !important; width: 100%; gap: 5px; }
@@ -404,13 +403,22 @@
             <h3 id="modalTitle"><i class="fa-solid fa-plus"></i> Añadir Resultado</h3>
             
             <div class="editor-form">
-                <div class="editor-form-group" style="border-bottom: 1px dashed #444; padding-bottom: 15px;">
-                    <i class="fa-solid fa-map-location-dot" style="color: #FFD342; font-size: 1.2rem;"></i>
-                    <select id="m_mode" class="editor-select" style="max-width: 250px;">
-                        <option value="Futsal">🏟️ Futsal</option>
-                        <option value="RealFutsal">🚩 Real Futsal</option>
-                        <option value="NA">Desconocido (N/A)</option>
-                    </select>
+                <div class="editor-form-group" style="flex-direction: column; gap: 10px; border-bottom: 1px dashed #444; padding-bottom: 15px;">
+                    <span style="color: #FFD342; font-weight: bold; font-size: 1rem;"><i class="fa-solid fa-map-location-dot"></i> Tipo de Cancha</span>
+                    <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 5px;">
+                        <label style="cursor: pointer; font-size: 1rem; display: flex; align-items: center; gap: 8px; color: #fff;">
+                            <input type="radio" name="modal_m_mode" value="Futsal" style="width: auto; cursor:pointer;" checked> 
+                            FS (Futsal)
+                        </label>
+                        <label style="cursor: pointer; font-size: 1rem; display: flex; align-items: center; gap: 8px; color: #fff;">
+                            <input type="radio" name="modal_m_mode" value="RealFutsal" style="width: auto; cursor:pointer;"> 
+                            RF (Real Futsal)
+                        </label>
+                        <label style="cursor: pointer; font-size: 1rem; display: flex; align-items: center; gap: 8px; color: #fff;">
+                            <input type="radio" name="modal_m_mode" value="NA" style="width: auto; cursor:pointer;"> 
+                            N/A (Antiguo)
+                        </label>
+                    </div>
                 </div>
 
                 <div class="editor-match-grid">
@@ -1093,11 +1101,11 @@
                         let modeBadgeHtml = "";
                         const savedMode = m.mode || "NA";
                         if (savedMode === "Futsal") {
-                            modeBadgeHtml = `<span class="mode-badge mode-fs">FS</span>`;
+                            modeBadgeHtml = `<span class="mode-badge mode-fs" title="Futsal">FS</span>`;
                         } else if (savedMode === "RealFutsal") {
-                            modeBadgeHtml = `<span class="mode-badge mode-rf">RF</span>`;
+                            modeBadgeHtml = `<span class="mode-badge mode-rf" title="Real Futsal">RF</span>`;
                         } else {
-                            modeBadgeHtml = `<span class="mode-badge mode-na">NA</span>`;
+                            modeBadgeHtml = `<span class="mode-badge mode-na" title="No Especificado">NA</span>`;
                         }
 
                         histDiv.innerHTML += `
@@ -1182,7 +1190,9 @@
             editingId = null;
             document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-plus"></i> Añadir Resultado';
             document.getElementById('modalSubmitBtn').innerText = 'Guardar Resultado';
-            document.getElementById('m_mode').value = 'Futsal';
+            
+            document.querySelector('input[name="modal_m_mode"][value="Futsal"]').checked = true;
+
             document.getElementById('m_eq1').value = '';
             document.getElementById('m_eq2').value = '';
             document.getElementById('m_goles1').value = '';
@@ -1199,12 +1209,9 @@
             document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen"></i> Editar Resultado';
             document.getElementById('modalSubmitBtn').innerText = 'Actualizar Resultado';
             
-            const selectMode = document.getElementById('m_mode');
-            if (mode && Array.from(selectMode.options).some(opt => opt.value === mode)) {
-                selectMode.value = mode;
-            } else {
-                selectMode.value = 'NA';
-            }
+            const validModes = ['Futsal', 'RealFutsal', 'NA'];
+            const modeToSet = validModes.includes(mode) ? mode : 'NA';
+            document.querySelector(`input[name="modal_m_mode"][value="${modeToSet}"]`).checked = true;
 
             document.getElementById('m_eq1').value = eq1;
             document.getElementById('m_eq2').value = eq2;
@@ -1227,7 +1234,8 @@
             const goles2 = parseInt(document.getElementById('m_goles2').value) || 0;
             const pen1 = parseInt(document.getElementById('m_pen1').value) || 0;
             const pen2 = parseInt(document.getElementById('m_pen2').value) || 0;
-            const matchMode = document.getElementById('m_mode').value;
+            
+            const matchMode = document.querySelector('input[name="modal_m_mode"]:checked').value;
 
             if(!equipo1 || !equipo2 || !date) return alert("Debes llenar los nombres de los equipos y la fecha.");
 
