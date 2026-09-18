@@ -209,11 +209,11 @@
 
                 <div class="stats-grid">
                     <div class="stat-box">
-                        <h3><i class="fa-solid fa-person-running"></i> Estadísticas (Campo)</h3>
+                        <h3><i class="fa-solid fa-person-running"></i> Estadísticas</h3>
                         <ul id="listEstadisticas"></ul>
                     </div>
                     <div class="stat-box">
-                        <h3><i class="fa-solid fa-hands-bound"></i> Estadísticas (Arquero)</h3>
+                        <h3><i class="fa-solid fa-hands-bound"></i> Arquero</h3>
                         <ul id="listArquero"></ul>
                     </div>
                     <div class="stat-box">
@@ -530,21 +530,21 @@
             document.getElementById('listEstadisticas').innerHTML = `
                 <li><span><i class="fa-solid fa-star"></i> Puntos:</span> <strong>${puntaje}</strong></li>
                 <li><span><i class="fa-solid fa-futbol"></i> Goles Totales:</span> <strong>${goles}</strong></li>
-                <li><span><i class="fa-solid fa-shoe-prints"></i> Goles (Tiro Libre):</span> <strong>${golesTiroLibre}</strong></li>
-                <li><span><i class="fa-solid fa-bullseye"></i> Goles (Penal):</span> <strong>${golesPenal}</strong></li>
                 <li><span><i class="fa-solid fa-handshake"></i> Asistencias:</span> <strong>${asist}</strong></li>
                 <li><span><i class="fa-solid fa-right-left"></i> Pases Completos:</span> <strong>${pasesC}</strong></li>
                 <li><span><i class="fa-solid fa-shield-halved"></i> Recuperaciones:</span> <strong>${recup}</strong></li>
+                <li><span><i class="fa-solid fa-shoe-prints"></i> Goles (Tiro Libre):</span> <strong>${golesTiroLibre}</strong></li>
+                <li><span><i class="fa-solid fa-bullseye"></i> Goles (Penal):</span> <strong>${golesPenal}</strong></li>
                 <li><span><i class="fa-solid fa-person-running"></i> Penales Lanzados:</span> <strong>${penalesLanzados}</strong></li>
             `;
 
             document.getElementById('listArquero').innerHTML = `
                 <li><span><i class="fa-solid fa-calendar-check"></i> Partidos (GK):</span> <strong>${partidos_gk}</strong></li>
+                <li><span><i class="fa-solid fa-lock"></i> Porterías en 0:</span> <strong>${port0}</strong></li>
                 <li><span><i class="fa-solid fa-hands"></i> Atajadas:</span> <strong>${atajadas}</strong></li>
                 <li><span><i class="fa-solid fa-hand-sparkles"></i> Atajadas p/p:</span> <strong>${promAtajadas}</strong></li>
                 <li><span><i class="fa-solid fa-net-wired"></i> Goles Recibidos:</span> <strong>${golesRec}</strong></li>
                 <li><span><i class="fa-solid fa-chart-line"></i> Goles Recib. p/p:</span> <strong>${promGolesRec}</strong></li>
-                <li><span><i class="fa-solid fa-lock"></i> Porterías en 0:</span> <strong>${port0}</strong></li>
                 <li><span><i class="fa-solid fa-hands-bound"></i> Penales Atajados:</span> <strong>${penalesAtajados}</strong></li>
                 <li><span><i class="fa-solid fa-bullseye"></i> Penales Recibidos:</span> <strong>${penalesRecibidos}</strong></li>
             `;
@@ -577,7 +577,7 @@
                 document.getElementById('chartPenalesAtajados').src = `https://quickchart.io/chart?w=300&h=250&c=${encodeURIComponent(JSON.stringify(chartPenAtajadosData))}&bkg=transparent`;
 
 
-                const pG = parseFloat(promGoles) * 12; const pA = parseFloat(promAsist) * 10; const pAt = parseFloat(promAtajadas) * 8; const pD = parseFloat(promDefensas) * 1;
+                const pG = parseFloat(promGoles) * 14; const pA = parseFloat(promAsist) * 11; const pAt = parseFloat(promAtajadas) * 4; const pD = parseFloat(promDefensas) * 2;
                 const totalPromedios = pG + pA + pAt + pD;
 
                 if (totalPromedios > 0) {
