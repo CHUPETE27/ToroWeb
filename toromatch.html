@@ -53,8 +53,8 @@
         .mode-rf { color: #e74c3c; text-shadow: 0 0 8px rgba(231, 76, 60, 0.4); }
         .mode-na { color: #7d7d7d; }
 
-        .match-teams { flex: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; display: flex; justify-content: center; align-items: center; gap: 10px; }
-        .match-date { width: 140px; text-align: center; color: #7d7d7d; font-size: 0.9rem; border-left: 1px solid #444; flex-shrink: 0;}
+        .match-teams { flex: 1; display: flex; justify-content: center; align-items: center; width: 100%; }
+        .match-date { width: 140px; text-align: center; color: #7d7d7d; font-size: 0.9rem; border-left: 1px dashed #444; flex-shrink: 0;}
         .action-icons { width: 50px; display: flex; gap: 10px; justify-content: center; margin-left: 0; flex-shrink: 0;}
 
         .inscripcion-container { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;}
@@ -195,7 +195,7 @@
 
             .mode-col { border-right: none; border-bottom: 1px dashed #444; padding-right: 0; padding-bottom: 10px; width: 100%; margin-bottom: 5px; }
             .match-header-row { flex-direction: column; gap: 8px; padding: 15px; align-items: center;}
-            .match-teams { white-space: normal; word-break: break-word; width: 100%; font-size: 1rem; text-align: center;}
+            .match-teams { width: 100%; font-size: 1rem; }
             .match-date { width: 100%; border-left: none; text-align: center; border-top: 1px dashed #444; padding-top: 8px; font-size: 0.85rem;}
             .action-icons { flex-direction: row; justify-content: center; padding-top: 10px; border-top: 1px dashed #444; width: 100%;}
             
@@ -666,8 +666,8 @@
             }
             if (match.replayUrl) {
                 html += `
-                    <div style="text-align: center; background: rgba(45, 242, 193, 0.1); padding: 20px; border-radius: 8px; border: 1px solid #2df2c1;">
-                        <h4 style="color:#2df2c1; margin-top:0; margin-bottom:15px;"><i class="fa-solid fa-file-arrow-down"></i> Repetición Partido</h4>
+                    <div style="text-align: center; background: rgba(45, 242, 193, 0.1); padding: 20px; border-radius: 8px; border: 1px dashed #2df2c1;">
+                        <h4 style="color:#2df2c1; margin-top:0; margin-bottom:15px;"><i class="fa-solid fa-file-arrow-down"></i> Repetición del partido</h4>
                         <a href="${match.replayUrl}" download class="btn-estandar" style="background:#2df2c1; color:#111; text-decoration:none; display:inline-flex; width:auto; padding: 12px 25px; font-size: 1.05rem; margin-bottom: 0;">
                             <i class="fa-solid fa-download"></i> Descargar .hbr2
                         </a>
@@ -1120,10 +1120,12 @@
                             <i class="fa-solid fa-trash delete-icon" onclick="borrarPartido('${m._id}')"></i>
                         </div>` : '';
                         
-                        let scoreText = `${m.golesLocal} - ${m.golesVisita}`;
+                        let scoreText = `<strong style="font-size: 1.1rem; color: white;">${m.golesLocal} - ${m.golesVisita}</strong>`;
                         if (m.penalesLocal > 0 || m.penalesVisita > 0) {
-                            scoreText = `<span style="color:#7d7d7d; font-size:0.9rem;">(${m.penalesLocal})</span> ${scoreText} <span style="color:#7d7d7d; font-size:0.9rem;">(${m.penalesVisita})</span>`;
+                            scoreText = `<span style="color:#7d7d7d; font-size:0.85rem; margin-right: 5px;">(${m.penalesLocal})</span> ${scoreText} <span style="color:#7d7d7d; font-size:0.85rem; margin-left: 5px;">(${m.penalesVisita})</span>`;
                         }
+                        
+                        let scorePill = `<div style="white-space: nowrap; background: rgba(0,0,0,0.5); padding: 4px 12px; border-radius: 8px; border: 1px solid #333; display: flex; align-items: center; justify-content: center;">${scoreText}</div>`;
 
                         let avgScore = 0;
                         let myScore = 0;
@@ -1157,7 +1159,7 @@
                         let multimediaBtn = "";
                         if (m.replayUrl || m.highlightUrl) {
                             multimediaBtn = `
-                                <div style="width: 100%; text-align: center; border-top: 1px dashed #444; padding-top: 10px; margin-top: 10px;">
+                                <div style="width: 100%; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 10px; margin-top: 10px;">
                                     <button onclick="abrirMediaModal('${m._id}')" class="btn-estandar" style="background:#5dc8e8; color:#111; padding: 8px 15px; font-size: 0.9rem; width: auto; margin: 0 auto;">
                                         <i class="fa-solid fa-play"></i> Partido
                                     </button>
@@ -1169,7 +1171,11 @@
                             <div class="match-row" style="flex-wrap: wrap;">
                                 <div style="display:flex; width:100%; justify-content:space-between; align-items:center; gap: 10px;" class="match-header-row">
                                     <div class="mode-col">${modeBadgeHtml}</div>
-                                    <div class="match-teams">${m.matchType} ${scoreText} ${m.rival}</div>
+                                    <div class="match-teams" style="display: flex; width: 100%; justify-content: center; align-items: center;">
+                                        <div style="flex: 1; text-align: right; line-height: 1.2;">${m.matchType}</div>
+                                        <div style="margin: 0 10px; flex-shrink: 0;">${scorePill}</div>
+                                        <div style="flex: 1; text-align: left; line-height: 1.2;">${m.rival}</div>
+                                    </div>
                                     <div class="match-date" style="border-left:none;">${formatFecha(m.date)}</div>
                                     ${ratingHtml}
                                     ${acciones}
