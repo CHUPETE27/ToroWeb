@@ -45,14 +45,16 @@
         .match-list-container::-webkit-scrollbar-thumb:hover { background: #FFD342; }
         
         .match-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 1.05rem; background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 8px; width: 100%;}
+        
+        .mode-col { display: flex; align-items: center; justify-content: center; padding-right: 15px; border-right: 1px dashed #444; flex-shrink: 0; }
+        .mode-badge { font-size: 0.85rem; font-weight: bold; border-radius: 6px; display: flex; justify-content: center; align-items: center; width: 36px; height: 36px; }
+        .mode-fs { background: rgba(255, 211, 66, 0.15); color: #FFD342; border: 1px solid #FFD342; }
+        .mode-rf { background: rgba(231, 76, 60, 0.15); color: #e74c3c; border: 1px solid #e74c3c; }
+        .mode-na { background: rgba(125, 125, 125, 0.15); color: #7d7d7d; border: 1px solid #7d7d7d; }
+
         .match-teams { flex: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; display: flex; justify-content: center; align-items: center; gap: 10px; }
         .match-date { width: 140px; text-align: center; color: #7d7d7d; font-size: 0.9rem; border-left: 1px solid #444; flex-shrink: 0;}
         .action-icons { width: 50px; display: flex; gap: 10px; justify-content: center; margin-left: 0; flex-shrink: 0;}
-
-        .mode-badge { font-size: 0.75rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; display: inline-block; flex-shrink: 0;}
-        .mode-fs { background: rgba(255, 211, 66, 0.2); color: #FFD342; border: 1px solid #FFD342; }
-        .mode-rf { background: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid #e74c3c; }
-        .mode-na { background: rgba(125, 125, 125, 0.2); color: #7d7d7d; border: 1px solid #7d7d7d; }
 
         .inscripcion-container { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;}
         
@@ -121,8 +123,7 @@
             margin-bottom: 15px;
         }
 
-        .team-side { display: flex; flex-direction: row; gap: 8px; align-items: center;}
-        .team-side.right { flex-direction: row-reverse; } /* Invierte orden (Goles - Nombre) */
+        .team-side { display: flex; flex-direction: row; gap: 8px; align-items: center; }
         
         .editor-input { 
             width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #444; color: white; border-radius: 8px; 
@@ -198,6 +199,7 @@
             .live-box { min-height: 120px; }
             .box { padding: 15px; } 
 
+            .mode-col { border-right: none; border-bottom: 1px dashed #444; padding-right: 0; padding-bottom: 10px; width: 100%; margin-bottom: 5px; }
             .match-row { flex-direction: column; gap: 8px; padding: 15px; align-items: center;}
             .match-teams { white-space: normal; word-break: break-word; width: 100%; font-size: 1rem; text-align: center;}
             .match-date { width: 100%; border-left: none; text-align: center; border-top: 1px dashed #444; padding-top: 8px; font-size: 0.85rem;}
@@ -214,9 +216,11 @@
             .list-box li > span { width: 100%; justify-content: flex-start; margin-bottom: 8px;}
             .list-box li > div { width: 100%; justify-content: flex-start; }
             
-            .editor-match-grid { grid-template-columns: 1fr; gap: 15px; }
-            .team-side { flex-direction: column !important; width: 100%; }
-            .score-box { width: 100%; max-width: 150px; margin: 0 auto;}
+            .editor-match-grid { grid-template-columns: 1fr 40px 1fr; gap: 5px; }
+            .team-side.left { flex-direction: column !important; width: 100%; gap: 5px; }
+            .team-side.right { flex-direction: column-reverse !important; width: 100%; gap: 5px; }
+            .vs-text { display: block; font-size: 1rem; }
+            .score-box { width: 100%; max-width: 80px; margin: 0 auto;}
         }
     </style>
 </head>
@@ -411,7 +415,7 @@
 
                 <div class="editor-match-grid">
                     <div class="team-side left">
-                        <input type="text" id="m_eq1" class="editor-input" placeholder="Equipo 1" style="color: #5dc8e8; font-weight: bold;">
+                        <input type="text" id="m_eq1" class="editor-input" placeholder="Equipo 1" style="color: #FFD342; font-weight: bold;">
                         <input type="number" id="m_goles1" class="editor-input score-box" placeholder="0" min="0" oninput="checkPenales()">
                     </div>
                     
@@ -419,7 +423,7 @@
                     
                     <div class="team-side right">
                         <input type="number" id="m_goles2" class="editor-input score-box" placeholder="0" min="0" oninput="checkPenales()">
-                        <input type="text" id="m_eq2" class="editor-input" placeholder="Equipo 2" style="color: #e74c3c; font-weight: bold;">
+                        <input type="text" id="m_eq2" class="editor-input" placeholder="Equipo 2" style="color: #FFD342; font-weight: bold;">
                     </div>
                 </div>
 
@@ -1098,7 +1102,8 @@
 
                         histDiv.innerHTML += `
                             <div class="match-row">
-                                <div class="match-teams">${modeBadgeHtml} ${m.matchType} ${scoreText} ${m.rival}</div>
+                                <div class="mode-col">${modeBadgeHtml}</div>
+                                <div class="match-teams">${m.matchType} ${scoreText} ${m.rival}</div>
                                 <div class="match-date" style="border-left:none;">${formatFecha(m.date)}</div>
                                 ${ratingHtml}
                                 ${acciones}
