@@ -45,9 +45,14 @@
         .match-list-container::-webkit-scrollbar-thumb:hover { background: #FFD342; }
         
         .match-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 1.05rem; background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 8px; width: 100%;}
-        .match-teams { flex: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+        .match-teams { flex: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; display: flex; justify-content: center; align-items: center; gap: 10px; }
         .match-date { width: 140px; text-align: center; color: #7d7d7d; font-size: 0.9rem; border-left: 1px solid #444; flex-shrink: 0;}
         .action-icons { width: 50px; display: flex; gap: 10px; justify-content: center; margin-left: 0; flex-shrink: 0;}
+
+        .mode-badge { font-size: 0.75rem; font-weight: bold; padding: 2px 6px; border-radius: 4px; display: inline-block; flex-shrink: 0;}
+        .mode-fs { background: rgba(255, 211, 66, 0.2); color: #FFD342; border: 1px solid #FFD342; }
+        .mode-rf { background: rgba(231, 76, 60, 0.2); color: #e74c3c; border: 1px solid #e74c3c; }
+        .mode-na { background: rgba(125, 125, 125, 0.2); color: #7d7d7d; border: 1px solid #7d7d7d; }
 
         .inscripcion-container { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;}
         
@@ -99,17 +104,37 @@
 
         .modal-content h3 { color: #FFD342; margin-top: 0; text-align: center; font-size: 1.4rem; margin-bottom: 15px;}
         .modal-content p { color: #bdc3c7; line-height: 1.5; margin-bottom: 20px; font-size: 1rem;}
-        .modal-form { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; text-align: left;}
-        .modal-form input { padding: 12px; background: #222; border: 1px solid #444; color: white; border-radius: 8px; outline: none; width: 100%; font-size: 1rem;}
-        .modal-form input:focus { border-color: #FFD342; }
-        .form-row { display: flex; gap: 10px; flex-wrap: wrap; }
-        .form-row input { flex: 1; min-width: 120px; }
-        .penalties-section { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border: 1px dashed #555;}
         
         .modal-btn { background: #2df2c1; color: #111; padding: 12px; border: none; border-radius: 8px; font-weight: bold; font-size: 1.05rem; cursor: pointer; flex: 1; transition: 0.3s;}
         .modal-btn:hover:not(:disabled) { filter: brightness(1.1); transform: scale(1.02); }
         .modal-btn.cancel { background: #cc2a2a; color: white;}
-        .modal-btn-row { display: flex; gap: 15px; width: 100%; justify-content: center; flex-wrap: wrap;}
+        .modal-btn-row { display: flex; gap: 15px; width: 100%; justify-content: center; flex-wrap: wrap; margin-top: 15px;}
+
+        .editor-form { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px; border: 1px solid #333; }
+        .editor-form-group { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        
+        .editor-input { 
+            flex: 1; padding: 12px; background: #1a1a1a; border: 1px solid #444; color: white; border-radius: 8px; 
+            outline: none; font-size: 1rem; text-align: center; transition: 0.2s;
+        }
+        .editor-input:focus { border-color: #FFD342; box-shadow: 0 0 10px rgba(255, 211, 66, 0.2); }
+        
+        .editor-select {
+            flex: 1; padding: 12px 15px; font-size: 1rem; color: #fff; background-color: #1a1a1a;
+            border: 1px solid #444; border-radius: 8px; outline: none; cursor: pointer; transition: 0.2s;
+            appearance: none; -webkit-appearance: none; text-align: center;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23FFD342' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat; background-position: right 15px center; background-size: 15px;
+        }
+        .editor-select option { background-color: #1a1a1a; color: #fff; padding: 12px; }
+        .editor-select option:checked { background: linear-gradient(#005f73, #005f73) !important; background-color: #005f73 !important; color: white !important; }
+        .editor-select option:hover { background: linear-gradient(#5dc8e8, #5dc8e8) !important; background-color: #5dc8e8 !important; color: #111 !important; }
+
+        .score-box { width: 60px; font-size: 1.4rem; font-weight: bold; text-align: center; background: #222; }
+        .vs-text { font-size: 1.2rem; font-weight: bold; color: #7d7d7d; width: 30px; text-align: center; }
+
+        .penalties-section { background: rgba(255,211,66,0.05); padding: 15px; border-radius: 8px; border: 1px dashed #FFD342; margin-top: 15px; display: none;}
+        .pen-input { width: 50px; padding: 8px; text-align: center; background: #1a1a1a; border: 1px solid #FFD342; color: #FFD342; font-weight: bold; border-radius: 6px; }
 
         .delete-icon { color: #cc2a2a; cursor: pointer; }
         .delete-icon:hover { color: #ff4d4d; }
@@ -177,6 +202,10 @@
             .list-box li { flex-direction: column; align-items: flex-start; text-align: left;}
             .list-box li > span { width: 100%; justify-content: flex-start; margin-bottom: 8px;}
             .list-box li > div { width: 100%; justify-content: flex-start; }
+
+            .editor-form-group { flex-direction: column; gap: 8px; }
+            .vs-text { display: none; }
+            .score-box { width: 100%; }
         }
     </style>
 </head>
@@ -289,7 +318,7 @@
         <div class="modal-content">
             <h3><i class="fa-solid fa-gear"></i> Configurar Partido</h3>
             <p>Selecciona el formato y la cancha para este ToroMatch:</p>
-            <div class="modal-form" style="align-items: flex-start; gap: 10px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;">
+            <div style="align-items: flex-start; gap: 10px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; text-align: left; margin-bottom: 20px;">
                 <div style="width: 100%; border-bottom: 1px dashed #444; padding-bottom: 10px; margin-bottom: 5px;">
                     <span style="color: #FFD342; font-weight: bold; font-size: 0.95rem; display: block; margin-bottom: 10px;"><i class="fa-solid fa-users"></i> Formato de Equipos</span>
                     <label style="cursor: pointer; font-size: 1rem; display: flex; align-items: center; gap: 10px; color: #fff;">
@@ -347,8 +376,7 @@
         <div class="modal-content">
             <h3><i class="fa-solid fa-star"></i> Calificar Partido</h3>
             <p>Del 1 al 10, ¿qué calificación le das a este express?</p>
-            <div id="ratingStarsContainer" style="display:flex; justify-content:center; gap:5px; font-size:1.5rem; color:#555; margin-bottom: 20px; cursor:pointer; flex-wrap: wrap;">
-            </div>
+            <div id="ratingStarsContainer" style="display:flex; justify-content:center; gap:5px; font-size:1.5rem; color:#555; margin-bottom: 20px; cursor:pointer; flex-wrap: wrap;"></div>
             <div class="modal-btn-row">
                 <button class="modal-btn cancel" onclick="cerrarModalRating()">Cancelar</button>
                 <button class="modal-btn" onclick="guardarRating()">Guardar</button>
@@ -357,30 +385,47 @@
     </div>
 
     <div class="modal-overlay" id="editModal">
-        <div class="modal-content">
-            <h3 id="modalTitle"><i class="fa-solid fa-plus"></i> Añadir al Historial</h3>
-            <div class="modal-form">
-                <div class="form-row">
-                    <input type="text" id="m_eq1" placeholder="Nombre Eq 1">
-                    <input type="text" id="m_eq2" placeholder="Nombre Eq 2">
+        <div class="modal-content" style="max-width: 600px;">
+            <h3 id="modalTitle"><i class="fa-solid fa-plus"></i> Añadir Resultado</h3>
+            
+            <div class="editor-form">
+                <div class="editor-form-group" style="justify-content: center; margin-bottom: 20px; border-bottom: 1px dashed #444; padding-bottom: 15px;">
+                    <i class="fa-solid fa-map-location-dot" style="color: #FFD342; font-size: 1.2rem;"></i>
+                    <select id="m_mode" class="editor-select" style="max-width: 250px;">
+                        <option value="Futsal">🏟️ Futsal</option>
+                        <option value="RealFutsal">🚩 Real Futsal</option>
+                        <option value="NA">Desconocido (N/A)</option>
+                    </select>
                 </div>
-                <div class="form-row">
-                    <input type="number" id="m_goles1" placeholder="Goles Eq 1" oninput="checkPenales()">
-                    <input type="number" id="m_goles2" placeholder="Goles Eq 2" oninput="checkPenales()">
+
+                <div class="editor-form-group">
+                    <input type="text" id="m_eq1" class="editor-input" placeholder="Equipo 1" style="color: #5dc8e8; font-weight: bold;">
+                    <input type="number" id="m_goles1" class="editor-input score-box" placeholder="0" min="0" oninput="checkPenales()">
+                    
+                    <span class="vs-text">VS</span>
+                    
+                    <input type="number" id="m_goles2" class="editor-input score-box" placeholder="0" min="0" oninput="checkPenales()">
+                    <input type="text" id="m_eq2" class="editor-input" placeholder="Equipo 2" style="color: #e74c3c; font-weight: bold;">
                 </div>
-                <div class="penalties-section" id="penales_div" style="display: none;">
-                    <p style="margin-top:0; margin-bottom: 10px; color:#FFD342; font-size: 0.9rem; text-align: center;">Tanda de Penales</p>
-                    <div class="form-row">
-                        <input type="number" id="m_pen1" placeholder="Penales Eq 1">
-                        <input type="number" id="m_pen2" placeholder="Penales Eq 2">
+
+                <div class="penalties-section" id="penales_div">
+                    <p style="margin-top:0; margin-bottom: 10px; color:#FFD342; font-size: 0.95rem; text-align: center; font-weight: bold;"><i class="fa-solid fa-bullseye"></i> Tanda de Penales</p>
+                    <div style="display: flex; justify-content: center; gap: 20px; align-items: center;">
+                        <input type="number" id="m_pen1" class="pen-input" placeholder="0" min="0">
+                        <span style="color: #7d7d7d; font-weight: bold;">-</span>
+                        <input type="number" id="m_pen2" class="pen-input" placeholder="0" min="0">
                     </div>
                 </div>
-                <input type="date" id="m_date">
-                
-                <div class="modal-btn-row" style="margin-top: 10px;">
-                    <button class="modal-btn cancel" onclick="cerrarModal()">Cancelar</button>
-                    <button class="modal-btn" id="modalSubmitBtn" onclick="guardarPartido()">Guardar Resultado</button>
+
+                <div class="editor-form-group" style="margin-top: 15px;">
+                    <i class="fa-regular fa-calendar-days" style="color: #bdc3c7; font-size: 1.2rem; margin-right: 5px;"></i>
+                    <input type="date" id="m_date" class="editor-input" style="text-align: left;">
                 </div>
+            </div>
+            
+            <div class="modal-btn-row">
+                <button class="modal-btn cancel" onclick="cerrarModal()">Cancelar</button>
+                <button class="modal-btn" id="modalSubmitBtn" onclick="guardarPartido()">Guardar Resultado</button>
             </div>
         </div>
     </div>
@@ -994,7 +1039,7 @@
                     partidosHistorial.forEach(m => {
                         const acciones = isManager ? `
                         <div class="action-icons">
-                            <i class="fa-solid fa-pen edit-action-icon" onclick="abrirModalEditar('${m._id}', '${m.matchType}', '${m.rival}', ${m.golesLocal}, ${m.golesVisita}, ${m.penalesLocal}, ${m.penalesVisita}, '${m.date}')"></i>
+                            <i class="fa-solid fa-pen edit-action-icon" onclick="abrirModalEditar('${m._id}', '${m.matchType}', '${m.rival}', ${m.golesLocal}, ${m.golesVisita}, ${m.penalesLocal}, ${m.penalesVisita}, '${m.date}', '${m.mode || 'NA'}')"></i>
                             <i class="fa-solid fa-trash delete-icon" onclick="borrarPartido('${m._id}')"></i>
                         </div>` : '';
                         
@@ -1026,9 +1071,19 @@
                             <span style="font-size:0.8rem; color:#bdc3c7; margin-top:2px; font-weight:bold;">${avgDisplay}</span>
                         </div>`;
 
+                        let modeBadgeHtml = "";
+                        const savedMode = m.mode || "NA";
+                        if (savedMode === "Futsal") {
+                            modeBadgeHtml = `<span class="mode-badge mode-fs">FS</span>`;
+                        } else if (savedMode === "RealFutsal") {
+                            modeBadgeHtml = `<span class="mode-badge mode-rf">RF</span>`;
+                        } else {
+                            modeBadgeHtml = `<span class="mode-badge mode-na">NA</span>`;
+                        }
+
                         histDiv.innerHTML += `
                             <div class="match-row">
-                                <div class="match-teams">${m.matchType} ${scoreText} ${m.rival}</div>
+                                <div class="match-teams">${modeBadgeHtml} ${m.matchType} ${scoreText} ${m.rival}</div>
                                 <div class="match-date" style="border-left:none;">${formatFecha(m.date)}</div>
                                 ${ratingHtml}
                                 ${acciones}
@@ -1107,6 +1162,7 @@
             editingId = null;
             document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-plus"></i> Añadir Resultado';
             document.getElementById('modalSubmitBtn').innerText = 'Guardar Resultado';
+            document.getElementById('m_mode').value = 'Futsal';
             document.getElementById('m_eq1').value = '';
             document.getElementById('m_eq2').value = '';
             document.getElementById('m_goles1').value = '';
@@ -1118,10 +1174,18 @@
             document.getElementById('editModal').style.display = 'flex'; 
         }
 
-        function abrirModalEditar(id, eq1, eq2, g1, g2, p1, p2, date) {
+        function abrirModalEditar(id, eq1, eq2, g1, g2, p1, p2, date, mode) {
             editingId = id;
             document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen"></i> Editar Resultado';
             document.getElementById('modalSubmitBtn').innerText = 'Actualizar Resultado';
+            
+            const selectMode = document.getElementById('m_mode');
+            if (mode && Array.from(selectMode.options).some(opt => opt.value === mode)) {
+                selectMode.value = mode;
+            } else {
+                selectMode.value = 'NA';
+            }
+
             document.getElementById('m_eq1').value = eq1;
             document.getElementById('m_eq2').value = eq2;
             document.getElementById('m_goles1').value = g1;
@@ -1143,6 +1207,7 @@
             const goles2 = parseInt(document.getElementById('m_goles2').value) || 0;
             const pen1 = parseInt(document.getElementById('m_pen1').value) || 0;
             const pen2 = parseInt(document.getElementById('m_pen2').value) || 0;
+            const matchMode = document.getElementById('m_mode').value;
 
             if(!equipo1 || !equipo2 || !date) return alert("Debes llenar los nombres de los equipos y la fecha.");
 
@@ -1157,7 +1222,8 @@
                         numericId: loggedId, token: token, team: 'toromatch',
                         isHistory: true, rival: equipo2, matchType: equipo1, 
                         golesLocal: goles1, golesVisita: goles2, 
-                        penalesLocal: pen1, penalesVisita: pen2, date: date
+                        penalesLocal: pen1, penalesVisita: pen2, date: date,
+                        mode: matchMode
                     })
                 });
                 const data = await res.json();
