@@ -164,7 +164,7 @@
         .cd-comenzando { color: #FFD342; font-weight: bold; font-size: 1.3rem; animation: pulse 1.5s infinite; }
         .cd-separator { font-size: 1.5rem; align-self: center; display: none; }
         
-        .close-modal-info { position: absolute; top: 15px; right: 15px; font-size: 1.5rem; color: #7d7d7d; cursor: pointer; transition: 0.3s;}
+        .close-modal-info { position: absolute; top: 15px; right: 15px; font-size: 1.5rem; color: #7d7d7d; cursor: pointer; transition: 0.3s; z-index: 10;}
         .close-modal-info:hover { color: #e74c3c; transform: scale(1.1); }
 
         @keyframes pulse-music {
@@ -310,8 +310,9 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="mediaModal">
+    <div class="modal-overlay" id="mediaModal" onclick="cerrarMediaModalClickFuera(event)">
         <div class="modal-content" style="max-width: 650px; border-color: #5dc8e8;">
+            <i class="fa-solid fa-xmark close-modal-info" onclick="cerrarMediaModal()"></i>
             <h3 style="color: #5dc8e8;"><i class="fa-solid fa-photo-film"></i> Archivos del Partido</h3>
             <div id="mediaModalContent" style="margin-top: 20px; text-align: left;">
             </div>
@@ -638,7 +639,6 @@
             cerrarModalConfirmacionSegura();
         });
 
-
         function switchTab(tabId) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -666,8 +666,8 @@
             }
             if (match.replayUrl) {
                 html += `
-                    <div style="text-align: center; background: rgba(45, 242, 193, 0.1); padding: 20px; border-radius: 8px; border: 1px dashed #2df2c1;">
-                        <h4 style="color:#2df2c1; margin-top:0; margin-bottom:15px;"><i class="fa-solid fa-file-arrow-down"></i> Repetición del partido</h4>
+                    <div style="text-align: center; background: rgba(45, 242, 193, 0.1); padding: 20px; border-radius: 8px; border: 1px solid #2df2c1;">
+                        <h4 style="color:#2df2c1; margin-top:0; margin-bottom:15px;"><i class="fa-solid fa-file-arrow-down"></i> Repetición Partido</h4>
                         <a href="${match.replayUrl}" download class="btn-estandar" style="background:#2df2c1; color:#111; text-decoration:none; display:inline-flex; width:auto; padding: 12px 25px; font-size: 1.05rem; margin-bottom: 0;">
                             <i class="fa-solid fa-download"></i> Descargar .hbr2
                         </a>
@@ -689,6 +689,10 @@
                 video.load();
             }
             document.getElementById('mediaModalContent').innerHTML = "";
+        }
+
+        function cerrarMediaModalClickFuera(e) {
+            if (e.target.id === 'mediaModal') cerrarMediaModal();
         }
 
         function getNextSaturday() {
