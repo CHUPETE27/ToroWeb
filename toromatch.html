@@ -38,14 +38,15 @@
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        .match-list-container { max-height: 300px; overflow-y: auto; padding-right: 5px; overflow-x: hidden;}
+        .match-list-container { max-height: 350px; overflow-y: auto; padding-right: 5px; overflow-x: hidden;}
         .match-list-container::-webkit-scrollbar { width: 6px; }
         .match-list-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
         .match-list-container::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
         .match-list-container::-webkit-scrollbar-thumb:hover { background: #FFD342; }
         
-        .match-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 10px; font-size: 1.05rem; background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 8px; width: 100%;}
-        
+        .match-row { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; font-size: 1.05rem; background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 8px; width: 100%; border: 1px solid rgba(255,255,255,0.05);}
+        .match-header-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; }
+
         .mode-col { display: flex; align-items: center; justify-content: center; padding-right: 15px; border-right: 1px dashed #444; flex-shrink: 0; }
         .mode-badge { font-size: 1.5rem; font-weight: 900; display: flex; justify-content: center; align-items: center; width: 40px; height: 36px; flex-shrink: 0; letter-spacing: -1px; }
         .mode-fs { color: #FFD342; text-shadow: 0 0 8px rgba(255, 211, 66, 0.4); }
@@ -132,14 +133,8 @@
         .editor-input:focus { border-color: #FFD342; box-shadow: 0 0 10px rgba(255, 211, 66, 0.2); }
         
         input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { 
-            -webkit-appearance: none; 
-            margin: 0; 
-        }
-        input[type=number] {
-            appearance: textfield;
-            -moz-appearance: textfield;
-        }
+        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { appearance: textfield; -moz-appearance: textfield; }
 
         .score-box { width: 55px; min-width: 55px; font-size: 1.2rem; font-weight: bold; background: #222; padding: 12px 5px;}
         .vs-text { font-size: 1.1rem; font-weight: bold; color: #7d7d7d; text-align: center; }
@@ -199,7 +194,7 @@
             .box { padding: 15px; } 
 
             .mode-col { border-right: none; border-bottom: 1px dashed #444; padding-right: 0; padding-bottom: 10px; width: 100%; margin-bottom: 5px; }
-            .match-row { flex-direction: column; gap: 8px; padding: 15px; align-items: center;}
+            .match-header-row { flex-direction: column; gap: 8px; padding: 15px; align-items: center;}
             .match-teams { white-space: normal; word-break: break-word; width: 100%; font-size: 1rem; text-align: center;}
             .match-date { width: 100%; border-left: none; text-align: center; border-top: 1px dashed #444; padding-top: 8px; font-size: 0.85rem;}
             .action-icons { flex-direction: row; justify-content: center; padding-top: 10px; border-top: 1px dashed #444; width: 100%;}
@@ -207,14 +202,12 @@
             .modal-content { padding: 25px 15px; }
             .modal-btn-row { flex-direction: column; }
             .modal-btn { width: 100%; }
-
             .modal-content h3 { font-size: 1.2rem; }
-            #infoModal .modal-content div { font-size: 0.95rem !important; padding: 15px !important; }
 
             .list-box li { flex-direction: column; align-items: flex-start; text-align: left;}
             .list-box li > span { width: 100%; justify-content: flex-start; margin-bottom: 8px;}
             .list-box li > div { width: 100%; justify-content: flex-start; }
-
+            
             .editor-match-grid { grid-template-columns: 1fr 40px 1fr; gap: 5px; }
             .team-side.left { flex-direction: column !important; width: 100%; gap: 5px; }
             .team-side.right { flex-direction: column-reverse !important; width: 100%; gap: 5px; }
@@ -313,6 +306,17 @@
             </div>
             <div class="modal-btn-row">
                 <button class="btn-estandar btn-primary" style="background:#5dc8e8; color:#111; border:none;" onclick="cerrarModalInfo()">¡Entendido!</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="mediaModal">
+        <div class="modal-content" style="max-width: 650px; border-color: #5dc8e8;">
+            <h3 style="color: #5dc8e8;"><i class="fa-solid fa-photo-film"></i> Archivos del Partido</h3>
+            <div id="mediaModalContent" style="margin-top: 20px; text-align: left;">
+            </div>
+            <div class="modal-btn-row">
+                <button class="modal-btn cancel" onclick="cerrarMediaModal()">Cerrar</button>
             </div>
         </div>
     </div>
@@ -478,6 +482,7 @@
         let editingId = null; 
         
         let initialDataLoaded = false;
+        let historialMatches = []; 
 
         const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
@@ -644,6 +649,47 @@
         function abrirModalInfo() { document.getElementById('infoModal').style.display = 'flex'; }
         function cerrarModalInfo() { document.getElementById('infoModal').style.display = 'none'; }
         function cerrarModalInfoClickFuera(e) { if (e.target.id === 'infoModal') cerrarModalInfo(); }
+
+        function abrirMediaModal(id) {
+            const match = historialMatches.find(m => m._id === id);
+            if (!match) return;
+
+            let html = "";
+            if (match.highlightUrl) {
+                html += `
+                    <div style="margin-bottom: 20px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border: 1px solid #333;">
+                        <h4 style="color:#FFD342; margin-top:0; margin-bottom:15px; text-align: center;"><i class="fa-solid fa-video"></i> Jugada Destacada</h4>
+                        <video id="mediaVideoPlayer" src="${match.highlightUrl}" controls autoplay style="width:100%; max-height:300px; border-radius:8px; background:black; outline: none;"></video>
+                        <p style="color:#bdc3c7; font-size:0.95rem; text-align:left; margin-top:15px; line-height:1.5;">${match.highlightDesc || 'Sin descripción'}</p>
+                    </div>
+                `;
+            }
+            if (match.replayUrl) {
+                html += `
+                    <div style="text-align: center; background: rgba(45, 242, 193, 0.1); padding: 20px; border-radius: 8px; border: 1px dashed #2df2c1;">
+                        <h4 style="color:#2df2c1; margin-top:0; margin-bottom:15px;"><i class="fa-solid fa-file-arrow-down"></i> Repetición Completa</h4>
+                        <a href="${match.replayUrl}" download class="btn-estandar" style="background:#2df2c1; color:#111; text-decoration:none; display:inline-flex; width:auto; padding: 12px 25px; font-size: 1.05rem; margin-bottom: 0;">
+                            <i class="fa-solid fa-download"></i> Descargar .hbr2
+                        </a>
+                        <p style="color:#7d7d7d; font-size:0.85rem; margin-top:10px; margin-bottom:0;">Carga este archivo en <strong>haxball.com/replay</strong> para ver el partido completo.</p>
+                    </div>
+                `;
+            }
+
+            document.getElementById('mediaModalContent').innerHTML = html;
+            document.getElementById('mediaModal').style.display = 'flex';
+        }
+
+        function cerrarMediaModal() {
+            document.getElementById('mediaModal').style.display = 'none';
+            const video = document.getElementById('mediaVideoPlayer');
+            if(video) {
+                video.pause();
+                video.removeAttribute('src');
+                video.load();
+            }
+            document.getElementById('mediaModalContent').innerHTML = "";
+        }
 
         function getNextSaturday() {
             const now = new Date();
@@ -1055,15 +1101,15 @@
             .then(data => {
                 if(data.success) {
                     histDiv.innerHTML = '';
+                    historialMatches = data.matches.filter(m => m.isHistory).reverse();
+
                     const formatFecha = (dateStr) => {
                         if(!dateStr) return '';
                         const parts = dateStr.split('-');
                         return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : dateStr;
                     };
 
-                    const partidosHistorial = data.matches.filter(m => m.isHistory).reverse();
-
-                    partidosHistorial.forEach(m => {
+                    historialMatches.forEach(m => {
                         const acciones = isManager ? `
                         <div class="action-icons">
                             <i class="fa-solid fa-pen edit-action-icon" onclick="abrirModalEditar('${m._id}', '${m.matchType}', '${m.rival}', ${m.golesLocal}, ${m.golesVisita}, ${m.penalesLocal}, ${m.penalesVisita}, '${m.date}', '${m.mode || 'NA'}')"></i>
@@ -1105,40 +1151,12 @@
                         else modeBadgeHtml = `<span class="mode-badge mode-na" title="No Especificado">NA</span>`;
 
                         let multimediaBtn = "";
-                        let multimediaContent = "";
                         if (m.replayUrl || m.highlightUrl) {
-                            let contentInside = "";
-                            if (m.highlightUrl) {
-                                contentInside += `
-                                    <div style="margin-bottom: 15px;">
-                                        <h4 style="color:#FFD342; margin-top:0; margin-bottom:10px;"><i class="fa-solid fa-video"></i> Jugada del Partido</h4>
-                                        <video src="${m.highlightUrl}" controls style="width:100%; max-height:250px; border-radius:8px; border: 1px solid #444; background:black;"></video>
-                                        <p style="color:#bdc3c7; font-size:0.9rem; text-align:left; margin-top:10px; line-height:1.4;">${m.highlightDesc || 'Sin descripción'}</p>
-                                    </div>
-                                `;
-                            }
-                            if (m.replayUrl) {
-                                contentInside += `
-                                    <div style="text-align: center;">
-                                        <a href="${m.replayUrl}" download class="btn-estandar" style="background:#5dc8e8; color:#111; text-decoration:none; display:inline-flex; width:auto; padding: 8px 20px; font-size: 0.95rem;">
-                                            <i class="fa-solid fa-download"></i> Descargar Repetición (.hbr2)
-                                        </a>
-                                        <p style="color:#7d7d7d; font-size:0.8rem; margin-top:5px;">Para verla, carga el archivo en haxball.com/replay</p>
-                                    </div>
-                                `;
-                            }
-
                             multimediaBtn = `
                                 <div style="width: 100%; text-align: center; border-top: 1px dashed #444; padding-top: 10px; margin-top: 10px;">
-                                    <button onclick="toggleMultimedia('${m._id}')" style="background:transparent; color:#5dc8e8; border:none; cursor:pointer; font-weight:bold; font-size:0.9rem;">
-                                        <i class="fa-solid fa-caret-down" id="icon_media_${m._id}"></i> Ver Multimedia del Partido
+                                    <button onclick="abrirMediaModal('${m._id}')" class="btn-estandar" style="background:#5dc8e8; color:#111; padding: 8px 15px; font-size: 0.9rem; width: auto; margin: 0 auto;">
+                                        <i class="fa-solid fa-play"></i> Ver Archivos / Repetición
                                     </button>
-                                </div>
-                            `;
-
-                            multimediaContent = `
-                                <div id="media_${m._id}" style="display:none; width:100%; background:rgba(0,0,0,0.4); padding:15px; border-radius:8px; margin-top:10px; border:1px solid #333;">
-                                    ${contentInside}
                                 </div>
                             `;
                         }
@@ -1153,7 +1171,6 @@
                                     ${acciones}
                                 </div>
                                 ${multimediaBtn}
-                                ${multimediaContent}
                             </div>
                         `;
                     });
@@ -1317,18 +1334,6 @@
                     else alert("Error al borrar.");
                 } catch (err) { alert("Error de conexión."); }
             });
-        }
-
-        function toggleMultimedia(id) {
-            const content = document.getElementById(`media_${id}`);
-            const icon = document.getElementById(`icon_media_${id}`);
-            if (content.style.display === "none") {
-                content.style.display = "block";
-                icon.classList.replace("fa-caret-down", "fa-caret-up");
-            } else {
-                content.style.display = "none";
-                icon.classList.replace("fa-caret-up", "fa-caret-down");
-            }
         }
 
         function updateCountdown() {
