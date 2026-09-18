@@ -1100,21 +1100,60 @@
 
                         let modeBadgeHtml = "";
                         const savedMode = m.mode || "NA";
-                        if (savedMode === "Futsal") {
-                            modeBadgeHtml = `<span class="mode-badge mode-fs" title="Futsal">FS</span>`;
-                        } else if (savedMode === "RealFutsal") {
-                            modeBadgeHtml = `<span class="mode-badge mode-rf" title="Real Futsal">RF</span>`;
-                        } else {
-                            modeBadgeHtml = `<span class="mode-badge mode-na" title="No Especificado">NA</span>`;
+                        if (savedMode === "Futsal") modeBadgeHtml = `<span class="mode-badge mode-fs" title="Futsal">FS</span>`;
+                        else if (savedMode === "RealFutsal") modeBadgeHtml = `<span class="mode-badge mode-rf" title="Real Futsal">RF</span>`;
+                        else modeBadgeHtml = `<span class="mode-badge mode-na" title="No Especificado">NA</span>`;
+
+                        let multimediaBtn = "";
+                        let multimediaContent = "";
+                        if (m.replayUrl || m.highlightUrl) {
+                            let contentInside = "";
+                            if (m.highlightUrl) {
+                                contentInside += `
+                                    <div style="margin-bottom: 15px;">
+                                        <h4 style="color:#FFD342; margin-top:0; margin-bottom:10px;"><i class="fa-solid fa-video"></i> Jugada del Partido</h4>
+                                        <video src="${m.highlightUrl}" controls style="width:100%; max-height:250px; border-radius:8px; border: 1px solid #444; background:black;"></video>
+                                        <p style="color:#bdc3c7; font-size:0.9rem; text-align:left; margin-top:10px; line-height:1.4;">${m.highlightDesc || 'Sin descripción'}</p>
+                                    </div>
+                                `;
+                            }
+                            if (m.replayUrl) {
+                                contentInside += `
+                                    <div style="text-align: center;">
+                                        <a href="${m.replayUrl}" download class="btn-estandar" style="background:#5dc8e8; color:#111; text-decoration:none; display:inline-flex; width:auto; padding: 8px 20px; font-size: 0.95rem;">
+                                            <i class="fa-solid fa-download"></i> Descargar Repetición (.hbr2)
+                                        </a>
+                                        <p style="color:#7d7d7d; font-size:0.8rem; margin-top:5px;">Para verla, carga el archivo en haxball.com/replay</p>
+                                    </div>
+                                `;
+                            }
+
+                            multimediaBtn = `
+                                <div style="width: 100%; text-align: center; border-top: 1px dashed #444; padding-top: 10px; margin-top: 10px;">
+                                    <button onclick="toggleMultimedia('${m._id}')" style="background:transparent; color:#5dc8e8; border:none; cursor:pointer; font-weight:bold; font-size:0.9rem;">
+                                        <i class="fa-solid fa-caret-down" id="icon_media_${m._id}"></i> Ver Multimedia del Partido
+                                    </button>
+                                </div>
+                            `;
+
+                            multimediaContent = `
+                                <div id="media_${m._id}" style="display:none; width:100%; background:rgba(0,0,0,0.4); padding:15px; border-radius:8px; margin-top:10px; border:1px solid #333;">
+                                    ${contentInside}
+                                </div>
+                            `;
                         }
 
                         histDiv.innerHTML += `
-                            <div class="match-row">
-                                <div class="mode-col">${modeBadgeHtml}</div>
-                                <div class="match-teams">${m.matchType} ${scoreText} ${m.rival}</div>
-                                <div class="match-date" style="border-left:none;">${formatFecha(m.date)}</div>
-                                ${ratingHtml}
-                                ${acciones}
+                            <div class="match-row" style="flex-wrap: wrap;">
+                                <div style="display:flex; width:100%; justify-content:space-between; align-items:center; gap: 10px;" class="match-header-row">
+                                    <div class="mode-col">${modeBadgeHtml}</div>
+                                    <div class="match-teams">${m.matchType} ${scoreText} ${m.rival}</div>
+                                    <div class="match-date" style="border-left:none;">${formatFecha(m.date)}</div>
+                                    ${ratingHtml}
+                                    ${acciones}
+                                </div>
+                                ${multimediaBtn}
+                                ${multimediaContent}
                             </div>
                         `;
                     });
@@ -1278,6 +1317,18 @@
                     else alert("Error al borrar.");
                 } catch (err) { alert("Error de conexión."); }
             });
+        }
+
+        function toggleMultimedia(id) {
+            const content = document.getElementById(`media_${id}`);
+            const icon = document.getElementById(`icon_media_${id}`);
+            if (content.style.display === "none") {
+                content.style.display = "block";
+                icon.classList.replace("fa-caret-down", "fa-caret-up");
+            } else {
+                content.style.display = "none";
+                icon.classList.replace("fa-caret-up", "fa-caret-down");
+            }
         }
 
         function updateCountdown() {
