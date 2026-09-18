@@ -658,7 +658,7 @@
             if (match.highlightUrl) {
                 html += `
                     <div style="margin-bottom: 20px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border: 1px solid #333;">
-                        <h4 style="color:#FFD342; margin-top:0; margin-bottom:15px; text-align: center;"><i class="fa-solid fa-video"></i> Jugada Destacada</h4>
+                        <h4 style="color:#FFD342; margin-top:0; margin-bottom:15px; text-align: center;"><i class="fa-solid fa-video"></i> Jugada del partido</h4>
                         <video id="mediaVideoPlayer" src="${match.highlightUrl}" controls autoplay style="width:100%; max-height:300px; border-radius:8px; background:black; outline: none;"></video>
                         <p style="color:#bdc3c7; font-size:0.95rem; text-align:left; margin-top:15px; line-height:1.5;">${match.highlightDesc || 'Sin descripción'}</p>
                     </div>
@@ -667,7 +667,7 @@
             if (match.replayUrl) {
                 html += `
                     <div style="text-align: center; background: rgba(45, 242, 193, 0.1); padding: 20px; border-radius: 8px; border: 1px dashed #2df2c1;">
-                        <h4 style="color:#2df2c1; margin-top:0; margin-bottom:15px;"><i class="fa-solid fa-file-arrow-down"></i> Repetición Completa</h4>
+                        <h4 style="color:#2df2c1; margin-top:0; margin-bottom:15px;"><i class="fa-solid fa-file-arrow-down"></i> Repetición del partido</h4>
                         <a href="${match.replayUrl}" download class="btn-estandar" style="background:#2df2c1; color:#111; text-decoration:none; display:inline-flex; width:auto; padding: 12px 25px; font-size: 1.05rem; margin-bottom: 0;">
                             <i class="fa-solid fa-download"></i> Descargar .hbr2
                         </a>
