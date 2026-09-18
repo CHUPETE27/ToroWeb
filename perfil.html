@@ -645,7 +645,7 @@
                 const chartPenAtajadosData = { type: 'doughnut', data: { labels: ['Atajados', 'Goles Recibidos'], datasets: [{ data: [penalesAtajados, penalesGolesEnContra > 0 ? penalesGolesEnContra : 0], backgroundColor: ['#3498db', '#cc2a2a'], borderColor: '#111', borderWidth: 3 }] }, options: { legend: { position: 'bottom', labels: { fontColor: '#fff' } }, plugins: { datalabels: { color: '#111', font: { weight: 'bold' }, display: "function(context) { return context.dataset.data[context.dataIndex] > 0; }" } } } };
                 document.getElementById('chartPenalesAtajados').src = `https://quickchart.io/chart?w=300&h=250&c=${encodeURIComponent(JSON.stringify(chartPenAtajadosData))}&bkg=transparent`;
 
-                const pG = parseFloat(promGoles) * 15.25; const pA = parseFloat(promAsist) * 12; const pAt = parseFloat(promAtajadas) * 2.5; const pD = parseFloat(promDefensas) * 1.25;
+                const pG = parseFloat(promGoles) * 15.5; const pA = parseFloat(promAsist) * 12; const pAt = parseFloat(promAtajadas) * 2.5; const pD = parseFloat(promDefensas) * 1;
                 const totalPromedios = pG + pA + pAt + pD;
 
                 if (totalPromedios > 0) {
