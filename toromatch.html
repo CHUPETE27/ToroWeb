@@ -51,6 +51,7 @@
         .mode-badge { font-size: 1.5rem; font-weight: 900; display: flex; justify-content: center; align-items: center; width: 40px; height: 36px; flex-shrink: 0; letter-spacing: -1px; }
         .mode-fs { color: #FFD342; text-shadow: 0 0 8px rgba(255, 211, 66, 0.4); }
         .mode-rf { color: #e74c3c; text-shadow: 0 0 8px rgba(231, 76, 60, 0.4); }
+        .mode-rs { color: #10b945; text-shadow: 0 0 8px rgba(8, 136, 59, 0.4); }
         .mode-na { color: #7d7d7d; }
 
         .match-teams { flex: 1; display: flex; justify-content: center; align-items: center; width: 100%; }
@@ -420,8 +421,8 @@
                             RF (Real Futsal)
                         </label>
                         <label style="cursor: pointer; font-size: 1rem; display: flex; align-items: center; gap: 8px; color: #fff;">
-                            <input type="radio" name="modal_m_mode" value="NA" style="width: auto; cursor:pointer;"> 
-                            N/A (Antiguo)
+                            <input type="radio" name="modal_m_mode" value="RealSoccer" style="width: auto; cursor:pointer;"> 
+                            RS (Real Soccer)
                         </label>
                     </div>
                 </div>
@@ -1154,6 +1155,7 @@
                         const savedMode = m.mode || "NA";
                         if (savedMode === "Futsal") modeBadgeHtml = `<span class="mode-badge mode-fs" title="Futsal">FS</span>`;
                         else if (savedMode === "RealFutsal") modeBadgeHtml = `<span class="mode-badge mode-rf" title="Real Futsal">RF</span>`;
+                        else if (savedMode === "RealSoccer") modeBadgeHtml = `<span class="mode-badge mode-rs" title="Real Soccer">RS</span>`;
                         else modeBadgeHtml = `<span class="mode-badge mode-na" title="No Especificado">NA</span>`;
 
                         let multimediaBtn = "";
@@ -1275,7 +1277,7 @@
             document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen"></i> Editar Resultado';
             document.getElementById('modalSubmitBtn').innerText = 'Actualizar Resultado';
             
-            const validModes = ['Futsal', 'RealFutsal', 'NA'];
+            const validModes = ['Futsal', 'RealFutsal', 'RealSoccer', 'NA'];
             const modeToSet = validModes.includes(mode) ? mode : 'NA';
             document.querySelector(`input[name="modal_m_mode"][value="${modeToSet}"]`).checked = true;
 
