@@ -92,7 +92,6 @@
 
         .inventory-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; width: 100%; margin-top: 15px; }
         .inventory-card { background: rgba(0,0,0,0.4); border: 1px solid #444; border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 15px; transition: transform 0.3s; }
-        .inventory-card:hover { transform: translateY(-3px); border-color: #5dc8e8; background: rgba(93, 200, 232, 0.05); }
         .inventory-icon { font-size: 2.5rem; color: #FFD342; width: 60px; text-align: center; }
         .inventory-info { flex: 1; }
         .inventory-title { color: #fff; margin: 0 0 5px 0; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center;}
@@ -270,7 +269,7 @@
             <div id="section-inventory" style="display: none;">
                 <div style="text-align: center; margin-bottom: 20px;">
                     <h3 style="color: #5dc8e8; font-size: 1.8rem; margin: 0;"><i class="fa-solid fa-ticket-simple"></i> Fichas & Fragmentos</h3>
-                    <p style="color: #bdc3c7;">Usa el comando <code>!ficha [tipo]</code> dentro de las salas de HaxBall para canjear tus artículos del inventario.</p>
+                    <p style="color: #bdc3c7;">Usa el comando <code>!ficha [tipo]</code> en el Juegan Todos para utilizar tus fichas del inventario.</p>
                 </div>
                 
                 <div class="inventory-grid" id="inventoryContainer">
@@ -458,35 +457,35 @@
                     <i class="fa-solid fa-repeat inventory-icon"></i>
                     <div class="inventory-info">
                         <h4 class="inventory-title">Fichas de Cambio <span class="inventory-count">x${p.ficha_cambio || 0}</span></h4>
-                        <p class="inventory-desc">Cámbiate al equipo contrario si hay espacio disponible (!ficha cambio).</p>
+                        <p class="inventory-desc">Cámbiate al equipo contrario si hay espacio disponible.</p>
                     </div>
                 </div>
                 <div class="inventory-card">
                     <i class="fa-solid fa-scale-balanced inventory-icon" style="color: #5dc8e8;"></i>
                     <div class="inventory-info">
                         <h4 class="inventory-title">Fichas de Balance <span class="inventory-count" style="background:#5dc8e8;">x${p.ficha_balance || 0}</span></h4>
-                        <p class="inventory-desc">Evita ser movido por el auto-balance durante un partido (!ficha balance).</p>
+                        <p class="inventory-desc">Evita ser movido por el auto-balance durante un partido.</p>
                     </div>
                 </div>
                 <div class="inventory-card">
                     <i class="fa-solid fa-shirt inventory-icon" style="color: #e74c3c;"></i>
                     <div class="inventory-info">
                         <h4 class="inventory-title">Fichas de Camisetas <span class="inventory-count" style="background:#e74c3c; color:white;">x${p.ficha_camis || 0}</span></h4>
-                        <p class="inventory-desc">Escoge las camisetas de tu equipo en este partido (!ficha camis).</p>
+                        <p class="inventory-desc">Escoge las camisetas de tu equipo en este partido.</p>
                     </div>
                 </div>
                 <div class="inventory-card">
                     <i class="fa-solid fa-tag inventory-icon" style="color: #2df2c1;"></i>
                     <div class="inventory-info">
                         <h4 class="inventory-title">Fichas de Descuento <span class="inventory-count" style="background:#2df2c1; color: #111;">x${p.ficha_descuento || 0}</span></h4>
-                        <p class="inventory-desc">Activa 25% de rebaja en la tienda de Discord durante 20 mins (!ficha descuento).</p>
+                        <p class="inventory-desc">Activa 30% de rebaja en la tienda (!tienda).</p>
                     </div>
                 </div>
                 <div class="inventory-card">
                     <i class="fa-solid fa-gamepad inventory-icon" style="color: #9b59b6;"></i>
                     <div class="inventory-info">
                         <h4 class="inventory-title">Fichas de Modo <span class="inventory-count" style="background:#9b59b6; color:white;">x${p.ficha_modo || 0}</span></h4>
-                        <p class="inventory-desc">Juega el siguiente partido con físicas especiales (!ficha modo).</p>
+                        <p class="inventory-desc">Elige un modo de juego para la siguiente partida (!modos).</p>
                     </div>
                 </div>
                 <div class="inventory-card" style="border-color: #f1c40f; background: rgba(241, 196, 15, 0.05);">
@@ -646,7 +645,7 @@
                 const chartPenAtajadosData = { type: 'doughnut', data: { labels: ['Atajados', 'Goles Recibidos'], datasets: [{ data: [penalesAtajados, penalesGolesEnContra > 0 ? penalesGolesEnContra : 0], backgroundColor: ['#3498db', '#cc2a2a'], borderColor: '#111', borderWidth: 3 }] }, options: { legend: { position: 'bottom', labels: { fontColor: '#fff' } }, plugins: { datalabels: { color: '#111', font: { weight: 'bold' }, display: "function(context) { return context.dataset.data[context.dataIndex] > 0; }" } } } };
                 document.getElementById('chartPenalesAtajados').src = `https://quickchart.io/chart?w=300&h=250&c=${encodeURIComponent(JSON.stringify(chartPenAtajadosData))}&bkg=transparent`;
 
-                const pG = parseFloat(promGoles) * 15; const pA = parseFloat(promAsist) * 11; const pAt = parseFloat(promAtajadas) * 4; const pD = parseFloat(promDefensas) * 1;
+                const pG = parseFloat(promGoles) * 15.25; const pA = parseFloat(promAsist) * 12; const pAt = parseFloat(promAtajadas) * 2.5; const pD = parseFloat(promDefensas) * 1.25;
                 const totalPromedios = pG + pA + pAt + pD;
 
                 if (totalPromedios > 0) {
