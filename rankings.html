@@ -17,7 +17,7 @@
         main { display: flex; flex-direction: column; align-items: center; width: 95%; max-width: 1000px; margin: 5vh auto 50px; text-align: center; }
         
         .rankings-title { color: #FFD342; text-transform: uppercase; letter-spacing: 2px; font-size: 2.2rem; margin-bottom: 20px; }
-        
+
         .season-banner {
             display: flex; justify-content: space-between; align-items: center;
             background: linear-gradient(135deg, rgba(204, 42, 42, 0.15) 0%, rgba(255, 211, 66, 0.1) 100%);
@@ -32,7 +32,7 @@
         
         .season-countdown { text-align: right; }
         .season-countdown p { margin: 0 0 5px 0; color: #FFD342; font-weight: bold; font-size: 1rem; text-transform: uppercase;}
-        .season-countdown .countdown-container { justify-content: flex-end; }
+        .banner-countdown { justify-content: flex-end; margin-top: 10px; min-width: 280px; }
         
         .search-container { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; max-width: 600px; }
         .search-container input { flex-grow: 1; background: #111; color: white; border: 1px solid #555; padding: 12px; border-radius: 8px; outline: none; text-align: center; font-size: 1rem;}
@@ -131,7 +131,7 @@
             .season-banner { flex-direction: column; text-align: center; padding: 15px; }
             .season-info { text-align: center; }
             .season-countdown { text-align: center; width: 100%; }
-            .season-countdown .countdown-container { justify-content: center; margin-top: 10px; }
+            .banner-countdown { justify-content: center; }
         }
 
         @media (max-width: 480px) {
@@ -347,7 +347,7 @@
 
                 const pad = (num) => String(num).padStart(2, '0');
 
-                let html = `<div class="countdown-container">`;
+                let html = `<div class="countdown-container banner-countdown">`;
                 
                 if (days > 0) {
                     html += `
