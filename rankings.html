@@ -17,7 +17,7 @@
         main { display: flex; flex-direction: column; align-items: center; width: 95%; max-width: 1000px; margin: 5vh auto 50px; text-align: center; }
         
         .rankings-title { color: #FFD342; text-transform: uppercase; letter-spacing: 2px; font-size: 2.2rem; margin-bottom: 20px; }
-
+        
         .season-banner {
             display: flex; justify-content: space-between; align-items: center;
             background: linear-gradient(135deg, rgba(204, 42, 42, 0.15) 0%, rgba(255, 211, 66, 0.1) 100%);
@@ -29,9 +29,10 @@
         .season-info h3 { margin: 0 0 5px 0; color: #FFD342; font-size: 1.8rem; text-transform: uppercase; }
         .season-info p { margin: 0; color: #bdc3c7; font-size: 1.1rem; }
         .season-info strong { color: white; }
+        
         .season-countdown { text-align: right; }
         .season-countdown p { margin: 0 0 5px 0; color: #FFD342; font-weight: bold; font-size: 1rem; text-transform: uppercase;}
-        .countdown-timer { font-family: monospace; font-size: 2rem; font-weight: bold; color: #fff; background: rgba(0,0,0,0.5); padding: 5px 15px; border-radius: 8px; letter-spacing: 2px; border: 1px solid #333;}
+        .season-countdown .countdown-container { justify-content: flex-end; }
         
         .search-container { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; max-width: 600px; }
         .search-container input { flex-grow: 1; background: #111; color: white; border: 1px solid #555; padding: 12px; border-radius: 8px; outline: none; text-align: center; font-size: 1rem;}
@@ -99,22 +100,18 @@
         .totales-item i { margin-right: 5px; color: #5dc8e8;}
 
         .modal-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 30px; width: 100%;}
-        .modal-stat-box { background: #111; border: 1px solid #444; border-radius: 10px; padding: 20px; width: 100%;}
-        .modal-stat-box h3 { margin: 0 0 15px; color: #FFD342; font-size: 1.2rem; text-align: center; border-bottom: 1px solid #333; padding-bottom: 10px;}
-        .modal-stat-box ul { list-style: none; padding: 0; margin: 0; text-align: left;}
-        .modal-stat-box li { margin-bottom: 10px; color: #ccc; font-size: 0.95rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 6px;}
-        .modal-stat-box li i { color: #5dc8e8; width: 20px; text-align: center; margin-right: 8px;}
-        .modal-stat-box li:last-child { border-bottom: none; }
-        .modal-stat-box li strong { color: white; text-align: right; }
+        
+        .list-box li i { color: #5dc8e8; width: 20px; text-align: center; margin-right: 8px; }
+        .list-box li strong { color: white; text-align: right; }
 
         .modal-charts-grid { display: grid; gap: 20px; width: 100%; margin-bottom: 20px; }
         .three-cols { grid-template-columns: repeat(3, 1fr); }
         .two-cols { grid-template-columns: repeat(2, 1fr); max-width: 800px; margin: 0 auto; }
 
-        .modal-chart-box { background: #111; border: 1px solid #444; border-radius: 10px; padding: 20px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; width: 100%;}
-        .modal-chart-box h4 { margin: 0 0 10px; color: #FFD342; font-size: 1.1rem; }
-        .modal-chart-box p { color: #ccc; font-size: 0.9rem; margin-bottom: 15px; }
-        .modal-chart-box img { max-width: 100%; height: auto; object-fit: contain; }
+        .chart-box-inner { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 20px;}
+        .chart-box-inner h4 { margin: 0 0 10px; color: #FFD342; font-size: 1.1rem; }
+        .chart-box-inner p { color: #ccc; font-size: 0.9rem; margin-bottom: 15px; }
+        .chart-box-inner img { max-width: 100%; height: auto; object-fit: contain; }
 
         .loading-text { color: #FFD342; padding: 50px; font-size: 1.2rem; }
 
@@ -134,6 +131,7 @@
             .season-banner { flex-direction: column; text-align: center; padding: 15px; }
             .season-info { text-align: center; }
             .season-countdown { text-align: center; width: 100%; }
+            .season-countdown .countdown-container { justify-content: center; margin-top: 10px; }
         }
 
         @media (max-width: 480px) {
@@ -143,8 +141,6 @@
             th, td { padding: 10px 5px; font-size: 0.95rem; }
             .player-id { display: block; margin-left: 0; margin-top: 2px; font-size: 0.75rem; }
             .tab-btn { max-width: 100%; }
-
-            .countdown-timer { font-size: 1.4rem; padding: 5px 10px; letter-spacing: 1px;}
             
             .modal-content { padding: 20px 15px; }
             .modal-name { font-size: 1.6rem; }
@@ -165,7 +161,7 @@
             </div>
             <div class="season-countdown">
                 <p>⏳ Tiempo Restante:</p>
-                <div class="countdown-timer" id="countdownTimer">--:--:--:--</div>
+                <div id="countdownTimer"></div>
             </div>
         </div>
 
@@ -239,15 +235,15 @@
             <div class="totales-bar" id="m_barTotales"></div>
 
             <div class="modal-stats-grid">
-                <div class="modal-stat-box">
+                <div class="box list-box" style="padding: 20px;">
                     <h3><i class="fa-solid fa-chart-line"></i> Estadísticas</h3>
                     <ul id="m_listEstadisticas"></ul>
                 </div>
-                <div class="modal-stat-box">
+                <div class="box list-box" style="padding: 20px;">
                     <h3><i class="fa-solid fa-hands-bound"></i> Arquero</h3>
                     <ul id="m_listArquero"></ul>
                 </div>
-                <div class="modal-stat-box">
+                <div class="box list-box" style="padding: 20px;">
                     <h3><i class="fa-solid fa-percent"></i> Promedios</h3>
                     <ul id="m_listPromedios"></ul>
                 </div>
@@ -255,17 +251,17 @@
 
             <div id="m_charts" style="display: none;">
                 <div class="modal-charts-grid three-cols">
-                    <div class="modal-chart-box">
+                    <div class="box chart-box-inner">
                         <h4><i class="fa-solid fa-shoe-prints"></i> Pases</h4>
                         <p>Precisión: <strong id="m_passPct" style="color: #2df2c1;">0%</strong></p>
                         <img id="m_chartPases" src="">
                     </div>
-                    <div class="modal-chart-box">
+                    <div class="box chart-box-inner">
                         <h4><i class="fa-solid fa-balance-scale"></i> Estilo: <span id="m_position" style="color:white;">...</span></h4>
                         <p>⚔️ Atq: <span id="m_atkPct">0</span>% | 🛡️ Def: <span id="m_defPct">0</span>%</p>
                         <img id="m_chartPie" src="">
                     </div>
-                    <div class="modal-chart-box">
+                    <div class="box chart-box-inner">
                         <h4><i class="fa-solid fa-clock-rotate-left"></i> Historial</h4>
                         <p>Distribución de resultados.</p>
                         <img id="m_chartDoughnut" src="">
@@ -273,12 +269,12 @@
                 </div>
                 
                 <div class="modal-charts-grid two-cols">
-                    <div class="modal-chart-box">
+                    <div class="box chart-box-inner">
                         <h4><i class="fa-solid fa-bullseye"></i> Penales Lanzados</h4>
                         <p>Efectividad en Penales</p>
                         <img id="m_chartPenalesLanzados" src="" alt="Gráfico Penales Lanzados">
                     </div>
-                    <div class="modal-chart-box">
+                    <div class="box chart-box-inner">
                         <h4><i class="fa-solid fa-hands"></i> Penales Recibidos</h4>
                         <p>Efectividad Atajando Penales</p>
                         <img id="m_chartPenalesAtajados" src="" alt="Gráfico Penales Atajados">
@@ -340,8 +336,7 @@
                 const diff = targetDate - now;
 
                 if (diff <= 0) {
-                    timerEl.innerText = "¡TEMPORADA FINALIZADA!";
-                    timerEl.style.color = "#cc2a2a";
+                    timerEl.innerHTML = `<span class="cd-comenzando" style="font-size:1.5rem; color:#cc2a2a;">¡TEMPORADA FINALIZADA!</span>`;
                     return;
                 }
 
@@ -350,12 +345,26 @@
                 const mins = Math.floor((diff / 1000 / 60) % 60);
                 const secs = Math.floor((diff / 1000) % 60);
 
-                const dStr = String(days).padStart(2, '0');
-                const hStr = String(hours).padStart(2, '0');
-                const mStr = String(mins).padStart(2, '0');
-                const sStr = String(secs).padStart(2, '0');
+                const pad = (num) => String(num).padStart(2, '0');
 
-                timerEl.innerText = `${dStr}d ${hStr}h ${mStr}m ${sStr}s`;
+                let html = `<div class="countdown-container">`;
+                
+                if (days > 0) {
+                    html += `
+                        <div class="cd-box"><span class="cd-number">${pad(days)}</span><span class="cd-label">Días</span></div>
+                        <span class="cd-separator">:</span>
+                    `;
+                }
+
+                html += `
+                    <div class="cd-box"><span class="cd-number">${pad(hours)}</span><span class="cd-label">Hrs</span></div>
+                    <span class="cd-separator">:</span>
+                    <div class="cd-box"><span class="cd-number">${pad(mins)}</span><span class="cd-label">Min</span></div>
+                    <span class="cd-separator">:</span>
+                    <div class="cd-box"><span class="cd-number" style="color:#5dc8e8;">${pad(secs)}</span><span class="cd-label">Sec</span></div>
+                </div>`;
+
+                timerEl.innerHTML = html;
             }
 
             actualizar();
