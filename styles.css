@@ -391,10 +391,13 @@ footer {
     background: rgba(0, 0, 0, 0.5); 
     border: 1px solid #444; 
     border-radius: 8px; 
-    padding: 10px 5px; 
-    text-align: center; 
+    padding: 10px; 
     flex: 1; 
     min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 .cd-number { 
     display: block; 
@@ -403,6 +406,8 @@ footer {
     color: #2df2c1; 
     font-family: monospace; 
     line-height: 1;
+    text-align: center;
+    margin: 0;
 }
 .cd-label { 
     display: block; 
@@ -411,17 +416,22 @@ footer {
     text-transform: uppercase; 
     letter-spacing: 1px; 
     margin-top: 5px; 
+    text-align: center;
 }
-.cd-separator { font-size: 1.5rem; align-self: center; display: none; }
+.cd-separator { 
+    font-size: 1.5rem; 
+    align-self: center; 
+    margin-top: -12px; /* Sube los dos puntos para alinearlos con el número */
+    display: none; 
+}
 
-/* Contadores para móvil */
+/* Contadores para móvil / Escritorio */
 @media (min-width: 481px) {
     .cd-separator { display: block; }
     .cd-number { font-size: 1.8rem; }
     .cd-box { padding: 10px 15px; }
     .countdown-container { max-width: 80%; margin: 0 auto; }
 }
-
 
 /* --- 4. BLOQUES DE CONTENIDO Y LISTAS --- */
 .box { 
