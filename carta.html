@@ -162,8 +162,9 @@
             cursor: text;
         }
 
-        .btn-descargar { width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.1rem; border: none; background: #FFD342; color: #111; display: flex; justify-content: center; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 1px;}
-        .btn-descargar:hover { background: #ffdf73; box-shadow: 0 0 20px rgba(255, 211, 66, 0.4); transform: translateY(-2px); }
+        .btn-descargar { width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; transition: 0.3s; font-size: 1.1rem; border: none; background: #FFD342; color: #111; display: flex; justify-content: center; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 1px;}
+        .btn-descargar:hover:not(:disabled) { background: #ffdf73; box-shadow: 0 0 20px rgba(255, 211, 66, 0.4); transform: translateY(-2px); cursor: pointer; }
+        .btn-descargar:disabled { background: #555; color: #aaa; cursor: not-allowed; }
         
         .preview-container { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 20px;}
         
@@ -343,6 +344,20 @@
             display: none;
             font-weight: bold;
         }
+
+        .gk-warning-box {
+            display: none;
+            color: #ff4d4d;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            font-weight: bold;
+            background: rgba(204, 42, 42, 0.15);
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px dashed #cc2a2a;
+            text-align: center;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
@@ -377,6 +392,9 @@
                             <option value="DEF">Defensa (DEF)</option>
                             <option value="GK">Arquero (GK)</option>
                         </select>
+                        <div id="gk-warning" class="gk-warning-box">
+                            <i class="fa-solid fa-lock"></i> Carta no disponible. Necesitas 50 partidos como Arquero (Tienes <span id="gk-count">0</span>).
+                        </div>
                     </div>
                 </div>
 
@@ -443,7 +461,7 @@
                     </div>
                 </div>
 
-                <button class="btn-descargar" onclick="descargarCarta()">
+                <button class="btn-descargar" id="btnDescargar" onclick="descargarCarta()">
                     <i class="fa-solid fa-download"></i> Descargar Carta
                 </button>
             </div>
@@ -486,10 +504,8 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
-
         </div>
     </main>
 
@@ -799,6 +815,12 @@
             const p_pasC = isTemp ? (playerData.temp_pasesCompletados || 0) : (playerData.pasesCompletados || 0);
             const p_pasP = isTemp ? (playerData.temp_pasesPerdidos || 0) : (playerData.pasesPerdidos || 0);
             
+            const p_partidos_gk = isTemp ? (playerData.temp_partidos_gk || 0) : (playerData.partidos_gk || 0);
+            const p_golesRec = isTemp ? (playerData.temp_golesRecibidos || 0) : (playerData.golesRecibidos || 0);
+            const p_port0 = isTemp ? (playerData.temp_porteria_0 || 0) : (playerData.porteria_0 || 0);
+            const p_penAtaj = isTemp ? (playerData.temp_penalesAtajados || 0) : (playerData.penalesAtajados || 0);
+            const p_penRec = isTemp ? (playerData.temp_penalesRecibidos || 0) : (playerData.penalesRecibidos || 0);
+
             const elo = playerData.elo || 200;
             
             const calcScale = (val, max) => {
@@ -823,8 +845,26 @@
             const defPP = p_partidos > 0 ? p_int / p_partidos : 0;
             const DEF = calcScale(defPP, 30.0);
 
-            const gkPP = p_partidos > 0 ? p_ataj / p_partidos : 0;
-            const GK = calcScale(gkPP, 5.0);
+            let GK = 1;
+            if (p_partidos_gk > 0) {
+                const atajadasPP = p_ataj / p_partidos_gk;
+                const scoreAtajada = Math.min(99, Math.max(1, Math.round((atajadasPP / 15) * 98 + 1)));
+                
+                const golesRecPP = p_golesRec / p_partidos_gk;
+                const scoreGoleado = Math.min(99, Math.max(1, Math.round(99 - (golesRecPP / 10) * 98)));
+
+                const port0Pct = p_port0 / p_partidos_gk;
+                const scorePort0 = Math.min(99, Math.max(1, Math.round(port0Pct * 98 + 1)));
+                
+                const totalPenales = p_penAtaj + p_penRec;
+                let scorePenales = 65;
+                if (totalPenales > 0) {
+                    const penPct = p_penAtaj / totalPenales;
+                    scorePenales = Math.min(99, Math.max(1, Math.round(penPct * 98 + 1)));
+                }
+
+                GK = Math.round((scoreAtajada * 0.6) + (scoreGoleado * 0.2) + (scorePort0 * 0.12) + (scorePenales * 0.08));
+            }
 
             let OVR = 1;
             if (pos === "DEL") OVR = Math.round(TIR*0.6 + PAS*0.2 + HAB*0.15 + DEF*0.05);
@@ -889,11 +929,28 @@
             else if (OVR <= 89) { cartaDOM.classList.add("card-oro"); cartaDOM.style.setProperty('--bg-1', '#ffe066'); cartaDOM.style.setProperty('--bg-2', '#aa8014'); cartaDOM.style.setProperty('--border-col', '#fff5ba');}
             else { cartaDOM.classList.add("card-leyenda"); cartaDOM.style.setProperty('--bg-1', '#ff007f'); cartaDOM.style.setProperty('--bg-2', '#00d4ff'); cartaDOM.style.setProperty('--border-col', '#ffffff');}
 
+            const warningDiv = document.getElementById('gk-warning');
+            const btnDescargar = document.getElementById('btnDescargar');
+
+            if (pos === "GK" && p_partidos_gk < 50) {
+                warningDiv.style.display = 'block';
+                document.getElementById('gk-count').innerText = p_partidos_gk;
+                
+                btnDescargar.disabled = true;
+                btnDescargar.innerHTML = '<i class="fa-solid fa-lock"></i> Requiere 50 partidos GK';
+            } else {
+                warningDiv.style.display = 'none';
+                btnDescargar.disabled = false;
+                btnDescargar.innerHTML = '<i class="fa-solid fa-download"></i> Descargar Carta';
+            }
+
             manejarKits();
         }
 
         function descargarCarta() {
             const btn = document.querySelector('.btn-descargar');
+            if (btn.disabled) return;
+            
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando...';
             btn.disabled = true;
