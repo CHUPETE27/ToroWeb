@@ -1115,9 +1115,14 @@
                     };
 
                     historialMatches.forEach(m => {
+                        const safeEq1 = (m.matchType || '').replace(/'/g, "\\'");
+                        const safeEq2 = (m.rival || '').replace(/'/g, "\\'");
+                        const safeDate = (m.date || '').replace(/'/g, "\\'");
+                        const safeMode = (m.mode || 'NA').replace(/'/g, "\\'");
+
                         const acciones = isManager ? `
                         <div class="action-icons">
-                            <i class="fa-solid fa-pen edit-action-icon" onclick="abrirModalEditar('${m._id}', '${m.matchType}', '${m.rival}', ${m.golesLocal}, ${m.golesVisita}, ${m.penalesLocal}, ${m.penalesVisita}, '${m.date}', '${m.mode || 'NA'}')"></i>
+                            <i class="fa-solid fa-pen edit-action-icon" onclick="abrirModalEditar('${m._id}', '${safeEq1}', '${safeEq2}', ${m.golesLocal}, ${m.golesVisita}, ${m.penalesLocal}, ${m.penalesVisita}, '${safeDate}', '${safeMode}')"></i>
                             <i class="fa-solid fa-trash delete-icon" onclick="borrarPartido('${m._id}')"></i>
                         </div>` : '';
                         
@@ -1277,9 +1282,10 @@
             document.getElementById('modalTitle').innerHTML = '<i class="fa-solid fa-pen"></i> Editar Resultado';
             document.getElementById('modalSubmitBtn').innerText = 'Actualizar Resultado';
             
-            const validModes = ['Futsal', 'RealFutsal', 'RealSoccer', 'NA'];
-            const modeToSet = validModes.includes(mode) ? mode : 'NA';
-            document.querySelector(`input[name="modal_m_mode"][value="${modeToSet}"]`).checked = true;
+            const validModes = ['Futsal', 'RealFutsal', 'RealSoccer'];
+            const modeToSet = validModes.includes(mode) ? mode : 'Futsal'; 
+            const modeInput = document.querySelector(`input[name="modal_m_mode"][value="${modeToSet}"]`);
+            if (modeInput) modeInput.checked = true;
 
             document.getElementById('m_eq1').value = eq1;
             document.getElementById('m_eq2').value = eq2;
