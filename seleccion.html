@@ -125,6 +125,33 @@
         .edit-action-icon:hover { color: #5dade2; }
         #customAlertModal, #customConfirmModal { z-index: 10000; }
 
+        .btn-estadio {
+            background: rgba(20, 20, 20, 0.8);
+            border: 1px solid #FFD342;
+            color: #FFD342;
+            width: 100%;
+            border-radius: 15px;
+            padding: 18px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            margin: 0;
+        }
+        .btn-estadio:hover {
+            background: #FFD342;
+            color: #111;
+            box-shadow: 0 5px 20px rgba(255, 211, 66, 0.4);
+            transform: translateY(-3px);
+        }
+
         @media (max-width: 900px) { .seleccion-wrapper { grid-template-columns: 1fr; } }
         @media (max-width: 600px) { 
             .grid-4 { grid-template-columns: repeat(2, 1fr); } 
@@ -180,8 +207,8 @@
                 </div>
 
                 <div class="right-col">
-                    <div id="estadioBtnContainer" style="display: none; margin-bottom: 20px;">
-                        <button class="btn-estandar" style="background: rgba(20, 20, 20, 0.8); border: 1px solid #FFD342; color: #FFD342; width: 100%; box-shadow: 0 5px 15px rgba(0,0,0,0.5); font-size: 1.2rem; text-transform: uppercase;" onclick="switchMainView('estadio')">
+                    <div id="estadioBtnContainer" style="display: none; width: 100%;">
+                        <button class="btn-estadio" onclick="switchMainView('estadio')">
                             <i class="fa-solid fa-stadium"></i> Estadio
                         </button>
                     </div>
