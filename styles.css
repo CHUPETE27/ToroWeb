@@ -311,7 +311,7 @@ footer {
    DISEÑOS GLOBALES (ESTILO TOROMATCH)
    ========================================= */
 
-/* --- 1. BOTONES DE ACCIÓN (Ej: Abrir Inscripciones, Guardar, etc.) --- */
+/* --- 1. BOTONES DE ACCIÓN PRINCIPALES --- */
 .btn-estandar {
     width: 260px; 
     padding: 12px; 
@@ -349,8 +349,7 @@ footer {
     box-shadow: 0 0 15px rgba(255, 211, 66, 0.4); 
 }
 
-
-/* --- 2. BOTONES PELIGROSOS Y CERRAR MODAL (Ej: Cancelar, Expulsar, Cerrar) --- */
+/* --- 2. BOTONES PELIGROSOS Y MODALES --- */
 .btn-danger, .btn-cancelar { 
     background: #cc2a2a; 
     color: #fff; 
@@ -377,8 +376,49 @@ footer {
 .modal-btn.cancel { background: #cc2a2a; color: white;}
 .modal-btn-row { display: flex; gap: 15px; width: 100%; justify-content: center; flex-wrap: wrap; margin-top: 15px;}
 
+@media (max-width: 480px) {
+    .modal-btn-row { flex-direction: column; }
+    .modal-btn { width: 100%; }
+}
 
-/* --- 3. CONTADORES ESTILO TOROMATCH --- */
+/* --- 3. BOTONES DE ASIGNACIÓN (Admin de Equipos/Parches) --- */
+.assign-btn { 
+    background: #333; 
+    border: 1px solid #555; 
+    color: #fff; 
+    border-radius: 4px; 
+    padding: 4px 8px; 
+    cursor: pointer; 
+    font-size: 0.8rem; 
+    margin-left: 2px; 
+    transition: 0.2s;
+}
+.assign-btn:hover { background: #444; }
+.assign-btn.eq1 { color: #3498db; border-color: #3498db; }
+.assign-btn.eq1.active { background: #3498db; color: #111;}
+.assign-btn.eq2 { color: #e74c3c; border-color: #e74c3c; }
+.assign-btn.eq2.active { background: #e74c3c; color: #111;}
+
+/* --- 4. ETIQUETAS DE MODO (FS, RF, RS) --- */
+.mode-col { 
+    display: flex; align-items: center; justify-content: center; 
+    padding-right: 15px; border-right: 1px solid #444; flex-shrink: 0; 
+}
+.mode-badge { 
+    font-size: 1.5rem; font-weight: 900; display: flex; 
+    justify-content: center; align-items: center; width: 40px; 
+    height: 36px; flex-shrink: 0; letter-spacing: -1px; 
+}
+.mode-fs { color: #FFD342; text-shadow: 0 0 8px rgba(255, 211, 66, 0.4); }
+.mode-rf { color: #e74c3c; text-shadow: 0 0 8px rgba(231, 76, 60, 0.4); }
+.mode-rs { color: #10b945; text-shadow: 0 0 8px rgba(8, 136, 59, 0.4); }
+.mode-na { color: #7d7d7d; }
+
+@media (max-width: 480px) {
+    .mode-col { border-right: none; border-bottom: 1px solid #444; padding-right: 0; padding-bottom: 10px; width: 100%; margin-bottom: 5px; }
+}
+
+/* --- 5. CONTADORES ESTILO TOROMATCH --- */
 .countdown-container { 
     display: flex; 
     gap: 8px; 
@@ -418,14 +458,16 @@ footer {
     margin-top: 5px; 
     text-align: center;
 }
+.cd-comenzando { 
+    color: #FFD342; font-weight: bold; font-size: 1.3rem; animation: pulse 1.5s infinite; 
+}
 .cd-separator { 
     font-size: 1.5rem; 
     align-self: center; 
-    margin-top: -12px; /* Sube los dos puntos para alinearlos con el número */
+    margin-top: -12px;
     display: none; 
 }
 
-/* Contadores para móvil / Escritorio */
 @media (min-width: 481px) {
     .cd-separator { display: block; }
     .cd-number { font-size: 1.8rem; }
@@ -433,7 +475,7 @@ footer {
     .countdown-container { max-width: 80%; margin: 0 auto; }
 }
 
-/* --- 4. BLOQUES DE CONTENIDO Y LISTAS --- */
+/* --- 6. BLOQUES DE CONTENIDO Y LISTAS --- */
 .box { 
     background: rgba(20, 20, 20, 0.8); 
     border: 1px solid #333; 
@@ -457,7 +499,7 @@ footer {
 .list-box ul { list-style-type: none; padding: 0; margin: 0; }
 .list-box li { 
     padding: 10px; 
-    border-bottom: 1px dashed #333; 
+    border-bottom: 1px solid #333; /* Cambiado a solid */
     color: #bdc3c7; 
     font-size: 0.9rem; 
     display: flex; 
