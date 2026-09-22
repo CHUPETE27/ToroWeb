@@ -42,11 +42,19 @@
         .rankings-header-row { display: flex; width: 100%; gap: 20px; margin-bottom: 20px; align-items: stretch; }
         .my-rank-alert { flex: 1; background: rgba(45, 242, 193, 0.1); color: #2df2c1; border: 1px solid #2df2c1; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(45, 242, 193, 0.2); margin: 0; text-align: center; backdrop-filter: blur(5px);}
         
-        .search-container { flex: 1; display: flex; gap: 10px; margin: 0; }
+        .search-container { flex: 1; display: flex; flex-direction: column; gap: 5px; margin: 0; position: relative;}
+        .search-input-wrapper { display: flex; gap: 10px; width: 100%; }
         .search-container input { flex-grow: 1; background: rgba(17, 17, 17, 0.8); color: white; border: 1px solid #555; padding: 12px; border-radius: 8px; outline: none; text-align: center; font-size: 1rem; backdrop-filter: blur(5px);}
         .search-container input:focus { border-color: #FFD342; }
         .search-container button { background: #FFD342; color: #111; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; flex-shrink: 0;}
         .search-container button:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(255, 211, 66, 0.4); }
+
+        #searchResults { display: none; position: absolute; top: 100%; left: 0; width: 100%; background: #111; border: 1px solid #444; border-radius: 8px; max-height: 250px; overflow-y: auto; z-index: 100; box-shadow: 0 10px 30px rgba(0,0,0,0.8); text-align: left; }
+        #searchResults div { padding: 12px 15px; border-bottom: 1px solid #222; cursor: pointer; color: #fff; transition: 0.2s; font-size: 0.95rem;}
+        #searchResults div:hover { background: rgba(45, 242, 193, 0.2); color: #2df2c1; }
+        #searchResults div span.id-tag { color: #FFD342; font-size: 0.8rem; margin-left: 8px; }
+        #searchResults::-webkit-scrollbar { width: 6px; }
+        #searchResults::-webkit-scrollbar-thumb { background: #555; border-radius: 10px; }
 
         .filter-container { display: flex; justify-content: center; flex-direction: column; align-items: center; gap: 10px; margin: 0 auto 30px; background: rgba(0,0,0,0.6); padding: 15px; border-radius: 15px; border: 1px solid #333; width: 100%; max-width: 600px; backdrop-filter: blur(5px);}
         .filter-btn { background: transparent; color: #bdc3c7; border: none; padding: 10px 25px; border-radius: 20px; cursor: pointer; transition: 0.3s; font-weight: bold; font-size: 1.05rem; }
@@ -57,7 +65,6 @@
         .tab-btn { background: rgba(0,0,0,0.6); color: #bdc3c7; border: 1px solid #333; padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s; font-weight: bold; flex-grow: 1; max-width: 180px; backdrop-filter: blur(5px);}
         .tab-btn:hover { background: rgba(255, 211, 66, 0.1); border-color: #FFD342; color: #FFD342; }
         .tab-btn.active { background: #FFD342; color: #111; border-color: #FFD342; box-shadow: 0 0 15px rgba(255, 211, 66, 0.4); }
-
         .table-container { background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; overflow-x: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 100%; -webkit-overflow-scrolling: touch; backdrop-filter: blur(10px);}
         .table-container::-webkit-scrollbar { height: 8px; }
         .table-container::-webkit-scrollbar-thumb { background: #555; border-radius: 10px; }
@@ -79,7 +86,8 @@
         .player-id { color: #7d7d7d; font-size: 0.8rem; margin-left: 5px; }
         .rango-badge { font-size: 1.3rem; }
 
-        .pagination { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 15px; margin-top: 30px; width: 100%; }
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 30px; width: 100%; }
+        .pagination-actions { display: flex; gap: 10px; }
         .page-btn { background: rgba(17,17,17,0.8); color: #FFD342; border: 1px solid #FFD342; padding: 8px 15px; border-radius: 5px; cursor: pointer; transition: 0.3s; font-weight: bold; backdrop-filter: blur(5px);}
         .page-btn:hover:not(:disabled) { background: #FFD342; color: #111; }
         .page-btn:disabled { opacity: 0.3; cursor: not-allowed; border-color: #555; color: #555; }
@@ -99,6 +107,7 @@
         .modal-content::-webkit-scrollbar { width: 8px; }
         .modal-content::-webkit-scrollbar-track { background: transparent; }
         .modal-content::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+        
         .close-modal { position: absolute; top: 15px; right: 20px; font-size: 1.8rem; color: #7d7d7d; cursor: pointer; transition: 0.3s; z-index: 10;}
         .close-modal:hover { color: #cc2a2a; transform: scale(1.1); }
 
@@ -150,7 +159,6 @@
 
         @media (max-width: 768px) { 
             .rankings-header-row { flex-direction: column; gap: 15px; }
-            .tab-btn { max-width: 48%; font-size: 0.95rem; padding: 10px; }
             .filter-btn { width: 45%; padding: 10px; font-size: 0.95rem;}
             .modal-stats-grid, .two-cols, .three-cols { grid-template-columns: 1fr !important; }
         }
@@ -167,9 +175,17 @@
             table { min-width: 450px; }
             th, td { padding: 10px 5px; font-size: 0.95rem; }
             .player-id { display: block; margin-left: 0; margin-top: 2px; font-size: 0.75rem; }
-            .tab-btn { max-width: 100%; }
             
-            .modal-content { padding: 20px 15px; }
+            .tabs-container { justify-content: space-between; }
+            .tab-btn:first-child { flex-basis: 100%; max-width: 100%; }
+            .tab-btn:not(:first-child) { flex-basis: 48%; max-width: 48%; padding: 10px 5px; font-size: 0.9rem;}
+            
+            .pagination { flex-direction: column; align-items: stretch; gap: 10px;}
+            .page-info-box { order: -1; justify-content: center; padding: 10px;}
+            .pagination-actions { width: 100%; display: flex; gap: 10px; }
+            .pagination-actions .page-btn { flex: 1; padding: 12px; }
+            
+            .modal-content { padding: 20px 15px; max-width: 95%;}
             .modal-name { font-size: 1.6rem; }
             .totales-item { min-width: 45%; }
             
@@ -222,8 +238,10 @@
             </div>
             
             <div class="search-container">
-                <input type="text" id="searchInput" placeholder="Buscar por Nombre o ID">
-                <button onclick="buscarJugador()"><i class="fa-solid fa-magnifying-glass"></i></button>
+                <div class="search-input-wrapper">
+                    <input type="text" id="searchInput" placeholder="Buscar por Nombre o ID" autocomplete="off" onkeyup="manejarBusquedaEnVivo()">
+                </div>
+                <div id="searchResults"></div>
             </div>
         </div>
 
@@ -245,13 +263,15 @@
         </div>
 
         <div class="pagination">
-            <button class="page-btn" id="btnPrev" onclick="cambiarPagina(-1)"><i class="fa-solid fa-chevron-left"></i> Anterior</button>
             <div class="page-info-box">
                 <span>Ir a Pág:</span>
                 <input type="number" id="pageInput" class="page-input" value="1" min="1" onchange="saltarAPagina()">
                 <span>de <span id="totalPagesDisplay">1</span></span>
             </div>
-            <button class="page-btn" id="btnNext" onclick="cambiarPagina(1)">Siguiente <i class="fa-solid fa-chevron-right"></i></button>
+            <div class="pagination-actions">
+                <button class="page-btn" id="btnPrev" onclick="cambiarPagina(-1)"><i class="fa-solid fa-chevron-left"></i> Anterior</button>
+                <button class="page-btn" id="btnNext" onclick="cambiarPagina(1)">Siguiente <i class="fa-solid fa-chevron-right"></i></button>
+            </div>
         </div>
     </main>
 
@@ -320,6 +340,15 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="alertModal" onclick="cerrarAlertModalClickFuera(event)">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <i class="fa-solid fa-xmark close-modal" onclick="cerrarAlertModal()"></i>
+            <h3 id="alertTitle" style="color: #cc2a2a; margin-top: 0; font-size: 1.6rem;"><i class="fa-solid fa-triangle-exclamation"></i> Error</h3>
+            <p id="alertMessage" style="color: #bdc3c7; font-size: 1.05rem; margin-bottom: 20px;">Mensaje de error.</p>
+            <button class="page-btn" style="width: 100%; max-width: 200px;" onclick="cerrarAlertModal()">Aceptar</button>
+        </div>
+    </div>
+
     <footer><p>© 2026 ToroHax. Todos los derechos reservados.</p></footer>
 
     <script src="header.js"></script>
@@ -334,6 +363,7 @@
         let totalPaginas = 1;
         let targetHighlightId = null; 
         let countdownInterval = null;
+        let searchTimeout = null;
         const loggedUserId = localStorage.getItem('toroHaxLoggedId') || '';
 
         const encabezados = {
@@ -342,6 +372,24 @@
             'defensas': ['Recuperaciones', 'Recup. / Partido'],
             'arqueros': ['Atajadas', 'Porterías en 0'] 
         };
+
+        function mostrarAlerta(titulo, mensaje, esError = true) {
+            const modal = document.getElementById('alertModal');
+            const titleEl = document.getElementById('alertTitle');
+            
+            if (esError) {
+                titleEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ' + titulo;
+                titleEl.style.color = '#cc2a2a';
+            } else {
+                titleEl.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + titulo;
+                titleEl.style.color = '#2df2c1';
+            }
+            
+            document.getElementById('alertMessage').innerText = mensaje;
+            modal.style.display = 'flex';
+        }
+        function cerrarAlertModal() { document.getElementById('alertModal').style.display = 'none'; }
+        function cerrarAlertModalClickFuera(e) { if(e.target.id === 'alertModal') cerrarAlertModal(); }
 
         async function cargarConfiguracionTemporada() {
             try {
@@ -472,8 +520,7 @@
 
         function cambiarFiltro(nuevoFiltro) {
             if (nuevoFiltro === 'amigos' && !loggedUserId) {
-                alert("⚠️ Debes iniciar sesión para ver el ranking exclusivo de tus amigos.");
-                window.location.href = 'login.html';
+                mostrarAlerta("Acceso Denegado", "⚠️ Debes iniciar sesión con tu cuenta para ver el ranking exclusivo de tus amigos.");
                 return;
             }
             if (filtroActual === nuevoFiltro) return;
@@ -503,21 +550,51 @@
             if (nuevaPagina !== paginaActual) { paginaActual = nuevaPagina; cargarRankings(); }
         }
 
-        async function buscarJugador() {
-            const query = document.getElementById('searchInput').value.trim();
-            if(!query) return;
-            const btn = document.querySelector('.search-container button');
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-            try {
-                const res = await fetch(`https://torobot-izu5.onrender.com/api/find-player-rank?query=${encodeURIComponent(query)}&category=${categoriaActual}&filter=${filtroActual}&userId=${loggedUserId}&temporada=${isTemporada}`);
-                const data = await res.json();
-                if (data.success) { paginaActual = data.page; targetHighlightId = data.numericId; cargarRankings(); } 
-                else { alert(data.message); }
-            } catch (e) { alert("Error conectando con el servidor"); }
-            btn.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i>';
+        function manejarBusquedaEnVivo() {
+            const input = document.getElementById('searchInput');
+            const resultsDiv = document.getElementById('searchResults');
+            const query = input.value.trim();
+
+            if (query.length < 2) {
+                resultsDiv.style.display = 'none';
+                return;
+            }
+
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const res = await fetch(`https://torobot-izu5.onrender.com/api/admin/search-players?q=${encodeURIComponent(query)}`);
+                    const data = await res.json();
+
+                    if (data.success && data.players.length > 0) {
+                        resultsDiv.innerHTML = '';
+                        data.players.forEach(p => {
+                            const div = document.createElement('div');
+                            const icon = p.isVip ? '<i class="fa-solid fa-crown" style="color:#FFD342; font-size:0.8rem; margin-right:5px;"></i>' : '';
+                            div.innerHTML = `${icon}${p.name} <span class="id-tag">#${p.numericId}</span>`;
+                            div.onclick = () => {
+                                resultsDiv.style.display = 'none';
+                                input.value = '';
+                                verPerfil(p.numericId);
+                            };
+                            resultsDiv.appendChild(div);
+                        });
+                        resultsDiv.style.display = 'block';
+                    } else {
+                        resultsDiv.innerHTML = '<div style="color:#7d7d7d; text-align:center;">No se encontró a nadie.</div>';
+                        resultsDiv.style.display = 'block';
+                    }
+                } catch (e) {
+                    console.error("Error en autocompletado", e);
+                }
+            }, 300);
         }
 
-        document.getElementById('searchInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') buscarJugador(); });
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.search-container')) {
+                document.getElementById('searchResults').style.display = 'none';
+            }
+        });
 
         async function verPerfil(id) {
             document.getElementById('playerModal').style.display = 'flex';
@@ -528,7 +605,12 @@
             try {
                 const res = await fetch(`https://torobot-izu5.onrender.com/get-player/${id}`);
                 const p = await res.json();
-                if (p.error || p.message === "Nuevo") { document.getElementById('m_name').innerText = "Jugador no encontrado"; return; }
+                
+                if (p.error || p.message === "Nuevo") { 
+                    cerrarModal();
+                    mostrarAlerta("Jugador Inexistente", `No encontramos a ningún jugador con la ID #${id}.`);
+                    return; 
+                }
 
                 if (p.discordAvatarUrl) { document.getElementById('m_avatar').src = p.discordAvatarUrl; } 
                 else { document.getElementById('m_avatar').src = `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=111&color=FFD342&rounded=true&bold=true&size=100`; }
@@ -628,7 +710,10 @@
                     document.getElementById('m_noChartsMsg').style.display = 'block';
                     document.getElementById('m_noChartsMsg').innerHTML = `<p>⚠️ El jugador debe jugar al menos un partido en ${isTemporada ? 'esta temporada' : 'histórico'} para desbloquear los gráficos.</p>`;
                 }
-            } catch (e) { document.getElementById('m_name').innerText = "Error al cargar"; }
+            } catch (e) { 
+                cerrarModal();
+                mostrarAlerta("Error de Conexión", "No pudimos conectar con el servidor para cargar este perfil.");
+            }
         }
 
         function generarGraficos(promGoles, promAsist, promAtajadas, promDefensas, promPuntos, ganados, perdidos, mvps, pasesC, pasesP, pasesTotales, precisionPases, golesPenal, penalesLanzados, penalesAtajados, penalesRecibidos) {
