@@ -361,19 +361,22 @@ footer {
 }
 
 .btn-grande { 
-    background: #5dc8e8; 
+    background: #FFD342; 
     color: #111; 
-    border: 2px solid #5dc8e8; 
-    font-size: 1.15rem; 
+    border: 2px solid #FFD342; 
+    font-size: 1.15rem;
     padding: 15px; 
     border-radius: 12px; 
     margin-bottom: 5px; 
     box-shadow: 0 5px 15px rgba(93, 200, 232, 0.2);
     animation: pulseSoft 3s infinite;
+    cursor: pointer; 
+    display: none; 
+    transition: 0.3s;
 }
 .btn-grande:hover { 
-    background: #2df2c1; 
-    border-color: #2df2c1; 
+    background: #5dc8e8; 
+    border-color: #5dc8e8; 
     transform: translateY(-3px); 
     box-shadow: 0 8px 20px rgba(45, 242, 193, 0.4); 
 }
