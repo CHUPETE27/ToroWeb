@@ -367,7 +367,7 @@ footer {
     font-size: 1.15rem; 
     padding: 15px; 
     border-radius: 12px; 
-    margin-bottom: 20px; 
+    margin-bottom: 5px; 
     box-shadow: 0 5px 15px rgba(93, 200, 232, 0.2);
     animation: pulseSoft 3s infinite;
 }
