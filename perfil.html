@@ -14,7 +14,9 @@
     
     <script>
         const loggedId = localStorage.getItem('toroHaxLoggedId');
-        if (!loggedId) {
+        const token = localStorage.getItem('toroHaxToken');
+        if (!loggedId || !token) {
+            localStorage.clear();
             window.location.href = 'login.html';
         }
     </script>
@@ -301,7 +303,7 @@
                                 <option value="crazy">Locura</option>
                             </select>
                         </div>
-                        <button class="save-btn" onclick="guardarConfiguracionVip()" id="btnSaveVip"><i class="fa-solid fa-floppy-disk"></i> Guardar Cambios</button>
+                        <button class="save-btn" onclick="guardarConfiguracionVipSegura()" id="btnSaveVip"><i class="fa-solid fa-floppy-disk"></i> Guardar Cambios</button>
                     </div>
                 </div>
             </div>
@@ -410,14 +412,21 @@
             return { elo: currentElo, info: currentRankInfo };
         }
 
-        fetch(`https://torobot-izu5.onrender.com/get-player/${loggedId}`)
+        fetch('https://torobot-izu5.onrender.com/api/perfil/privado', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ numericId: loggedId, token: token })
+        })
         .then(res => res.json())
-        .then(player => {
-            if (player.message === "Nuevo" || player.error) {
-                alert("Error al cargar los datos del jugador.");
+        .then(data => {
+            if (!data.success) {
+                localStorage.clear();
+                alert("Sesión caducada o inválida. Debes iniciar sesión nuevamente.");
+                window.location.href = "login.html";
                 return;
             }
 
+            const player = data.player;
             globalPlayerData = player;
             document.getElementById('loading').style.display = 'none';
             document.getElementById('profileContainer').style.display = 'block';
@@ -673,7 +682,7 @@
             }
         }
 
-        async function guardarConfiguracionVip() {
+        async function guardarConfiguracionVipSegura() {
             const btn = document.getElementById('btnSaveVip');
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
             btn.disabled = true;
@@ -687,9 +696,14 @@
             }
 
             const payload = {
-                numericId: loggedId, vipIcon: icon, vipColor: document.getElementById('vipColor').value,
-                vipJoin: document.getElementById('vipJoin').value, vipExit: document.getElementById('vipExit').value,
-                vipGoal: document.getElementById('vipGoal').value, vipSize: document.getElementById('vipSize').value
+                numericId: loggedId, 
+                token: token, 
+                vipIcon: icon, 
+                vipColor: document.getElementById('vipColor').value,
+                vipJoin: document.getElementById('vipJoin').value, 
+                vipExit: document.getElementById('vipExit').value,
+                vipGoal: document.getElementById('vipGoal').value, 
+                vipSize: document.getElementById('vipSize').value
             };
 
             try {
