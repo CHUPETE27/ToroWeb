@@ -375,8 +375,8 @@ footer {
     transition: 0.3s;
 }
 .btn-grande:hover { 
-    background: #5dc8e8; 
-    border-color: #5dc8e8; 
+    background: #5de8dc; 
+    border-color: #5de8dc; 
     transform: translateY(-3px); 
     box-shadow: 0 8px 20px rgba(45, 242, 193, 0.4); 
 }
