@@ -119,6 +119,37 @@
         @media (max-width: 600px) {
             .cmd-row.grid-4, .cmd-row.grid-3, .cmd-row.grid-2 { grid-template-columns: 1fr; }
         }
+
+        .modal-overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.85); z-index: 10000; display: none; 
+            justify-content: center; align-items: center; 
+            backdrop-filter: blur(5px); padding: 20px; 
+        }
+        .modal-content { 
+            background: rgba(20, 20, 20, 0.95); border: 1px solid #FFD342; 
+            padding: 30px; border-radius: 15px; width: 100%; max-width: 450px; 
+            color: white; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.8); 
+        }
+        .modal-content h3 { margin-top: 0; color: #FFD342; font-size: 1.5rem; text-align: center; }
+        
+        .modal-form { display: flex; flex-direction: column; gap: 15px; margin-top: 15px; text-align: left; }
+        .modal-form input, .modal-form select { 
+            width: 100%; background: #111; border: 1px solid #444; color: white; 
+            padding: 12px; border-radius: 8px; outline: none; font-size: 1rem; transition: 0.3s; 
+        }
+        .modal-form input:focus, .modal-form select:focus { border-color: #FFD342; }
+        
+        .form-row { display: flex; gap: 10px; width: 100%; }
+        .form-row input { flex: 1; }
+        
+        .modal-btn { 
+            background: #2df2c1; color: #111; padding: 12px; border: none; 
+            border-radius: 8px; font-weight: bold; font-size: 1.05rem; 
+            cursor: pointer; transition: 0.3s; width: 100%; 
+        }
+        .modal-btn.cancel { background: #cc2a2a; color: white; }
+        .modal-btn:hover { transform: scale(1.02); filter: brightness(1.1); }
     </style>
 </head>
 <body>
