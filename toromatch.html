@@ -921,7 +921,7 @@
             try {
                 const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/inscribir', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ numericId: loggedId }) 
+                    body: JSON.stringify({ numericId: loggedId, token: token }) 
                 });
                 const data = await res.json();
                 
@@ -951,7 +951,7 @@
             try {
                 const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/cancelar', {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ numericId: loggedId })
+                    body: JSON.stringify({ numericId: loggedId, token: token })
                 });
                 const data = await res.json();
                 

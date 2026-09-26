@@ -491,7 +491,7 @@
             altsList.innerHTML = '<li style="color: #7d7d7d; justify-content: center;"><i class="fa-solid fa-spinner fa-spin"></i> Buscando cuentas...</li>';
             
             try {
-                const res = await fetch(`https://torobot-izu5.onrender.com/api/admin/player-details/${numericId}`);
+                const res = await fetch(`https://torobot-izu5.onrender.com/api/admin/player-details/${numericId}?adminId=${loggedId}&token=${token}`);
                 const data = await res.json();
 
                 if (!data.success) {

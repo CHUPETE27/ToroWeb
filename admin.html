@@ -477,7 +477,7 @@
             ulSecundarias.innerHTML = '<li style="justify-content: center; color: #7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando cuentas...</li>';
 
             try {
-                const res = await fetch(`https://torobot-izu5.onrender.com/api/admin/cuentas?numericId=${loggedId}`);
+                const res = await fetch(`https://torobot-izu5.onrender.com/api/admin/cuentas?numericId=${loggedId}&token=${token}`);
                 const data = await res.json();
 
                 if (data.success) {
@@ -1010,7 +1010,7 @@
             document.getElementById('altsChevron').classList.replace('fa-chevron-up', 'fa-chevron-down');
 
             try {
-                const res = await fetch(`https://torobot-izu5.onrender.com/api/admin/player-details/${numericId}`);
+                const res = await fetch(`https://torobot-izu5.onrender.com/api/admin/player-details/${numericId}?adminId=${loggedId}&token=${token}`);
                 const data = await res.json();
 
                 if (!data.success) {
