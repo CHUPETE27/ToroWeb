@@ -83,6 +83,42 @@
             .match-date { border-top: 1px solid #444; padding-top: 8px; }
             .grid-2 { grid-template-columns: 1fr; }
         }
+
+        .status-light { display: inline-block; width: 22px; height: 22px; border-radius: 50%; margin-right: 12px; box-shadow: 0 0 10px rgba(255,255,255,0.2); }
+        .light-off { background-color: #cc2a2a; box-shadow: 0 0 15px rgba(204, 42, 42, 0.8); }
+        .light-on { background-color: #2df2c1; box-shadow: 0 0 15px rgba(45, 242, 193, 0.8); animation: pulse 1.5s infinite; }
+        .light-starting { background-color: #FFD342; box-shadow: 0 0 15px rgba(255, 211, 66, 0.8); animation: pulse 1s infinite; }
+        .light-stopping { background-color: #e74c3c; box-shadow: 0 0 15px rgba(231, 76, 60, 0.8); animation: pulse 1s infinite; }
+        
+        .copy-btn { background: transparent; border: 1px solid #444; color: #bdc3c7; border-radius: 5px; padding: 6px 12px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; justify-content: center; }
+        .copy-btn:hover { background: rgba(255, 255, 255, 0.1); color: white; border-color: #7d7d7d; }
+        
+        .btn-token-link { display: inline-block; background: #333; color: #FFD342; text-decoration: none; padding: 8px 15px; border-radius: 8px; font-size: 0.9rem; margin-bottom: 15px; border: 1px solid #555; transition: 0.3s; }
+        .btn-token-link:hover { background: #FFD342; color: #111; border-color: #FFD342; }
+        #haxballTokenInput:focus { border-color: #5dc8e8 !important; box-shadow: 0 0 10px rgba(93, 200, 232, 0.3); }
+        
+        .cmd-row { display: grid; gap: 12px; margin-bottom: 12px; width: 100%; }
+        .grid-1 { grid-template-columns: 1fr; }
+        .grid-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-4 { grid-template-columns: repeat(4, 1fr); }
+        
+        .btn-cmd { background: rgba(0,0,0,0.4); border: 1px solid #444; color: #bdc3c7; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; font-size: 0.95rem; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .btn-cmd:hover { background: #5dc8e8; color: #111; border-color: #5dc8e8; transform: translateY(-2px); }
+        .btn-cmd.play { background: rgba(45, 242, 193, 0.1); color: #2df2c1; border-color: #2df2c1; }
+        .btn-cmd.play:hover { background: #2df2c1; color: #111; }
+        .btn-cmd.warning { background: rgba(255, 211, 66, 0.1); color: #FFD342; border-color: #FFD342; }
+        .btn-cmd.warning:hover { background: #FFD342; color: #111; }
+        .btn-cmd.danger { background: rgba(204, 42, 42, 0.1); color: #cc2a2a; border-color: #cc2a2a; }
+        .btn-cmd.danger:hover { background: #cc2a2a; color: white; }
+        
+        .btn-transmit { background: #5865F2; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 1.05rem; margin-top: 5px; display: flex; justify-content: center; align-items: center; gap: 10px; }
+        .btn-transmit:hover:not(:disabled) { background: #4752C4; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(88, 101, 242, 0.4); }
+        .btn-transmit:disabled { opacity: 0.6; cursor: not-allowed; }
+        
+        @media (max-width: 600px) {
+            .cmd-row.grid-4, .cmd-row.grid-3, .cmd-row.grid-2 { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
