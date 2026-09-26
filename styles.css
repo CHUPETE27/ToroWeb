@@ -330,6 +330,15 @@ footer {
 }
 .btn-estandar:disabled { filter: grayscale(100%); opacity: 0.6; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
 
+.btn-salir { 
+    background: #FFD342; 
+    color: #111; 
+}
+.btn-salir:hover:not(:disabled) { 
+    transform: scale(1.05); 
+    box-shadow: 0 0 15px #01181C; 
+}
+
 .btn-primary, .btn-inscribir { 
     background: #5dc8e8; 
     color: #111; 
