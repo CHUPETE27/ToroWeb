@@ -945,3 +945,25 @@ tr:hover td { background: rgba(255,211,66,0.1); }
     .action-icons { flex-direction: row; justify-content: center; padding-top: 10px; border-top: 1px solid #444;}
     .match-date { border-top: 1px solid #444; padding-top: 8px; }
 }
+
+/* =========================================
+   MENÚS DESPLEGABLES PERSONALIZADOS
+   ========================================= */
+.custom-select-wrapper { position: relative; user-select: none; width: 100%; font-family: 'Arial', sans-serif; }
+.custom-select-trigger { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 12px 15px; font-size: 1rem; color: #fff; background-color: #1a1a1a; border: 1px solid #444; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+.custom-select-wrapper.open .custom-select-trigger { border-color: #5dc8e8; box-shadow: 0 0 10px rgba(93, 200, 232, 0.2); border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.custom-select-options { position: absolute; display: block; top: 100%; left: 0; right: 0; background-color: #011412; border: 1px solid #FFD342; border-top: none; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.8); opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(-10px); transition: all 0.2s ease; z-index: 100; max-height: 250px; overflow-y: auto; }
+.custom-select-wrapper.open .custom-select-options { opacity: 1; visibility: visible; pointer-events: all; transform: translateY(0); }
+.custom-option { padding: 10px 15px; color: #ddd; cursor: pointer; transition: 0.2s; font-size: 0.95rem; }
+.custom-option:hover { background-color: #2a2a2a; color: #fff; }
+.custom-option.selected { background-color: #12b99d; color: #fff; font-weight: bold; }
+
+/* =========================================
+   BOTONES EXTRAÍDOS (CARTA.HTML)
+   ========================================= */
+.btn-descargar { width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; transition: 0.3s; font-size: 1.1rem; border: none; background: #FFD342; color: #111; display: flex; justify-content: center; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 1px;}
+.btn-descargar:hover:not(:disabled) { background: #ffdf73; box-shadow: 0 0 20px rgba(255, 211, 66, 0.4); transform: translateY(-2px); cursor: pointer; }
+.btn-descargar:disabled { background: #555; color: #aaa; cursor: not-allowed; }
+
+.btn-volver { background: rgba(0, 0, 0, 0.4); color: #bdc3c7; border: 1px solid #333; padding: 10px 15px; border-radius: 8px; cursor: pointer; transition: 0.3s; font-weight: bold; font-size: 0.95rem; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; text-transform: uppercase; letter-spacing: 1px;}
+.btn-volver:hover { background: rgba(93, 200, 232, 0.1); color: #5dc8e8; border-color: #5dc8e8; box-shadow: 0 0 10px rgba(93, 200, 232, 0.2); }
