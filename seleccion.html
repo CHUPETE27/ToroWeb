@@ -61,15 +61,49 @@
                     </div>
                     <div class="box list-box">
                         <h3>Camisetas</h3>
-                        <div class="carousel-container">
+                        <div class="carousel-container new-carousel">
                             <button class="carousel-btn prev" onclick="moverCarrusel(-1)"><i class="fa-solid fa-chevron-left"></i></button>
                             <div class="carousel-track" id="kitTrack">
-                                <div class="carousel-slide"><img src="kit_local.png" alt="Local"><div class="kit-info"><div class="kit-name">Local</div><div class="kit-type">Titular</div></div></div>
-                                <div class="carousel-slide"><img src="kit_visita.png" alt="Visita"><div class="kit-info"><div class="kit-name">Visita</div><div class="kit-type">Secundaria</div></div></div>
-                                <div class="carousel-slide"><img src="kit_alternativa.png" alt="Alternativa"><div class="kit-info"><div class="kit-name">Alternativa</div><div class="kit-type">Alternativa</div></div></div>
-                                <div class="carousel-slide"><img src="kit_entreno.png" alt="Train"><div class="kit-info"><div class="kit-name">Entrenamiento</div><div class="kit-type">Train</div></div></div>
+                                
+                                <div class="carousel-slide">
+                                    <div class="hax-avatar-preview" id="preview_kit_1"></div>
+                                    <div class="kit-info">
+                                        <div class="kit-name">Primaria</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="carousel-slide">
+                                    <div class="hax-avatar-preview" id="preview_kit_2"></div>
+                                    <div class="kit-info">
+                                        <div class="kit-name">Secundaria</div>
+                                    </div>
+                                </div>
+                                
+                                <div class="carousel-slide">
+                                    <div class="hax-avatar-preview" id="preview_kit_3"></div>
+                                    <div class="kit-info">
+                                        <div class="kit-name">Alternativa</div>
+                                    </div>
+                                </div>
+
+                                <div class="carousel-slide">
+                                    <div class="hax-avatar-preview" id="preview_kit_4"></div>
+                                    <div class="kit-info">
+                                        <div class="kit-name">Entreno</div>
+                                    </div>
+                                </div>
+
                             </div>
                             <button class="carousel-btn next" onclick="moverCarrusel(1)"><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                        
+                        <div class="carousel-indicators-container">
+                            <div class="carousel-indicators" id="kitIndicators">
+                                <button class="carousel-indicator active" onclick="irACarrusel(0)"></button>
+                                <button class="carousel-indicator inactive" onclick="irACarrusel(1)"></button>
+                                <button class="carousel-indicator inactive" onclick="irACarrusel(2)"></button>
+                                <button class="carousel-indicator inactive" onclick="irACarrusel(3)"></button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -696,18 +730,82 @@
         setInterval(actualizarMarcador, 5000);
 
         let currentKitIndex = 0;
-        function moverCarrusel(direccion) {
+        function numToHex(num) {
+            return "#" + num.toString(16).padStart(6, '0').toUpperCase();
+        }
+
+        function inicializarKits() {
+            const kitData = {
+                home: { colors: [0x3F6B73, 0x5CC1BB, 0x3F6B73], angle: 90 },
+                away: { colors: [0x71C1CF, 0xFFFFFF, 0xFFFFFF], angle: 90 },
+                third: { colors: [0x000000, 0x1A3837, 0x000000], angle: 60 },
+                entreno: { colors: [0x0D4E4F, 0x093738, 0x093738], angle: 90 }
+            };
+
+            dibujarAvatarHaxball(
+                'preview_kit_1', 
+                kitData.home.colors.map(numToHex), 
+                kitData.home.angle, 
+                'transparent'
+            );
+
+            dibujarAvatarHaxball(
+                'preview_kit_2', 
+                kitData.away.colors.map(numToHex), 
+                kitData.away.angle, 
+                'transparent'
+            );
+
+            dibujarAvatarHaxball(
+                'preview_kit_3', 
+                kitData.third.colors.map(numToHex), 
+                kitData.third.angle, 
+                'transparent'
+            );
+
+            dibujarAvatarHaxball(
+                'preview_kit_4', 
+                kitData.entreno.colors.map(numToHex), 
+                kitData.entreno.angle, 
+                'transparent'
+            );
+        }
+
+        const totalSlides = 4;
+
+        function actualizarCarruselUI() {
             const track = document.getElementById('kitTrack');
-            const slides = document.querySelectorAll('.carousel-slide');
-            const totalSlides = slides.length;
+            track.style.transform = `translateX(-${currentKitIndex * 100}%)`;
+
+            const indicators = document.querySelectorAll('.carousel-indicator');
+            indicators.forEach((ind, index) => {
+                if (index === currentKitIndex) {
+                    ind.className = 'carousel-indicator active';
+                } else {
+                    ind.className = 'carousel-indicator inactive';
+                }
+            });
+        }
+
+        function moverCarrusel(direccion) {
             currentKitIndex += direccion;
             if (currentKitIndex >= totalSlides) { currentKitIndex = 0; } 
             else if (currentKitIndex < 0) { currentKitIndex = totalSlides - 1; }
-            track.style.transform = `translateX(-${currentKitIndex * 100}%)`;
+            actualizarCarruselUI();
         }
+
+        function irACarrusel(index) {
+            currentKitIndex = index;
+            actualizarCarruselUI();
+        }
+
+        window.addEventListener('DOMContentLoaded', (event) => {
+            inicializarKits();
+        });
 
         iniciarCargaJugadoresYPartidos();
     </script>
+    <script src="diseñador_bola.js"></script>
     <script src="scanner.js"></script>
 </body>
 </html>
