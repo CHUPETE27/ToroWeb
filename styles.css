@@ -969,7 +969,7 @@ tr:hover td { background: rgba(255,211,66,0.1); }
 .btn-volver:hover { background: rgba(93, 200, 232, 0.1); color: #5dc8e8; border-color: #5dc8e8; box-shadow: 0 0 10px rgba(93, 200, 232, 0.2); }
 
 /* =========================================
-   VENTANAS MODALES (Fondo y Contenedor)
+   VENTANAS MODALES (Solución al fallo visual)
    ========================================= */
 .modal-overlay {
     position: fixed;
@@ -979,7 +979,7 @@ tr:hover td { background: rgba(255,211,66,0.1); }
     height: 100%;
     background: rgba(0, 0, 0, 0.85);
     z-index: 2000;
-    display: none; 
+    display: none; /* ESTO ES LO QUE OCULTA LOS FORMULARIOS POR DEFECTO */
     justify-content: center;
     align-items: center;
     backdrop-filter: blur(5px);
@@ -997,24 +997,24 @@ tr:hover td { background: rgba(255,211,66,0.1); }
 }
 
 /* =========================================
-   NUEVO CARRUSEL (INSPIRADO EN REACT BITS)
+   CARRUSEL DISEÑO ANCHO (HORIZONTAL)
    ========================================= */
 .carousel-container.new-carousel {
     position: relative;
     overflow: hidden;
-    border: 1px solid #555;
-    border-radius: 24px;
-    padding: 16px;
-    background-color: #111;
+    border: 1px solid #333;
+    border-radius: 15px;
+    padding: 0;
+    background-color: #0d0d0d;
     width: 100%;
-    max-width: 260px;
-    height: 220px;
-    margin: auto;
+    max-width: 100%; 
+    height: 180px; /* Altura de banner */
+    margin: 0 auto;
 }
 
 .carousel-track {
     display: flex;
-    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
     width: 100%;
     height: 100%;
 }
@@ -1023,58 +1023,58 @@ tr:hover td { background: rgba(255,211,66,0.1); }
     min-width: 100%;
     position: relative;
     display: flex;
-    flex-direction: column;
+    flex-direction: row; /* Pone la pelota a la izquierda y texto a la derecha */
     align-items: center;
     justify-content: center;
-    border: 1px solid #333;
-    border-radius: 12px;
-    background-color: #1a1a1a;
-    padding-bottom: 20px;
+    gap: 40px; 
+    background: linear-gradient(135deg, #1a1a1a 0%, #0d0d0d 100%);
+    padding: 20px;
 }
 
-/* Estilo contenedor del avatar generado */
 .hax-avatar-preview {
-    width: 120px;
-    height: 120px;
+    width: 110px;
+    height: 110px;
     border-radius: 50%;
     border: 4px solid #111;
     display: flex;
     justify-content: center;
     align-items: center;
     box-shadow: inset 0 -10px 20px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.6);
-    margin-top: 10px;
+    flex-shrink: 0;
 }
 
 .kit-info {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: rgba(0, 0, 0, 0.8);
-    padding: 12px 10px;
-    text-align: center;
-    border-top: 1px solid rgba(255,255,255,0.1);
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
+    position: relative; 
+    text-align: left;
+    background: transparent;
+    border: none;
+    padding: 0;
 }
 
 .kit-name {
-    color: #fff;
+    color: #FFD342;
     font-weight: 900;
-    font-size: 18px;
+    font-size: 26px;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 2px;
+    margin-bottom: 5px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.kit-type {
+    color: #bdc3c7;
+    font-size: 1rem;
 }
 
 .carousel-btn {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(0,0,0,0.6);
+    background: rgba(0,0,0,0.8);
     color: white;
     border: 1px solid #444;
-    width: 35px;
-    height: 35px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     cursor: pointer;
     display: flex;
@@ -1082,11 +1082,10 @@ tr:hover td { background: rgba(255,211,66,0.1); }
     align-items: center;
     transition: 0.3s;
     z-index: 10;
-    backdrop-filter: blur(3px);
 }
-.carousel-btn:hover { background: #FFD342; color: #111; border-color: #FFD342; }
-.carousel-btn.prev { left: 25px; }
-.carousel-btn.next { right: 25px; }
+.carousel-btn:hover { background: #FFD342; color: #111; border-color: #FFD342; transform: translateY(-50%) scale(1.1); }
+.carousel-btn.prev { left: 15px; }
+.carousel-btn.next { right: 15px; }
 
 /* Indicadores */
 .carousel-indicators-container {
@@ -1113,10 +1112,20 @@ tr:hover td { background: rgba(255,211,66,0.1); }
 }
 
 .carousel-indicator.active {
-    background-color: #fff;
+    background-color: #FFD342; /* Destacado en amarillo */
     transform: scale(1.3);
 }
-
 .carousel-indicator.inactive {
     background-color: #555;
+}
+
+/* Adaptación para que se vea bien en celulares */
+@media (max-width: 600px) {
+    .carousel-slide {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    .kit-info { text-align: center; }
+    .carousel-container.new-carousel { height: 260px; }
 }
