@@ -20,12 +20,6 @@
 
             <div class="seleccion-wrapper">
                 <div class="left-col">
-                    <div class="box live-box">
-                        <div id="liveIndicator" style="display: none;" class="live-indicator"><span class="status-circle green"></span> En vivo</div>
-                        <div id="liveIndicatorOff" class="live-indicator" style="color: #7d7d7d;"><span class="status-circle" style="background:#cc2a2a;"></span> Offline</div>
-                        <div class="score-text" id="liveScore">THX 0 - 0 VIS</div>
-                    </div>
-
                     <div class="box" style="padding-bottom: 70px;">
                         <div class="tabs">
                             <div class="tab active" onclick="switchTab('proximos')">Próximos partidos</div>
@@ -707,27 +701,6 @@
                 else await showCustomAlert("Error", "Error al borrar el partido.");
             } catch (err) { await showCustomAlert("Error de Red", "Error de conexión con el servidor."); }
         }
-
-        function actualizarMarcador() {
-            fetch('https://torobot-izu5.onrender.com/api/seleccion/live')
-            .then(res => res.json())
-            .then(data => {
-                const indOn = document.getElementById('liveIndicator');
-                const indOff = document.getElementById('liveIndicatorOff');
-                const score = document.getElementById('liveScore');
-                score.innerText = data.text;
-                if (data.active) {
-                    indOn.style.display = 'flex'; indOff.style.display = 'none';
-                    document.querySelector('.live-box').style.borderColor = '#2df2c1';
-                } else {
-                    indOn.style.display = 'none'; indOff.style.display = 'flex';
-                    document.querySelector('.live-box').style.borderColor = '#333';
-                    score.innerText = "THX  -  ???";
-                }
-            });
-        }
-        actualizarMarcador();
-        setInterval(actualizarMarcador, 5000);
 
         let currentKitIndex = 0;
         function numToHex(num) {
