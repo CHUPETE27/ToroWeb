@@ -1021,9 +1021,10 @@ tr:hover td { background: rgba(255,211,66,0.1); }
 
 .carousel-slide {
     min-width: 100%;
+    box-sizing: border-box; 
     position: relative;
     display: flex;
-    flex-direction: row; /* Pone la pelota a la izquierda y texto a la derecha */
+    flex-direction: row; 
     align-items: center;
     justify-content: center;
     gap: 40px; 
@@ -1044,7 +1045,6 @@ tr:hover td { background: rgba(255,211,66,0.1); }
 }
 
 .kit-info {
-    position: relative; 
     text-align: left;
     background: transparent;
     border: none;
