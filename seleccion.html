@@ -43,7 +43,7 @@
                             <button class="carousel-btn prev" onclick="moverCarrusel(-1)"><i class="fa-solid fa-chevron-left"></i></button>
                             <div class="carousel-track" id="kitTrack">    
                                 <div class="carousel-slide">
-                                    <div class="hax-avatar-preview" id="preview_kit_1"></div>
+                                    <div class="hax-avatar-preview" id="preview_kit_1">TH</div>
                                     <div class="kit-info">
                                         <div class="kit-name">Primaria</div>
                                         <div class="kit-type">Equipación Local</div>
@@ -51,7 +51,7 @@
                                 </div>
                                     
                                 <div class="carousel-slide">
-                                    <div class="hax-avatar-preview" id="preview_kit_2"></div>
+                                    <div class="hax-avatar-preview" id="preview_kit_2">TH</div>
                                     <div class="kit-info">
                                         <div class="kit-name">Secundaria</div>
                                         <div class="kit-type">Equipación Visita</div>
@@ -59,7 +59,7 @@
                                 </div>
                                     
                                 <div class="carousel-slide">
-                                    <div class="hax-avatar-preview" id="preview_kit_3"></div>
+                                    <div class="hax-avatar-preview" id="preview_kit_3">TH</div>
                                     <div class="kit-info">
                                         <div class="kit-name">Alternativa</div>
                                         <div class="kit-type">Equipación Tercera</div>
@@ -67,7 +67,7 @@
                                 </div>
 
                                 <div class="carousel-slide">
-                                    <div class="hax-avatar-preview" id="preview_kit_4"></div>
+                                    <div class="hax-avatar-preview" id="preview_kit_4">TH</div>
                                     <div class="kit-info">
                                         <div class="kit-name">Train</div>
                                         <div class="kit-type">Equipación Entrenamiento</div>
@@ -712,38 +712,38 @@
 
         function inicializarKits() {
             const kitData = {
-                home: { colors: [0x3F6B73, 0x5CC1BB, 0x3F6B73], angle: 90 },
-                away: { colors: [0x71C1CF, 0xFFFFFF, 0xFFFFFF], angle: 90 },
-                third: { colors: [0x000000, 0x1A3837, 0x000000], angle: 60 },
-                entreno: { colors: [0x0D4E4F, 0x093738, 0x093738], angle: 90 }
+                home: { colors: [0x3F6B73, 0x5CC1BB, 0x3F6B73], text: 0xD3A778, angle: 90 },
+                away: { colors: [0x71C1CF, 0xFFFFFF, 0xFFFFFF], text: 0x2E4E54, angle: 90 },
+                third: { colors: [0x000000, 0x1A3837, 0x000000], text: 0xD3A778, angle: 60 },
+                entreno: { colors: [0x0D4E4F, 0x093738, 0x093738], text: 0xFFFFFF, angle: 90 }
             };
 
             dibujarAvatarHaxball(
                 'preview_kit_1', 
                 kitData.home.colors.map(numToHex), 
                 kitData.home.angle, 
-                'transparent'
+                numToHex(kitData.home.text)
             );
 
             dibujarAvatarHaxball(
                 'preview_kit_2', 
                 kitData.away.colors.map(numToHex), 
                 kitData.away.angle, 
-                'transparent'
+                numToHex(kitData.home.text)
             );
 
             dibujarAvatarHaxball(
                 'preview_kit_3', 
                 kitData.third.colors.map(numToHex), 
                 kitData.third.angle, 
-                'transparent'
+                numToHex(kitData.home.text)
             );
 
             dibujarAvatarHaxball(
                 'preview_kit_4', 
                 kitData.entreno.colors.map(numToHex), 
                 kitData.entreno.angle, 
-                'transparent'
+                numToHex(kitData.home.text)
             );
         }
 

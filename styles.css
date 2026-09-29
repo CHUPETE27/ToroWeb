@@ -1183,3 +1183,57 @@ tr:hover td { background: rgba(255,211,66,0.1); }
         border: none !important;
     }
 }
+
+/* =========================================
+   CORRECCIÓN DEL CARRUSEL Y AVATARES
+   ========================================= */
+
+/* Forzar la alineación horizontal y eliminar posiciones absolutas del texto */
+.carousel-slide {
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 30px !important;
+}
+
+.kit-info {
+    position: relative !important;
+    bottom: auto !important;
+    left: auto !important;
+    width: auto !important;
+    background: transparent !important;
+    padding: 0 !important;
+    text-align: left !important;
+}
+
+/* Darle tamaño, grosor y sombra al texto "TH" dentro de la pelota */
+.hax-avatar-preview {
+    width: 110px !important;
+    height: 110px !important;
+    border-radius: 50% !important;
+    border: 4px solid #111 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    box-shadow: inset 0 -10px 20px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.6) !important;
+    flex-shrink: 0 !important;
+    font-size: 3rem !important; /* Tamaño del texto TH */
+    font-weight: 900 !important;
+    font-family: 'Arial', sans-serif !important;
+    text-shadow: 2px 2px 5px rgba(0,0,0,0.8) !important;
+}
+
+/* Ajuste para celulares: La pelota arriba y el texto abajo centrados */
+@media (max-width: 600px) {
+    .carousel-slide {
+        flex-direction: column !important;
+        gap: 15px !important;
+    }
+    .kit-info {
+        text-align: center !important;
+    }
+}
