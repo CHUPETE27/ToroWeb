@@ -187,25 +187,61 @@
 
     <div class="modal-overlay" id="editModal">
         <div class="modal-content">
-            <h3 id="modalTitle"><i class="fa-solid fa-plus"></i> Añadir Partido</h3>
+            <div class="close-modal" onclick="cerrarModal()"><i class="fa-solid fa-xmark"></i></div>
+            
+            <div class="modal-header">
+                <h3 id="modalTitle"><i class="fa-solid fa-pen"></i> Editar Partido</h3>
+            </div>
+            
             <div class="modal-form">
-                <select id="m_target" onchange="toggleGoles()">
-                    <option value="proximo">Añadir a: Próximos Partidos</option>
-                    <option value="historial">Añadir a: Historial (Ya jugado)</option>
-                </select>
-                <input type="text" id="m_rival" placeholder="Nombre del Rival (Ej: Boca Juniors)">
-                <div class="form-row" id="goles_inputs" style="display: none;">
-                    <input type="number" id="m_golesT" placeholder="Goles THX">
-                    <input type="number" id="m_golesR" placeholder="Goles Rival">
+                <div class="form-group">
+                    <label>Tipo de Registro</label>
+                    <select id="m_target" onchange="toggleGoles()">
+                        <option value="proximo">Próximo Partido (Por jugar)</option>
+                        <option value="historial">Historial (Ya jugado)</option>
+                    </select>
                 </div>
-                <select id="m_type">
-                    <option value="Amistoso">Amistoso</option>
-                    <option value="Liga">Liga</option>
-                    <option value="Eliminatoria">Eliminatoria</option>
-                </select>
-                <input type="date" id="m_date">
-                <button class="modal-btn" id="modalSubmitBtn" onclick="guardarPartido()">Guardar Partido</button>
-                <button class="modal-btn cancel" onclick="cerrarModal()">Cancelar</button>
+
+                <div class="form-group">
+                    <label>Equipo Rival</label>
+                    <input type="text" id="m_rival" placeholder="Ej: Boca Juniors" oninput="document.getElementById('rival-label').innerText = this.value || 'Rival'">
+                </div>
+
+                <div class="form-group" id="goles_inputs" style="display: none;">
+                    <label>Resultado Final</label>
+                    <div class="score-row">
+                        <div class="score-col">
+                            <span class="team-label">ToroHax</span>
+                            <input type="number" id="m_golesT" placeholder="0">
+                        </div>
+                        <div class="score-divider">VS</div>
+                        <div class="score-col">
+                            <span class="team-label" id="rival-label" style="color: #bdc3c7;">Rival</span>
+                            <input type="number" id="m_golesR" placeholder="0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row-doble">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Competición</label>
+                        <select id="m_type">
+                            <option value="Amistoso">Amistoso</option>
+                            <option value="Liga">Liga</option>
+                            <option value="Eliminatoria">Eliminatoria</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" style="flex: 1;">
+                        <label>Fecha</label>
+                        <input type="date" id="m_date">
+                    </div>
+                </div>
+
+                <div class="modal-btn-row">
+                    <button class="modal-btn cancel" onclick="cerrarModal()">Cancelar</button>
+                    <button class="modal-btn submit" id="modalSubmitBtn" onclick="guardarPartido()">Guardar</button>
+                </div>
             </div>
         </div>
     </div>
@@ -655,6 +691,7 @@
             document.getElementById('m_date').value = date;
             toggleGoles();
             document.getElementById('editModal').style.display = 'flex';
+            document.getElementById('rival-label').innerText = rival || 'Rival';
         }
 
         function cerrarModal() { document.getElementById('editModal').style.display = 'none'; }
