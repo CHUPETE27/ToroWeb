@@ -1129,3 +1129,57 @@ tr:hover td { background: rgba(255,211,66,0.1); }
     .kit-info { text-align: center; }
     .carousel-container.new-carousel { height: 260px; }
 }
+
+/* =========================================
+   PARCHE DE RESPONSIVIDAD DEFINITIVO
+   ========================================= */
+
+/* 1. Evitar que las columnas obliguen a la pantalla a estirarse */
+.left-col, .right-col {
+    min-width: 0 !important; 
+    width: 100%;
+}
+
+/* 2. Permitir que los nombres largos de los equipos bajen de línea */
+.match-teams {
+    white-space: normal !important;
+    word-break: break-word;
+}
+
+/* 3. Forzar que pase a 1 sola columna en pantallas medianas (Tablets) */
+@media (max-width: 900px) {
+    .seleccion-wrapper {
+        grid-template-columns: 1fr !important;
+        width: 95% !important;
+    }
+}
+
+/* 4. Apilar el carrusel y los partidos en pantallas pequeñas (Celulares) */
+@media (max-width: 600px) {
+    .carousel-container.new-carousel {
+        height: auto !important;
+        padding-bottom: 20px !important;
+    }
+    
+    .carousel-slide {
+        flex-direction: column !important; /* Pone la pelota arriba y el texto abajo */
+        padding: 30px 20px 10px 20px !important;
+        gap: 15px !important;
+    }
+    
+    .kit-info {
+        text-align: center !important;
+    }
+    
+    .match-row {
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center;
+        gap: 8px !important;
+    }
+    
+    .match-result, .match-type, .match-date {
+        width: 100% !important;
+        border: none !important;
+    }
+}
