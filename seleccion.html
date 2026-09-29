@@ -48,7 +48,7 @@
                             <button class="carousel-btn prev" onclick="moverCarrusel(-1)"><i class="fa-solid fa-chevron-left"></i></button>
                             <div class="carousel-track" id="kitTrack">    
                                 <div class="carousel-slide">
-                                    <div class="hax-avatar-preview" id="preview_kit_1">TH</div>
+                                    <div class="hax-avatar-preview" id="preview_kit_1" style="display: flex; align-items: center; justify-content: center; text-align: center;">TH</div>
                                     <div class="kit-info">
                                         <div class="kit-name">Primaria</div>
                                         <div class="kit-type">Equipación Local</div>
@@ -56,7 +56,7 @@
                                 </div>
                                     
                                 <div class="carousel-slide">
-                                    <div class="hax-avatar-preview" id="preview_kit_2">TH</div>
+                                    <div class="hax-avatar-preview" id="preview_kit_2" style="display: flex; align-items: center; justify-content: center; text-align: center;">TH</div>
                                     <div class="kit-info">
                                         <div class="kit-name">Secundaria</div>
                                         <div class="kit-type">Equipación Visita</div>
@@ -64,7 +64,7 @@
                                 </div>
                                     
                                 <div class="carousel-slide">
-                                    <div class="hax-avatar-preview" id="preview_kit_3">TH</div>
+                                    <div class="hax-avatar-preview" id="preview_kit_3" style="display: flex; align-items: center; justify-content: center; text-align: center;">TH</div>
                                     <div class="kit-info">
                                         <div class="kit-name">Alternativa</div>
                                         <div class="kit-type">Equipación Tercera</div>
@@ -72,7 +72,7 @@
                                 </div>
 
                                 <div class="carousel-slide">
-                                    <div class="hax-avatar-preview" id="preview_kit_4">TH</div>
+                                    <div class="hax-avatar-preview" id="preview_kit_4" style="display: flex; align-items: center; justify-content: center; text-align: center;">TH</div>
                                     <div class="kit-info">
                                         <div class="kit-name">Train</div>
                                         <div class="kit-type">Equipación Entrenamiento</div>
@@ -734,21 +734,21 @@
                 'preview_kit_2', 
                 kitData.away.colors.map(numToHex), 
                 kitData.away.angle, 
-                numToHex(kitData.home.text)
+                numToHex(kitData.away.text)
             );
 
             dibujarAvatarHaxball(
                 'preview_kit_3', 
                 kitData.third.colors.map(numToHex), 
                 kitData.third.angle, 
-                numToHex(kitData.home.text)
+                numToHex(kitData.third.text)
             );
 
             dibujarAvatarHaxball(
                 'preview_kit_4', 
                 kitData.entreno.colors.map(numToHex), 
                 kitData.entreno.angle, 
-                numToHex(kitData.home.text)
+                numToHex(kitData.entreno.text)
             );
         }
 
