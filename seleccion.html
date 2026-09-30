@@ -8,6 +8,85 @@
     <link rel="stylesheet" href="styles.css?v=2.4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
+    <style>
+        #editModal .modal-content {
+            background: #061114 !important;
+            border: 1px solid #5dc8e8 !important;
+            border-radius: 12px !important;
+            padding: 30px 25px !important;
+            width: 90% !important;
+            max-width: 420px !important;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9) !important;
+        }
+
+        #editModal #modalTitle {
+            color: #ffffff !important;
+            font-size: 1.3rem !important;
+            margin-top: 0 !important;
+            margin-bottom: 20px !important;
+            text-align: left !important;
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px !important;
+            font-weight: bold !important;
+            border-bottom: none !important;
+        }
+
+        #editModal .modal-form input, 
+        #editModal .modal-form select {
+            background: #111111 !important;
+            border: 1px solid #222 !important;
+            padding: 14px 15px !important;
+            border-radius: 8px !important;
+            color: white !important;
+            font-size: 1rem !important;
+        }
+
+        #editModal .modal-form input:focus, 
+        #editModal .modal-form select:focus {
+            border-color: #5dc8e8 !important;
+        }
+
+        #editModal .form-row {
+            display: flex !important;
+            gap: 15px !important;
+            width: 100% !important;
+        }
+        #editModal .form-row input {
+            flex: 1 !important;
+            text-align: left !important;
+        }
+
+        #editModal .modal-btn {
+            width: 100% !important;
+            padding: 15px !important;
+            border-radius: 8px !important;
+            font-size: 1.05rem !important;
+            font-weight: bold !important;
+            margin-top: 5px !important;
+            flex: none !important;
+        }
+
+        #editModal #modalSubmitBtn {
+            background: #3df2b4 !important;
+            color: #000 !important;
+        }
+        #editModal #modalSubmitBtn:hover {
+            background: #2bc993 !important;
+            transform: scale(1.02) !important;
+        }
+
+        #editModal .modal-btn.cancel {
+            background: #d13636 !important;
+            color: #ffffff !important;
+            border: none !important;
+            margin-top: 0 !important;
+        }
+        #editModal .modal-btn.cancel:hover {
+            background: #a82020 !important;
+            transform: scale(1.02) !important;
+        }
+    </style>
 <body>
     <header></header>
 
@@ -35,8 +114,8 @@
                         </div>
 
                         <div style="position: absolute; left: 20px; right: 20px; bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px;">
-                            <a href="https://discord.gg/3kHXFtzXfn" target="_blank" rel="noopener noreferrer" class="social-btn discord" style="margin: 0;">
-                                <i class="fa-brands fa-discord"></i> Discord
+                            <a href="https://discord.gg/bSunD5fkgX" target="_blank" rel="noopener noreferrer" class="social-btn discord" style="margin: 0;">
+                                <i class="fa-brands fa-discord"></i> Postular
                             </a>
                             <button id="btnEditar" class="edit-btn" onclick="abrirModalNuevo()" style="position: static; right: auto; bottom: auto; display: inline-flex; margin: 0;"><i class="fa-solid fa-plus"></i> Añadir Partido</button>
                         </div>
