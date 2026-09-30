@@ -61,7 +61,7 @@
         .stat-box li { 
             display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 10px; color: #ccc; font-size: 0.95rem; 
-            border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px;
         }
         .stat-box li i { color: #5dc8e8; width: 20px; text-align: center; margin-right: 8px;}
         .stat-box li:last-child { border-bottom: none; }
@@ -76,7 +76,7 @@
         .chart-box p { color: #ccc; font-size: 0.9rem; margin-bottom: 15px; }
         .chart-box img { max-width: 100%; height: auto; object-fit: contain; }
 
-        .vip-upsell { text-align: center; padding: 40px 20px; background: rgba(255, 211, 66, 0.05); border: 1px dashed #FFD342; border-radius: 15px; margin-top: 20px; width: 100%;}
+        .vip-upsell { text-align: center; padding: 40px 20px; background: rgba(255, 211, 66, 0.05); border: 1px solid #FFD342; border-radius: 15px; margin-top: 20px; width: 100%;}
         .vip-upsell h3 { color: #FFD342; font-size: 1.8rem; margin-bottom: 10px; }
         .vip-upsell p { color: #bdc3c7; margin-bottom: 20px; }
         .btn-buy-vip { display: inline-block; background: #FFD342; color: #111; padding: 12px 30px; border-radius: 8px; font-weight: bold; text-decoration: none; font-size: 1.1rem; transition: 0.3s; }
@@ -138,10 +138,10 @@
         .close-modal:hover { color: #cc2a2a; transform: scale(1.1); }
 
         .rank-info-list { list-style: none; padding: 0; margin: 20px 0; text-align: left; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 15px; border: 1px solid #333;}
-        .rank-info-list li { margin-bottom: 8px; font-size: 1.05rem; display: flex; justify-content: space-between; border-bottom: 1px dashed #444; padding-bottom: 5px;}
+        .rank-info-list li { margin-bottom: 8px; font-size: 1.05rem; display: flex; justify-content: space-between; border-bottom: 1px solid #444; padding-bottom: 5px;}
         .rank-info-list li:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
         .rank-info-list strong { color: #FFD342; }
-        .elo-info-box { background: rgba(45, 242, 193, 0.1); border: 1px dashed #2df2c1; padding: 15px; border-radius: 10px; text-align: left; color: #bdc3c7; line-height: 1.6;}
+        .elo-info-box { background: rgba(45, 242, 193, 0.1); border: 1px solid #2df2c1; padding: 15px; border-radius: 10px; text-align: left; color: #bdc3c7; line-height: 1.6;}
 
         @media (max-width: 900px) {
             .three-cols { grid-template-columns: repeat(2, 1fr); }
@@ -203,7 +203,7 @@
                 </div>
             </div>
 
-            <div class="profile-tabs" style="border-bottom: 1px dashed #444; padding-bottom: 15px; margin-bottom: 20px;">
+            <div class="profile-tabs" style="border-bottom: 1px solid #444; padding-bottom: 15px; margin-bottom: 20px;">
                 <button class="tab-btn active" id="btn-modo-global" onclick="cambiarModoTemporada(false)"><i class="fa-solid fa-earth-americas"></i> Histórico</button>
                 <button class="tab-btn" id="btn-modo-temp" onclick="cambiarModoTemporada(true)"><i class="fa-solid fa-fire"></i> Temporada</button>
             </div>

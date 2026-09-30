@@ -13,7 +13,7 @@
         
         main { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; margin-top: 5vh;}
 
-        .error-container { text-align: center; background: rgba(20, 20, 20, 0.8); border: 1px dashed #cc2a2a; border-radius: 15px; padding: 50px 30px; box-shadow: 0 10px 30px rgba(204, 42, 42, 0.15); max-width: 600px; width: 100%; position: relative; overflow: hidden;}
+        .error-container { text-align: center; background: rgba(20, 20, 20, 0.8); border: 1px solid #cc2a2a; border-radius: 15px; padding: 50px 30px; box-shadow: 0 10px 30px rgba(204, 42, 42, 0.15); max-width: 600px; width: 100%; position: relative; overflow: hidden;}
         .error-container::before { content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(204, 42, 42, 0.05) 0%, transparent 50%); z-index: 0; pointer-events: none; animation: pulseRed 2s infinite;}
         
         @keyframes pulseRed { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }

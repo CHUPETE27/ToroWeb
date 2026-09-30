@@ -64,7 +64,7 @@
         .loader-screen { position: fixed; top:0; left:0; width:100%; height:100%; background:#0a0a0a; z-index:9999; display:flex; flex-direction:column; justify-content:center; align-items:center; color:#FFD342; }
 
         .player-list-room { background: #111; border: 1px solid #333; border-radius: 8px; max-height: 350px; overflow-y: auto; padding: 0; margin: 0; list-style: none; }
-        .player-list-room li { padding: 12px 15px; border-bottom: 1px dashed #333; display: flex; justify-content: space-between; align-items: center; color: #fff;}
+        .player-list-room li { padding: 12px 15px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; color: #fff;}
         .player-list-room li:last-child { border-bottom: none; }
         .player-list-room::-webkit-scrollbar { width: 6px; }
         .player-list-room::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
@@ -156,7 +156,7 @@
                 </div>
 
                 <div id="global" class="tab-content active">
-                    <div style="background: rgba(204, 42, 42, 0.05); border: 1px dashed #cc2a2a; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <div style="background: rgba(204, 42, 42, 0.05); border: 1px solid #cc2a2a; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
                         <h4 style="color: #e74c3c; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px;"><i class="fa-solid fa-gavel"></i> Banear</h4>
                         
                         <div class="form-group">
@@ -184,7 +184,7 @@
                         </button>
                     </div>
 
-                    <div style="background: rgba(45, 242, 193, 0.05); border: 1px dashed #2df2c1; padding: 20px; border-radius: 10px;">
+                    <div style="background: rgba(45, 242, 193, 0.05); border: 1px solid #2df2c1; padding: 20px; border-radius: 10px;">
                         <h4 style="color: #2df2c1; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px;"><i class="fa-solid fa-unlock"></i> Retirar Baneo (Unban)</h4>
                         
                         <div class="form-group">
@@ -493,7 +493,7 @@
                                 : `<button class="btn-estandar" style="width:auto; margin:0; padding:6px 12px; font-size:0.9rem; background:#2df2c1; color:#111;" onclick="activarCuentaSecundaria(${alt.numericId})">Activar Admin</button>`;
                                 
                             ulSecundarias.innerHTML += `
-                                <li style="display:flex; justify-content:space-between; align-items:center; padding:12px 15px; border-bottom:1px dashed #333;">
+                                <li style="display:flex; justify-content:space-between; align-items:center; padding:12px 15px; border-bottom:1px solid #333;">
                                     <span><span class="id-badge" style="border-color:#5dc8e8; color:#5dc8e8;">#${alt.numericId}</span> <strong style="color:white;">${alt.name}</strong></span>
                                     <div style="display:flex; gap: 8px;">
                                         ${btnHtml}
@@ -608,7 +608,7 @@
                 const banId = ban._id;
                 
                 html += `
-                    <li class="search-item" onclick="abrirBanById('${banId}')" style="display:flex; justify-content:space-between; align-items:center; padding:12px 15px; border-bottom:1px dashed #333;">
+                    <li class="search-item" onclick="abrirBanById('${banId}')" style="display:flex; justify-content:space-between; align-items:center; padding:12px 15px; border-bottom:1px solid #333;">
                         <span><i class="fa-solid fa-user-slash" style="color:#e74c3c; margin-right:8px;"></i> <strong style="color:white;">${nameDisplay}</strong> <span style="color:#7d7d7d;">(ID: ${idDisplay})</span></span>
                         <i class="fa-solid fa-eye" style="color:#5dc8e8;"></i>
                     </li>
@@ -1064,7 +1064,7 @@
                         const dateStr = !isNaN(wTime) ? new Date(wTime).toLocaleString('es-CL') : "Fecha desconocida";
                         
                         warnsList.innerHTML += `
-                            <li style="display:flex; flex-direction:column; padding:10px; border-bottom:1px dashed #444; align-items:flex-start;">
+                            <li style="display:flex; flex-direction:column; padding:10px; border-bottom:1px solid #444; align-items:flex-start;">
                                 <span style="color:#FFD342; font-weight:bold;"><i class="fa-solid fa-triangle-exclamation"></i> Warn #${i+1}</span>
                                 <span style="color:#bdc3c7; font-size:0.9rem; margin-top:5px;"><strong>Razón:</strong> ${reason}</span>
                                 <span style="color:#7d7d7d; font-size:0.8rem; margin-top:5px;"><i class="fa-regular fa-clock"></i> ${dateStr}</span>
@@ -1083,7 +1083,7 @@
                     altsList.innerHTML = '';
                     data.alts.forEach(alt => {
                         altsList.innerHTML += `
-                            <li class="search-item" onclick="abrirPlayerDetails(${alt.numericId})" style="cursor:pointer; display:flex; justify-content:space-between; padding:10px; border-bottom:1px dashed #444;">
+                            <li class="search-item" onclick="abrirPlayerDetails(${alt.numericId})" style="cursor:pointer; display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #444;">
                                 <span><span class="id-badge">#${alt.numericId}</span> ${alt.name}</span>
                                 <i class="fa-solid fa-arrow-up-right-from-square" style="color:#7d7d7d; font-size:0.8rem;"></i>
                             </li>
