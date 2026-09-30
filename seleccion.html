@@ -9,6 +9,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
     <style>
+        #editModal * {
+            box-sizing: border-box !important;
+        }
+
         #editModal .modal-content {
             background: #061114 !important;
             border: 1px solid #5dc8e8 !important;
@@ -17,6 +21,7 @@
             width: 90% !important;
             max-width: 420px !important;
             box-shadow: 0 15px 40px rgba(0,0,0,0.9) !important;
+            overflow-x: hidden !important;
         }
 
         #editModal #modalTitle {
@@ -32,11 +37,33 @@
             border-bottom: none !important;
         }
 
+        #editModal .modal-form {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 15px !important;
+        }
+
+        #editModal .form-group {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 6px !important;
+            text-align: left !important;
+        }
+
+        #editModal .form-group label {
+            color: #bdc3c7 !important;
+            font-size: 0.8rem !important;
+            font-weight: bold !important;
+            text-transform: uppercase !important;
+            letter-spacing: 1px !important;
+        }
+
         #editModal .modal-form input, 
         #editModal .modal-form select {
+            width: 100% !important;
             background: #111111 !important;
             border: 1px solid #222 !important;
-            padding: 14px 15px !important;
+            padding: 12px 15px !important;
             border-radius: 8px !important;
             color: white !important;
             font-size: 1rem !important;
@@ -47,14 +74,66 @@
             border-color: #5dc8e8 !important;
         }
 
-        #editModal .form-row {
+        #editModal .score-row {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            background: #05080a !important;
+            padding: 15px !important;
+            border-radius: 8px !important;
+            border: 1px solid #222 !important;
+            width: 100% !important;
+        }
+
+        #editModal .score-col {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            gap: 8px !important;
+            flex: 1 !important;
+        }
+
+        #editModal .team-label {
+            font-size: 0.9rem !important;
+            font-weight: bold !important;
+            color: #fff !important;
+            text-align: center !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            max-width: 100px !important;
+        }
+
+        #editModal .score-col input {
+            width: 70px !important;
+            text-align: center !important;
+            font-size: 1.5rem !important;
+            font-weight: 900 !important;
+            padding: 8px !important;
+            background: #111 !important;
+        }
+
+        #editModal .score-divider {
+            font-weight: 900 !important;
+            color: #555 !important;
+            font-size: 1.2rem !important;
+            margin: 0 15px !important;
+        }
+
+        #editModal .form-row-doble {
             display: flex !important;
             gap: 15px !important;
             width: 100% !important;
         }
-        #editModal .form-row input {
+        #editModal .form-row-doble .form-group {
             flex: 1 !important;
-            text-align: left !important;
+        }
+
+        #editModal .modal-btn-row {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 10px !important;
+            margin-top: 5px !important;
         }
 
         #editModal .modal-btn {
@@ -63,8 +142,9 @@
             border-radius: 8px !important;
             font-size: 1.05rem !important;
             font-weight: bold !important;
-            margin-top: 5px !important;
-            flex: none !important;
+            border: none !important;
+            cursor: pointer !important;
+            transition: 0.3s !important;
         }
 
         #editModal #modalSubmitBtn {
@@ -79,12 +159,20 @@
         #editModal .modal-btn.cancel {
             background: #d13636 !important;
             color: #ffffff !important;
-            border: none !important;
-            margin-top: 0 !important;
         }
         #editModal .modal-btn.cancel:hover {
             background: #a82020 !important;
             transform: scale(1.02) !important;
+        }
+
+        @media (max-width: 480px) {
+            #editModal .form-row-doble {
+                flex-direction: column !important;
+                gap: 15px !important;
+            }
+            #editModal .modal-btn-row {
+                flex-direction: column-reverse !important;
+            }
         }
     </style>
 <body>
