@@ -156,7 +156,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const c1 = hexToRgb('#011c18');
-    const c2 = hexToRgb('#2df2c1');
+    const c2 = hexToRgb('#119ea8');
     const c3 = hexToRgb('#FFD342');
 
     set3F('uColor1', c1[0], c1[1], c1[2]);
