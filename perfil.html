@@ -550,8 +550,8 @@
                     rachaPercentage = Math.max(0, Math.min(100, (rachaActual / rachaMax) * 100));
                 }
 
-                document.getElementById('rankMinText').innerText = `<i class="fa-solid fa-fire"></i> Racha: ${rachaActual}`;
-                document.getElementById('rankMaxText').innerText = `<i class="fa-solid fa-crown"></i> Récord: ${rachaMax}`;
+                document.getElementById('rankMinText').innerHTML = `<i class="fa-solid fa-fire"></i> Racha: ${rachaActual}`;
+                document.getElementById('rankMaxText').innerHTML = `<i class="fa-solid fa-crown"></i> Récord: ${rachaMax}`;
                 document.getElementById('eloCenterText').innerText = `(${Math.floor(rachaPercentage)}%)`;
                 
                 setTimeout(() => { document.getElementById('rankProgressBar').style.width = `${rachaPercentage}%`; }, 100);
