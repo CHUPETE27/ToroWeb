@@ -194,8 +194,8 @@
                 <div class="rank-progress-container" id="rankContainer">
                     <div class="rank-progress-info">
                         <span class="current-rank" id="rankMinText">0</span>
-                        <span class="next-rank" id="rankMaxText">0</span>
                         <span id="eloCenterText">0 / 0 Elo (0%)</span>
+                        <span class="next-rank" id="rankMaxText">0</span>
                     </div>
                     <div class="rank-progress-bar">
                         <div class="rank-progress-fill" id="rankProgressBar"></div>
@@ -242,7 +242,7 @@
                         </div>
                         <div class="chart-box">
                             <h3><i class="fa-solid fa-balance-scale"></i> Estilo: <span id="playerPosition" style="color:white;">...</span></h3>
-                            <p>⚔️ Atq: <span id="atkPct">0</span>% | 🛡️ Def: <span id="defPct">0</span>%</p>
+                            <p><i class="fa-light fa-futbol"></i> Atq: <span id="atkPct">0</span>% | <i class="fa-solid fa-shield"></i> Def: <span id="defPct">0</span>%</p>
                             <img id="chartPie" src="" alt="Gráfico Circular">
                         </div>
                         <div class="chart-box">
@@ -611,9 +611,9 @@
                 <li><span><i class="fa-solid fa-handshake"></i> Asistencias:</span> <strong>${asist}</strong></li>
                 <li><span><i class="fa-solid fa-right-left"></i> Pases Completos:</span> <strong>${pasesC}</strong></li>
                 <li><span><i class="fa-solid fa-shield-halved"></i> Recuperaciones:</span> <strong>${recup}</strong></li>
-                <li><span><i class="fa-solid fa-shoe-prints"></i> Goles (Tiro Libre):</span> <strong>${golesTiroLibre}</strong></li>
+                <li><span><i class="fa-solid fa-meteor"></i> Goles (Tiro Libre):</span> <strong>${golesTiroLibre}</strong></li>
                 <li><span><i class="fa-solid fa-bullseye"></i> Goles (Penal):</span> <strong>${golesPenal}</strong></li>
-                <li><span><i class="fa-solid fa-person-running"></i> Penales Lanzados:</span> <strong>${penalesLanzados}</strong></li>
+                <li><span><i class="fa-solid fa-circle-dot"></i> Penales Lanzados:</span> <strong>${penalesLanzados}</strong></li>
             `;
 
             document.getElementById('listArquero').innerHTML = `
