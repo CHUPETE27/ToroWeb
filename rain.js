@@ -40,7 +40,7 @@ function initRain() {
     resize();
 
     function draw() {
-        ctx.fillStyle = 'rgba(3, 70, 65, 0.08)';
+        ctx.fillStyle = '#044b50';
         ctx.fillRect(0, 0, width, height);
 
         for (let i = 0; i < drops.length; i++) {
