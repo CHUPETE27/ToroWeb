@@ -40,7 +40,7 @@ function initAurora() {
             float t = uTime * 0.15; // Velocidad del viento solar
             
             // Color base (ToroHax Dark)
-            vec3 col = vec3(0.01, 0.09, 0.11); 
+            vec3 col = vec3(0.0157, 0.2941, 0.3137); // #044b50
             
             // Creamos 4 láminas de luz superpuestas
             for(float i = 1.0; i <= 4.0; i++) {
