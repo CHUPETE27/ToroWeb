@@ -93,7 +93,7 @@
         .save-btn:hover { background: #24c29a; box-shadow: 0 0 15px rgba(45, 242, 193, 0.4); }
 
         .inventory-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; width: 100%; margin-top: 15px; }
-        .inventory-card { background: rgb(1, 36, 39); border: 1px solid #444; border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 15px; transition: transform 0.3s; }
+        .inventory-card { background: rgb(1, 36, 39); border: 1px solid #FFD342; border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 15px; transition: transform 0.3s; }
         .inventory-icon { font-size: 2.5rem; color: #FFD342; width: 60px; text-align: center; }
         .inventory-info { flex: 1; }
         .inventory-title { color: #fff; margin: 0 0 5px 0; font-size: 1.1rem; display: flex; justify-content: space-between; align-items: center;}
@@ -497,10 +497,10 @@
                         <p class="inventory-desc">Elige un modo de juego para la siguiente partida (!modos).</p>
                     </div>
                 </div>
-                <div class="inventory-card" style="border-color: #f1c40f; background: rgba(241, 196, 15, 0.05);">
-                    <i class="fa-solid fa-gem inventory-icon" style="color: #f1c40f;"></i>
+                <div class="inventory-card" style="border-color: rgb(1, 36, 39);; background: #FFD342;">
+                    <i class="fa-solid fa-gem inventory-icon" style="color: rgb(1, 36, 39);;"></i>
                     <div class="inventory-info">
-                        <h4 class="inventory-title">Fragmentos VIP <span class="inventory-count" style="background:#f1c40f; color:#111;">${p.vipFragments || 0} / 10</span></h4>
+                        <h4 class="inventory-title">Fragmentos VIP <span class="inventory-count" style="background:rgb(1, 36, 39);; color:#111;">${p.vipFragments || 0} / 10</span></h4>
                         <p class="inventory-desc">Reúne 10 fragmentos en la ruleta diaria para ganar un mes gratis de VIP.</p>
                     </div>
                 </div>
