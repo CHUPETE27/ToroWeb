@@ -948,15 +948,226 @@ tr:hover td { background: rgba(255,211,66,0.1); }
 
 /* =========================================
    MENÚS DESPLEGABLES PERSONALIZADOS
+   Reutilizable en cualquier HTML
    ========================================= */
-.custom-select-wrapper { position: relative; user-select: none; width: 100%; font-family: 'Arial', sans-serif; }
-.custom-select-trigger { display: flex; justify-content: space-between; align-items: center; width: 100%; padding: 12px 15px; font-size: 1rem; color: #fff; background-color: #1a1a1a; border: 1px solid #444; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
-.custom-select-wrapper.open .custom-select-trigger { border-color: #5dc8e8; box-shadow: 0 0 10px rgba(93, 200, 232, 0.2); border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
-.custom-select-options { position: absolute; display: block; top: 100%; left: 0; right: 0; background-color: #011412; border: 1px solid #FFD342; border-top: none; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.8); opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(-10px); transition: all 0.2s ease; z-index: 100; max-height: 250px; overflow-y: auto; }
-.custom-select-wrapper.open .custom-select-options { opacity: 1; visibility: visible; pointer-events: all; transform: translateY(0); }
-.custom-option { padding: 10px 15px; color: #ddd; cursor: pointer; transition: 0.2s; font-size: 0.95rem; }
-.custom-option:hover { background-color: #2a2a2a; color: #fff; }
-.custom-option.selected { background-color: #12b99d; color: #fff; font-weight: bold; }
+
+.custom-select-wrapper {
+    position: relative;
+    width: 100%;
+    user-select: none;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    z-index: 20;
+}
+
+.custom-select-wrapper + select {
+    display: none;
+}
+
+/* Barra que abre/cierra el menú */
+.custom-select-trigger {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 46px;
+    padding: 12px 15px;
+    font-size: 1rem;
+    line-height: 1.2;
+    color: #fff;
+    background: #1a1a1a;
+    border: 1px solid #444;
+    border-radius: 8px;
+    outline: none;
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        border-radius 0.2s ease;
+}
+
+.custom-select-trigger:hover {
+    background-color: #222;
+    border-color: #5dc8e8;
+}
+
+.custom-select-wrapper.open {
+    z-index: 1000;
+}
+
+.custom-select-wrapper.open .custom-select-trigger {
+    background-color: #1a1a1a;
+    border-color: #5dc8e8;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+    box-shadow: 0 0 10px rgba(93, 200, 232, 0.2);
+}
+
+.custom-select-trigger span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.custom-select-trigger i {
+    flex-shrink: 0;
+    margin-left: 12px;
+    color: #FFD342;
+    font-size: 0.8rem;
+    transition: transform 0.2s ease;
+}
+
+.custom-select-wrapper.open .custom-select-trigger i {
+    transform: rotate(180deg);
+}
+
+/* Lista desplegable */
+.custom-select-options {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    display: block;
+    max-height: 250px;
+    overflow-y: auto;
+    margin: 0;
+    padding: 4px 0;
+    background: #011412;
+    border: 1px solid #FFD342;
+    border-top: none;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: translateY(-8px);
+    transform-origin: top;
+    transition:
+        opacity 0.2s ease,
+        visibility 0.2s ease,
+        transform 0.2s ease;
+    z-index: 1001;
+}
+
+.custom-select-wrapper.open .custom-select-options {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+/* Cada opción */
+.custom-option {
+    padding: 11px 15px;
+    color: #ddd;
+    background: transparent;
+    font-size: 0.95rem;
+    line-height: 1.2;
+    cursor: pointer;
+    transition:
+        background-color 0.15s ease,
+        color 0.15s ease;
+}
+
+.custom-option:hover {
+    background-color: rgba(255, 211, 66, 0.1);
+    color: #fff;
+}
+
+.custom-option.selected {
+    background: #12b99d;
+    color: #fff;
+    font-weight: 700;
+}
+
+.custom-option.selected:hover {
+    background: #16c9aa;
+}
+
+/* Scrollbar del menú */
+.custom-select-options::-webkit-scrollbar {
+    width: 7px;
+}
+
+.custom-select-options::-webkit-scrollbar-track {
+    background: #0a2422;
+    border-radius: 0 0 6px 0;
+}
+
+.custom-select-options::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 10px;
+}
+
+.custom-select-options::-webkit-scrollbar-thumb:hover {
+    background: #FFD342;
+}
+
+/* Adaptación móvil */
+@media (max-width: 480px) {
+    .custom-select-trigger {
+        min-height: 44px;
+        padding: 11px 13px;
+        font-size: 0.95rem;
+    }
+
+    .custom-option {
+        padding: 11px 13px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Select nativo: misma estética cuando no se transforma con JS */
+.form-group select,
+.modal-form select,
+select.select-torohax {
+    width: 100%;
+    min-height: 46px;
+    padding: 12px 40px 12px 15px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: #1a1a1a;
+    background-image: linear-gradient(45deg, transparent 50%, #FFD342 50%),
+                      linear-gradient(135deg, #FFD342 50%, transparent 50%);
+    background-position: calc(100% - 18px) 20px,
+                         calc(100% - 12px) 20px;
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+    border: 1px solid #444;
+    border-radius: 8px;
+    outline: none;
+    color: #fff;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.form-group select:hover,
+.modal-form select:hover,
+select.select-torohax:hover {
+    background-color: #222;
+    border-color: #5dc8e8;
+}
+
+.form-group select:focus,
+.modal-form select:focus,
+select.select-torohax:focus {
+    border-color: #5dc8e8;
+    box-shadow: 0 0 10px rgba(93, 200, 232, 0.2);
+}
+
+.form-group select option,
+.modal-form select option,
+select.select-torohax option {
+    background: #011412;
+    color: #fff;
+    padding: 10px;
+}
 
 /* =========================================
    BOTONES EXTRAÍDOS (CARTA.HTML)

@@ -1137,6 +1137,92 @@
                 cerrarModalAdmin();
             }
         }
+
+        function crearSelectsPersonalizados() {
+            document.querySelectorAll('select').forEach(select => {
+                if (
+                    select.nextElementSibling &&
+                    select.nextElementSibling.classList.contains('custom-select-wrapper')
+                ) return;
+
+                select.style.display = 'none';
+
+                const wrapper = document.createElement('div');
+                wrapper.className = 'custom-select-wrapper';
+                wrapper.classList.add('wrapper-' + select.id);
+
+                const trigger = document.createElement('div');
+                trigger.className = 'custom-select-trigger';
+
+                trigger.innerHTML = `
+                    <span>${select.options[select.selectedIndex].text}</span>
+                    <i class="fa-solid fa-chevron-down"
+                    style="color:#FFD342; font-size:0.8rem;"></i>
+                `;
+
+                const optionsList = document.createElement('div');
+                optionsList.className = 'custom-select-options';
+
+                Array.from(select.options).forEach((option, index) => {
+                    const optDiv = document.createElement('div');
+
+                    optDiv.className = 'custom-option';
+
+                    if (option.selected) {
+                        optDiv.classList.add('selected');
+                    }
+
+                    optDiv.textContent = option.text;
+
+                    optDiv.addEventListener('click', () => {
+                        select.selectedIndex = index;
+
+                        select.dispatchEvent(new Event('change'));
+
+                        trigger.querySelector('span').textContent = option.text;
+
+                        optionsList
+                            .querySelectorAll('.custom-option')
+                            .forEach(el => el.classList.remove('selected'));
+
+                        optDiv.classList.add('selected');
+
+                        wrapper.classList.remove('open');
+                    });
+
+                    optionsList.appendChild(optDiv);
+                });
+
+                wrapper.appendChild(trigger);
+                wrapper.appendChild(optionsList);
+
+                select.parentNode.insertBefore(wrapper, select.nextSibling);
+
+                trigger.addEventListener('click', (e) => {
+                    e.stopPropagation();
+
+                    document
+                        .querySelectorAll('.custom-select-wrapper')
+                        .forEach(w => {
+                            if (w !== wrapper) {
+                                w.classList.remove('open');
+                            }
+                        });
+
+                    wrapper.classList.toggle('open');
+                });
+            });
+
+            document.addEventListener('click', () => {
+                document
+                    .querySelectorAll('.custom-select-wrapper')
+                    .forEach(w => w.classList.remove('open'));
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            crearSelectsPersonalizados();
+        });
     </script>
     <script src="scanner.js"></script>
 </body>
