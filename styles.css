@@ -1052,11 +1052,26 @@ tr:hover td { background: rgba(255,211,66,0.1); }
     z-index: 1001;
 }
 
-.custom-select-wrapper.open .custom-select-options {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
+/* El menú puede abrirse hacia arriba cuando no hay espacio */
+.custom-select-wrapper.open-up .custom-select-options {
+    top: auto;
+    bottom: 100%;
+    border-top: 1px solid #FFD342;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    transform: translateY(10px);
+}
+
+.custom-select-wrapper.open-up.open .custom-select-options {
     transform: translateY(0);
+}
+
+.custom-select-wrapper.open-up .custom-select-trigger {
+    border-radius: 0 0 8px 8px;
+}
+
+.custom-select-wrapper.open-up.open .custom-select-trigger {
+    border-radius: 0 0 8px 8px;
 }
 
 /* Cada opción */

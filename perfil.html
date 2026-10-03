@@ -813,8 +813,21 @@
                         .forEach(w => {
                             if (w !== wrapper) {
                                 w.classList.remove('open');
+                                w.classList.remove('open-up');
                             }
                         });
+
+                    const rect = wrapper.getBoundingClientRect();
+                    const menuHeight = Math.min(optionsList.scrollHeight, 250);
+
+                    const spaceBelow = window.innerHeight - rect.bottom;
+                    const spaceAbove = rect.top;
+
+                    wrapper.classList.remove('open-up');
+
+                    if (spaceBelow < menuHeight && spaceAbove > spaceBelow) {
+                        wrapper.classList.add('open-up');
+                    }
 
                     wrapper.classList.toggle('open');
                 });
