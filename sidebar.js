@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 <a href="#" onclick="checkLogin('tienda.html')"><i class="fa-solid fa-cart-shopping fa-fw"></i> Tienda</a>
                 <a href="index.html"><i class="fa-solid fa-house fa-fw"></i> Menú principal</a>
                 
-                <a href="#" id="sidebar-admin-btn" onclick="checkLogin('admin.html')" style="display: none; color: #FFD342; border-top: 1px dashed #333; margin-top: 10px; padding-top: 15px;">
+                <a href="#" id="sidebar-admin-btn" onclick="checkLogin('admin.html')" style="display: none; color: #e1bc56; border-top: 1px dashed #333; margin-top: 10px; padding-top: 15px;">
                     <i class="fa-solid fa-shield-halved fa-fw"></i> Panel Admin
                 </a>
 

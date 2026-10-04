@@ -34,7 +34,7 @@
         
         .status-light { display: inline-block; width: 16px; height: 16px; border-radius: 50%; margin-right: 8px; vertical-align: middle; }
         .light-on { background: #2df2c1; box-shadow: 0 0 12px #2df2c1; animation: pulse 1.5s infinite; }
-        .light-starting { background: #FFD342; box-shadow: 0 0 12px #FFD342; animation: pulse 1s infinite; }
+        .light-starting { background: #e1bc56; box-shadow: 0 0 12px #e1bc56; animation: pulse 1s infinite; }
         .light-stopping { background: #e74c3c; box-shadow: 0 0 12px #e74c3c; animation: pulse 1s infinite; }
         .light-off { background: #cc2a2a; box-shadow: inset 0 0 5px rgba(0,0,0,0.5); }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
@@ -355,7 +355,7 @@
                 } 
                 else if (data.estado === 'starting') {
                     statusText.innerHTML = '<span class="status-light light-starting"></span> ENCENDIENDO... <i class="fa-solid fa-spinner fa-spin" style="font-size:0.8em; margin-left:10px;"></i>';
-                    statusText.style.color = '#FFD342';
+                    statusText.style.color = '#e1bc56';
                     infoBox.style.display = 'none';
                     tokenBox.style.display = 'none';
                     btnStart.style.display = 'none';
@@ -518,7 +518,7 @@
                 }
 
                 if (!p.ip) {
-                    altsList.innerHTML = '<li style="color: #FFD342; justify-content: center;"><i class="fa-solid fa-triangle-exclamation"></i> No tiene IP registrada.</li>';
+                    altsList.innerHTML = '<li style="color: #e1bc56; justify-content: center;"><i class="fa-solid fa-triangle-exclamation"></i> No tiene IP registrada.</li>';
                 } else if (data.alts.length === 0) {
                     altsList.innerHTML = '<li style="color: #2df2c1; justify-content: center;"><i class="fa-solid fa-check"></i> No se encontraron otras cuentas.</li>';
                 } else {

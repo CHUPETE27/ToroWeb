@@ -17,19 +17,19 @@
         ::-webkit-scrollbar { width: 10px; }
         ::-webkit-scrollbar-track { background: #1a1a1a; border-radius: 5px;}
         ::-webkit-scrollbar-thumb { background: #ffe680; border-radius: 5px; border: 2px solid #1a1a1a; }
-        ::-webkit-scrollbar-thumb:hover { background: #FFD342; }
+        ::-webkit-scrollbar-thumb:hover { background: #e1bc56; }
 
         .carta-wrapper { display: flex; flex-wrap: wrap; width: 95%; max-width: 1200px; margin: 8vh auto 50px; gap: 40px; justify-content: center; align-items: flex-start; }
         
         .controles-box { flex: 1; min-width: 320px; max-width: 450px; background: rgba(15, 15, 15, 0.95); border: 1px solid #333; border-radius: 15px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        .controles-box h3 { color: #FFD342; border-bottom: 2px solid #333; padding-bottom: 15px; margin-top: 0; text-transform: uppercase; text-align: center; letter-spacing: 1px;}
+        .controles-box h3 { color: #e1bc56; border-bottom: 2px solid #333; padding-bottom: 15px; margin-top: 0; text-transform: uppercase; text-align: center; letter-spacing: 1px;}
         
         .control-section { background: rgba(255,255,255,0.02); border: 1px solid #222; border-radius: 10px; padding: 15px; margin-bottom: 20px;}
         .section-title { color: #bdc3c7; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px;}
 
         .radio-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; border: 1px solid #333;}
         .radio-label { display: flex; flex-direction: row; align-items: center; cursor: pointer; color: #fff; font-size: 0.95rem; font-weight: bold; line-height: 1; margin: 0; padding: 0;}
-        .radio-label input[type="radio"] { cursor: pointer; accent-color: #FFD342; width: 18px; height: 18px; margin: 0 10px 0 0; flex-shrink: 0;}
+        .radio-label input[type="radio"] { cursor: pointer; accent-color: #e1bc56; width: 18px; height: 18px; margin: 0 10px 0 0; flex-shrink: 0;}
         .radio-label span { display: inline-flex; align-items: center; }
         .radio-label.disabled { color: #555; cursor: not-allowed; }
         .radio-label.disabled input[type="radio"] { cursor: not-allowed; filter: grayscale(1); }
@@ -81,7 +81,7 @@
             cursor: text;
         }
 
-        .btn-descargar { width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; transition: 0.3s; font-size: 1.1rem; border: none; background: #FFD342; color: #111; display: flex; justify-content: center; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 1px;}
+        .btn-descargar { width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; transition: 0.3s; font-size: 1.1rem; border: none; background: #e1bc56; color: #111; display: flex; justify-content: center; align-items: center; gap: 10px; text-transform: uppercase; letter-spacing: 1px;}
         .btn-descargar:hover:not(:disabled) { background: #ffdf73; box-shadow: 0 0 20px rgba(255, 211, 66, 0.4); transform: translateY(-2px); cursor: pointer; }
         .btn-descargar:disabled { background: #555; color: #aaa; cursor: not-allowed; }
         
@@ -256,7 +256,7 @@
         }
         
         .loading-ranks {
-            color: #FFD342;
+            color: #e1bc56;
             font-size: 0.85rem;
             text-align: center;
             margin-bottom: 15px;
@@ -328,7 +328,7 @@
                             </label>
                             <label class="radio-label disabled" id="lblVipCustom">
                                 <input type="radio" name="kitMode" value="custom" id="radioCustom" onchange="toggleKitMode()" disabled> 
-                                <span><i class="fa-solid fa-gem" style="color: #FFD342; margin-right: 8px;"></i> Personalizado (VIP)</span>
+                                <span><i class="fa-solid fa-gem" style="color: #e1bc56; margin-right: 8px;"></i> Personalizado (VIP)</span>
                             </label>
                         </div>
 
@@ -643,7 +643,7 @@
 
                 const trigger = document.createElement('div');
                 trigger.className = 'custom-select-trigger';
-                trigger.innerHTML = `<span>${select.options[select.selectedIndex].text}</span> <i class="fa-solid fa-chevron-down" style="color:#FFD342; font-size: 0.8rem;"></i>`;
+                trigger.innerHTML = `<span>${select.options[select.selectedIndex].text}</span> <i class="fa-solid fa-chevron-down" style="color:#e1bc56; font-size: 0.8rem;"></i>`;
 
                 const optionsList = document.createElement('div');
                 optionsList.className = 'custom-select-options';

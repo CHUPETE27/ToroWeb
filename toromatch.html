@@ -23,7 +23,7 @@
 
         .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; align-items: flex-end; }
         .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #7d7d7d; font-weight: bold; transition: 0.3s; font-size: 1rem;}
-        .tab.active { border-bottom: 2px solid #FFD342; color: #FFD342; }
+        .tab.active { border-bottom: 2px solid #e1bc56; color: #e1bc56; }
         .tab:hover:not(.active) { color: white; }
         
         .info-btn-tab {
@@ -31,7 +31,7 @@
             width: 32px; height: 32px; border-radius: 50%; border: 2px solid #5dc8e8; color: #5dc8e8;
             cursor: pointer; transition: 0.3s; font-size: 1.1rem; flex-shrink: 0; margin-bottom: 8px; margin-left: 10px;
         }
-        .info-btn-tab:hover { color: #FFD342; border-color: #FFD342; background: rgba(93, 200, 232, 0.1); transform: scale(1.1); }
+        .info-btn-tab:hover { color: #e1bc56; border-color: #e1bc56; background: rgba(93, 200, 232, 0.1); transform: scale(1.1); }
         
         .tab-content { display: none; }
         .tab-content.active { display: block; }
@@ -40,7 +40,7 @@
         .match-list-container::-webkit-scrollbar { width: 6px; }
         .match-list-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
         .match-list-container::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
-        .match-list-container::-webkit-scrollbar-thumb:hover { background: #FFD342; }
+        .match-list-container::-webkit-scrollbar-thumb:hover { background: #e1bc56; }
         
         .match-row { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; font-size: 1.05rem; background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 8px; width: 100%; border: 1px solid rgba(255,255,255,0.05);}
         .match-header-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; }
@@ -65,14 +65,14 @@
 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); padding: 15px; }
         .modal-content { 
-            background: #111; border: 1px solid #FFD342; padding: 30px 20px; border-radius: 15px; width: 100%; max-width: 550px; color: white; text-align: center;
+            background: #111; border: 1px solid #e1bc56; padding: 30px 20px; border-radius: 15px; width: 100%; max-width: 550px; color: white; text-align: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8); max-height: 90vh; overflow-y: auto; position: relative;
         }
         .modal-content::-webkit-scrollbar { width: 8px; }
         .modal-content::-webkit-scrollbar-track { background: transparent; }
         .modal-content::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
 
-        .modal-content h3 { color: #FFD342; margin-top: 0; text-align: center; font-size: 1.4rem; margin-bottom: 15px;}
+        .modal-content h3 { color: #e1bc56; margin-top: 0; text-align: center; font-size: 1.4rem; margin-bottom: 15px;}
         .modal-content p { color: #bdc3c7; line-height: 1.5; margin-bottom: 20px; font-size: 1rem;}
         
         .editor-form { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px; border: 1px solid #333; }
@@ -92,7 +92,7 @@
             width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #444; color: white; border-radius: 8px; 
             outline: none; font-size: 1rem; text-align: center; transition: 0.2s;
         }
-        .editor-input:focus { border-color: #FFD342; box-shadow: 0 0 10px rgba(255, 211, 66, 0.2); }
+        .editor-input:focus { border-color: #e1bc56; box-shadow: 0 0 10px rgba(255, 211, 66, 0.2); }
         
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
@@ -101,8 +101,8 @@
         .score-box { width: 55px; min-width: 55px; font-size: 1.2rem; font-weight: bold; background: #222; padding: 12px 5px;}
         .vs-text { font-size: 1.1rem; font-weight: bold; color: #7d7d7d; text-align: center; }
 
-        .penalties-section { background: rgba(255,211,66,0.05); padding: 15px; border-radius: 8px; border: 1px solid #FFD342; margin-top: 15px; display: none;}
-        .pen-input { width: 50px; padding: 8px; text-align: center; background: #1a1a1a; border: 1px solid #FFD342; color: #FFD342; font-weight: bold; border-radius: 6px; }
+        .penalties-section { background: rgba(255,211,66,0.05); padding: 15px; border-radius: 8px; border: 1px solid #e1bc56; margin-top: 15px; display: none;}
+        .pen-input { width: 50px; padding: 8px; text-align: center; background: #1a1a1a; border: 1px solid #e1bc56; color: #e1bc56; font-weight: bold; border-radius: 6px; }
 
         .delete-icon { color: #cc2a2a; cursor: pointer; }
         .delete-icon:hover { color: #ff4d4d; }
@@ -117,7 +117,7 @@
         }
         .floating-music-btn:active { cursor: grabbing; }
         .floating-music-btn:hover { transform: scale(1.1); }
-        .floating-music-btn.playing { background: #FFD342; color: #111; border-color: #FFD342; animation: pulse-music 2s infinite; }
+        .floating-music-btn.playing { background: #e1bc56; color: #111; border-color: #e1bc56; animation: pulse-music 2s infinite; }
         
         .close-modal-info { position: absolute; top: 15px; right: 15px; font-size: 1.5rem; color: #7d7d7d; cursor: pointer; transition: 0.3s; z-index: 10;}
         .close-modal-info:hover { color: #e74c3c; transform: scale(1.1); }
@@ -244,8 +244,8 @@
                 <p style="margin-top: 0;"><strong>ToroMatch</strong> son partidos express oficiales organizados por ToroHax.</p>
                 <p>Aquí, 2 equipos conformados por <strong>10 jugadores cada uno</strong> jugarán un partido mucho más competitivo, táctico y emocionante que una partida normal. ¡Es una oportunidad para demostrar tu nivel y dejar una marca!</p>
                 
-                <div style="background: rgba(255, 211, 66, 0.1); border-left: 4px solid #FFD342; padding: 12px; margin-top: 20px; border-radius: 4px;">
-                    <p style="color: #FFD342; font-weight: bold; margin: 0; font-size: 0.95rem;"><i class="fa-regular fa-clock"></i> Las inscripciones suelen abrir 5 horas antes.</p>
+                <div style="background: rgba(255, 211, 66, 0.1); border-left: 4px solid #e1bc56; padding: 12px; margin-top: 20px; border-radius: 4px;">
+                    <p style="color: #e1bc56; font-weight: bold; margin: 0; font-size: 0.95rem;"><i class="fa-regular fa-clock"></i> Las inscripciones suelen abrir 5 horas antes.</p>
                 </div>
 
                 <div style="background: rgba(231, 76, 60, 0.1); border-left: 4px solid #e74c3c; padding: 12px; margin-top: 15px; border-radius: 4px;">
@@ -271,8 +271,8 @@
     </div>
 
     <div class="modal-overlay" id="confirmActionModal">
-        <div class="modal-content" style="border-color: #FFD342;">
-            <h3 style="color: #FFD342;"><i class="fa-solid fa-triangle-exclamation"></i> Confirmar</h3>
+        <div class="modal-content" style="border-color: #e1bc56;">
+            <h3 style="color: #e1bc56;"><i class="fa-solid fa-triangle-exclamation"></i> Confirmar</h3>
             <p id="confirmActionMsg">¿Estás seguro de continuar?</p>
             <div class="modal-btn-row">
                 <button class="modal-btn cancel" onclick="cerrarModalConfirmacionSegura()">Cancelar</button>
@@ -287,7 +287,7 @@
             <p>Selecciona el formato y la cancha para este ToroMatch:</p>
             <div style="align-items: flex-start; gap: 10px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; text-align: left; margin-bottom: 20px;">
                 <div style="width: 100%; border-bottom: 1px solid #444; padding-bottom: 10px; margin-bottom: 5px;">
-                    <span style="color: #FFD342; font-weight: bold; font-size: 0.95rem; display: block; margin-bottom: 10px;"><i class="fa-solid fa-users"></i> Formato de Equipos</span>
+                    <span style="color: #e1bc56; font-weight: bold; font-size: 0.95rem; display: block; margin-bottom: 10px;"><i class="fa-solid fa-users"></i> Formato de Equipos</span>
                     <label style="cursor: pointer; font-size: 1rem; display: flex; align-items: center; gap: 10px; color: #fff;">
                         <input type="radio" name="tm_mode" value="Organizado" style="width: auto; cursor:pointer;"> 
                         📋 Organizado (Predefinidos)
@@ -299,7 +299,7 @@
                 </div>
 
                 <div style="width: 100%; padding-top: 5px;">
-                    <span style="color: #FFD342; font-weight: bold; font-size: 0.95rem; display: block; margin-bottom: 10px;"><i class="fa-solid fa-map-location-dot"></i> Tipo de Cancha</span>
+                    <span style="color: #e1bc56; font-weight: bold; font-size: 0.95rem; display: block; margin-bottom: 10px;"><i class="fa-solid fa-map-location-dot"></i> Tipo de Cancha</span>
                     <label style="cursor: pointer; font-size: 1rem; display: flex; align-items: center; gap: 10px; color: #fff;">
                         <input type="radio" name="tm_cancha" value="Futsal" style="width: auto; cursor:pointer;"> 
                         🏟️ Futsal
@@ -357,7 +357,7 @@
             
             <div class="editor-form">
                 <div class="editor-form-group" style="flex-direction: column; gap: 10px; border-bottom: 1px solid #444; padding-bottom: 15px;">
-                    <span style="color: #FFD342; font-weight: bold; font-size: 1rem;"><i class="fa-solid fa-map-location-dot"></i> Tipo de Cancha</span>
+                    <span style="color: #e1bc56; font-weight: bold; font-size: 1rem;"><i class="fa-solid fa-map-location-dot"></i> Tipo de Cancha</span>
                     <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 5px;">
                         <label style="cursor: pointer; font-size: 1rem; display: flex; align-items: center; gap: 8px; color: #fff;">
                             <input type="radio" name="modal_m_mode" value="Futsal" style="width: auto; cursor:pointer;" checked> 
@@ -376,7 +376,7 @@
 
                 <div class="editor-match-grid">
                     <div class="team-side left">
-                        <input type="text" id="m_eq1" class="editor-input" placeholder="Equipo 1" style="color: #FFD342; font-weight: bold;">
+                        <input type="text" id="m_eq1" class="editor-input" placeholder="Equipo 1" style="color: #e1bc56; font-weight: bold;">
                         <input type="number" id="m_goles1" class="editor-input score-box" placeholder="0" min="0" oninput="checkPenales()">
                     </div>
                     
@@ -384,12 +384,12 @@
                     
                     <div class="team-side right">
                         <input type="number" id="m_goles2" class="editor-input score-box" placeholder="0" min="0" oninput="checkPenales()">
-                        <input type="text" id="m_eq2" class="editor-input" placeholder="Equipo 2" style="color: #FFD342; font-weight: bold;">
+                        <input type="text" id="m_eq2" class="editor-input" placeholder="Equipo 2" style="color: #e1bc56; font-weight: bold;">
                     </div>
                 </div>
 
                 <div class="penalties-section" id="penales_div">
-                    <p style="margin-top:0; margin-bottom: 10px; color:#FFD342; font-size: 0.95rem; text-align: center; font-weight: bold;"><i class="fa-solid fa-bullseye"></i> Tanda de Penales</p>
+                    <p style="margin-top:0; margin-bottom: 10px; color:#e1bc56; font-size: 0.95rem; text-align: center; font-weight: bold;"><i class="fa-solid fa-bullseye"></i> Tanda de Penales</p>
                     <div style="display: flex; justify-content: center; gap: 20px; align-items: center;">
                         <input type="number" id="m_pen1" class="pen-input" placeholder="0" min="0">
                         <span style="color: #7d7d7d; font-weight: bold;">-</span>
@@ -606,7 +606,7 @@
             if (match.highlightUrl) {
                 html += `
                     <div style="margin-bottom: 20px; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border: 1px solid #333;">
-                        <h4 style="color:#FFD342; margin-top:0; margin-bottom:15px; text-align: center;"><i class="fa-solid fa-video"></i> Jugada del partido</h4>
+                        <h4 style="color:#e1bc56; margin-top:0; margin-bottom:15px; text-align: center;"><i class="fa-solid fa-video"></i> Jugada del partido</h4>
                         <video id="mediaVideoPlayer" src="${match.highlightUrl}" controls autoplay style="width:100%; max-height:300px; border-radius:8px; background:black; outline: none;"></video>
                         <p style="color:#bdc3c7; font-size:0.95rem; text-align:left; margin-top:15px; line-height:1.5;">${match.highlightDesc || 'Sin descripción'}</p>
                     </div>
@@ -766,7 +766,7 @@
 
                     document.getElementById('proximos-lista').innerHTML = `
                         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; padding: 30px 15px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-top: 15px;">
-                            <div style="font-size: 1.5rem; color: #FFD342; font-weight: bold; text-align: center;">
+                            <div style="font-size: 1.5rem; color: #e1bc56; font-weight: bold; text-align: center;">
                                 ${equipoA_Global} <span style="color:white; margin: 0 10px; font-size: 1.2rem;">vs</span> ${equipoB_Global} 
                             </div>
                             <div style="color: #7d7d7d; font-size: 1.1rem; border-top: 1px solid #444; padding-top: 15px; width: 80%; text-align: center;">
@@ -1089,7 +1089,7 @@
                             if (myR) myScore = myR.score;
                         }
 
-                        const starColor = myScore > 0 ? '#FFD342' : '#555';
+                        const starColor = myScore > 0 ? '#e1bc56' : '#555';
                         const avgDisplay = avgScore > 0 ? avgScore : '-';
                         
                         let starAction = `onclick="confirmarAccionSegura('Debes iniciar sesión para calificar un partido.', ()=>{}); document.getElementById('btnAceptarAccionSegura').innerText = 'Entendido'; document.querySelector('.modal-btn.cancel').style.display = 'none';"`;
@@ -1164,7 +1164,7 @@
             const container = document.getElementById('ratingStarsContainer');
             container.innerHTML = '';
             for(let i=1; i<=10; i++) {
-                container.innerHTML += `<i class="fa-solid fa-star" style="color: ${i <= score ? '#FFD342' : '#444'}; transition: 0.2s;" onclick="seleccionarRating(${i})"></i>`;
+                container.innerHTML += `<i class="fa-solid fa-star" style="color: ${i <= score ? '#e1bc56' : '#444'}; transition: 0.2s;" onclick="seleccionarRating(${i})"></i>`;
             }
         }
 

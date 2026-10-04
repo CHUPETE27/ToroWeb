@@ -136,7 +136,7 @@
         }
 
         #editModal .score-col input:focus {
-            border-color: #FFD342 !important;
+            border-color: #e1bc56 !important;
         }
 
         #editModal .score-divider {
@@ -330,7 +330,7 @@
                             <button class="copy-btn" onclick="copiarDato('predio-link', 'link', this)" title="Copiar Link"><i class="fa-regular fa-copy"></i></button>
                         </div>
                         <div style="margin:15px 0 8px 0; color:#bdc3c7; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;">
-                            🔑 <strong>Ingreso:</strong> <span id="predio-pass" style="color:#FFD342; font-family:monospace; font-size:1.2rem; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px; border: 1px solid #444;">...</span>
+                            🔑 <strong>Ingreso:</strong> <span id="predio-pass" style="color:#e1bc56; font-family:monospace; font-size:1.2rem; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px; border: 1px solid #444;">...</span>
                             <button class="copy-btn" onclick="copiarDato('predio-pass', 'texto', this)" title="Copiar Clave"><i class="fa-regular fa-copy"></i></button>
                         </div>
                         <div style="margin:15px 0 8px 0; color:#bdc3c7; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;">
@@ -453,7 +453,7 @@
 
     <div class="modal-overlay" id="customConfirmModal">
         <div class="modal-content" style="max-width: 400px; text-align: center;">
-            <h3 id="customConfirmTitle" style="color: #FFD342;"><i class="fa-solid fa-circle-question"></i> Confirmar</h3>
+            <h3 id="customConfirmTitle" style="color: #e1bc56;"><i class="fa-solid fa-circle-question"></i> Confirmar</h3>
             <p id="customConfirmMsg" style="color: #bdc3c7; font-size: 1.1rem; margin: 20px 0; line-height: 1.4;"></p>
             <div style="display: flex; gap: 15px; justify-content: center;">
                 <button class="btn-estandar btn-primary" style="width: 100%; margin-bottom: 0;" id="btnConfirmYes">Sí, continuar</button>
@@ -569,7 +569,7 @@
                 } 
                 else if (data.estado === 'starting') {
                     statusText.innerHTML = '<span class="status-light light-starting"></span> ENCENDIENDO... <i class="fa-solid fa-spinner fa-spin" style="font-size:0.8em; margin-left:10px;"></i>';
-                    statusText.style.color = '#FFD342';
+                    statusText.style.color = '#e1bc56';
                     statusDesc.innerText = 'Validando token y construyendo el mapa...';
                     infoBox.style.display = 'none';
                     
@@ -761,7 +761,7 @@
 
                     ulVitrina.innerHTML = '';
                     if(data.trofeos && data.trofeos.length > 0) {
-                        data.trofeos.forEach(trofeo => ulVitrina.innerHTML += `<li><div style="display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-trophy" style="color:#FFD342;"></i> <span>${trofeo}</span></div></li>`);
+                        data.trofeos.forEach(trofeo => ulVitrina.innerHTML += `<li><div style="display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-trophy" style="color:#e1bc56;"></i> <span>${trofeo}</span></div></li>`);
                     } else {
                         ulVitrina.innerHTML = '<li style="justify-content:center; color:#7d7d7d;">Vitrina en construcción.</li>';
                     }
@@ -1005,7 +1005,7 @@
                 trigger.innerHTML = `
                     <span>${select.options[select.selectedIndex].text}</span>
                     <i class="fa-solid fa-chevron-down"
-                    style="color:#FFD342; font-size:0.8rem;"></i>
+                    style="color:#e1bc56; font-size:0.8rem;"></i>
                 `;
 
                 const optionsList = document.createElement('div');

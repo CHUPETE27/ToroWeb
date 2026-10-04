@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function() {
         logoImg.alt = 'Mi Perfil';
         logoImg.style.borderRadius = '50%';
         logoImg.style.objectFit = 'cover';
-        logoImg.style.border = '2px solid #FFD342';
+        logoImg.style.border = '2px solid #e1bc56';
     } else if (isSeleccion) {
         logoImg.src = 'path1.png';
         logoImg.alt = 'ToroHax Selección';
