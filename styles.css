@@ -407,8 +407,8 @@ footer {
 .modal-btn-row { display: flex; gap: 15px; width: 100%; justify-content: center; flex-wrap: wrap; margin-top: 15px;}
 
 @media (max-width: 480px) {
-    .modal-btn-row { flex-direction: column; }
-    .modal-btn { width: 100%; }
+    .modal-btn-row { justify-content: center; flex-direction: column; gap: 10px; }
+    .modal-btn { width: 80%; }
 }
 
 /* --- 3. BOTONES DE ASIGNACIÓN (Admin de Equipos/Parches) --- */
