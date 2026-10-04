@@ -53,6 +53,8 @@
         
         .edit-btn { position: absolute; bottom: 20px; right: 20px; background: transparent; color: #2df2c1; border: 2px solid #2df2c1; padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; display: none; transition: 0.3s; }
         .edit-btn:hover { background: #2df2c1; color: #111; }
+        .result-actions { display: flex; gap: 12px; margin-top: 20px; }
+        .result-actions .btn-estandar, .result-actions .edit-btn { position: static; width: auto; flex: 1; margin: 0; }
 
         .right-col { display: flex; flex-direction: column; gap: 20px; max-width: 100%;}
         
@@ -172,7 +174,7 @@
                     <div class="score-text" id="liveScore">Esperando conexión...</div>
                 </div>
 
-                <div class="box" style="padding-bottom: 70px;">
+                <div class="box">
                     <div class="tabs">
                         <div class="tab active" onclick="switchTab('proximos')">Próximo express</div>
                         <div class="tab" onclick="switchTab('historial')">Historial</div>
@@ -191,7 +193,12 @@
                         </div>
                     </div>
 
-                    <button id="btnEditar" class="edit-btn" onclick="abrirModalNuevo()"><i class="fa-solid fa-plus"></i> Añadir Resultado</button>
+                    <div class="result-actions">
+                        <a href="https://tiermaker.com/create/toromatch-tierlist-19378135" class="btn-estandar btn-salir">
+                            <i class="fa-solid fa-ranking-star"></i> Tier List
+                        </a>
+                        <button id="btnEditar" class="edit-btn" onclick="abrirModalNuevo()"><i class="fa-solid fa-plus"></i> Añadir Resultado</button>
+                    </div>
                 </div>
 
                 <div class="box" id="box-inscripcion">
