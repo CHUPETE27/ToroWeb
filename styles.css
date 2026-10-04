@@ -1074,6 +1074,8 @@ tr:hover td { background: rgba(255,211,66,0.1); }
     border-radius: 0 0 8px 8px;
 }
 
+.custom-select-wrapper.open .custom-select-options { opacity: 1; visibility: visible; pointer-events: all; transform: translateY(0); }
+
 /* Cada opción */
 .custom-option {
     padding: 11px 15px;
