@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-TNG2QC64');</script>
+    <!-- End Google Tag Manager -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Selección - ToroHax</title>
@@ -286,6 +293,10 @@
                                 <button class="carousel-indicator inactive" onclick="irACarrusel(2)"></button>
                                 <button class="carousel-indicator inactive" onclick="irACarrusel(3)"></button>
                             </div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 12px;">
+                            <button type="button" onclick="copiarColoresKit('red', this)" title="Copiar colores para rojo" aria-label="Copiar colores para rojo" style="background: #d13636; color: white; border: 0; border-radius: 6px; padding: 8px 12px; cursor: pointer;"><i class="fa-solid fa-copy"></i></button>
+                            <button type="button" onclick="copiarColoresKit('blue', this)" title="Copiar colores para azul" aria-label="Copiar colores para azul" style="background: #2878d0; color: white; border: 0; border-radius: 6px; padding: 8px 12px; cursor: pointer;"><i class="fa-solid fa-copy"></i></button>
                         </div>
                     </div>
                 </div>
@@ -945,18 +956,29 @@
         }
 
         let currentKitIndex = 0;
+        const kitData = {
+            home: { colors: [0x3F6B73, 0x5CC1BB, 0x3F6B73], text: 0xD3A778, angle: 90 },
+            away: { colors: [0x71C1CF, 0xFFFFFF, 0xFFFFFF], text: 0x2E4E54, angle: 90 },
+            third: { colors: [0x000000, 0x1A3837, 0x000000], text: 0xD3A778, angle: 60 },
+            entreno: { colors: [0x0D4E4F, 0x093738, 0x093738], text: 0xFFFFFF, angle: 90 }
+        };
+
         function numToHex(num) {
             return "#" + num.toString(16).padStart(6, '0').toUpperCase();
         }
 
-        function inicializarKits() {
-            const kitData = {
-                home: { colors: [0x3F6B73, 0x5CC1BB, 0x3F6B73], text: 0xD3A778, angle: 90 },
-                away: { colors: [0x71C1CF, 0xFFFFFF, 0xFFFFFF], text: 0x2E4E54, angle: 90 },
-                third: { colors: [0x000000, 0x1A3837, 0x000000], text: 0xD3A778, angle: 60 },
-                entreno: { colors: [0x0D4E4F, 0x093738, 0x093738], text: 0xFFFFFF, angle: 90 }
-            };
+        function copiarColoresKit(equipo, btn) {
+            const kit = [kitData.home, kitData.away, kitData.third, kitData.entreno][currentKitIndex];
+            const colores = kit.colors.map(color => color.toString(16).padStart(6, '0').toUpperCase());
+            const comando = `/colors ${equipo} ${kit.angle} ${kit.text.toString(16).padStart(6, '0').toUpperCase()} ${colores.join(' ')}`;
+            navigator.clipboard.writeText(comando).then(() => {
+                const originalHTML = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+                setTimeout(() => { btn.innerHTML = originalHTML; }, 1500);
+            }).catch(err => console.error('Error al copiar colores', err));
+        }
 
+        function inicializarKits() {
             dibujarAvatarHaxball(
                 'preview_kit_1', 
                 kitData.home.colors.map(numToHex), 
