@@ -359,9 +359,12 @@ footer {
 }
 
 /* --- 2. BOTONES PELIGROSOS Y MODALES --- */
-.btn-danger, .btn-cancelar { 
+s.btn-danger, .btn-cancelar { 
     background: #cc2a2a; 
     color: #fff; 
+    display: block; 
+    margin: 0 auto; 
+    text-align: center; 
 }
 .btn-danger:hover:not(:disabled), .btn-cancelar:hover:not(:disabled) { 
     background: #e74c3c; 
