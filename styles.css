@@ -69,7 +69,7 @@ header::after {
 }
 
 main {
-    flex: 1;
+    flex: 0 1 220px; 
     padding: 100px 20px 60px;
     display: flex;
     flex-direction: column;
@@ -406,12 +406,12 @@ s.btn-danger, .btn-cancelar {
     transition: 0.3s;
 }
 .modal-btn:hover:not(:disabled) { filter: brightness(1.1); transform: scale(1.02); }
-.modal-btn.cancel { background: #cc2a2a; color: white;}
-.modal-btn-row { display: flex; gap: 15px; width: 100%; justify-content: center; flex-wrap: wrap; margin-top: 15px;}
+.modal-btn.cancel { background: #cc2a2a; color: white; display: block; margin: 0 auto; }
+.modal-btn-row { display: flex; gap: 15px; width: 100%; justify-content: center; align-items: center; flex-wrap: wrap; margin-top: 15px;}
 
 @media (max-width: 480px) {
     .modal-btn-row { justify-content: center; flex-direction: column; gap: 10px; }
-    .modal-btn { width: 80%; }
+    .modal-btn { width: 80%; flex: 0 1 auto; }
 }
 
 /* --- 3. BOTONES DE ASIGNACIÓN (Admin de Equipos/Parches) --- */
