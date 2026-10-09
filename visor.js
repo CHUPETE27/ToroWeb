@@ -338,58 +338,21 @@ const VisorCore = (function () {
     }
 
     // ---- Eventos de sonido -------------------------------------------------------------------------------------
-    // La librería avisa de cada contacto de la pelota (incluso cuando solo roza una pared), así que se filtra por el
-    // cambio real de velocidad medido en las posiciones grabadas: solo suenan los golpes de verdad.
-    const HIT_MIN_CHANGE = { wall: 3, post: 1.5 };   // unidades por cuadro
-    const HIT_MAX_CHANGE = 12;
-    const HIT_MIN_GAP = 6;                            // cuadros entre dos golpes que suenan
-    const KICK_MIN_GAP = 2;
-    const KICK_IGNORE_RADIUS = 2;                     // cuadros alrededor de una patada donde un golpe contra la pared no se cuenta
+    // HaxBall reproduce un sonido por cada patada, el sonido de chat (mensajes de jugadores y avisos con sound = 1) y el de
+    // notificación (avisos con sound = 2). El grito de gol se dispara con los goles de la repetición.
+    const NOTE_CHAT = 1, NOTE_NOTIFY = 2;
 
-    function ballStep(rec, g) {   // movimiento de la pelota en el paso que llega al cuadro g (null si hay salto o no hay partido)
-        if (g < 1 || g >= rec.frames) return null;
-        const e0 = rec.epochOf[g - 1], e1 = rec.epochOf[g];
-        if (e0 !== e1) return null;
-        const ep = rec.epochs[e1];
-        if (!ep.stadium || ep.discCount < 1) return null;
-        const a = rec.posOff[g - 1], b = rec.posOff[g];
-        const dx = rec.pos[b] - rec.pos[a], dy = rec.pos[b + 1] - rec.pos[a + 1];
-        return (Math.abs(dx) > 40 || Math.abs(dy) > 40) ? null : { x: dx, y: dy };
-    }
-
-    function velocityChange(rec, g) {
-        const v0 = ballStep(rec, g - 1), v1 = ballStep(rec, g);
-        return v0 && v1 ? Math.hypot(v1.x - v0.x, v1.y - v0.y) : -1;
-    }
-
-    // kickFrames: cuadros de cada patada. hits: [{ f, post }] de cada contacto de la pelota con paredes o postes.
-    // Devuelve arreglos ordenados por cuadro: kicks (Int32Array) y hits { f, power (0-1), post }.
-    function buildSoundEvents(rec, kickFrames, hits) {
-        const kicks = [];
-        for (const f of Array.from(kickFrames).sort((a, b) => a - b)) if (!kicks.length || f - kicks[kicks.length - 1] >= KICK_MIN_GAP) kicks.push(f);
-
-        // El cambio de velocidad de una pelota pateada junto a una pared lo causó la patada, no la pared: esos cuadros no cuentan
-        const nearKick = (g) => { const k = firstIndexAfter(kicks, g - KICK_IGNORE_RADIUS - 1); return k < kicks.length && kicks[k] <= g + KICK_IGNORE_RADIUS; };
-
-        const sorted = hits.slice().sort((a, b) => a.f - b.f);
-        const out = { f: [], power: [], post: [] };
-        let i = 0, lastKept = -1e9;
-        while (i < sorted.length) {
-            let j = i, post = false;
-            while (j < sorted.length && sorted[j].f - sorted[Math.max(i, j - 1)].f <= 2) { post = post || sorted[j].post; j++; }   // racha de contacto continuo
-            let best = -1, bestFrame = sorted[i].f;
-            for (let g = sorted[i].f - 1; g <= sorted[j - 1].f + 2; g++) {
-                if (nearKick(g)) continue;
-                const d = velocityChange(rec, g);
-                if (d > best) { best = d; bestFrame = g; }
-            }
-            if (best >= (post ? HIT_MIN_CHANGE.post : HIT_MIN_CHANGE.wall) && bestFrame - lastKept >= HIT_MIN_GAP) {
-                out.f.push(bestFrame); out.power.push(Math.min(1, best / HIT_MAX_CHANGE)); out.post.push(post ? 1 : 0);
-                lastKept = bestFrame;
-            }
-            i = j;
+    // kickFrames: cuadro de cada patada. raw: mensajes crudos del análisis ({ f, kind: 'chat' | 'ann', sound }).
+    // Devuelve arreglos ordenados por cuadro: kicks (Int32Array) y notes { f (Int32Array), kind (Uint8Array) }.
+    function buildSoundEvents(kickFrames, raw) {
+        const kicks = Int32Array.from(kickFrames).sort();
+        const notes = [];
+        for (const r of raw) {
+            const kind = r.kind === 'chat' ? NOTE_CHAT : (r.sound === NOTE_CHAT || r.sound === NOTE_NOTIFY ? r.sound : 0);
+            if (kind) notes.push([r.f, kind]);
         }
-        return { kicks: Int32Array.from(kicks), hits: { f: Int32Array.from(out.f), power: Float32Array.from(out.power), post: Uint8Array.from(out.post) } };
+        notes.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+        return { kicks, notes: { f: Int32Array.from(notes, (n) => n[0]), kind: Uint8Array.from(notes, (n) => n[1]) } };
     }
 
     // Primer índice cuyo valor es > frame (arr ordenado)
@@ -408,7 +371,7 @@ const VisorCore = (function () {
             const raw = [];
             const players = new Map();
             const kicks = new Map();
-            const kickFrames = [], hits = [];   // para el sonido: patadas y choques de la pelota (disco 0)
+            const kickFrames = [];   // cuadro de cada patada (para el sonido)
             let stadiumName = null;
             let reader = null, progressTimer = null, killTimer = null, done = false, recorder = null, hookedState = null;
             const scheduler = createFastScheduler();
@@ -439,7 +402,7 @@ const VisorCore = (function () {
                     return;
                 }
                 raw.sort((a, b) => a.f - b.f);
-                resolve({ raw, players: list, stadiumName, maxFrame, recording, kickFrames, hits });
+                resolve({ raw, players: list, stadiumName, maxFrame, recording, kickFrames });
             };
             const fail = (err) => { if (done) return; done = true; cleanup(); reject(err); };
 
@@ -449,15 +412,11 @@ const VisorCore = (function () {
                         const p = reader.state.getPlayer(id);
                         raw.push({ f: frame(), kind: 'chat', id, name: p ? p.name : '#' + id, team: p && p.team ? p.team.id : 0, text: message });
                     },
-                    onAnnouncement: (msg, color, style) => raw.push({ f: frame(), kind: 'ann', text: msg, color, style }),
+                    onAnnouncement: (msg, color, style, sound) => raw.push({ f: frame(), kind: 'ann', text: msg, color, style, sound }),
                     onPlayerJoin: (p) => touch(p.id, p.name, p.team ? p.team.id : 0, frame()),
                     onPlayerLeave: (p) => { const q = touch(p.id, p.name, null, frame()); q.lastFrame = frame(); },
                     onPlayerTeamChange: (id, teamId) => { const p = reader.state.getPlayer(id); touch(id, p ? p.name : null, teamId, frame()); },
                     onPlayerBallKick: (id) => { kicks.set(id, (kicks.get(id) || 0) + 1); kickFrames.push(frame()); },
-                    onCollisionDiscVsSegment: (discId) => { if (discId === 0) hits.push({ f: frame(), post: false }); },
-                    onCollisionDiscVsPlane: (discId) => { if (discId === 0) hits.push({ f: frame(), post: false }); },
-                    // disco contra disco: solo cuenta la pelota contra un disco que no es de jugador (postes, objetos de la cancha)
-                    onCollisionDiscVsDisc: (d1, p1, d2, p2) => { if ((d1 === 0 && d2 !== 0 && p2 == null) || (d2 === 0 && d1 !== 0 && p1 == null)) hits.push({ f: frame(), post: true }); },
                     onStadiumChange: (st) => { if (st && st.name) stadiumName = st.name; },
                     onGameStart: () => {
                         try { const st = reader.gameState && reader.gameState.stadium; if (st && st.name) stadiumName = st.name; } catch (e) { /* sin estadio aún */ }
@@ -506,7 +465,7 @@ const VisorCore = (function () {
         FPS, MAX_REPLAY_BYTES, DEFAULT_TEAM_COLORS, CLIP_SECONDS,
         formatTime, formatSeconds, parseClipTime, formatClipTime, planClip, colorToCss, isTransparentColor, shadeColor, fieldExtent,
         parseAnnouncement, extractTeamNames, filterMessages, buildChatText, lastIndexAtOrBefore, describeGoal,
-        looksLikeReplay, scanReplay, buildMessages, recordedFrame, buildSoundEvents, firstIndexAfter
+        looksLikeReplay, scanReplay, buildMessages, recordedFrame, buildSoundEvents, firstIndexAfter, NOTE_CHAT, NOTE_NOTIFY
     };
 })();
 
@@ -514,11 +473,13 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
 
 // Sonidos sintetizados con Web Audio (no hay archivos de audio). Cada función recibe el contexto de audio, así que sirven
 // igual para reproducir en vivo (AudioContext) y para generar la pista de un clip (OfflineAudioContext).
+// Se diseñaron midiendo una grabación del cliente de HaxBall: patada, chat, notificación y gol. No hay sonido de fondo.
 const VisorSfx = (function () {
     'use strict';
 
-    const LEVEL = { kick: 0.45, wall: 0.38, post: 0.4, goal: 0.5, ambient: 0.14 };
-    const GOAL_SECONDS = 3.6;
+    // Nivel de cada sonido (pico aproximado antes del volumen general). Las proporciones salen de la grabación de referencia.
+    const LEVEL = { kick: 0.85, chat: 0.75, notify: 0.5, goal: 1 };
+    const GOAL_SECONDS = 4.5;
     const noiseCache = new WeakMap();
 
     function rng(seed) {
@@ -529,31 +490,15 @@ const VisorSfx = (function () {
     // Variación estable por cuadro (0-1): que no suene idéntico cada vez, pero sí igual en vivo y en el clip
     function variation(frame) { return ((Math.imul(frame | 0, 2654435761) >>> 0) % 1000) / 1000; }
 
-    function noiseSet(ctx) {
-        let set = noiseCache.get(ctx);
-        if (set) return set;
-        const sr = ctx.sampleRate, rand = rng(20240607);
-        const white = ctx.createBuffer(1, Math.floor(sr * 2), sr), w = white.getChannelData(0);
-        for (let i = 0; i < w.length; i++) w[i] = rand() * 2 - 1;
-
-        // Público: ruido rosa de 8 s que se repite sin empalme audible (cruce de volumen en el borde)
-        const loopLen = Math.floor(sr * 8), fade = Math.floor(sr * 0.5), raw = new Float32Array(loopLen + fade);
-        let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
-        for (let i = 0; i < raw.length; i++) {
-            const x = rand() * 2 - 1;
-            b0 = 0.99886 * b0 + x * 0.0555179; b1 = 0.99332 * b1 + x * 0.0750759; b2 = 0.96900 * b2 + x * 0.1538520;
-            b3 = 0.86650 * b3 + x * 0.3104856; b4 = 0.55000 * b4 + x * 0.5329522; b5 = -0.7616 * b5 - x * 0.0168980;
-            raw[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + x * 0.5362) * 0.11;
-            b6 = x * 0.115926;
-        }
-        const crowd = ctx.createBuffer(1, loopLen, sr), c = crowd.getChannelData(0);
-        for (let i = 0; i < loopLen; i++) {
-            if (i < fade) { const a = (i / fade) * Math.PI / 2; c[i] = raw[i] * Math.sin(a) + raw[loopLen + i] * Math.cos(a); }
-            else c[i] = raw[i];
-        }
-        set = { white, crowd };
-        noiseCache.set(ctx, set);
-        return set;
+    function whiteNoise(ctx) {
+        let buf = noiseCache.get(ctx);
+        if (buf) return buf;
+        const rand = rng(20240607);
+        buf = ctx.createBuffer(1, Math.floor(ctx.sampleRate * 6), ctx.sampleRate);
+        const d = buf.getChannelData(0);
+        for (let i = 0; i < d.length; i++) d[i] = rand() * 2 - 1;
+        noiseCache.set(ctx, buf);
+        return buf;
     }
 
     // Valor de una curva de puntos [[segundo, valor], ...] en el segundo s (interpolación lineal)
@@ -565,7 +510,7 @@ const VisorSfx = (function () {
         return points[points.length - 1][1];
     }
 
-    // Programa un parámetro con una curva de puntos, empezando en el instante t0 como si ya hubieran pasado `skip` segundos
+    // Programa un parámetro con una curva de puntos, empezando en t0 como si ya hubieran pasado `skip` segundos
     function envelope(param, points, t0, skip) {
         param.setValueAtTime(valueAt(points, skip), t0);
         for (const [s, v] of points) if (s > skip) param.linearRampToValueAtTime(v, t0 + (s - skip));
@@ -574,131 +519,104 @@ const VisorSfx = (function () {
     function createMaster(ctx, volume) {
         const input = ctx.createGain();
         const limiter = ctx.createDynamicsCompressor();   // evita saturar cuando se juntan varios sonidos
-        limiter.threshold.value = -10; limiter.knee.value = 12; limiter.ratio.value = 6; limiter.attack.value = 0.003; limiter.release.value = 0.15;
+        limiter.threshold.value = -4; limiter.knee.value = 3; limiter.ratio.value = 12; limiter.attack.value = 0.002; limiter.release.value = 0.12;
         const output = ctx.createGain();
         output.gain.value = volume;
         input.connect(limiter); limiter.connect(output); output.connect(ctx.destination);
         return { input, output };
     }
 
-    // Patada: golpe grave y seco + chasquido corto
+    // Ruido filtrado (hp-lp o pasa-banda) con una curva de volumen de puntos [[segundo, valor], ...]
+    function noisePart(ctx, dest, t, points, hpFreq, lpFreq, bandFreq) {
+        const src = ctx.createBufferSource(), g = ctx.createGain();
+        src.buffer = whiteNoise(ctx);
+        let last = src;
+        if (hpFreq) { const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = hpFreq; hp.Q.value = 0.5; last.connect(hp); last = hp; }
+        if (bandFreq) { const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = bandFreq; bp.Q.value = 0.6; last.connect(bp); last = bp; }
+        if (lpFreq) { const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = lpFreq; lp.Q.value = 0.5; last.connect(lp); last = lp; }
+        g.gain.setValueAtTime(points[0][1], t + points[0][0]);
+        for (let i = 1; i < points.length; i++) g.gain.exponentialRampToValueAtTime(points[i][1], t + points[i][0]);
+        last.connect(g); g.connect(dest);
+        const end = points[points.length - 1][0];
+        src.start(t, 0.5 + 2 * Math.abs(Math.sin(t * 977))); src.stop(t + end + 0.01);
+    }
+
+    // Seno que cambia de frecuencia [[segundo, Hz], ...] con una curva de volumen [[segundo, valor], ...]
+    function tone(ctx, dest, t, type, freqs, points, lpFreq) {
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = type;
+        o.frequency.setValueAtTime(freqs[0][1], t + freqs[0][0]);
+        for (let i = 1; i < freqs.length; i++) o.frequency.exponentialRampToValueAtTime(freqs[i][1], t + freqs[i][0]);
+        g.gain.setValueAtTime(points[0][1], t + points[0][0]);
+        for (let i = 1; i < points.length; i++) g.gain.exponentialRampToValueAtTime(points[i][1], t + points[i][0]);
+        if (lpFreq) { const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = lpFreq; lp.Q.value = 0.5; o.connect(lp); lp.connect(g); }
+        else o.connect(g);
+        g.connect(dest);
+        const end = Math.max(freqs[freqs.length - 1][0], points[points.length - 1][0]);
+        o.start(t); o.stop(t + end + 0.01);
+    }
+
+    // Patada: clic de banda ancha + golpe grave que baja de ~240 a ~100 Hz + ruido que se apaga, ~190 ms en total
     function kick(ctx, dest, t, vol, v) {
-        const pitch = 0.92 + 0.16 * v;
-        const body = ctx.createOscillator(), bodyGain = ctx.createGain();
-        body.type = 'sine';
-        body.frequency.setValueAtTime(250 * pitch, t);
-        body.frequency.exponentialRampToValueAtTime(70 * pitch, t + 0.08);
-        bodyGain.gain.setValueAtTime(0.0001, t);
-        bodyGain.gain.linearRampToValueAtTime(vol, t + 0.004);
-        bodyGain.gain.exponentialRampToValueAtTime(0.0008, t + 0.18);
-        body.connect(bodyGain); bodyGain.connect(dest);
-        body.start(t); body.stop(t + 0.2);
-
-        const click = ctx.createBufferSource(), band = ctx.createBiquadFilter(), clickGain = ctx.createGain();
-        click.buffer = noiseSet(ctx).white;
-        band.type = 'bandpass'; band.frequency.value = 1500 * pitch; band.Q.value = 0.9;
-        clickGain.gain.setValueAtTime(vol * 0.55, t);
-        clickGain.gain.exponentialRampToValueAtTime(0.0008, t + 0.035);
-        click.connect(band); band.connect(clickGain); clickGain.connect(dest);
-        click.start(t, v * 1.5); click.stop(t + 0.05);
+        const p = 0.96 + 0.08 * v;
+        noisePart(ctx, dest, t, [[0, 0.0001], [0.001, vol * 1.2], [0.014, vol * 0.02]], 250, 9000, 2200);   // clic
+        noisePart(ctx, dest, t, [[0, 0.0001], [0.003, vol * 0.12], [0.044, vol * 0.1], [0.052, vol * 0.03], [0.066, vol * 0.025], [0.08, vol * 0.02], [0.092, vol * 0.01], [0.104, vol * 0.005], [0.13, vol * 0.004], [0.2, vol * 0.001]], 400, 7000, 0);   // cuerpo de ruido
+        tone(ctx, dest, t, 'sine', [[0, 240 * p], [0.04, 135 * p], [0.085, 105 * p], [0.2, 90 * p]],
+            [[0, 0.0001], [0.003, vol * 0.55], [0.044, vol * 0.5], [0.052, vol * 0.13], [0.066, vol * 0.065], [0.08, vol * 0.055], [0.092, vol * 0.022], [0.104, vol * 0.008], [0.12, vol * 0.005], [0.2, vol * 0.001]]);
     }
 
-    // Golpe de la pelota contra una pared o un poste; power (0-1) es qué tan fuerte fue
-    function hit(ctx, dest, t, power, post, v) {
-        const vol = (post ? LEVEL.post : LEVEL.wall) * (0.3 + 0.7 * power);
-        const tone = ctx.createOscillator(), toneGain = ctx.createGain();
-        if (post) {
-            const f0 = (560 + 180 * power) * (0.95 + 0.1 * v);
-            tone.type = 'triangle';
-            tone.frequency.setValueAtTime(f0, t);
-            tone.frequency.exponentialRampToValueAtTime(f0 * 0.72, t + 0.1);
-            toneGain.gain.setValueAtTime(0.0001, t);
-            toneGain.gain.linearRampToValueAtTime(vol, t + 0.002);
-            toneGain.gain.exponentialRampToValueAtTime(0.0008, t + 0.16);
-            const ring = ctx.createOscillator(), ringGain = ctx.createGain();   // resonancia metálica
-            ring.type = 'sine'; ring.frequency.value = f0 * 2.76;
-            ringGain.gain.setValueAtTime(vol * 0.3, t); ringGain.gain.exponentialRampToValueAtTime(0.0008, t + 0.09);
-            ring.connect(ringGain); ringGain.connect(dest); ring.start(t); ring.stop(t + 0.12);
-        } else {
-            const f0 = (150 + 60 * power) * (0.94 + 0.12 * v);
-            tone.type = 'sine';
-            tone.frequency.setValueAtTime(f0, t);
-            tone.frequency.exponentialRampToValueAtTime(f0 * 0.55, t + 0.07);
-            toneGain.gain.setValueAtTime(0.0001, t);
-            toneGain.gain.linearRampToValueAtTime(vol, t + 0.003);
-            toneGain.gain.exponentialRampToValueAtTime(0.0008, t + 0.12);
-        }
-        tone.connect(toneGain); toneGain.connect(dest);
-        tone.start(t); tone.stop(t + 0.2);
-
-        const thud = ctx.createBufferSource(), low = ctx.createBiquadFilter(), thudGain = ctx.createGain();
-        thud.buffer = noiseSet(ctx).white;
-        low.type = 'lowpass'; low.frequency.value = post ? 3200 : 900;
-        thudGain.gain.setValueAtTime(vol * 0.45, t); thudGain.gain.exponentialRampToValueAtTime(0.0008, t + 0.04);
-        thud.connect(low); low.connect(thudGain); thudGain.connect(dest);
-        thud.start(t, v * 1.5); thud.stop(t + 0.06);
+    // Chat: "tink" de onda cuadrada que sube rápido de ~640 a ~3300 Hz (unos 34 ms) y una cola muy tenue
+    function chat(ctx, dest, t, vol, v) {
+        const k = 0.97 + 0.06 * v;
+        tone(ctx, dest, t, 'square', [[0, 640 * k], [0.008, 700 * k], [0.014, 1100 * k], [0.022, 1950 * k], [0.034, 3300 * k], [0.15, 3300 * k]],
+            [[0, 0.0001], [0.0015, vol * 0.3], [0.03, vol * 0.42], [0.036, vol * 0.9], [0.044, vol * 0.9], [0.05, vol * 0.025], [0.11, vol * 0.022], [0.14, vol * 0.001]], 6500);
     }
 
-    // Grito de gol del público (~3,6 s). skip: segundos que ya "pasaron" (para clips que empiezan con el grito en curso)
+    // Notificación: golpe grave que sube de ~110 a ~600 Hz, con un "ding" brillante a ~2,3 kHz; ~240 ms
+    function notify(ctx, dest, t, vol, v) {
+        const k = 0.97 + 0.06 * v;
+        noisePart(ctx, dest, t, [[0, 0.0001], [0.001, vol * 0.6], [0.014, vol * 0.03]], 80, 7000, 0);   // clic
+        noisePart(ctx, dest, t, [[0, 0.0001], [0.004, vol * 0.3], [0.12, vol * 0.25], [0.18, vol * 0.06], [0.25, vol * 0.002]], 350, 9000, 0);   // aire brillante
+        tone(ctx, dest, t, 'sawtooth', [[0, 108 * k], [0.09, 190 * k], [0.15, 300 * k], [0.215, 600 * k]],   // golpe grave que sube
+            [[0, 0.0001], [0.004, vol * 0.5], [0.12, vol * 0.5], [0.2, vol * 0.07], [0.26, vol * 0.001]], 3000);
+        tone(ctx, dest, t, 'sine', [[0, 2150 * k], [0.09, 2580 * k], [0.2, 2300 * k]],   // "ding" brillante
+            [[0, 0.0001], [0.004, vol * 0.45], [0.12, vol * 0.45], [0.18, vol * 0.08], [0.25, vol * 0.001]]);
+    }
+
+    // Gol: rugido suave de público (ruido entre ~700 Hz y ~4 kHz, con más fuerza hacia 2 kHz) que crece en medio segundo.
+    // skip: segundos que ya "pasaron" (para clips que empiezan con el grito en curso)
     function goal(ctx, dest, t, skip) {
         skip = skip || 0;
         if (skip >= GOAL_SECONDS) return;
-        const left = GOAL_SECONDS - skip, nz = noiseSet(ctx).white;
+        const left = GOAL_SECONDS - skip;
         const out = ctx.createGain();
         out.gain.value = LEVEL.goal;
         out.connect(dest);
 
-        const voices = ctx.createBufferSource(), voiceBand = ctx.createBiquadFilter(), voiceGain = ctx.createGain();
-        voices.buffer = nz; voices.loop = true;
-        voiceBand.type = 'bandpass'; voiceBand.Q.value = 0.8;
-        envelope(voiceBand.frequency, [[0, 480], [0.4, 900], [1.4, 820], [GOAL_SECONDS, 600]], t, skip);
-        envelope(voiceGain.gain, [[0, 0.0001], [0.15, 1], [1.3, 0.85], [2.4, 0.35], [GOAL_SECONDS, 0.0001]], t, skip);
-        voices.connect(voiceBand); voiceBand.connect(voiceGain); voiceGain.connect(out);
-        voices.start(t, 0.3); voices.stop(t + left + 0.05);
+        const src = ctx.createBufferSource(), hp = ctx.createBiquadFilter(), lp = ctx.createBiquadFilter(), peak = ctx.createBiquadFilter(), env = ctx.createGain();
+        src.buffer = whiteNoise(ctx); src.loop = true;
+        hp.type = 'highpass'; hp.frequency.value = 650; hp.Q.value = 0.7;
+        lp.type = 'lowpass'; lp.frequency.value = 4200; lp.Q.value = 0.6;
+        peak.type = 'peaking'; peak.frequency.value = 2200; peak.Q.value = 0.8; peak.gain.value = 5;
+        envelope(env.gain, [[0, 0.0001], [0.12, 0.05], [0.5, 0.075], [0.9, 0.12], [1.3, 0.155], [3, 0.15], [GOAL_SECONDS, 0.0001]], t, skip);
+        src.connect(hp); hp.connect(peak); peak.connect(lp); lp.connect(env); env.connect(out);
+        src.start(t, 0.7); src.stop(t + left + 0.05);
 
-        const hiss = ctx.createBufferSource(), hiBand = ctx.createBiquadFilter(), hissGain = ctx.createGain();   // aplausos y aire
-        hiss.buffer = nz; hiss.loop = true;
-        hiBand.type = 'highpass'; hiBand.frequency.value = 2400;
-        envelope(hissGain.gain, [[0, 0.0001], [0.1, 0.3], [0.9, 0.22], [2.2, 0.0001], [GOAL_SECONDS, 0.0001]], t, skip);
-        hiss.connect(hiBand); hiBand.connect(hissGain); hissGain.connect(out);
-        hiss.start(t, 0.9); hiss.stop(t + left + 0.05);
-    }
-
-    // Murmullo de público de fondo. Devuelve { gain (AudioParam del volumen), start(t), stop(t) }
-    function createAmbient(ctx, dest) {
-        const crowd = noiseSet(ctx).crowd;
-        const out = ctx.createGain();
-        out.gain.value = 0;
-        const swell = ctx.createGain();   // sube y baja lentamente, como el público
-        swell.gain.value = 0.78;
-        swell.connect(out); out.connect(dest);
+        // vaivén lento del volumen, como el público
         const lfo = ctx.createOscillator(), lfoDepth = ctx.createGain();
-        lfo.frequency.value = 0.11; lfoDepth.gain.value = 0.2;
-        lfo.connect(lfoDepth); lfoDepth.connect(swell.gain);
+        lfo.frequency.value = 3.1; lfoDepth.gain.value = 0.012;
+        lfo.connect(lfoDepth); lfoDepth.connect(env.gain);
+        lfo.start(t); lfo.stop(t + left + 0.05);
 
-        const layers = [   // tipo, frecuencia, Q, nivel, paneo, punto de inicio en el audio
-            ['bandpass', 520, 0.5, 1.0, -0.35, 0],
-            ['bandpass', 1100, 0.6, 0.45, 0.35, 3.1],
-            ['lowpass', 260, 0.7, 0.8, 0, 5.3]
-        ];
-        const sources = layers.map(([type, freq, q, level, pan]) => {
-            const src = ctx.createBufferSource(), filter = ctx.createBiquadFilter(), gain = ctx.createGain();
-            src.buffer = crowd; src.loop = true;
-            filter.type = type; filter.frequency.value = freq; filter.Q.value = q;
-            gain.gain.value = level;
-            src.connect(filter); filter.connect(gain);
-            if (ctx.createStereoPanner) { const p = ctx.createStereoPanner(); p.pan.value = pan; gain.connect(p); p.connect(swell); }
-            else gain.connect(swell);
-            return src;
-        });
-        return {
-            gain: out.gain,
-            start(t) { lfo.start(t); sources.forEach((s, i) => s.start(t, layers[i][5])); },
-            stop(t) { lfo.stop(t); sources.forEach(s => s.stop(t)); }
-        };
+        const hiss = ctx.createBufferSource(), hissHp = ctx.createBiquadFilter(), hissGain = ctx.createGain();   // aire / aplausos lejanos
+        hiss.buffer = whiteNoise(ctx); hiss.loop = true;
+        hissHp.type = 'highpass'; hissHp.frequency.value = 7500;
+        envelope(hissGain.gain, [[0, 0.0001], [0.2, 0.02], [3, 0.02], [GOAL_SECONDS, 0.0001]], t, skip);
+        hiss.connect(hissHp); hissHp.connect(hissGain); hissGain.connect(out);
+        hiss.start(t, 1.9); hiss.stop(t + left + 0.05);
     }
 
-    return { LEVEL, GOAL_SECONDS, variation, createMaster, createAmbient, kick, hit, goal };
+    return { LEVEL, GOAL_SECONDS, variation, createMaster, kick, chat, notify, goal };
 })();
 
 (function () {
@@ -875,7 +793,7 @@ const VisorSfx = (function () {
 
             S.scan = scan;
             S.rec = scan.recording;
-            S.soundEv = C.buildSoundEvents(S.rec, scan.kickFrames, scan.hits);
+            S.soundEv = C.buildSoundEvents(scan.kickFrames, scan.raw);
             S.messages = messages;
             S.maxFrame = S.rec.frames - 1;
             S.teamNames = C.extractTeamNames(messages) || { red: 'Rojo', blue: 'Azul' };
@@ -949,14 +867,12 @@ const VisorSfx = (function () {
         S.needsRedraw = true;
         cancelAnimationFrame(S.rafId);
         S.rafId = requestAnimationFrame(frameLoop);
-        syncAmbient();
     }
 
     function stopPlayer() {
         cancelAnimationFrame(S.rafId);
         S.playing = false;
         cutSounds();
-        syncAmbient();
     }
 
     function currentFrame() { return Math.floor(S.cursor); }
@@ -967,7 +883,6 @@ const VisorSfx = (function () {
         S.playing = playing;
         syncPlayButton();
         if (!playing) cutSounds();
-        syncAmbient();
         if (S.fs) showUi();
     }
 
@@ -981,13 +896,12 @@ const VisorSfx = (function () {
     function setSpeed(v) {
         S.speed = v;
         if (v > SOUND_MAX_SPEED) cutSounds();
-        syncAmbient();
     }
 
     function seekTo(frame, forcePlay) {
         if (!S.rec) return;
         S.cursor = clamp(Math.round(frame), 0, S.maxFrame);
-        if (forcePlay && !S.playing) { S.playing = true; syncPlayButton(); syncAmbient(); }
+        if (forcePlay && !S.playing) { S.playing = true; syncPlayButton(); }
         cutSounds();
         S.needsRedraw = true;
         S.lastChatIndex = -2;
@@ -1196,10 +1110,10 @@ const VisorSfx = (function () {
     }
 
     // ---- Sonido en vivo ---------------------------------------------------------------------------------------
-    const MASTER_VOLUME = 0.9;
+    const MASTER_VOLUME = 0.85;
     const SOUND_MAX_SPEED = 2;      // a más velocidad que esta el sonido se corta: sería solo ruido
-    const AMBIENT_FADE = 0.25;      // segundos que tarda el público en subir o bajar
-    const A = { ctx: null, master: null, fx: null, ambient: null, ambTarget: -1, lastTick: 0 };
+    const MAX_SOUNDS_PER_FRAME = 8; // tope por si un cuadro trae muchos eventos a la vez
+    const A = { ctx: null, master: null, fx: null };
 
     function loadSoundPref() { try { return localStorage.getItem('vz-sound') !== 'off'; } catch (e) { return true; } }
     function saveSoundPref(on) { try { localStorage.setItem('vz-sound', on ? 'on' : 'off'); } catch (e) { /* sin almacenamiento: no se recuerda */ } }
@@ -1221,8 +1135,6 @@ const VisorSfx = (function () {
         try { A.ctx = new AC(); } catch (e) { return null; }
         A.master = VisorSfx.createMaster(A.ctx, MASTER_VOLUME);
         newFxBus();
-        A.ambient = VisorSfx.createAmbient(A.ctx, A.master.input);
-        A.ambient.start(A.ctx.currentTime);
         return A.ctx;
     }
 
@@ -1231,34 +1143,26 @@ const VisorSfx = (function () {
         if (!S.sound) return;
         const ctx = ensureAudio();
         if (ctx && ctx.state !== 'running') { const p = ctx.resume(); if (p && p.catch) p.catch(() => { /* aún sin permiso */ }); }
-        syncAmbient();
     }
 
     function soundAllowed() {
         return !!(A.ctx && A.ctx.state === 'running' && S.sound && S.playing && S.speed <= SOUND_MAX_SPEED && !document.hidden);
     }
 
-    function syncAmbient() {
-        if (!A.ambient) return;
-        const alive = performance.now() - A.lastTick < 700;   // si el reproductor dejó de avanzar (pestaña dormida), el público se calla
-        const target = soundAllowed() && alive ? VisorSfx.LEVEL.ambient : 0;
-        if (target === A.ambTarget) return;
-        A.ambTarget = target;
-        A.ambient.gain.setTargetAtTime(target, A.ctx.currentTime, AMBIENT_FADE);
-    }
-
     function cutSounds() { if (A.ctx) newFxBus(); }
 
+    // Hace sonar lo que ocurre entre los cuadros prev (excluido) y cur (incluido)
     function playSoundsBetween(prev, cur) {
         if (!S.soundEv || !soundAllowed()) return;
         const ev = S.soundEv, t = A.ctx.currentTime, L = VisorSfx.LEVEL;
         let played = 0;
-        for (let i = C.firstIndexAfter(ev.kicks, prev); i < ev.kicks.length && ev.kicks[i] <= cur && played < 6; i++, played++) {
+        for (let i = C.firstIndexAfter(ev.kicks, prev); i < ev.kicks.length && ev.kicks[i] <= cur && played < MAX_SOUNDS_PER_FRAME; i++, played++) {
             VisorSfx.kick(A.ctx, A.fx, t, L.kick, VisorSfx.variation(ev.kicks[i]));
         }
-        const h = ev.hits;
-        for (let i = C.firstIndexAfter(h.f, prev); i < h.f.length && h.f[i] <= cur && played < 10; i++, played++) {
-            VisorSfx.hit(A.ctx, A.fx, t, h.power[i], h.post[i] === 1, VisorSfx.variation(h.f[i]));
+        const n = ev.notes;
+        for (let i = C.firstIndexAfter(n.f, prev); i < n.f.length && n.f[i] <= cur && played < MAX_SOUNDS_PER_FRAME; i++, played++) {
+            if (n.kind[i] === C.NOTE_NOTIFY) VisorSfx.notify(A.ctx, A.fx, t, L.notify, VisorSfx.variation(n.f[i]));
+            else VisorSfx.chat(A.ctx, A.fx, t, L.chat, VisorSfx.variation(n.f[i]));
         }
     }
 
@@ -1278,7 +1182,6 @@ const VisorSfx = (function () {
         saveSoundPref(on);
         syncSoundButton();
         if (on) unlockAudio(); else cutSounds();
-        syncAmbient();
         if (S.fs) showUi();
     }
 
@@ -1287,14 +1190,13 @@ const VisorSfx = (function () {
         if (!S.rec || !canvas) return;
         const dt = S.lastTs ? Math.min(now - S.lastTs, 100) : 0;
         S.lastTs = now;
-        A.lastTick = now;
 
         if (S.playing) {
             const prev = S.cursor;
             S.cursor = Math.min(S.maxFrame, S.cursor + dt * FRAMES_PER_MS * S.speed);
             for (const g of S.goals) { if (g.f > prev && g.f <= S.cursor) { flashGoal(g.teamId); playGoalSound(); break; } }
             playSoundsBetween(prev, S.cursor);
-            if (S.cursor >= S.maxFrame) { S.playing = false; syncPlayButton(); syncAmbient(); if (S.fs) showUi(); }
+            if (S.cursor >= S.maxFrame) { S.playing = false; syncPlayButton(); if (S.fs) showUi(); }
         }
 
         if (S.needsRedraw || S.cursor !== S.lastDrawn) {
@@ -1728,17 +1630,15 @@ const VisorSfx = (function () {
         if (!OAC || !S.soundEv) throw new Error('Este navegador no puede generar audio.');
         const ctx = new OAC(2, Math.ceil(plan.count / C.FPS * CLIP_AUDIO.sampleRate), CLIP_AUDIO.sampleRate);
         const master = VisorSfx.createMaster(ctx, MASTER_VOLUME);
-        const ambient = VisorSfx.createAmbient(ctx, master.input);
-        ambient.gain.value = VisorSfx.LEVEL.ambient;
-        ambient.start(0);
 
         const ev = S.soundEv, L = VisorSfx.LEVEL, at = (f) => (f - plan.startF) / C.FPS;
         for (let i = C.firstIndexAfter(ev.kicks, plan.startF - 1); i < ev.kicks.length && ev.kicks[i] <= plan.endF; i++) {
             VisorSfx.kick(ctx, master.input, at(ev.kicks[i]), L.kick, VisorSfx.variation(ev.kicks[i]));
         }
-        const h = ev.hits;
-        for (let i = C.firstIndexAfter(h.f, plan.startF - 1); i < h.f.length && h.f[i] <= plan.endF; i++) {
-            VisorSfx.hit(ctx, master.input, at(h.f[i]), h.power[i], h.post[i] === 1, VisorSfx.variation(h.f[i]));
+        const n = ev.notes;
+        for (let i = C.firstIndexAfter(n.f, plan.startF - 1); i < n.f.length && n.f[i] <= plan.endF; i++) {
+            if (n.kind[i] === C.NOTE_NOTIFY) VisorSfx.notify(ctx, master.input, at(n.f[i]), L.notify, VisorSfx.variation(n.f[i]));
+            else VisorSfx.chat(ctx, master.input, at(n.f[i]), L.chat, VisorSfx.variation(n.f[i]));
         }
         for (const g of S.goals) {   // incluye un gol anterior al clip si su grito todavía estaría sonando
             if (g.f > plan.endF || g.f < plan.startF - VisorSfx.GOAL_SECONDS * C.FPS) continue;
@@ -2027,8 +1927,7 @@ const VisorSfx = (function () {
         syncSoundButton();
         $('vz-sound').addEventListener('click', () => setSound(!S.sound));
         ['pointerdown', 'keydown', 'touchend'].forEach(ev => document.addEventListener(ev, unlockAudio, { capture: true, passive: true }));
-        document.addEventListener('visibilitychange', () => { if (document.hidden) cutSounds(); syncAmbient(); });
-        setInterval(syncAmbient, 400);
+        document.addEventListener('visibilitychange', () => { if (document.hidden) cutSounds(); });
         $('vz-fullscreen').addEventListener('click', toggleFullscreen);
         $('vz-fs-exit').addEventListener('click', exitFullscreen);
         document.addEventListener('fullscreenchange', onFullscreenChange);
