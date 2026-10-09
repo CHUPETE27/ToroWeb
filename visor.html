@@ -77,9 +77,9 @@
         .vz-clock { font-family: monospace; font-size: 1.15rem; color: var(--mint); background: rgba(0, 0, 0, 0.5); border: 1px solid #444; border-radius: 8px; padding: 4px 10px; }
 
         /* ---- Cancha ---- */
-        .vz-stage { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #0a2a2e; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-        .vz-stage:fullscreen { aspect-ratio: auto; width: 100vw; height: 100vh; border-radius: 0; border: none; }
-        #vz-canvas { width: 100%; height: 100%; display: block; cursor: pointer; touch-action: manipulation; }
+        .vz-stage { position: relative; width: 100%; aspect-ratio: 16 / 9; max-height: 80vh; max-height: 80dvh; background: #0a2a2e; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+        .vz-stage-inner { position: absolute; inset: 0; }
+        #vz-canvas { width: 100%; height: 100%; display: block; cursor: pointer; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
         .vz-flash {
             position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; padding: 0 10px;
             font-weight: 900; font-size: clamp(1.3rem, 5.5vw, 3rem); letter-spacing: 2px; text-shadow: 0 3px 8px #000, 0 0 25px rgba(0, 0, 0, 0.8);
@@ -88,10 +88,35 @@
         .vz-flash.show { opacity: 1; transform: scale(1); }
         .vz-flash.red { color: #ff8a75; }
         .vz-flash.blue { color: #7fb1ff; }
-        .vz-seeking { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 10px; background: rgba(0, 0, 0, 0.55); color: #fff; font-weight: bold; pointer-events: none; }
+
+        /* ---- Pantalla completa (nativa, o simulada en navegadores que no la permiten, como el iPhone) ---- */
+        html.vz-lock, html.vz-lock body { overflow: hidden; }
+        html.vz-lock .menu-toggle { display: none; }   /* el botón del menú queda fuera del reproductor (que vive dentro de <main>) */
+        .vz-stage.vz-fs { position: fixed; inset: 0; z-index: 100000; width: 100vw; height: 100vh; height: 100dvh; max-height: none; aspect-ratio: auto; border: none; border-radius: 0; background: #06201f; }
+        .vz-fs-top, .vz-fs-bottom, .vz-fs-exit { display: none; }
+        .vz-stage.vz-fs .vz-fs-top, .vz-stage.vz-fs .vz-fs-bottom { display: block; }
+        .vz-stage.vz-fs .vz-fs-exit { display: inline-flex; }
+        .vz-fs-top, .vz-fs-bottom, .vz-fs-exit { position: absolute; z-index: 5; transition: opacity 0.25s; }
+        .vz-fs-top { top: 0; left: 0; right: 0; padding: 8px 64px 18px; background: linear-gradient(rgba(0, 0, 0, 0.7), transparent); pointer-events: none; }
+        .vz-fs-top .vz-score { pointer-events: auto; max-width: 520px; margin: 0 auto; padding: 4px 14px; gap: 10px; background: rgba(0, 0, 0, 0.45); border-color: rgba(255, 255, 255, 0.12); box-shadow: none; }
+        .vz-fs-top .vz-score .score-text { font-size: 1.9rem; }
+        .vz-fs-top .vz-team-name { font-size: 0.8rem; letter-spacing: 0; }
+        .vz-fs-top .vz-clock { font-size: 1rem; padding: 2px 8px; }
+        .vz-fs-bottom { left: 0; right: 0; bottom: 0; padding: 22px 10px max(8px, env(safe-area-inset-bottom)); background: linear-gradient(transparent, rgba(0, 0, 0, 0.82)); }
+        .vz-fs-bottom .vz-controls { padding: 4px; background: transparent; border: none; box-shadow: none; gap: 6px; }
+        .vz-fs-bottom .vz-btnrow .btn-cmd:not(.vz-play), .vz-fs-bottom .vz-btnrow .custom-select-trigger { background: rgba(0, 0, 0, 0.55); }
+        .vz-fs-bottom .vz-btnrow .vz-toggle.on { background: rgba(var(--cyan-rgb), 0.25); }
+        .vz-fs-exit { top: 8px; right: 8px; min-width: 44px; min-height: 44px; justify-content: center; align-items: center; background: rgba(0, 0, 0, 0.55); }
+        .vz-stage.vz-fs.vz-ui-hidden .vz-fs-top, .vz-stage.vz-fs.vz-ui-hidden .vz-fs-bottom, .vz-stage.vz-fs.vz-ui-hidden .vz-fs-exit { opacity: 0; pointer-events: none; }
+        .vz-stage.vz-fs.vz-ui-hidden #vz-canvas { cursor: none; }
+        .vz-stage.vz-fs.vz-ui-hidden .vz-fs-top .vz-score { pointer-events: none; }
+        /* En un celular vertical la cancha (horizontal) quedaría diminuta: se gira la vista para aprovechar toda la pantalla */
+        @media (orientation: portrait) and (pointer: coarse) {
+            .vz-stage.vz-fs .vz-stage-inner { inset: auto; top: 0; left: 0; width: 100vh; width: 100dvh; height: 100vw; transform-origin: 0 0; transform: translateX(100vw) rotate(90deg); }
+        }
 
         /* ---- Controles ---- */
-        .vz-controls { padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; container-type: inline-size; }
+        .vz-controls { padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; container-type: inline-size; overflow: visible; }   /* visible: la lista de velocidades sale del recuadro */
         .vz-seekrow { display: flex; align-items: center; gap: 10px; }
         .vz-timecode { font-family: monospace; font-size: 0.85rem; color: var(--text-soft); min-width: 3.4em; text-align: center; }
         .vz-seek-wrap { position: relative; flex: 1; height: 34px; display: flex; align-items: center; }
@@ -106,19 +131,27 @@
         .vz-marker.red { background: #ff7a66; }
         .vz-marker.blue { background: #6aa7ff; }
 
-        .vz-btnrow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .vz-btnrow .btn-cmd { padding: 10px 14px; min-height: 44px; min-width: 44px; }
+        .vz-btnrow { display: flex; align-items: center; justify-content: space-between; gap: 8px 14px; flex-wrap: wrap; }
+        .vz-grp { display: flex; align-items: center; gap: 8px; }
+        .vz-btnrow .btn-cmd { padding: 10px 14px; min-height: 44px; min-width: 44px; justify-content: center; }
         .vz-btnrow .vz-play { background: var(--gold); border-color: var(--gold); color: #111; min-width: 56px; font-size: 1.1rem; }
         .vz-btnrow .vz-play:hover { background: var(--gold-light); border-color: var(--gold-light); color: #111; }
         .vz-btnrow .vz-toggle.on { background: rgba(var(--cyan-rgb), 0.15); border-color: var(--cyan); color: var(--cyan); }
-        .vz-spacer { flex: 1; }
-        /* Si el panel de controles es angosto (columna doble en pantallas medianas, o celular), los botones quedan solo con ícono */
+        /* Si el panel de controles es angosto (columna doble en pantallas medianas, o celular), los botones quedan solo con ícono
+           y cada grupo ocupa su propia fila */
         @container (max-width: 560px) {
-            .vz-label { display: none; }
-            .vz-spacer { display: none; }
-            .vz-btnrow select.select-torohax { flex: 1 1 90px; }
+            .vz-grp { flex: 1 1 100%; }
+            .vz-grp-play { justify-content: center; }
+            .vz-grp-view .btn-cmd { flex: 1 1 0; padding: 10px 8px; font-size: 0.85rem; white-space: nowrap; }
+            .vz-grp-view #vz-follow { flex-grow: 1.5; }
+            .vz-grp-view #vz-fullscreen { flex: 0 0 auto; }
         }
-        .vz-btnrow select.select-torohax { width: auto; min-height: 44px; padding-top: 8px; padding-bottom: 8px; background-position: calc(100% - 18px) 18px, calc(100% - 12px) 18px; }
+        @container (max-width: 270px) { .vz-label { display: none; } }
+        .vz-stage.vz-fs #vz-fullscreen { display: none; }   /* en pantalla completa se sale con el botón de arriba a la derecha */
+        /* Lista desplegable de velocidad: el componente .custom-select-* de styles.css, con el tamaño de los botones */
+        .vz-btnrow .custom-select-wrapper { width: auto; min-width: 104px; flex: 0 0 auto; }
+        .vz-btnrow .custom-select-trigger { min-height: 44px; padding: 8px 14px; gap: 10px; }
+        .vz-btnrow .custom-select-options { min-width: 100%; }
 
         /* ---- Panel lateral (chat / jugadores / goles) ---- */
         .vz-right { container-type: inline-size; }
@@ -176,6 +209,9 @@
         }
         @media (max-width: 600px) {
             .rankings-title { font-size: 1.6rem; margin-top: 20px; }
+            .vz-topbar { flex-direction: column; align-items: stretch; gap: 8px; }
+            .vz-title { flex: none; white-space: normal; text-align: center; font-size: 1.05rem; letter-spacing: 0; }
+            .vz-topbar-actions { justify-content: center; }
             .vz-drop { padding: 32px 14px; }
             .vz-loading { padding: 28px 16px; }
             .vz-spinner { font-size: 2.8rem; }
@@ -186,9 +222,6 @@
             .vz-controls { padding: 12px; }
             .vz-btnrow { gap: 6px; }
             .vz-btnrow .btn-cmd { padding: 10px 12px; }
-            .vz-label { display: none; }
-            .vz-spacer { display: none; }
-            .vz-btnrow select.select-torohax { flex: 1 1 90px; }
             .vz-right.box { padding: 12px; }
             .vz-actions .btn-cmd { flex: 1 1 auto; justify-content: center; }
             .vz-check { margin-left: 0; width: 100%; }
@@ -260,19 +293,24 @@
                 <div class="vz-grid">
                     <!-- Columna del reproductor -->
                     <div class="vz-left">
-                        <div class="box vz-score">
+                        <div class="box vz-score" id="vz-scorebox">
                             <div class="vz-team red"><span class="vz-team-name" id="vz-name-red">Rojo</span><span class="score-text" id="vz-score-red">0</span></div>
                             <div class="vz-mid"><span class="vz-clock" id="vz-clock" title="Tiempo de partido">0:00</span></div>
                             <div class="vz-team blue"><span class="vz-team-name" id="vz-name-blue">Azul</span><span class="score-text" id="vz-score-blue">0</span></div>
                         </div>
 
                         <div class="vz-stage" id="vz-stage">
-                            <canvas id="vz-canvas" aria-label="Reproducción de la repetición"></canvas>
-                            <div id="vz-flash" class="vz-flash" aria-live="polite"></div>
-                            <div id="vz-seeking" class="vz-seeking vz-hidden"><i class="fa-solid fa-spinner fa-spin"></i> Buscando…</div>
+                            <div class="vz-stage-inner" id="vz-stage-inner">
+                                <canvas id="vz-canvas" aria-label="Reproducción de la repetición"></canvas>
+                                <div id="vz-flash" class="vz-flash" aria-live="polite"></div>
+                                <!-- En pantalla completa aquí se mueven el marcador y los controles -->
+                                <div class="vz-fs-top" id="vz-fs-top"></div>
+                                <div class="vz-fs-bottom" id="vz-fs-bottom"></div>
+                                <button type="button" id="vz-fs-exit" class="btn-cmd vz-fs-exit" aria-label="Salir de pantalla completa" title="Salir de pantalla completa (Esc)"><i class="fa-solid fa-compress"></i></button>
+                            </div>
                         </div>
 
-                        <div class="box vz-controls">
+                        <div class="box vz-controls" id="vz-controls">
                             <div class="vz-seekrow">
                                 <span class="vz-timecode" id="vz-time-cur">0:00</span>
                                 <div class="vz-seek-wrap">
@@ -283,21 +321,24 @@
                             </div>
 
                             <div class="vz-btnrow">
-                                <button type="button" id="vz-back10" class="btn-cmd" aria-label="Retroceder 10 segundos" title="Retroceder 10 s (←: 5 s)"><i class="fa-solid fa-backward"></i></button>
-                                <button type="button" id="vz-play" class="btn-cmd vz-play" aria-label="Pausar"><i class="fa-solid fa-pause"></i></button>
-                                <button type="button" id="vz-fwd10" class="btn-cmd" aria-label="Adelantar 10 segundos" title="Adelantar 10 s (→: 5 s)"><i class="fa-solid fa-forward"></i></button>
-                                <select id="vz-speed" class="select-torohax" aria-label="Velocidad">
-                                    <option value="0.25">0.25x</option>
-                                    <option value="0.5">0.5x</option>
-                                    <option value="1" selected>1x</option>
-                                    <option value="2">2x</option>
-                                    <option value="4">4x</option>
-                                    <option value="8">8x</option>
-                                </select>
-                                <span class="vz-spacer"></span>
-                                <button type="button" id="vz-follow" class="btn-cmd vz-toggle" title="Acercar y seguir la pelota"><i class="fa-solid fa-crosshairs"></i> <span class="vz-label">Seguir pelota</span></button>
-                                <button type="button" id="vz-names" class="btn-cmd vz-toggle on" title="Mostrar nombres"><i class="fa-solid fa-signature"></i> <span class="vz-label">Nombres</span></button>
-                                <button type="button" id="vz-fullscreen" class="btn-cmd" aria-label="Pantalla completa" title="Pantalla completa"><i class="fa-solid fa-expand"></i></button>
+                                <div class="vz-grp vz-grp-play">
+                                    <button type="button" id="vz-back10" class="btn-cmd" aria-label="Retroceder 10 segundos" title="Retroceder 10 s (←: 5 s)"><i class="fa-solid fa-backward"></i></button>
+                                    <button type="button" id="vz-play" class="btn-cmd vz-play" aria-label="Pausar"><i class="fa-solid fa-pause"></i></button>
+                                    <button type="button" id="vz-fwd10" class="btn-cmd" aria-label="Adelantar 10 segundos" title="Adelantar 10 s (→: 5 s)"><i class="fa-solid fa-forward"></i></button>
+                                    <select id="vz-speed" aria-label="Velocidad">
+                                        <option value="0.25">0.25x</option>
+                                        <option value="0.5">0.5x</option>
+                                        <option value="1" selected>1x</option>
+                                        <option value="2">2x</option>
+                                        <option value="4">4x</option>
+                                        <option value="8">8x</option>
+                                    </select>
+                                </div>
+                                <div class="vz-grp vz-grp-view">
+                                    <button type="button" id="vz-follow" class="btn-cmd vz-toggle" title="Acercar y seguir la pelota"><i class="fa-solid fa-crosshairs"></i> <span class="vz-label">Seguir pelota</span></button>
+                                    <button type="button" id="vz-names" class="btn-cmd vz-toggle on" title="Mostrar nombres"><i class="fa-solid fa-signature"></i> <span class="vz-label">Nombres</span></button>
+                                    <button type="button" id="vz-fullscreen" class="btn-cmd" aria-label="Pantalla completa" title="Pantalla completa (F)"><i class="fa-solid fa-expand"></i></button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -318,7 +359,7 @@
                                 <div class="vz-actions">
                                     <button type="button" id="vz-chat-download" class="btn-cmd"><i class="fa-solid fa-file-arrow-down"></i> Descargar .txt</button>
                                     <button type="button" id="vz-chat-copy" class="btn-cmd"><i class="fa-regular fa-copy"></i> Copiar</button>
-                                    <label class="vz-check"><input type="checkbox" id="vz-autoscroll" checked> Seguir la reproducción</label>
+                                    <label class="vz-check" title="Mientras se reproduce, el chat baja solo hasta el mensaje de ese momento. Desactívalo para leer con calma."><input type="checkbox" id="vz-autoscroll" checked> Sincronizar chat con la repetición</label>
                                 </div>
                             </div>
                             <p class="vz-count" id="vz-chat-count"></p>

@@ -230,8 +230,143 @@ const VisorCore = (function () {
         };
     }
 
+    /* ---- Grabación del partido ---- */
+
+    // Mientras se analiza el archivo, el lector simula el partido cuadro por cuadro. Aquí se guarda lo necesario para
+    // dibujar cada cuadro (posiciones de los discos, marcador, reloj, quién patea) y así la reproducción no simula nada:
+    // saltar adelante o atrás es instantáneo y no hay que "volver a cargar" la repetición.
+    //
+    // Lo que casi nunca cambia (mapa, radios y colores de los discos, jugadores con su equipo y avatar, colores de las
+    // camisetas) se guarda en "épocas": una nueva época empieza solo cuando algo de eso cambia.
+    const MAX_EPOCHS = 20000;
+
+    function snapshotTeamColors(room) {
+        const out = {};
+        for (const tid of [1, 2]) {
+            const tc = room.teamColors && room.teamColors[tid];
+            out[tid] = tc ? { inner: Array.from(tc.inner || []), angle: tc.angle, text: tc.text } : null;
+        }
+        return out;
+    }
+
+    function sameTeamColors(snap, room) {
+        for (const tid of [1, 2]) {
+            const a = snap[tid], tc = room.teamColors && room.teamColors[tid];
+            if (!a || !tc) { if (!!a !== !!tc) return false; continue; }
+            if (a.angle !== tc.angle || a.text !== tc.text) return false;
+            const inner = tc.inner || [];
+            if (a.inner.length !== inner.length) return false;
+            for (let i = 0; i < inner.length; i++) if (a.inner[i] !== inner[i]) return false;
+        }
+        return true;
+    }
+
+    // Texto que se dibuja sobre el disco de un jugador (avatar fijado por la sala > avatar propio > número)
+    function playerLabel(p) {
+        const v = p.headlessAvatar != null ? p.headlessAvatar : (p.avatar != null ? p.avatar : p.avatarNumber);
+        return v == null ? '' : String(v);
+    }
+
+    function createRecorder(reader, totalFrames) {
+        const cap = Math.max(2, totalFrames + 2);
+        const epochOf = new Uint32Array(cap), posOff = new Uint32Array(cap);
+        const red = new Uint16Array(cap), blue = new Uint16Array(cap), elapsed = new Float32Array(cap);
+        const kickLo = new Uint32Array(cap), kickHi = new Uint32Array(cap);
+        let pos = new Float32Array(1 << 16), posLen = 0;
+        const epochs = [];
+        let count = 0, warned = false;
+
+        function matches(ep, gs, room) {
+            if (!gs) return ep.stadium === null;
+            if (ep.stadium !== gs.stadium) return false;
+            const discs = gs.physicsState.discs;
+            if (discs.length !== ep.discCount) return false;
+            for (let i = 0; i < discs.length; i++) if (discs[i].radius !== ep.discRadius[i] || discs[i].color !== ep.discColor[i]) return false;
+            const rows = ep.players;
+            let k = 0;
+            const list = room.players;
+            for (let i = 0; i < list.length; i++) {
+                const p = list[i];
+                if (!p.disc) continue;
+                const r = rows[k++];
+                if (!r || r.ref !== p || r.disc !== p.disc || r.teamId !== (p.team ? p.team.id : 0) || r.name !== p.name ||
+                    r.avatar !== p.avatar || r.hAvatar !== p.headlessAvatar || r.avNum !== p.avatarNumber) return false;
+            }
+            return k === rows.length && sameTeamColors(ep.teamColors, room);
+        }
+
+        function makeEpoch(f0, gs, room) {
+            const ep = { f0, stadium: gs ? gs.stadium : null, discCount: 0, discRadius: [], discColor: [], players: [], teamColors: snapshotTeamColors(room) };
+            if (!gs) return ep;
+            const discs = gs.physicsState.discs;
+            ep.discCount = discs.length;
+            for (const d of discs) { ep.discRadius.push(d.radius); ep.discColor.push(d.color); }
+            for (const p of room.players) {
+                if (!p.disc) continue;
+                ep.players.push({
+                    ref: p, disc: p.disc, discIdx: discs.indexOf(p.disc), id: p.id, name: p.name, teamId: p.team ? p.team.id : 0,
+                    avatar: p.avatar, hAvatar: p.headlessAvatar, avNum: p.avatarNumber, label: playerLabel(p)
+                });
+            }
+            return ep;
+        }
+
+        function capture() {
+            const f = count;
+            if (f >= cap) return;
+            const gs = reader.gameState, room = reader.state;
+            let ep = epochs[epochs.length - 1];
+            if (!ep || (epochs.length < MAX_EPOCHS && !matches(ep, gs, room))) {
+                ep = makeEpoch(f, gs, room);
+                epochs.push(ep);
+            } else if (epochs.length >= MAX_EPOCHS && !warned) { warned = true; console.warn('Visor: demasiados cambios de estado; se deja de registrar metadatos nuevos.'); }
+            epochOf[f] = epochs.length - 1;
+            posOff[f] = posLen;
+            if (gs && ep.stadium) {
+                const discs = gs.physicsState.discs, n = Math.min(discs.length, ep.discCount);
+                if (posLen + n * 2 > pos.length) { const bigger = new Float32Array(Math.max(pos.length * 2, posLen + n * 2)); bigger.set(pos); pos = bigger; }
+                for (let i = 0; i < n; i++) { const p = discs[i].pos; pos[posLen++] = p.x; pos[posLen++] = p.y; }
+                red[f] = gs.redScore; blue[f] = gs.blueScore; elapsed[f] = gs.timeElapsed;
+                let lo = 0, hi = 0;
+                const rows = ep.players;
+                for (let i = 0; i < rows.length && i < 64; i++) {
+                    if (!rows[i].ref.isKicking) continue;
+                    if (i < 32) lo |= (1 << i); else hi |= (1 << (i - 32));
+                }
+                kickLo[f] = lo >>> 0; kickHi[f] = hi >>> 0;
+            }
+            count++;
+        }
+
+        function finish() {
+            // las referencias a los objetos vivos del lector solo servían para detectar cambios mientras se grababa
+            for (const ep of epochs) for (const p of ep.players) { p.ref = null; p.disc = null; }
+            return {
+                frames: count,
+                epochs, epochOf: epochOf.subarray(0, count), posOff: posOff.subarray(0, count), pos: pos.subarray(0, posLen),
+                red: red.subarray(0, count), blue: blue.subarray(0, count), elapsed: elapsed.subarray(0, count),
+                kickLo: kickLo.subarray(0, count), kickHi: kickHi.subarray(0, count)
+            };
+        }
+
+        return { capture, finish, get count() { return count; } };
+    }
+
+    // Datos de un cuadro de la grabación. `kicking(i)` dice si el jugador i de la época está pateando.
+    function recordedFrame(rec, f) {
+        f = Math.max(0, Math.min(rec.frames - 1, f | 0));
+        const epoch = rec.epochs[rec.epochOf[f]];
+        const off = rec.posOff[f];
+        return {
+            f, epoch, pos: rec.pos, off, discCount: epoch.stadium ? epoch.discCount : 0,
+            red: rec.red[f], blue: rec.blue[f], elapsed: rec.elapsed[f],
+            kicking: (i) => i < 32 ? ((rec.kickLo[f] >>> i) & 1) === 1 : ((rec.kickHi[f] >>> (i - 32)) & 1) === 1
+        };
+    }
+
     // Recorre la repetición a toda velocidad y recoge chat/anuncios, jugadores y estadísticas simples.
     // `API` es el objeto devuelto por abcHaxballAPI(window). Devuelve una promesa.
+    // Con `options.record` también devuelve `recording`: el partido grabado cuadro por cuadro (ver createRecorder).
     function scanReplay(API, bytes, options) {
         const onProgress = (options && options.onProgress) || function () {};
         const timeoutMs = (options && options.timeoutMs) || 180000;
@@ -242,7 +377,7 @@ const VisorCore = (function () {
             const players = new Map();
             const kicks = new Map();
             let stadiumName = null;
-            let reader = null, progressTimer = null, killTimer = null, done = false;
+            let reader = null, progressTimer = null, killTimer = null, done = false, recorder = null, hookedState = null;
             const scheduler = createFastScheduler();
 
             const frame = () => (reader ? reader.getCurrentFrameNo() : 0);
@@ -255,6 +390,7 @@ const VisorCore = (function () {
             };
             const cleanup = () => {
                 clearInterval(progressTimer); clearTimeout(killTimer);
+                if (hookedState) { try { delete hookedState.nM; } catch (e) { /* sin gancho */ } }
                 try { reader && reader.destroy(); } catch (e) { /* ya liberado */ }
                 scheduler.dispose();
             };
@@ -263,9 +399,14 @@ const VisorCore = (function () {
                 done = true;
                 const maxFrame = reader.maxFrameNo;
                 const list = Array.from(players.values()).map(p => Object.assign({}, p, { teams: Array.from(p.teams), kicks: kicks.get(p.id) || 0 }));
+                const recording = recorder ? recorder.finish() : null;
                 cleanup();
+                if (recording && recording.frames !== maxFrame + 1) {
+                    reject(new Error(`La grabación quedó incompleta (${recording.frames} de ${maxFrame + 1} cuadros).`));
+                    return;
+                }
                 raw.sort((a, b) => a.f - b.f);   // estable: conserva el orden de llegada dentro del mismo cuadro
-                resolve({ raw, players: list, stadiumName, maxFrame });
+                resolve({ raw, players: list, stadiumName, maxFrame, recording });
             };
             const fail = (err) => { if (done) return; done = true; cleanup(); reject(err); };
 
@@ -293,6 +434,20 @@ const VisorCore = (function () {
                 if (st0 && st0.name) stadiumName = st0.name;
             } catch (e) { /* la sala puede empezar vacía */ }
 
+            if (options && options.record) {
+                // El lector avanza el estado con state.nM(1) una vez por cuadro: se engancha ahí para grabar cada cuadro
+                const room = reader.state, original = room.nM;
+                if (typeof original !== 'function') { cleanup(); done = true; reject(new Error('Esta versión de la librería no permite grabar el partido.')); return; }
+                recorder = createRecorder(reader, reader.maxFrameNo);
+                room.nM = function (n) {
+                    const r = original.apply(this, arguments);
+                    if (n === 1) recorder.capture();
+                    return r;
+                };
+                hookedState = room;
+                recorder.capture();   // cuadro 0
+            }
+
             const total = Math.max(1, reader.maxFrameNo);
             progressTimer = setInterval(() => onProgress(Math.min(1, frame() / total)), 120);
             killTimer = setTimeout(() => fail(new Error('El análisis tardó demasiado.')), timeoutMs);
@@ -316,7 +471,7 @@ const VisorCore = (function () {
         FPS, MAX_REPLAY_BYTES, DEFAULT_TEAM_COLORS,
         formatTime, formatSeconds, colorToCss, isTransparentColor, shadeColor, fieldExtent,
         parseAnnouncement, extractTeamNames, filterMessages, buildChatText, lastIndexAtOrBefore, describeGoal,
-        looksLikeReplay, scanReplay, buildMessages
+        looksLikeReplay, scanReplay, buildMessages, recordedFrame
     };
 })();
 
@@ -335,32 +490,34 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
 
     const S = {
         API: null,
-        bytes: null,
         title: '',
         sourceUrl: null,
         scan: null,
+        rec: null,            // el partido grabado cuadro por cuadro (VisorCore.scanReplay con record)
         messages: [],
         goals: [],            // [{ f, teamId, text }]
         teamNames: { red: 'Rojo', blue: 'Azul' },
         maxFrame: 0,
-        reader: null,
+        cursor: 0,            // cuadro actual (con decimales mientras se reproduce)
+        lastTs: 0,
         speed: 1,
         playing: false,
-        seeking: false,
-        pendingSeek: null,
         followBall: false,
         showNames: true,
         autoScroll: true,
         query: '',
         busy: false,          // hay una carga en curso
+        fs: false,            // pantalla completa (nativa o simulada)
+        fsHistory: false,     // se agregó una entrada al historial para que "atrás" salga de la pantalla completa
+        fsMarkers: {},
+        uiTimer: 0,
+        uiWasHidden: false,
         lastScore: { red: 0, blue: 0 },
-        lastClockFrame: -1,
         lastChatIndex: -2,
         needsRedraw: true,
-        lastDrawnFrame: -1,
+        lastDrawn: -1,
         lastHud: 0,
         camera: { x: 0, y: 0 },
-        dragging: false,
         flashUntil: 0,
         rafId: 0
     };
@@ -399,7 +556,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
     function beginLoading(fileLabel, readLabel) {
         S.busy = true;
         loadingSince = performance.now();
-        destroyPlayer();
+        exitFullscreen();
+        stopPlayer();
         showError('');
         $('vz-loading-file').textContent = fileLabel || '';
         $('vz-step-read-label').textContent = readLabel;
@@ -489,7 +647,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         if (!C.looksLikeReplay(bytes)) return failLoading('Ese archivo no parece una repetición de HaxBall (.hbr2).');
         try {
             const API = ensureAPI();
-            destroyPlayer();
+            stopPlayer();
             setLoadStep('scan', 0);
             await nextPaint();
 
@@ -498,15 +656,15 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
             // El marcador del archivo guarda el equipo que RECIBIÓ el gol; aquí se guarda el que lo anotó
             const goalMarkers = (data.goalMarkers || []).map(g => ({ f: g.frameNo, teamId: g.teamId === 1 ? 2 : 1 }));
 
-            const scan = await C.scanReplay(API, bytes, { onProgress: (p) => setLoadStep('scan', p) });
+            const scan = await C.scanReplay(API, bytes, { onProgress: (p) => setLoadStep('scan', p), record: true });
             setLoadStep('prep', 0);
             await nextPaint();
             const messages = C.buildMessages(scan.raw);
 
-            S.bytes = bytes;
             S.scan = scan;
+            S.rec = scan.recording;
             S.messages = messages;
-            S.maxFrame = Math.max(scan.maxFrame, data.totalFrames || 0);
+            S.maxFrame = S.rec.frames - 1;
             S.teamNames = C.extractTeamNames(messages) || { red: 'Rojo', blue: 'Azul' };
             S.goals = goalMarkers.map(g => {
                 const d = C.describeGoal(messages, g.f);
@@ -516,7 +674,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
             S.fileName = name;
             S.lastScore = { red: 0, blue: 0 };
             S.lastChatIndex = -2;
-            S.lastClockFrame = -1;
             S.camera = { x: 0, y: 0 };
             S.query = '';
             $('vz-chat-search').value = '';
@@ -526,7 +683,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
             endLoading();
         } catch (e) {
             console.error('Error al abrir la repetición:', e);
-            destroyPlayer();
+            stopPlayer();
             failLoading('No se pudo abrir la repetición. El archivo puede estar dañado o ser de una versión no compatible.');
         }
     }
@@ -553,13 +710,13 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         renderGoals();
         switchTab('chat');
         setupCanvas();
-        createPlayer();
+        startPlayer();
     }
 
     function backToLoader() {
-        destroyPlayer();
-        cancelAnimationFrame(S.rafId);
-        S.bytes = null; S.scan = null; S.messages = []; S.goals = [];
+        exitFullscreen();
+        stopPlayer();
+        S.rec = null; S.scan = null; S.messages = []; S.goals = [];
         show($('vz-viewer'), false);
         show($('vz-load'), true);
         showError('');
@@ -567,46 +724,36 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
     }
 
     /* ---------- Reproductor ---------- */
+    // La repetición ya quedó grabada cuadro por cuadro durante el análisis (VisorCore.scanReplay). Reproducir es recorrer
+    // esa grabación con un reloj propio, así que saltar a cualquier momento, adelante o atrás, es instantáneo.
 
-    function createPlayer() {
-        const API = ensureAPI();
-        S.reader = API.Replay.read(S.bytes, {
-            onTeamGoal: (teamId) => {
-                if (S.seeking) return;
-                const name = teamId === 1 ? S.teamNames.red : S.teamNames.blue;
-                const flash = $('vz-flash');
-                flash.textContent = `¡GOL DE ${String(name).toUpperCase()}!`;
-                flash.className = 'vz-flash ' + (teamId === 1 ? 'red' : 'blue') + ' show';
-                S.flashUntil = performance.now() + 2600;
-            }
-        });
-        S.reader.onEnd = () => { S.playing = false; syncPlayButton(); S.needsRedraw = true; };
+    const FRAMES_PER_MS = C.FPS / 1000;
+
+    function startPlayer() {
+        S.cursor = 0;
+        S.lastTs = 0;
+        S.lastDrawn = -1;
+        S.flashUntil = 0;
         S.playing = true;
-        S.reader.setSpeed(S.speed);
         syncPlayButton();
         S.needsRedraw = true;
-        S.lastDrawnFrame = -1;
         cancelAnimationFrame(S.rafId);
         S.rafId = requestAnimationFrame(frameLoop);
     }
 
-    function destroyPlayer() {
+    function stopPlayer() {
         cancelAnimationFrame(S.rafId);
-        if (S.reader) { try { S.reader.destroy(); } catch (e) { /* ya liberado */ } }
-        S.reader = null;
         S.playing = false;
-        S.seeking = false;
-        S.pendingSeek = null;
     }
 
-    function currentFrame() { return S.reader ? S.reader.getCurrentFrameNo() : 0; }
+    function currentFrame() { return Math.floor(S.cursor); }
 
     function setPlaying(playing) {
-        if (!S.reader) return;
-        if (playing && currentFrame() >= S.maxFrame - 1) { seekTo(0, true); return; }
+        if (!S.rec) return;
+        if (playing && S.cursor >= S.maxFrame) seekTo(0);
         S.playing = playing;
-        if (!S.seeking) S.reader.setSpeed(playing ? S.speed : 0);
         syncPlayButton();
+        if (S.fs) showUi();
     }
 
     function syncPlayButton() {
@@ -616,42 +763,18 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         b.title = S.playing ? 'Pausar (espacio)' : 'Reproducir (espacio)';
     }
 
-    function setSpeed(v) {
-        S.speed = v;
-        if (S.reader && S.playing && !S.seeking) S.reader.setSpeed(v);
-    }
+    function setSpeed(v) { S.speed = v; }
 
-    // Salta a un cuadro. Si estaba reproduciendo, continúa; si estaba en pausa, queda en pausa.
+    // Salta a un cuadro. Si estaba reproduciendo, continúa; si estaba en pausa, queda en pausa (salvo forcePlay).
     function seekTo(frame, forcePlay) {
-        if (!S.reader) return;
-        frame = clamp(Math.round(frame), 0, S.maxFrame);
-        if (S.seeking) { S.pendingSeek = { frame, forcePlay }; return; }
-        if (frame === currentFrame() && !forcePlay) return;
-
-        const resume = forcePlay || S.playing;
-        S.seeking = true;
-        S.playing = resume;
-        syncPlayButton();
-        S.reader.setSpeed(0);
-        const spinnerTimer = setTimeout(() => show($('vz-seeking'), true), 160);
-
-        const reader = S.reader;
-        reader.onDestinationTimeReached = () => {
-            reader.onDestinationTimeReached = null;
-            clearTimeout(spinnerTimer);
-            show($('vz-seeking'), false);
-            S.seeking = false;
-            S.needsRedraw = true;
-            S.lastChatIndex = -2;
-            if (S.pendingSeek) {
-                const p = S.pendingSeek; S.pendingSeek = null;
-                seekTo(p.frame, p.forcePlay);
-                return;
-            }
-            if (S.reader === reader && S.playing) reader.setSpeed(S.speed);
-        };
-        // un tick de espera para que el navegador pinte el indicador antes del cálculo pesado
-        requestAnimationFrame(() => setTimeout(() => { if (S.reader === reader) reader.setCurrentFrameNo(frame); }, 0));
+        if (!S.rec) return;
+        S.cursor = clamp(Math.round(frame), 0, S.maxFrame);
+        if (forcePlay && !S.playing) { S.playing = true; syncPlayButton(); }
+        S.needsRedraw = true;
+        S.lastChatIndex = -2;
+        S.flashUntil = 0;
+        $('vz-flash').classList.remove('show');
+        updateHud(currentFrame());
     }
 
     /* ---------- Dibujo ---------- */
@@ -661,9 +784,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         ctx = canvas.getContext('2d', { alpha: false });
         if (resizeObs) resizeObs.disconnect();
         const resize = () => {
+            // clientWidth/Height (no getBoundingClientRect): ignoran el giro de la pantalla completa en celulares verticales
             const dpr = Math.min(window.devicePixelRatio || 1, 2);
-            const r = canvas.getBoundingClientRect();
-            const w = Math.max(2, Math.round(r.width * dpr)), h = Math.max(2, Math.round(r.height * dpr));
+            const w = Math.max(2, Math.round(canvas.clientWidth * dpr)), h = Math.max(2, Math.round(canvas.clientHeight * dpr));
             if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; S.needsRedraw = true; }
         };
         resizeObs = new ResizeObserver(resize);
@@ -671,14 +794,15 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         resize();
     }
 
-    function teamColors(roomState, teamId) {
-        const tc = roomState.teamColors && roomState.teamColors[teamId];
-        const inner = tc && tc.inner && tc.inner.length ? tc.inner : [C.DEFAULT_TEAM_COLORS[teamId] || 0xffffff];
-        return { inner, angle: tc ? tc.angle : 0, text: tc && typeof tc.text === 'number' ? tc.text : 0xffffff };
+    function teamColors(ep, teamId) {
+        const cache = ep.colorCache || (ep.colorCache = {});
+        if (cache[teamId]) return cache[teamId];
+        const tc = ep.teamColors[teamId];
+        const inner = tc && tc.inner.length ? tc.inner : [C.DEFAULT_TEAM_COLORS[teamId] || 0xffffff];
+        return (cache[teamId] = { inner, angle: tc ? tc.angle : 0, text: tc && typeof tc.text === 'number' ? tc.text : 0xffffff });
     }
 
-    function drawPlayerDisc(g, p, colors) {
-        const d = p.disc, r = d.radius, x = d.pos.x, y = d.pos.y;
+    function drawPlayerDisc(g, x, y, r, label, colors, kicking) {
         g.save();
         g.beginPath();
         g.arc(x, y, r, 0, Math.PI * 2);
@@ -695,10 +819,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         g.beginPath();
         g.arc(x, y, r, 0, Math.PI * 2);
         g.lineWidth = 2;
-        g.strokeStyle = p.isKicking ? '#ffffff' : '#000000';
+        g.strokeStyle = kicking ? '#ffffff' : '#000000';
         g.stroke();
 
-        const label = p.headlessAvatar != null ? p.headlessAvatar : (p.avatar != null ? p.avatar : String(p.avatarNumber != null ? p.avatarNumber : ''));
         if (label) {
             g.fillStyle = C.colorToCss(colors.text);
             g.font = `900 ${Math.round(r * 1.05)}px "Arial Black", Arial, sans-serif`;
@@ -757,13 +880,16 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         return b;
     }
 
-    function draw() {
-        const reader = S.reader;
-        const w = canvas.width, h = canvas.height;
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        const gs = reader.gameState;
+    // Posiciones del cuadro actual (se mezclan con el siguiente cuadro para que la cámara lenta y las pantallas de 120 Hz se vean fluidas)
+    const cur = { x: new Float64Array(64), y: new Float64Array(64) };
 
-        if (!gs) {
+    function draw() {
+        const rec = S.rec, w = canvas.width, h = canvas.height;
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        const f = Math.min(Math.floor(S.cursor), rec.frames - 1), frac = S.cursor - f;
+        const ep = rec.epochs[rec.epochOf[f]];
+
+        if (!ep.stadium) {
             ctx.fillStyle = '#0a2a2e'; ctx.fillRect(0, 0, w, h);
             ctx.fillStyle = '#7d7d7d'; ctx.font = `${Math.round(h * 0.05)}px sans-serif`;
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -771,18 +897,30 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
             return;
         }
 
-        const st = gs.stadium, room = reader.state, discs = gs.physicsState.discs;
+        const n = ep.discCount, pos = rec.pos, off = rec.posOff[f];
+        const next = (frac > 0 && f + 1 < rec.frames && rec.epochOf[f + 1] === rec.epochOf[f]) ? rec.posOff[f + 1] : -1;
+        if (cur.x.length < n) { cur.x = new Float64Array(n); cur.y = new Float64Array(n); }
+        for (let i = 0; i < n; i++) {
+            let x = pos[off + 2 * i], y = pos[off + 2 * i + 1];
+            if (next >= 0) {
+                const nx = pos[next + 2 * i], ny = pos[next + 2 * i + 1];
+                if (Math.abs(nx - x) < 40 && Math.abs(ny - y) < 40) { x += (nx - x) * frac; y += (ny - y) * frac; }   // sin mezclar si fue un salto (saque, reinicio)
+            }
+            cur.x[i] = x; cur.y[i] = y;
+        }
+
+        const st = ep.stadium;
         const ext = stadiumHalfExtent(st);
         const fieldW = ext.hw * 1.05 + 25;
         const fieldH = ext.hh * 1.05 + 25;
         let zoom = Math.min(w / (2 * fieldW), h / (2 * fieldH));
         let cx = 0, cy = 0;
 
-        if (S.followBall && discs[0]) {
+        if (S.followBall && n > 0) {
             const z2 = zoom * 2.2;
             const vw = w / z2 / 2, vh = h / z2 / 2;
-            const tx = clamp(discs[0].pos.x, -fieldW + vw, fieldW - vw);
-            const ty = clamp(discs[0].pos.y, -fieldH + vh, fieldH - vh);
+            const tx = clamp(cur.x[0], -fieldW + vw, fieldW - vw);
+            const ty = clamp(cur.y[0], -fieldH + vh, fieldH - vh);
             S.camera.x += (tx - S.camera.x) * 0.15;
             S.camera.y += (ty - S.camera.y) * 0.15;
             zoom = z2; cx = S.camera.x; cy = S.camera.y;
@@ -793,21 +931,21 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         drawSegments(ctx, st);
 
         // discos que no son jugadores (pelota, postes...)
-        const playerDiscs = new Set();
-        room.players.forEach(p => { if (p.disc) playerDiscs.add(p.disc); });
+        if (!ep.playerDiscs) ep.playerDiscs = new Set(ep.players.map(p => p.discIdx));
         ctx.lineWidth = 2;
-        for (const d of discs) {
-            if (playerDiscs.has(d) || C.isTransparentColor(d.color)) continue;   // las barreras de saque son transparentes: ni relleno ni borde
-            ctx.beginPath(); ctx.arc(d.pos.x, d.pos.y, d.radius, 0, Math.PI * 2);
-            ctx.fillStyle = C.colorToCss(d.color); ctx.fill();
+        for (let i = 0; i < n; i++) {
+            if (ep.playerDiscs.has(i) || C.isTransparentColor(ep.discColor[i])) continue;   // las barreras de saque son transparentes: ni relleno ni borde
+            ctx.beginPath(); ctx.arc(cur.x[i], cur.y[i], ep.discRadius[i], 0, Math.PI * 2);
+            ctx.fillStyle = C.colorToCss(ep.discColor[i]); ctx.fill();
             ctx.strokeStyle = '#000'; ctx.stroke();
         }
         // jugadores
-        const cache = {};
-        for (const p of room.players) {
-            if (!p.disc) continue;
-            const tid = p.team.id;
-            drawPlayerDisc(ctx, p, cache[tid] || (cache[tid] = teamColors(room, tid)));
+        const kLo = rec.kickLo[f], kHi = rec.kickHi[f];
+        for (let k = 0; k < ep.players.length; k++) {
+            const p = ep.players[k];
+            if (p.discIdx < 0) continue;
+            const kicking = k < 32 ? ((kLo >>> k) & 1) === 1 : (k < 64 && ((kHi >>> (k - 32)) & 1) === 1);
+            drawPlayerDisc(ctx, cur.x[p.discIdx], cur.y[p.discIdx], ep.discRadius[p.discIdx], p.label, teamColors(ep, p.teamId), kicking);
         }
 
         // nombres (tamaño fijo en pantalla)
@@ -817,39 +955,54 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
             ctx.font = `600 ${px}px sans-serif`;
             ctx.textAlign = 'center'; ctx.textBaseline = 'top';
             ctx.lineWidth = Math.max(2, px / 5); ctx.strokeStyle = 'rgba(0,0,0,0.85)'; ctx.fillStyle = '#fff';
-            for (const p of room.players) {
-                if (!p.disc) continue;
-                const sx = (p.disc.pos.x - cx) * zoom + w / 2;
-                const sy = (p.disc.pos.y - cy) * zoom + h / 2 + p.disc.radius * zoom + 2;
+            for (const p of ep.players) {
+                if (p.discIdx < 0) continue;
+                const sx = (cur.x[p.discIdx] - cx) * zoom + w / 2;
+                const sy = (cur.y[p.discIdx] - cy) * zoom + h / 2 + ep.discRadius[p.discIdx] * zoom + 2;
                 ctx.strokeText(p.name, sx, sy); ctx.fillText(p.name, sx, sy);
             }
         }
         ctx.setTransform(1, 0, 0, 1, 0, 0);
     }
 
+    function flashGoal(teamId) {
+        const name = teamId === 1 ? S.teamNames.red : S.teamNames.blue;
+        const flash = $('vz-flash');
+        flash.textContent = `¡GOL DE ${String(name).toUpperCase()}!`;
+        flash.className = 'vz-flash ' + (teamId === 1 ? 'red' : 'blue') + ' show';
+        S.flashUntil = performance.now() + 2600;
+    }
+
     function frameLoop(now) {
         S.rafId = requestAnimationFrame(frameLoop);
-        const reader = S.reader;
-        if (!reader || !canvas) return;
-        const f = reader.getCurrentFrameNo();
+        if (!S.rec || !canvas) return;
+        const dt = S.lastTs ? Math.min(now - S.lastTs, 100) : 0;   // tope: al volver de otra pestaña no se "recupera" el tiempo perdido
+        S.lastTs = now;
 
-        if (S.needsRedraw || f !== S.lastDrawnFrame) {
+        if (S.playing) {
+            const prev = S.cursor;
+            S.cursor = Math.min(S.maxFrame, S.cursor + dt * FRAMES_PER_MS * S.speed);
+            for (const g of S.goals) { if (g.f > prev && g.f <= S.cursor) { flashGoal(g.teamId); break; } }
+            if (S.cursor >= S.maxFrame) { S.playing = false; syncPlayButton(); if (S.fs) showUi(); }
+        }
+
+        if (S.needsRedraw || S.cursor !== S.lastDrawn) {
             try { draw(); } catch (e) { console.error('Error al dibujar', e); }
-            S.lastDrawnFrame = f;
+            S.lastDrawn = S.cursor;
             S.needsRedraw = false;
         }
-        if (now - S.lastHud > 100) { S.lastHud = now; updateHud(f); }
+        if (now - S.lastHud > 100) { S.lastHud = now; updateHud(currentFrame()); }
         if (S.flashUntil && now > S.flashUntil) { S.flashUntil = 0; $('vz-flash').classList.remove('show'); }
     }
 
     function updateHud(f) {
-        if (!S.dragging) $('vz-seek').value = f;
-        $('vz-time-cur').textContent = C.formatTime(S.dragging ? +$('vz-seek').value : f);
+        $('vz-seek').value = f;
+        $('vz-time-cur').textContent = C.formatTime(f);
 
-        const gs = S.reader.gameState;
-        if (gs) {
-            S.lastScore = { red: gs.redScore, blue: gs.blueScore };
-            $('vz-clock').textContent = C.formatSeconds(gs.timeElapsed);
+        const d = C.recordedFrame(S.rec, f);
+        if (d.epoch.stadium) {
+            S.lastScore = { red: d.red, blue: d.blue };
+            $('vz-clock').textContent = C.formatSeconds(d.elapsed);
         }
         $('vz-score-red').textContent = S.lastScore.red;
         $('vz-score-blue').textContent = S.lastScore.blue;
@@ -864,11 +1017,181 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
             const el = idx >= 0 ? list.children[idx] : null;
             if (el) {
                 el.classList.add('now');
-                if (S.autoScroll && !S.dragging && $('tab-chat').classList.contains('active')) {
+                if (S.autoScroll && $('tab-chat').classList.contains('active')) {
                     list.scrollTop = Math.max(0, el.offsetTop - list.clientHeight * 0.6);
                 }
             }
         }
+    }
+
+    /* ---------- Pantalla completa ---------- */
+    // Se usa la pantalla completa del navegador si la permite; si no (iPhone, navegadores integrados de apps como Discord...)
+    // el reproductor se agranda hasta cubrir toda la pantalla. En ambos casos el marcador y los controles pasan a ser una capa
+    // sobre la cancha que se oculta sola mientras se reproduce y vuelve al tocar la pantalla.
+
+    const FS_SLOTS = [['vz-scorebox', 'vz-fs-top'], ['vz-controls', 'vz-fs-bottom']];
+    const UI_IDLE_MS = 3200;
+
+    function nativeFullscreenElement() { return document.fullscreenElement || document.webkitFullscreenElement || null; }
+
+    function syncFsButton() {
+        const b = $('vz-fullscreen');
+        b.innerHTML = S.fs ? '<i class="fa-solid fa-compress"></i>' : '<i class="fa-solid fa-expand"></i>';
+        b.setAttribute('aria-label', S.fs ? 'Salir de pantalla completa' : 'Pantalla completa');
+        b.title = S.fs ? 'Salir de pantalla completa (Esc)' : 'Pantalla completa (F)';
+    }
+
+    function enterFullscreen() {
+        if (S.fs || !S.rec) return;
+        const stage = $('vz-stage');
+        for (const [id, slot] of FS_SLOTS) {
+            const el = $(id), marker = document.createComment(id);
+            el.parentNode.insertBefore(marker, el);
+            S.fsMarkers[id] = marker;
+            $(slot).appendChild(el);
+        }
+        stage.classList.add('vz-fs');
+        document.documentElement.classList.add('vz-lock');
+        S.fs = true;
+        // el botón "atrás" del celular sale de la pantalla completa en vez de abandonar la página
+        try { history.pushState({ vzFs: true }, ''); S.fsHistory = true; } catch (e) { S.fsHistory = false; }
+        syncFsButton();
+        const request = stage.requestFullscreen || stage.webkitRequestFullscreen;
+        if (request) {
+            try {
+                const p = request.call(stage);
+                if (p && p.catch) p.catch(() => { /* sin permiso: queda la pantalla completa simulada */ });
+            } catch (e) { /* idem */ }
+        }
+        showUi();
+        S.needsRedraw = true;
+    }
+
+    // Deja la interfaz como estaba (controles de vuelta en su lugar)
+    function leaveFullscreenUi() {
+        if (!S.fs) return;
+        S.fs = false;
+        clearTimeout(S.uiTimer);
+        $('vz-stage').classList.remove('vz-fs', 'vz-ui-hidden');
+        document.documentElement.classList.remove('vz-lock');
+        for (const [id] of FS_SLOTS) {
+            const marker = S.fsMarkers[id], el = $(id);
+            if (marker && marker.parentNode) { marker.parentNode.insertBefore(el, marker); marker.remove(); }
+        }
+        S.fsMarkers = {};
+        closeSelects();
+        if (S.fsHistory) {
+            S.fsHistory = false;
+            try { if (history.state && history.state.vzFs) history.back(); } catch (e) { /* sin historial */ }
+        }
+        try { if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock(); } catch (e) { /* sin soporte */ }
+        syncFsButton();
+        S.needsRedraw = true;
+    }
+
+    function exitFullscreen() {
+        if (!S.fs) return;
+        if (nativeFullscreenElement()) {
+            try {
+                const p = (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+                if (p && p.catch) p.catch(() => {});
+            } catch (e) { /* ya salió */ }
+        }
+        leaveFullscreenUi();
+    }
+
+    function toggleFullscreen() { if (S.fs) exitFullscreen(); else enterFullscreen(); }
+
+    function onFullscreenChange() {
+        if (nativeFullscreenElement() === $('vz-stage')) {
+            // en Android, además de ocupar la pantalla, intenta dejarla horizontal
+            try {
+                const p = screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape');
+                if (p && p.catch) p.catch(() => {});
+            } catch (e) { /* sin soporte */ }
+            S.needsRedraw = true;
+        } else if (S.fs) {
+            leaveFullscreenUi();   // salió con Esc o con el gesto del sistema
+        }
+    }
+
+    function showUi() {
+        $('vz-stage').classList.remove('vz-ui-hidden');
+        clearTimeout(S.uiTimer);
+        if (S.fs) S.uiTimer = setTimeout(hideUiIfIdle, UI_IDLE_MS);
+    }
+
+    function hideUiIfIdle() {
+        if (!S.fs) return;
+        const stage = $('vz-stage');
+        // en pausa o con la lista de velocidades abierta los controles se quedan a la vista
+        if (!S.playing || stage.querySelector('.custom-select-wrapper.open')) { S.uiTimer = setTimeout(hideUiIfIdle, UI_IDLE_MS); return; }
+        stage.classList.add('vz-ui-hidden');
+    }
+
+    /* ---------- Lista desplegable (componente .custom-select-* de styles.css) ---------- */
+
+    function closeSelects() {
+        document.querySelectorAll('.custom-select-wrapper').forEach(w => w.classList.remove('open', 'open-up'));
+    }
+
+    function buildCustomSelect(select) {
+        select.style.display = 'none';
+        const wrapper = document.createElement('div');
+        wrapper.className = 'custom-select-wrapper';
+        const trigger = document.createElement('div');
+        trigger.className = 'custom-select-trigger';
+        trigger.tabIndex = 0;
+        trigger.setAttribute('role', 'button');
+        trigger.setAttribute('aria-haspopup', 'listbox');
+        trigger.setAttribute('aria-label', select.getAttribute('aria-label') || '');
+        trigger.innerHTML = '<span></span><i class="fa-solid fa-chevron-down"></i>';
+        const options = document.createElement('div');
+        options.className = 'custom-select-options';
+        options.setAttribute('role', 'listbox');
+
+        const choose = (index) => {
+            select.selectedIndex = index;
+            select.dispatchEvent(new Event('change'));
+            render();
+        };
+        const render = () => {
+            const chosen = select.options[select.selectedIndex];
+            trigger.querySelector('span').textContent = chosen ? chosen.text : '';
+            options.innerHTML = '';
+            Array.from(select.options).forEach((option, index) => {
+                const div = document.createElement('div');
+                div.className = 'custom-option' + (index === select.selectedIndex ? ' selected' : '');
+                div.setAttribute('role', 'option');
+                div.textContent = option.text;
+                div.addEventListener('click', (e) => { e.stopPropagation(); choose(index); wrapper.classList.remove('open', 'open-up'); });
+                options.appendChild(div);
+            });
+        };
+        render();
+        wrapper.append(trigger, options);
+        select.parentNode.insertBefore(wrapper, select.nextSibling);
+
+        const toggle = () => {
+            const wasOpen = wrapper.classList.contains('open');
+            closeSelects();
+            if (wasOpen) return;
+            // abre hacia arriba cuando abajo no hay lugar; en pantalla completa los controles están abajo y la vista puede ir girada
+            wrapper.classList.remove('open-up');
+            const r = wrapper.getBoundingClientRect();
+            const menuH = Math.min(options.scrollHeight, 250);
+            if (S.fs || (window.innerHeight - r.bottom < menuH && r.top > window.innerHeight - r.bottom)) wrapper.classList.add('open-up');
+            wrapper.classList.add('open');
+            if (S.fs) showUi();
+        };
+        trigger.addEventListener('click', (e) => { e.stopPropagation(); toggle(); });
+        trigger.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); }
+            else if (e.key === 'Escape') wrapper.classList.remove('open', 'open-up');
+            else if (e.key === 'ArrowDown' && select.selectedIndex < select.options.length - 1) { e.preventDefault(); choose(select.selectedIndex + 1); }
+            else if (e.key === 'ArrowUp' && select.selectedIndex > 0) { e.preventDefault(); choose(select.selectedIndex - 1); }
+        });
+        document.addEventListener('click', () => wrapper.classList.remove('open', 'open-up'));
     }
 
     /* ---------- Chat, jugadores y goles ---------- */
@@ -1034,24 +1357,31 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
             copyText(link, e.currentTarget, 'Enlace copiado');
         });
 
+        buildCustomSelect($('vz-speed'));
         $('vz-play').addEventListener('click', () => setPlaying(!S.playing));
-        $('vz-canvas').addEventListener('click', () => setPlaying(!S.playing));
-        $('vz-back10').addEventListener('click', () => seekTo(currentFrame() - 10 * C.FPS));
-        $('vz-fwd10').addEventListener('click', () => seekTo(currentFrame() + 10 * C.FPS));
+        $('vz-back10').addEventListener('click', () => { seekTo(currentFrame() - 10 * C.FPS); if (S.fs) showUi(); });
+        $('vz-fwd10').addEventListener('click', () => { seekTo(currentFrame() + 10 * C.FPS); if (S.fs) showUi(); });
         $('vz-speed').addEventListener('change', (e) => setSpeed(parseFloat(e.target.value)));
 
-        const seek = $('vz-seek');
-        seek.addEventListener('input', () => { S.dragging = true; $('vz-time-cur').textContent = C.formatTime(+seek.value); });
-        seek.addEventListener('change', () => { S.dragging = false; seekTo(+seek.value); });
+        // La barra mueve la repetición mientras se arrastra (el salto es instantáneo)
+        $('vz-seek').addEventListener('input', (e) => { seekTo(+e.target.value); if (S.fs) showUi(); });
 
-        $('vz-follow').addEventListener('click', (e) => { S.followBall = !S.followBall; e.currentTarget.classList.toggle('on', S.followBall); S.needsRedraw = true; });
-        $('vz-names').addEventListener('click', (e) => { S.showNames = !S.showNames; e.currentTarget.classList.toggle('on', S.showNames); S.needsRedraw = true; });
-        $('vz-fullscreen').addEventListener('click', () => {
-            const stage = $('vz-stage');
-            if (document.fullscreenElement) document.exitFullscreen();
-            else if (stage.requestFullscreen) stage.requestFullscreen();
+        $('vz-follow').addEventListener('click', (e) => { S.followBall = !S.followBall; e.currentTarget.classList.toggle('on', S.followBall); S.needsRedraw = true; if (S.fs) showUi(); });
+        $('vz-names').addEventListener('click', (e) => { S.showNames = !S.showNames; e.currentTarget.classList.toggle('on', S.showNames); S.needsRedraw = true; if (S.fs) showUi(); });
+
+        // Pantalla completa: en ella, un toque sobre la cancha muestra los controles; con los controles a la vista, pausa/reanuda
+        $('vz-fullscreen').addEventListener('click', toggleFullscreen);
+        $('vz-fs-exit').addEventListener('click', exitFullscreen);
+        document.addEventListener('fullscreenchange', onFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+        window.addEventListener('popstate', () => { if (S.fs) { S.fsHistory = false; exitFullscreen(); } });
+        const stage = $('vz-stage');
+        stage.addEventListener('pointerdown', () => { S.uiWasHidden = stage.classList.contains('vz-ui-hidden'); if (S.fs) showUi(); }, true);
+        stage.addEventListener('pointermove', () => { if (S.fs && stage.classList.contains('vz-ui-hidden')) showUi(); });
+        $('vz-canvas').addEventListener('click', () => {
+            if (S.fs && S.uiWasHidden) { S.uiWasHidden = false; return; }
+            setPlaying(!S.playing);
         });
-        document.addEventListener('fullscreenchange', () => { S.needsRedraw = true; });
 
         document.querySelectorAll('#vz-tabs .tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
 
@@ -1066,15 +1396,14 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         $('vz-chat-copy').addEventListener('click', (e) => copyText(chatTextForExport(), e.currentTarget, 'Copiado'));
 
         document.addEventListener('keydown', (e) => {
-            if (!S.reader || e.target.matches('input, textarea, select')) return;
-            if (e.code === 'Space') { e.preventDefault(); setPlaying(!S.playing); }
-            else if (e.code === 'ArrowLeft') { e.preventDefault(); seekTo(currentFrame() - 5 * C.FPS); }
-            else if (e.code === 'ArrowRight') { e.preventDefault(); seekTo(currentFrame() + 5 * C.FPS); }
-        });
-        document.addEventListener('visibilitychange', () => {
-            // no gasta batería con la pestaña oculta
-            if (!S.reader || S.seeking) return;
-            S.reader.setSpeed(document.hidden ? 0 : (S.playing ? S.speed : 0));
+            if (!S.rec) return;
+            if (e.code === 'Escape' && S.fs) { exitFullscreen(); return; }
+            const t = e.target && e.target.closest ? e.target : null;
+            if (e.ctrlKey || e.metaKey || e.altKey || (t && t.matches('input, textarea, select'))) return;
+            if (e.code === 'Space') { if (t && t.closest('button, [role="button"]')) return; e.preventDefault(); setPlaying(!S.playing); }
+            else if (e.code === 'ArrowLeft') { e.preventDefault(); seekTo(currentFrame() - 5 * C.FPS); if (S.fs) showUi(); }
+            else if (e.code === 'ArrowRight') { e.preventDefault(); seekTo(currentFrame() + 5 * C.FPS); if (S.fs) showUi(); }
+            else if (e.code === 'KeyF') { e.preventDefault(); toggleFullscreen(); }
         });
     }
 
