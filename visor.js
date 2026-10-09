@@ -1,30 +1,10 @@
-/* =========================================================
-   VISOR DE REPETICIONES - TOROHAX
-
-   Lee archivos .hbr2 de HaxBall directamente en el navegador (nada se sube a ningún servidor):
-     - Reproduce la repetición en un canvas (play, pausa, velocidad, saltos, goles).
-     - Extrae el chat completo (mensajes de jugadores y anuncios de la sala) con su minuto exacto.
-
-   Usa node-haxball (MIT) para leer la repetición: vendor/haxball/.
-   Estructura:
-     1. VisorCore  -> lógica pura (sin DOM): formato, chat, análisis del archivo. Se prueba en Node.
-     2. App        -> interfaz: carga de archivos, reproductor, chat, jugadores y goles.
-   ========================================================= */
-
-/* ---------------------------------------------------------
-   1. NÚCLEO (sin DOM)
-   --------------------------------------------------------- */
 const VisorCore = (function () {
     'use strict';
 
     const FPS = 60;
     const MAX_REPLAY_BYTES = 30 * 1024 * 1024;
-
     const DEFAULT_TEAM_COLORS = { 1: 0xE56E56, 2: 0x5689E5 };
 
-    /* ---- Formato ---- */
-
-    // Cuadro -> "m:ss" (o "h:mm:ss")
     function formatTime(frame) {
         const total = Math.max(0, Math.floor(frame / FPS));
         const h = Math.floor(total / 3600);
@@ -34,25 +14,21 @@ const VisorCore = (function () {
         return h > 0 ? `${h}:${String(m).padStart(2, '0')}:${ss}` : `${m}:${ss}`;
     }
 
-    // Segundos -> "m:ss" (reloj del partido)
     function formatSeconds(seconds) {
         return formatTime(Math.max(0, seconds) * FPS);
     }
 
-    // "transparent" en HaxBall es -1; en las repeticiones queda guardado como 0xFFFFFFFF (4294967295), así que
-    // cualquier valor fuera de 0..0xFFFFFF significa "sin color".
     function isTransparentColor(n) {
         return typeof n !== 'number' || !isFinite(n) || n < 0 || n > 0xFFFFFF;
     }
 
-    // Número de color de HaxBall -> "#rrggbb". Con `legible` aclara los colores muy oscuros para fondos oscuros.
     function colorToCss(n, legible) {
         if (isTransparentColor(n)) return legible ? '#e8e8e8' : 'transparent';
         let r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
         if (legible) {
             const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
             if (lum < 0.45) {
-                const t = (0.45 - lum) / (1 - lum) + 0.15;   // mezcla hacia el blanco
+                const t = (0.45 - lum) / (1 - lum) + 0.15;
                 r = Math.round(r + (255 - r) * t);
                 g = Math.round(g + (255 - g) * t);
                 b = Math.round(b + (255 - b) * t);
@@ -66,13 +42,7 @@ const VisorCore = (function () {
         return '#' + [(n >> 16) & 255, (n >> 8) & 255, n & 255].map(v => f(v).toString(16).padStart(2, '0')).join('');
     }
 
-    /* ---- Cancha ---- */
-
-    // Medio ancho/alto de la cancha, tomado de las líneas visibles del mapa. Se descartan los puntos que quedan
-    // fuera de los límites físicos (planos): los mapas guardan elementos "estacionados" muy lejos (por ejemplo las
-    // barreras de saque en y = -2000) y, si se contaran, la cancha se vería diminuta.
     function fieldExtent(st) {
-        // x >= d (normal 1,0) | x <= -d (normal -1,0) | y >= d (normal 0,1) | y <= -d (normal 0,-1)
         const loX = [], hiX = [], loY = [], hiY = [];
         for (const p of st.planes || []) {
             const n = p && p.normal;
@@ -84,7 +54,7 @@ const VisorCore = (function () {
             else if (near(nx, 0) && near(ny, 1)) loY.push(p.dist);
             else if (near(nx, 0) && near(ny, -1)) hiY.push(-p.dist);
         }
-        // con varios planos por lado (jugadores / pelota) vale el más amplio
+
         const minX = loX.length ? Math.min(...loX) : -Infinity, maxX = hiX.length ? Math.max(...hiX) : Infinity;
         const minY = loY.length ? Math.min(...loY) : -Infinity, maxY = hiY.length ? Math.max(...hiY) : Infinity;
         const tol = 5;
@@ -103,15 +73,9 @@ const VisorCore = (function () {
         return { hw, hh };
     }
 
-    /* ---- Chat ---- */
-
-    // Línea de chat reenviada por el host:  "(🦙1️⃣) [👤16866] Nombre: mensaje"  (el rango y el emoji inicial son opcionales).
-    // Según la versión de la sala, el ícono dentro de los corchetes cambia (👤, 👑, 🌼, 🥑...): "[🌼 7151]".
-    // Sin ícono ("[16040]: Fulano se retiró") es un aviso de la sala, no un mensaje.
     const CHAT_LINE_RE = /^(?:(?<pre>[^\[(]*?)\s*)?(?:\((?<rank>[^)]*)\)\s*)?\[(?<icon>[^\d\[\]]+?)\s*(?<uid>\d+)\]\s*(?<name>.+?):\s(?<msg>[\s\S]*)$/;
     const SEPARATOR_RE = /^[\s═─━\-=_*·•~]{6,}$/;
 
-    // Clasifica un anuncio del host: 'chat' (mensaje de un jugador), 'sep' (línea decorativa) o 'event' (aviso de la sala)
     function parseAnnouncement(text) {
         const t = String(text == null ? '' : text);
         if (SEPARATOR_RE.test(t)) return { type: 'sep' };
@@ -129,8 +93,6 @@ const VisorCore = (function () {
         return { type: 'event' };
     }
 
-    // Nombres de los equipos (rojo, azul) a partir de los anuncios del host. Varía según la versión de la sala:
-    //   "📊 Qatar 🆚 España"  |  "⚽ Partido: D. La Serena vs Barnechea"  |  "📊 Qatar | 0 - 4 | España" (marcador tras un gol)
     const TEAM_NAME_PATTERNS = [
         /📊\s*(.+?)\s*🆚\s*(.+)$/,
         /Partido:\s*(.+?)\s+vs\.?\s+(.+)$/i,
@@ -147,7 +109,6 @@ const VisorCore = (function () {
         return null;
     }
 
-    // Filtra por tipo ('all' | 'chat' | 'events') y por texto
     function filterMessages(messages, mode, query) {
         const q = String(query || '').trim().toLowerCase();
         return messages.filter(m => {
@@ -159,7 +120,6 @@ const VisorCore = (function () {
         });
     }
 
-    // Texto plano del chat para descargar/copiar
     function buildChatText(messages, title) {
         const lines = [];
         lines.push(`Chat de la repetición${title ? ': ' + title : ''}`);
@@ -174,7 +134,6 @@ const VisorCore = (function () {
         return lines.join('\r\n');
     }
 
-    // Índice del último mensaje cuyo cuadro es <= frame (los mensajes vienen ordenados por cuadro); -1 si no hay
     function lastIndexAtOrBefore(messages, frame) {
         let lo = 0, hi = messages.length - 1, ans = -1;
         while (lo <= hi) {
@@ -184,7 +143,6 @@ const VisorCore = (function () {
         return ans;
     }
 
-    // Descripción de un gol usando los anuncios del host que lo rodean ("... anota para España!" + "📊 Qatar | 0 - 4 | España")
     function describeGoal(messages, goalFrame) {
         const from = goalFrame - FPS, to = goalFrame + FPS * 12;
         let scoreIdx = -1;
@@ -204,13 +162,9 @@ const VisorCore = (function () {
     }
 
     function looksLikeReplay(bytes) {
-        return bytes && bytes.length > 8 && bytes[0] === 0x48 && bytes[1] === 0x42 && bytes[2] === 0x52 && bytes[3] === 0x32; // "HBR2"
+        return bytes && bytes.length > 8 && bytes[0] === 0x48 && bytes[1] === 0x42 && bytes[2] === 0x52 && bytes[3] === 0x32;
     }
 
-    /* ---- Análisis del archivo ---- */
-
-    // El lector avanza con requestAnimationFrame, que el navegador pausa en pestañas ocultas (por ejemplo, un enlace abierto
-    // en segundo plano). Para el análisis se usa un planificador basado en MessageChannel, que sigue corriendo a toda velocidad.
     function createFastScheduler() {
         const queue = new Map();
         let nextId = 0;
@@ -230,14 +184,6 @@ const VisorCore = (function () {
         };
     }
 
-    /* ---- Grabación del partido ---- */
-
-    // Mientras se analiza el archivo, el lector simula el partido cuadro por cuadro. Aquí se guarda lo necesario para
-    // dibujar cada cuadro (posiciones de los discos, marcador, reloj, quién patea) y así la reproducción no simula nada:
-    // saltar adelante o atrás es instantáneo y no hay que "volver a cargar" la repetición.
-    //
-    // Lo que casi nunca cambia (mapa, radios y colores de los discos, jugadores con su equipo y avatar, colores de las
-    // camisetas) se guarda en "épocas": una nueva época empieza solo cuando algo de eso cambia.
     const MAX_EPOCHS = 20000;
 
     function snapshotTeamColors(room) {
@@ -261,7 +207,6 @@ const VisorCore = (function () {
         return true;
     }
 
-    // Texto que se dibuja sobre el disco de un jugador (avatar fijado por la sala > avatar propio > número)
     function playerLabel(p) {
         const v = p.headlessAvatar != null ? p.headlessAvatar : (p.avatar != null ? p.avatar : p.avatarNumber);
         return v == null ? '' : String(v);
@@ -339,7 +284,6 @@ const VisorCore = (function () {
         }
 
         function finish() {
-            // las referencias a los objetos vivos del lector solo servían para detectar cambios mientras se grababa
             for (const ep of epochs) for (const p of ep.players) { p.ref = null; p.disc = null; }
             return {
                 frames: count,
@@ -352,7 +296,6 @@ const VisorCore = (function () {
         return { capture, finish, get count() { return count; } };
     }
 
-    // Datos de un cuadro de la grabación. `kicking(i)` dice si el jugador i de la época está pateando.
     function recordedFrame(rec, f) {
         f = Math.max(0, Math.min(rec.frames - 1, f | 0));
         const epoch = rec.epochs[rec.epochOf[f]];
@@ -364,9 +307,6 @@ const VisorCore = (function () {
         };
     }
 
-    // Recorre la repetición a toda velocidad y recoge chat/anuncios, jugadores y estadísticas simples.
-    // `API` es el objeto devuelto por abcHaxballAPI(window). Devuelve una promesa.
-    // Con `options.record` también devuelve `recording`: el partido grabado cuadro por cuadro (ver createRecorder).
     function scanReplay(API, bytes, options) {
         const onProgress = (options && options.onProgress) || function () {};
         const timeoutMs = (options && options.timeoutMs) || 180000;
@@ -405,7 +345,7 @@ const VisorCore = (function () {
                     reject(new Error(`La grabación quedó incompleta (${recording.frames} de ${maxFrame + 1} cuadros).`));
                     return;
                 }
-                raw.sort((a, b) => a.f - b.f);   // estable: conserva el orden de llegada dentro del mismo cuadro
+                raw.sort((a, b) => a.f - b.f);
                 resolve({ raw, players: list, stadiumName, maxFrame, recording });
             };
             const fail = (err) => { if (done) return; done = true; cleanup(); reject(err); };
@@ -435,7 +375,6 @@ const VisorCore = (function () {
             } catch (e) { /* la sala puede empezar vacía */ }
 
             if (options && options.record) {
-                // El lector avanza el estado con state.nM(1) una vez por cuadro: se engancha ahí para grabar cada cuadro
                 const room = reader.state, original = room.nM;
                 if (typeof original !== 'function') { cleanup(); done = true; reject(new Error('Esta versión de la librería no permite grabar el partido.')); return; }
                 recorder = createRecorder(reader, reader.maxFrameNo);
@@ -445,7 +384,7 @@ const VisorCore = (function () {
                     return r;
                 };
                 hookedState = room;
-                recorder.capture();   // cuadro 0
+                recorder.capture();
             }
 
             const total = Math.max(1, reader.maxFrameNo);
@@ -457,7 +396,6 @@ const VisorCore = (function () {
         });
     }
 
-    // Convierte lo recogido en mensajes listos para mostrar
     function buildMessages(raw) {
         return raw.map(r => {
             if (r.kind === 'chat') return { f: r.f, type: 'chat', name: r.name, team: r.team, rank: '', text: r.text, color: null };
@@ -477,10 +415,6 @@ const VisorCore = (function () {
 
 if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
 
-
-/* ---------------------------------------------------------
-   2. INTERFAZ
-   --------------------------------------------------------- */
 (function () {
     'use strict';
     if (typeof document === 'undefined') return;
@@ -493,12 +427,12 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         title: '',
         sourceUrl: null,
         scan: null,
-        rec: null,            // el partido grabado cuadro por cuadro (VisorCore.scanReplay con record)
+        rec: null,            
         messages: [],
-        goals: [],            // [{ f, teamId, text }]
+        goals: [],
         teamNames: { red: 'Rojo', blue: 'Azul' },
         maxFrame: 0,
-        cursor: 0,            // cuadro actual (con decimales mientras se reproduce)
+        cursor: 0,
         lastTs: 0,
         speed: 1,
         playing: false,
@@ -506,9 +440,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         showNames: true,
         autoScroll: true,
         query: '',
-        busy: false,          // hay una carga en curso
-        fs: false,            // pantalla completa (nativa o simulada)
-        fsHistory: false,     // se agregó una entrada al historial para que "atrás" salga de la pantalla completa
+        busy: false,
+        fs: false,
+        fsHistory: false,
         fsMarkers: {},
         uiTimer: 0,
         uiWasHidden: false,
@@ -524,8 +458,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
 
     let canvas, ctx, resizeObs;
 
-    /* ---------- Utilidades de interfaz ---------- */
-
     function show(el, visible) { el.classList.toggle('vz-hidden', !visible); }
 
     function showError(msg) {
@@ -536,14 +468,10 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
 
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
 
-    /* ---------- Pantalla de carga ---------- */
-
-    // Tramo de la barra que ocupa cada paso (el análisis es lo más lento)
     const LOAD_STEPS = { read: [0, 0.08], scan: [0.08, 0.9], prep: [0.9, 1] };
-    const MIN_LOADING_MS = 600;   // evita un parpadeo si el archivo es muy pequeño
+    const MIN_LOADING_MS = 600;
     let loadingSince = 0;
 
-    // Espera a que el navegador pinte antes de seguir con trabajo pesado (con la pestaña oculta no hay pintado: no se bloquea)
     function nextPaint() {
         return new Promise((resolve) => {
             let done = false;
@@ -588,7 +516,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         show($('vz-loading'), false);
     }
 
-    // La carga falló: se vuelve a la pantalla inicial con el mensaje
     function failLoading(message) {
         endLoading();
         show($('vz-viewer'), false);
@@ -604,8 +531,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         S.API = abcHaxballAPI(window);
         return S.API;
     }
-
-    /* ---------- Carga de la repetición ---------- */
 
     async function loadFromFile(file) {
         if (!file || S.busy) return;
@@ -651,9 +576,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
             setLoadStep('scan', 0);
             await nextPaint();
 
-            // Marcadores de gol y duración: lectura instantánea, sin simular el partido
             const data = API.Replay.readAll(bytes);
-            // El marcador del archivo guarda el equipo que RECIBIÓ el gol; aquí se guarda el que lo anotó
             const goalMarkers = (data.goalMarkers || []).map(g => ({ f: g.frameNo, teamId: g.teamId === 1 ? 2 : 1 }));
 
             const scan = await C.scanReplay(API, bytes, { onProgress: (p) => setLoadStep('scan', p), record: true });
@@ -688,8 +611,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         }
     }
 
-    /* ---------- Vista del visor ---------- */
-
     function showViewer() {
         show($('vz-load'), false);
         show($('vz-viewer'), true);
@@ -722,10 +643,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         showError('');
         $('vz-file').value = '';
     }
-
-    /* ---------- Reproductor ---------- */
-    // La repetición ya quedó grabada cuadro por cuadro durante el análisis (VisorCore.scanReplay). Reproducir es recorrer
-    // esa grabación con un reloj propio, así que saltar a cualquier momento, adelante o atrás, es instantáneo.
 
     const FRAMES_PER_MS = C.FPS / 1000;
 
@@ -765,7 +682,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
 
     function setSpeed(v) { S.speed = v; }
 
-    // Salta a un cuadro. Si estaba reproduciendo, continúa; si estaba en pausa, queda en pausa (salvo forcePlay).
     function seekTo(frame, forcePlay) {
         if (!S.rec) return;
         S.cursor = clamp(Math.round(frame), 0, S.maxFrame);
@@ -777,14 +693,11 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         updateHud(currentFrame());
     }
 
-    /* ---------- Dibujo ---------- */
-
     function setupCanvas() {
         canvas = $('vz-canvas');
         ctx = canvas.getContext('2d', { alpha: false });
         if (resizeObs) resizeObs.disconnect();
         const resize = () => {
-            // clientWidth/Height (no getBoundingClientRect): ignoran el giro de la pantalla completa en celulares verticales
             const dpr = Math.min(window.devicePixelRatio || 1, 2);
             const w = Math.max(2, Math.round(canvas.clientWidth * dpr)), h = Math.max(2, Math.round(canvas.clientHeight * dpr));
             if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; S.needsRedraw = true; }
@@ -845,10 +758,10 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
             g.beginPath(); g.moveTo(0, -hh); g.lineTo(0, hh); g.stroke();
             g.beginPath(); g.arc(0, 0, st.bgKickOffRadius || 0, 0, Math.PI * 2); g.stroke();
         };
-        if (t === 1) {                      // pasto
+        if (t === 1) {
             g.fillStyle = C.colorToCss(st.bgColor); g.fillRect(-1e5, -1e5, 2e5, 2e5);
             field(C.shadeColor(st.bgColor, 1.1), '#C7E6BD');
-        } else if (t === 2) {               // hockey
+        } else if (t === 2) {
             g.fillStyle = '#3f434c'; g.fillRect(-1e5, -1e5, 2e5, 2e5);
             field('#5b606c', '#E9CC6E');
         } else {
@@ -872,7 +785,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         }
     }
 
-    // Medio ancho/alto de la cancha real (no del "tamaño de cámara" del mapa, que suele traer mucho margen)
     const boundsCache = new WeakMap();
     function stadiumHalfExtent(st) {
         let b = boundsCache.get(st);
@@ -880,7 +792,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         return b;
     }
 
-    // Posiciones del cuadro actual (se mezclan con el siguiente cuadro para que la cámara lenta y las pantallas de 120 Hz se vean fluidas)
     const cur = { x: new Float64Array(64), y: new Float64Array(64) };
 
     function draw() {
@@ -904,7 +815,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
             let x = pos[off + 2 * i], y = pos[off + 2 * i + 1];
             if (next >= 0) {
                 const nx = pos[next + 2 * i], ny = pos[next + 2 * i + 1];
-                if (Math.abs(nx - x) < 40 && Math.abs(ny - y) < 40) { x += (nx - x) * frac; y += (ny - y) * frac; }   // sin mezclar si fue un salto (saque, reinicio)
+                if (Math.abs(nx - x) < 40 && Math.abs(ny - y) < 40) { x += (nx - x) * frac; y += (ny - y) * frac; }
             }
             cur.x[i] = x; cur.y[i] = y;
         }
@@ -930,16 +841,14 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         drawBackground(ctx, st, w, h);
         drawSegments(ctx, st);
 
-        // discos que no son jugadores (pelota, postes...)
         if (!ep.playerDiscs) ep.playerDiscs = new Set(ep.players.map(p => p.discIdx));
         ctx.lineWidth = 2;
         for (let i = 0; i < n; i++) {
-            if (ep.playerDiscs.has(i) || C.isTransparentColor(ep.discColor[i])) continue;   // las barreras de saque son transparentes: ni relleno ni borde
+            if (ep.playerDiscs.has(i) || C.isTransparentColor(ep.discColor[i])) continue;
             ctx.beginPath(); ctx.arc(cur.x[i], cur.y[i], ep.discRadius[i], 0, Math.PI * 2);
             ctx.fillStyle = C.colorToCss(ep.discColor[i]); ctx.fill();
             ctx.strokeStyle = '#000'; ctx.stroke();
         }
-        // jugadores
         const kLo = rec.kickLo[f], kHi = rec.kickHi[f];
         for (let k = 0; k < ep.players.length; k++) {
             const p = ep.players[k];
@@ -948,7 +857,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
             drawPlayerDisc(ctx, cur.x[p.discIdx], cur.y[p.discIdx], ep.discRadius[p.discIdx], p.label, teamColors(ep, p.teamId), kicking);
         }
 
-        // nombres (tamaño fijo en pantalla)
         if (S.showNames) {
             ctx.setTransform(1, 0, 0, 1, 0, 0);
             const px = Math.max(11, Math.round(h * 0.028));
@@ -976,7 +884,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
     function frameLoop(now) {
         S.rafId = requestAnimationFrame(frameLoop);
         if (!S.rec || !canvas) return;
-        const dt = S.lastTs ? Math.min(now - S.lastTs, 100) : 0;   // tope: al volver de otra pestaña no se "recupera" el tiempo perdido
+        const dt = S.lastTs ? Math.min(now - S.lastTs, 100) : 0;
         S.lastTs = now;
 
         if (S.playing) {
@@ -1007,7 +915,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         $('vz-score-red').textContent = S.lastScore.red;
         $('vz-score-blue').textContent = S.lastScore.blue;
 
-        // resalta el último mensaje del chat y lo mantiene a la vista
         const idx = C.lastIndexAtOrBefore(S.shown || [], f);
         if (idx !== S.lastChatIndex) {
             S.lastChatIndex = idx;
@@ -1023,11 +930,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
             }
         }
     }
-
-    /* ---------- Pantalla completa ---------- */
-    // Se usa la pantalla completa del navegador si la permite; si no (iPhone, navegadores integrados de apps como Discord...)
-    // el reproductor se agranda hasta cubrir toda la pantalla. En ambos casos el marcador y los controles pasan a ser una capa
-    // sobre la cancha que se oculta sola mientras se reproduce y vuelve al tocar la pantalla.
 
     const FS_SLOTS = [['vz-scorebox', 'vz-fs-top'], ['vz-controls', 'vz-fs-bottom']];
     const UI_IDLE_MS = 3200;
@@ -1053,7 +955,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         stage.classList.add('vz-fs');
         document.documentElement.classList.add('vz-lock');
         S.fs = true;
-        // el botón "atrás" del celular sale de la pantalla completa en vez de abandonar la página
         try { history.pushState({ vzFs: true }, ''); S.fsHistory = true; } catch (e) { S.fsHistory = false; }
         syncFsButton();
         const request = stage.requestFullscreen || stage.webkitRequestFullscreen;
@@ -1067,7 +968,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         S.needsRedraw = true;
     }
 
-    // Deja la interfaz como estaba (controles de vuelta en su lugar)
     function leaveFullscreenUi() {
         if (!S.fs) return;
         S.fs = false;
@@ -1104,14 +1004,13 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
 
     function onFullscreenChange() {
         if (nativeFullscreenElement() === $('vz-stage')) {
-            // en Android, además de ocupar la pantalla, intenta dejarla horizontal
             try {
                 const p = screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape');
                 if (p && p.catch) p.catch(() => {});
             } catch (e) { /* sin soporte */ }
             S.needsRedraw = true;
         } else if (S.fs) {
-            leaveFullscreenUi();   // salió con Esc o con el gesto del sistema
+            leaveFullscreenUi();
         }
     }
 
@@ -1124,12 +1023,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
     function hideUiIfIdle() {
         if (!S.fs) return;
         const stage = $('vz-stage');
-        // en pausa o con la lista de velocidades abierta los controles se quedan a la vista
         if (!S.playing || stage.querySelector('.custom-select-wrapper.open')) { S.uiTimer = setTimeout(hideUiIfIdle, UI_IDLE_MS); return; }
         stage.classList.add('vz-ui-hidden');
     }
-
-    /* ---------- Lista desplegable (componente .custom-select-* de styles.css) ---------- */
 
     function closeSelects() {
         document.querySelectorAll('.custom-select-wrapper').forEach(w => w.classList.remove('open', 'open-up'));
@@ -1176,7 +1072,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
             const wasOpen = wrapper.classList.contains('open');
             closeSelects();
             if (wasOpen) return;
-            // abre hacia arriba cuando abajo no hay lugar; en pantalla completa los controles están abajo y la vista puede ir girada
             wrapper.classList.remove('open-up');
             const r = wrapper.getBoundingClientRect();
             const menuH = Math.min(options.scrollHeight, 250);
@@ -1193,8 +1088,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         });
         document.addEventListener('click', () => wrapper.classList.remove('open', 'open-up'));
     }
-
-    /* ---------- Chat, jugadores y goles ---------- */
 
     function renderMarkers() {
         const box = $('vz-markers');
@@ -1303,10 +1196,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         if (name === 'chat') S.lastChatIndex = -2;
     }
 
-    /* ---------- Descargar / copiar chat ---------- */
-
     function chatTextForExport() {
-        // Siempre el chat completo, aunque haya algo escrito en el buscador
         return C.buildChatText(S.messages, S.title);
     }
 
@@ -1335,8 +1225,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         setTimeout(() => { button.innerHTML = original; }, 1800);
     }
 
-    /* ---------- Eventos ---------- */
-
     function bind() {
         const drop = $('vz-drop'), file = $('vz-file');
         drop.addEventListener('click', () => file.click());
@@ -1345,12 +1233,10 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         ['dragenter', 'dragover'].forEach(ev => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.add('over'); }));
         ['dragleave', 'drop'].forEach(ev => drop.addEventListener(ev, (e) => { e.preventDefault(); drop.classList.remove('over'); }));
         drop.addEventListener('drop', (e) => loadFromFile(e.dataTransfer.files[0]));
-        // soltar el archivo en cualquier parte de la página
+
         window.addEventListener('dragover', (e) => e.preventDefault());
         window.addEventListener('drop', (e) => { if (e.target !== drop && !drop.contains(e.target)) { e.preventDefault(); if (e.dataTransfer.files[0]) loadFromFile(e.dataTransfer.files[0]); } });
 
-        // El campo para pegar un enlace es opcional: si no está en la página, el resto funciona igual
-        // (los enlaces con ?replay=... siguen cargando)
         const urlInput = $('vz-url'), urlGo = $('vz-url-go');
         if (urlInput && urlGo) {
             urlGo.addEventListener('click', () => { const v = urlInput.value.trim(); if (v) loadFromUrl(v); });
@@ -1367,14 +1253,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         $('vz-back10').addEventListener('click', () => { seekTo(currentFrame() - 10 * C.FPS); if (S.fs) showUi(); });
         $('vz-fwd10').addEventListener('click', () => { seekTo(currentFrame() + 10 * C.FPS); if (S.fs) showUi(); });
         $('vz-speed').addEventListener('change', (e) => setSpeed(parseFloat(e.target.value)));
-
-        // La barra mueve la repetición mientras se arrastra (el salto es instantáneo)
         $('vz-seek').addEventListener('input', (e) => { seekTo(+e.target.value); if (S.fs) showUi(); });
-
         $('vz-follow').addEventListener('click', (e) => { S.followBall = !S.followBall; e.currentTarget.classList.toggle('on', S.followBall); S.needsRedraw = true; if (S.fs) showUi(); });
         $('vz-names').addEventListener('click', (e) => { S.showNames = !S.showNames; e.currentTarget.classList.toggle('on', S.showNames); S.needsRedraw = true; if (S.fs) showUi(); });
-
-        // Pantalla completa: en ella, un toque sobre la cancha muestra los controles; con los controles a la vista, pausa/reanuda
         $('vz-fullscreen').addEventListener('click', toggleFullscreen);
         $('vz-fs-exit').addEventListener('click', exitFullscreen);
         document.addEventListener('fullscreenchange', onFullscreenChange);
