@@ -250,7 +250,7 @@
             
             <div class="search-container">
                 <div class="search-input-wrapper">
-                    <input type="text" id="searchInput" placeholder="Buscar por Nombre o ID" autocomplete="off" onkeyup="manejarBusquedaEnVivo()">
+                    <input type="text" id="searchInput" placeholder="Buscar por Nombre o ID" autocomplete="off" onkeyup="manejarBusquedaEnVivo(event)">
                 </div>
                 <div id="searchResults"></div>
             </div>
@@ -262,7 +262,7 @@
                     <tr>
                         <th width="10%">#</th>
                         <th width="40%" style="text-align: left;">Jugador</th>
-                        <th width="20%">Partidos</th>
+                        <th width="20%" id="colHeaderPartidos">Partidos</th>
                         <th width="15%" id="colHeader1">Puntos</th>
                         <th width="15%" id="colHeader2">MVPs</th>
                     </tr>
@@ -380,7 +380,7 @@
         const encabezados = {
             'goles': ['Total Goles', 'Goles / Partido'],
             'asistencias': ['Asistencias', 'Asist. / Partido'],
-            'defensas': ['Recuperaciones', 'Recup. / Partido'],
+            'defensas': ['Recup. / Partido', 'Recuperaciones'],
             'arqueros': ['Atajadas', 'Porterías en 0'] 
         };
 
@@ -489,6 +489,7 @@
         }
 
         function actualizarEncabezados() {
+            document.getElementById('colHeaderPartidos').innerText = categoriaActual === 'arqueros' ? 'Partidos (GK)' : 'Partidos';
             if (categoriaActual === 'general') {
                 document.getElementById('colHeader1').innerText = isTemporada ? 'Rango' : 'Puntos';
                 document.getElementById('colHeader2').innerText = 'MVPs';
@@ -561,50 +562,100 @@
             if (nuevaPagina !== paginaActual) { paginaActual = nuevaPagina; cargarRankings(); }
         }
 
-        function manejarBusquedaEnVivo() {
+        const API_URL = 'https://torobot-izu5.onrender.com';
+        let searchRequestId = 0;
+
+        function escapeHtml(str) {
+            return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        function cerrarResultadosBusqueda() {
+            document.getElementById('searchResults').style.display = 'none';
+        }
+
+        function manejarBusquedaEnVivo(e) {
             const input = document.getElementById('searchInput');
             const resultsDiv = document.getElementById('searchResults');
             const query = input.value.trim();
 
-            if (query.length < 2) {
-                resultsDiv.style.display = 'none';
+            if (e && e.key === 'Escape') { cerrarResultadosBusqueda(); return; }
+            if (e && e.key === 'Enter') {
+                const primero = resultsDiv.firstElementChild;
+                if (primero && primero.dataset.id) primero.click();
+                return;
+            }
+
+            // Un ID puede tener un solo dígito; un nick necesita al menos 2 caracteres
+            if (query.length === 0 || (query.length < 2 && !/^\d+$/.test(query))) {
+                clearTimeout(searchTimeout);
+                cerrarResultadosBusqueda();
                 return;
             }
 
             clearTimeout(searchTimeout);
             searchTimeout = setTimeout(async () => {
+                const thisRequest = ++searchRequestId;
                 try {
-                    const res = await fetch(`https://torobot-izu5.onrender.com/api/admin/search-players?q=${encodeURIComponent(query)}`);
+                    const res = await fetch(`${API_URL}/api/admin/search-players?q=${encodeURIComponent(query)}`);
                     const data = await res.json();
+                    if (thisRequest !== searchRequestId) return; // llegó una respuesta más nueva
 
+                    resultsDiv.innerHTML = '';
                     if (data.success && data.players.length > 0) {
-                        resultsDiv.innerHTML = '';
                         data.players.forEach(p => {
                             const div = document.createElement('div');
+                            div.dataset.id = p.numericId;
                             const icon = p.isVip ? '<i class="fa-solid fa-crown" style="color:#e1bc56; font-size:0.8rem; margin-right:5px;"></i>' : '';
-                            div.innerHTML = `${icon}${p.name} <span class="id-tag">#${p.numericId}</span>`;
+                            div.innerHTML = `${icon}${escapeHtml(p.name)} <span class="id-tag">#${p.numericId}</span>`;
                             div.onclick = () => {
-                                resultsDiv.style.display = 'none';
+                                cerrarResultadosBusqueda();
                                 input.value = '';
-                                verPerfil(p.numericId);
+                                irAlPuesto(p.numericId, p.name);
                             };
                             resultsDiv.appendChild(div);
                         });
-                        resultsDiv.style.display = 'block';
                     } else {
-                        resultsDiv.innerHTML = '<div style="color:#7d7d7d; text-align:center;">No se encontró a nadie.</div>';
-                        resultsDiv.style.display = 'block';
+                        resultsDiv.innerHTML = '<div style="color:#7d7d7d; text-align:center; cursor:default;">No se encontró a nadie.</div>';
                     }
-                } catch (e) {
-                    console.error("Error en autocompletado", e);
+                    resultsDiv.style.display = 'block';
+                } catch (err) {
+                    console.error("Error en autocompletado", err);
                 }
             }, 300);
         }
 
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.search-container')) {
-                document.getElementById('searchResults').style.display = 'none';
+        // Lleva a la página del TOP actual donde está el jugador y lo resalta
+        async function irAlPuesto(id, nombre) {
+            try {
+                const params = new URLSearchParams({
+                    numericId: id, category: categoriaActual, filter: filtroActual,
+                    userId: loggedUserId, temporada: isTemporada
+                });
+                const res = await fetch(`${API_URL}/api/rank-position-of?${params}`);
+                const data = await res.json();
+                if (!data.success) throw new Error("Respuesta inválida");
+
+                if (!data.found) {
+                    const quien = nombre || data.name || `#${id}`;
+                    const motivo = filtroActual === 'amigos'
+                        ? `${quien} no aparece en el top de amigos: no está en tu lista o no tiene los ${data.minPartidos} ${data.partLabel || 'partidos'} mínimos.`
+                        : `${quien} aún no clasifica en este TOP: necesita al menos ${data.minPartidos} ${data.partLabel || 'partidos'} ${isTemporada ? 'en la temporada' : 'jugados'}.`;
+                    mostrarAlerta("Sin puesto en este TOP", motivo, false);
+                    return;
+                }
+
+                targetHighlightId = Number(id);
+                paginaActual = data.page;
+                await cargarRankings();
+                const fila = document.querySelector('#tablaBody .highlighted-row');
+                if (fila) fila.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } catch (e) {
+                mostrarAlerta("Error de Conexión", "No pudimos buscar el puesto de este jugador. Intenta de nuevo.");
             }
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.search-container')) cerrarResultadosBusqueda();
         });
 
         async function verPerfil(id) {
@@ -812,6 +863,7 @@
                     let valorPrincipal = '';
                     let valorSecundario = '';
                     const partidos = isTemporada ? (p.temp_partidos || 1) : (p.partidos || 1);
+                    let partidosMostrados = partidos;
 
                     if (categoriaActual === 'general') {
                         if (isTemporada) {
@@ -828,9 +880,11 @@
                         valorPrincipal = isTemporada ? (p.temp_asistencias || 0) : (p.asistencias || 0);
                         valorSecundario = (valorPrincipal / partidos).toFixed(2);
                     } else if (categoriaActual === 'defensas') {
-                        valorPrincipal = isTemporada ? (p.temp_intercepciones || 0) : (p.intercepciones || 0);
-                        valorSecundario = (valorPrincipal / partidos).toFixed(2);
+                        const recup = isTemporada ? (p.temp_intercepciones || 0) : (p.intercepciones || 0);
+                        valorPrincipal = (recup / partidos).toFixed(2);
+                        valorSecundario = recup;
                     } else if (categoriaActual === 'arqueros') {
+                        partidosMostrados = isTemporada ? (p.temp_partidos_gk || 0) : (p.partidos_gk || 0);
                         valorPrincipal = isTemporada ? (p.temp_atajadas || 0) : (p.atajadas || 0);
                         valorSecundario = isTemporada ? (p.temp_porteria_0 || 0) : (p.porteria_0 || 0);
                     }
@@ -841,8 +895,8 @@
                     tbody.innerHTML += `
                         <tr class="${highlightClass}" style="${styleExtra}" onclick="verPerfil(${p.numericId})">
                             <td>${posHtml}</td>
-                            <td class="player-name">${p.name} <span class="player-id">#${p.numericId}</span></td>
-                            <td>${partidos}</td>
+                            <td class="player-name">${escapeHtml(p.name)} <span class="player-id">#${p.numericId}</span></td>
+                            <td>${partidosMostrados}</td>
                             <td style="font-weight:bold;">${valorPrincipal}</td>
                             <td style="color:#bdc3c7; font-weight:bold;">${valorSecundario}</td>
                         </tr>
