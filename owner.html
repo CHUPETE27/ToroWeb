@@ -477,7 +477,7 @@
                         data.players.forEach(p => {
                             ul.innerHTML += `
                                 <li onclick="abrirPlayerDetailsOwner(${p.numericId})">
-                                    <span><span class="id-badge">#${p.numericId}</span> ${p.name}</span>
+                                    <span><span class="id-badge">#${p.numericId}</span> ${escapeHtml(p.name)}</span>
                                     <i class="fa-solid fa-chevron-right" style="color:#2df2c1;"></i>
                                 </li>
                             `;
@@ -528,17 +528,19 @@
                     btnToggle.className = 'btn-estandar btn-primary';
                 }
 
-                if (!p.ip) {
+                const alts = Array.isArray(data.alts) ? data.alts : [];
+                const tieneIp = data.hasIp ?? (alts.length > 0);
+                if (!tieneIp) {
                     altsList.innerHTML = '<li style="color: #e1bc56; justify-content: center;"><i class="fa-solid fa-triangle-exclamation"></i> No tiene IP registrada.</li>';
-                } else if (data.alts.length === 0) {
+                } else if (alts.length === 0) {
                     altsList.innerHTML = '<li style="color: #2df2c1; justify-content: center;"><i class="fa-solid fa-check"></i> No se encontraron otras cuentas.</li>';
                 } else {
                     altsList.innerHTML = '';
-                    data.alts.forEach(alt => {
+                    alts.forEach(alt => {
                         const altAdminBadge = alt.isAdmin ? `<span style="background:rgba(45,242,193,0.1); color:#2df2c1; padding: 3px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; border: 1px solid #2df2c1;">ADMIN</span>` : '';
                         altsList.innerHTML += `
                             <li onclick="abrirPlayerDetailsOwner(${alt.numericId})">
-                                <span><span class="id-badge">#${alt.numericId}</span> ${alt.name}</span>
+                                <span><span class="id-badge">#${alt.numericId}</span> ${escapeHtml(alt.name)}</span>
                                 ${altAdminBadge}
                             </li>
                         `;
@@ -590,6 +592,10 @@
         function cerrarModalOwner() { document.getElementById('ownerPlayerModal').style.display = 'none'; }
         function cerrarModalOwnerClickFuera(e) { if (e.target.id === 'ownerPlayerModal') cerrarModalOwner(); }
 
+        function escapeHtml(str) {
+            return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
         async function cargarListaAdmins() {
             const ul = document.getElementById('adminsUlList');
             try {
@@ -603,18 +609,26 @@
                     ul.innerHTML = '';
                     data.admins.forEach(admin => {
                         const isBoss = admin.numericId === 1;
-                        const discordInfo = admin.discordId ? `<span class="discord-tag"><i class="fa-brands fa-discord"></i> ${admin.discordId}</span>` : `<span class="discord-tag"><i class="fa-solid fa-link-slash"></i> No vinculado</span>`;
+                        let discordInfo;
+                        if (admin.discordName) {
+                            const visible = admin.discordDisplayName && admin.discordDisplayName !== admin.discordName ? ` (${escapeHtml(admin.discordDisplayName)})` : '';
+                            discordInfo = `<span class="discord-tag"><i class="fa-brands fa-discord"></i> ${escapeHtml(admin.discordName)}${visible}</span>`;
+                        } else if (admin.discordId) {
+                            discordInfo = `<span class="discord-tag" title="No se pudo obtener el nick de Discord"><i class="fa-brands fa-discord"></i> ID: ${escapeHtml(admin.discordId)}</span>`;
+                        } else {
+                            discordInfo = `<span class="discord-tag"><i class="fa-solid fa-link-slash"></i> No vinculado</span>`;
+                        }
                         
                         const actionBtn = isBoss 
                             ? `<button class="btn-boss"><i class="fa-solid fa-crown"></i> OWNER</button>`
-                            : `<button class="btn-revocar" onclick="quitarAdminDirecto(${admin.numericId}, '${admin.name}')"><i class="fa-solid fa-trash-can"></i> Revocar</button>`;
+                            : `<button class="btn-revocar" data-name="${escapeHtml(admin.name)}" onclick="quitarAdminDirecto(${admin.numericId}, this.dataset.name)"><i class="fa-solid fa-trash-can"></i> Revocar</button>`;
 
                         ul.innerHTML += `
                             <li>
                                 <div class="info-col" style="cursor: pointer;" onclick="abrirPlayerDetailsOwner(${admin.numericId})">
                                     <span style="display: flex; align-items: center; gap: 10px;">
                                         <span class="id-badge">#${admin.numericId}</span> 
-                                        <strong style="color:white; font-size: 1.15rem; letter-spacing: 0.5px;">${admin.name}</strong>
+                                        <strong style="color:white; font-size: 1.15rem; letter-spacing: 0.5px;">${escapeHtml(admin.name)}</strong>
                                     </span>
                                     ${discordInfo}
                                 </div>

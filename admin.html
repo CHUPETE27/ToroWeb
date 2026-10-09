@@ -761,44 +761,79 @@
             btn.disabled = false;
         }
 
-        async function cargarSalasActivas() {
+        function escapeHtml(str) {
+            return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
+        let salasRefreshTimer = null;
+
+        async function cargarSalasActivas(silencioso = false) {
             const selector = document.getElementById('roomSelector');
             const ul = document.getElementById('roomPlayersList');
             const countSpan = document.getElementById('roomPlayerCount');
-            
-            selector.innerHTML = '<option value="">Cargando salas...</option>';
-            ul.innerHTML = '<li style="color: #7d7d7d; justify-content: center;"><i class="fa-solid fa-spinner fa-spin"></i> Obteniendo datos...</li>';
-            
+
+            const salaPrevia = (selector.value !== "" && activeRoomsData[selector.value]) ? activeRoomsData[selector.value].name : null;
+
+            if (!silencioso) {
+                selector.innerHTML = '<option value="">Cargando salas...</option>';
+                refrescarSelectPersonalizado(selector);
+                ul.innerHTML = '<li style="color: #7d7d7d; justify-content: center;"><i class="fa-solid fa-spinner fa-spin"></i> Obteniendo datos...</li>';
+            }
+
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), 45000);
+
             try {
-                const res = await fetch('https://torobot-izu5.onrender.com/api/active-rooms');
-                activeRoomsData = await res.json();
-                
+                const res = await fetch('https://torobot-izu5.onrender.com/api/active-rooms', { signal: controller.signal });
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                const data = await res.json();
+                activeRoomsData = Array.isArray(data) ? data : [];
+
                 if (activeRoomsData.length === 0) {
                     selector.innerHTML = '<option value="">No hay salas activas en este momento</option>';
+                    refrescarSelectPersonalizado(selector);
                     ul.innerHTML = '<li style="color: #cc2a2a; justify-content: center;">Ningún host reportando actividad.</li>';
                     countSpan.innerText = '0/0';
                     return;
                 }
 
-                selector.innerHTML = '<option value="">-- Elige una sala para inspeccionar --</option>';
+                let opciones = '<option value="">-- Elige una sala para inspeccionar --</option>';
                 activeRoomsData.forEach((room, index) => {
-                    const cleanName = room.name.replace(/\[.*?\]/g, '').trim() || "Sala HaxBall";
-                    let numPlayers = 0;
-                    if (Array.isArray(room.players)) {
-                        numPlayers = room.players.length;
-                    } else if (typeof room.players === 'number') {
-                        numPlayers = room.players;
-                    }
-                    selector.innerHTML += `<option value="${index}">${cleanName} (${numPlayers} jgs)</option>`;
+                    const cleanName = String(room.name || '').replace(/\[.*?\]/g, '').trim() || "Sala HaxBall";
+                    const numPlayers = Array.isArray(room.players) ? room.players.length : (typeof room.players === 'number' ? room.players : 0);
+                    opciones += `<option value="${index}">${escapeHtml(cleanName)} (${numPlayers} jgs)</option>`;
                 });
-                
-                ul.innerHTML = '<li style="color: #7d7d7d; justify-content: center;">Selecciona una sala en el menú superior.</li>';
-                countSpan.innerText = '0/0';
+                selector.innerHTML = opciones;
 
+                const indicePrevio = salaPrevia ? activeRoomsData.findIndex(r => r.name === salaPrevia) : -1;
+                if (indicePrevio >= 0) selector.value = String(indicePrevio);
+                refrescarSelectPersonalizado(selector);
+
+                if (indicePrevio >= 0) {
+                    mostrarJugadoresSala();
+                } else {
+                    ul.innerHTML = '<li style="color: #7d7d7d; justify-content: center;">Selecciona una sala en el menú superior.</li>';
+                    countSpan.innerText = '0/0';
+                }
             } catch (err) {
-                selector.innerHTML = '<option value="">Error de conexión</option>';
-                ul.innerHTML = '<li style="color: #cc2a2a; justify-content: center;">Error al conectar con Render.</li>';
+                if (silencioso) return;
+                const tardo = err.name === 'AbortError';
+                selector.innerHTML = `<option value="">${tardo ? 'El servidor tardó demasiado' : 'Error de conexión'} — pulsa ↻ para reintentar</option>`;
+                refrescarSelectPersonalizado(selector);
+                ul.innerHTML = `<li style="color: #cc2a2a; justify-content: center;">${tardo ? 'El servidor no respondió a tiempo (puede estar despertando).' : 'Error al conectar con Render.'}</li>`;
+            } finally {
+                clearTimeout(timer);
             }
+        }
+
+        function iniciarAutoRefreshSalas() {
+            if (salasRefreshTimer) return;
+            salasRefreshTimer = setInterval(() => {
+                const tab = document.getElementById('sala');
+                if (tab && tab.classList.contains('active') && tab.offsetParent !== null && !document.hidden) {
+                    cargarSalasActivas(true);
+                }
+            }, 15000);
         }
 
         function mostrarJugadoresSala() {
@@ -806,7 +841,7 @@
             const ul = document.getElementById('roomPlayersList');
             const countSpan = document.getElementById('roomPlayerCount');
 
-            if (index === "") {
+            if (index === "" || !activeRoomsData[index]) {
                 ul.innerHTML = '<li style="color: #7d7d7d; justify-content: center;">Selecciona una sala en el menú superior.</li>';
                 countSpan.innerText = '0/0';
                 return;
@@ -814,19 +849,19 @@
 
             const room = activeRoomsData[index];
             const maxP = room.maxPlayers || '30';
-            
+
             if (Array.isArray(room.players)) {
                 countSpan.innerText = `${room.players.length}/${maxP}`;
                 ul.innerHTML = '';
-                
+
                 if (room.players.length > 0) {
                     room.players.forEach(p => {
                         const numId = (p.numericId && p.numericId !== "Sin Auth") ? p.numericId : '???';
                         ul.innerHTML += `
                             <li>
                                 <span>
-                                    <span class="id-badge">#(ID: ${numId})</span>
-                                    ${p.name}
+                                    <span class="id-badge">#(ID: ${escapeHtml(numId)})</span>
+                                    ${escapeHtml(p.name)}
                                 </span>
                             </li>`;
                     });
@@ -1086,16 +1121,18 @@
                     warnsList.innerHTML = '<li style="color: #2df2c1; justify-content: center;"><i class="fa-solid fa-check"></i> No tiene warns recientes.</li>';
                 }
 
-                if (!p.ip) {
+                const alts = Array.isArray(data.alts) ? data.alts : [];
+                const tieneIp = data.hasIp ?? (alts.length > 0);
+                if (!tieneIp) {
                     altsList.innerHTML = '<li style="color: #e1bc56; justify-content: center;"><i class="fa-solid fa-triangle-exclamation"></i> No tiene IP registrada en el sistema.</li>';
-                } else if (data.alts.length === 0) {
+                } else if (alts.length === 0) {
                     altsList.innerHTML = '<li style="color: #2df2c1; justify-content: center;"><i class="fa-solid fa-check"></i> No tiene cuentas adicionales.</li>';
                 } else {
                     altsList.innerHTML = '';
-                    data.alts.forEach(alt => {
+                    alts.forEach(alt => {
                         altsList.innerHTML += `
                             <li class="search-item" onclick="abrirPlayerDetails(${alt.numericId})" style="cursor:pointer; display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #444;">
-                                <span><span class="id-badge">#${alt.numericId}</span> ${alt.name}</span>
+                                <span><span class="id-badge">#${alt.numericId}</span> ${escapeHtml(alt.name)}${alt.isAdmin ? ' <i class="fa-solid fa-shield-halved" style="color:#2df2c1;" title="Administrador"></i>' : ''}</span>
                                 <i class="fa-solid fa-arrow-up-right-from-square" style="color:#7d7d7d; font-size:0.8rem;"></i>
                             </li>
                         `;
@@ -1149,103 +1186,87 @@
             }
         }
 
-        function crearSelectsPersonalizados() {
-            document.querySelectorAll('select').forEach(select => {
-                if (
-                    select.nextElementSibling &&
-                    select.nextElementSibling.classList.contains('custom-select-wrapper')
-                ) return;
+        function construirSelectPersonalizado(select) {
+            if (select.nextElementSibling && select.nextElementSibling.classList.contains('custom-select-wrapper')) return;
 
-                select.style.display = 'none';
+            select.style.display = 'none';
 
-                const wrapper = document.createElement('div');
-                wrapper.className = 'custom-select-wrapper';
-                wrapper.classList.add('wrapper-' + select.id);
+            const wrapper = document.createElement('div');
+            wrapper.className = 'custom-select-wrapper';
+            wrapper.classList.add('wrapper-' + select.id);
 
-                const trigger = document.createElement('div');
-                trigger.className = 'custom-select-trigger';
+            const trigger = document.createElement('div');
+            trigger.className = 'custom-select-trigger';
+            trigger.innerHTML = `<span></span><i class="fa-solid fa-chevron-down" style="color:#e1bc56; font-size:0.8rem;"></i>`;
 
-                trigger.innerHTML = `
-                    <span>${select.options[select.selectedIndex].text}</span>
-                    <i class="fa-solid fa-chevron-down"
-                    style="color:#e1bc56; font-size:0.8rem;"></i>
-                `;
+            const optionsList = document.createElement('div');
+            optionsList.className = 'custom-select-options';
 
-                const optionsList = document.createElement('div');
-                optionsList.className = 'custom-select-options';
+            const render = () => {
+                const elegida = select.options[select.selectedIndex];
+                trigger.querySelector('span').textContent = elegida ? elegida.text : '';
+                optionsList.innerHTML = '';
 
                 Array.from(select.options).forEach((option, index) => {
                     const optDiv = document.createElement('div');
-
                     optDiv.className = 'custom-option';
-
-                    if (option.selected) {
-                        optDiv.classList.add('selected');
-                    }
-
+                    if (index === select.selectedIndex) optDiv.classList.add('selected');
                     optDiv.textContent = option.text;
 
                     optDiv.addEventListener('click', () => {
                         select.selectedIndex = index;
-
                         select.dispatchEvent(new Event('change'));
-
-                        trigger.querySelector('span').textContent = option.text;
-
-                        optionsList
-                            .querySelectorAll('.custom-option')
-                            .forEach(el => el.classList.remove('selected'));
-
-                        optDiv.classList.add('selected');
-
+                        render();
                         wrapper.classList.remove('open');
                     });
 
                     optionsList.appendChild(optDiv);
                 });
+            };
+            select._renderCustom = render;
+            render();
 
-                wrapper.appendChild(trigger);
-                wrapper.appendChild(optionsList);
+            wrapper.appendChild(trigger);
+            wrapper.appendChild(optionsList);
+            select.parentNode.insertBefore(wrapper, select.nextSibling);
 
-                select.parentNode.insertBefore(wrapper, select.nextSibling);
+            trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
 
-                trigger.addEventListener('click', (e) => {
-                    e.stopPropagation();
-
-                    document
-                        .querySelectorAll('.custom-select-wrapper')
-                        .forEach(w => {
-                            if (w !== wrapper) {
-                                w.classList.remove('open');
-                                w.classList.remove('open-up');
-                            }
-                        });
-
-                    const rect = wrapper.getBoundingClientRect();
-                    const menuHeight = Math.min(optionsList.scrollHeight, 250);
-
-                    const spaceBelow = window.innerHeight - rect.bottom;
-                    const spaceAbove = rect.top;
-
-                    wrapper.classList.remove('open-up');
-
-                    if (spaceBelow < menuHeight && spaceAbove > spaceBelow) {
-                        wrapper.classList.add('open-up');
+                document.querySelectorAll('.custom-select-wrapper').forEach(w => {
+                    if (w !== wrapper) {
+                        w.classList.remove('open');
+                        w.classList.remove('open-up');
                     }
-
-                    wrapper.classList.toggle('open');
                 });
-            });
 
-            document.addEventListener('click', () => {
-                document
-                    .querySelectorAll('.custom-select-wrapper')
-                    .forEach(w => w.classList.remove('open'));
+                const rect = wrapper.getBoundingClientRect();
+                const menuHeight = Math.min(optionsList.scrollHeight, 250);
+                const spaceBelow = window.innerHeight - rect.bottom;
+                const spaceAbove = rect.top;
+
+                wrapper.classList.remove('open-up');
+                if (spaceBelow < menuHeight && spaceAbove > spaceBelow) wrapper.classList.add('open-up');
+
+                wrapper.classList.toggle('open');
             });
         }
 
+        function refrescarSelectPersonalizado(select) {
+            if (select && typeof select._renderCustom === 'function') select._renderCustom();
+        }
+
+        function crearSelectsPersonalizados() {
+            document.querySelectorAll('select').forEach(construirSelectPersonalizado);
+        }
+
+        document.addEventListener('click', () => {
+            document.querySelectorAll('.custom-select-wrapper').forEach(w => w.classList.remove('open'));
+        });
+
         document.addEventListener('DOMContentLoaded', () => {
             crearSelectsPersonalizados();
+            iniciarAutoRefreshSalas();
         });
     </script>
     <script src="scanner.js"></script>
