@@ -1349,8 +1349,13 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         window.addEventListener('dragover', (e) => e.preventDefault());
         window.addEventListener('drop', (e) => { if (e.target !== drop && !drop.contains(e.target)) { e.preventDefault(); if (e.dataTransfer.files[0]) loadFromFile(e.dataTransfer.files[0]); } });
 
-        $('vz-url-go').addEventListener('click', () => { const v = $('vz-url').value.trim(); if (v) loadFromUrl(v); });
-        $('vz-url').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('vz-url-go').click(); });
+        // El campo para pegar un enlace es opcional: si no está en la página, el resto funciona igual
+        // (los enlaces con ?replay=... siguen cargando)
+        const urlInput = $('vz-url'), urlGo = $('vz-url-go');
+        if (urlInput && urlGo) {
+            urlGo.addEventListener('click', () => { const v = urlInput.value.trim(); if (v) loadFromUrl(v); });
+            urlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') urlGo.click(); });
+        }
         $('vz-back').addEventListener('click', backToLoader);
         $('vz-copy-link').addEventListener('click', (e) => {
             const link = location.origin + location.pathname + '?replay=' + encodeURIComponent(S.sourceUrl);
@@ -1410,7 +1415,11 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
     function init() {
         bind();
         const q = new URLSearchParams(location.search).get('replay');
-        if (q) { $('vz-url').value = q; loadFromUrl(q); }
+        if (q) {
+            const urlInput = $('vz-url');
+            if (urlInput) urlInput.value = q;
+            loadFromUrl(q);
+        }
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
