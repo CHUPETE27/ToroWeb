@@ -214,6 +214,10 @@
                         <h4 style="color: #5dc8e8; margin-top: 0; border-bottom: 1px solid #444; padding-bottom: 10px;"><i class="fa-solid fa-users-viewfinder"></i> Salas</h4>
                         
                         <div class="form-group" style="display: flex; gap: 10px; align-items: flex-end;">
+                            <a class="btn-estandar btn-primary" href="visor.html">
+                                <i class="fa-solid fa-clapperboard"></i> Repeticiones
+                            </a>
+
                             <div style="flex: 1;">
                                 <label>Seleccionar Sala Activa</label>
                                 <select id="roomSelector" onchange="mostrarJugadoresSala()">
@@ -797,7 +801,7 @@
                     return;
                 }
 
-                let opciones = '<option value="">-- Elige una sala para inspeccionar --</option>';
+                let opciones = '<option value=""> Salas </option>';
                 activeRoomsData.forEach((room, index) => {
                     const cleanName = String(room.name || '').replace(/\[.*?\]/g, '').trim() || "Sala HaxBall";
                     const numPlayers = Array.isArray(room.players) ? room.players.length : (typeof room.players === 'number' ? room.players : 0);
