@@ -39,9 +39,15 @@ const VisorCore = (function () {
         return formatTime(Math.max(0, seconds) * FPS);
     }
 
+    // "transparent" en HaxBall es -1; en las repeticiones queda guardado como 0xFFFFFFFF (4294967295), así que
+    // cualquier valor fuera de 0..0xFFFFFF significa "sin color".
+    function isTransparentColor(n) {
+        return typeof n !== 'number' || !isFinite(n) || n < 0 || n > 0xFFFFFF;
+    }
+
     // Número de color de HaxBall -> "#rrggbb". Con `legible` aclara los colores muy oscuros para fondos oscuros.
     function colorToCss(n, legible) {
-        if (typeof n !== 'number' || n < 0 || !isFinite(n)) return legible ? '#e8e8e8' : 'transparent';
+        if (isTransparentColor(n)) return legible ? '#e8e8e8' : 'transparent';
         let r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
         if (legible) {
             const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
@@ -60,10 +66,49 @@ const VisorCore = (function () {
         return '#' + [(n >> 16) & 255, (n >> 8) & 255, n & 255].map(v => f(v).toString(16).padStart(2, '0')).join('');
     }
 
+    /* ---- Cancha ---- */
+
+    // Medio ancho/alto de la cancha, tomado de las líneas visibles del mapa. Se descartan los puntos que quedan
+    // fuera de los límites físicos (planos): los mapas guardan elementos "estacionados" muy lejos (por ejemplo las
+    // barreras de saque en y = -2000) y, si se contaran, la cancha se vería diminuta.
+    function fieldExtent(st) {
+        // x >= d (normal 1,0) | x <= -d (normal -1,0) | y >= d (normal 0,1) | y <= -d (normal 0,-1)
+        const loX = [], hiX = [], loY = [], hiY = [];
+        for (const p of st.planes || []) {
+            const n = p && p.normal;
+            if (!n || typeof p.dist !== 'number') continue;
+            const nx = n.x !== undefined ? n.x : n[0], ny = n.y !== undefined ? n.y : n[1];
+            const near = (a, b) => Math.abs(a - b) < 1e-6;
+            if (near(nx, 1) && near(ny, 0)) loX.push(p.dist);
+            else if (near(nx, -1) && near(ny, 0)) hiX.push(-p.dist);
+            else if (near(nx, 0) && near(ny, 1)) loY.push(p.dist);
+            else if (near(nx, 0) && near(ny, -1)) hiY.push(-p.dist);
+        }
+        // con varios planos por lado (jugadores / pelota) vale el más amplio
+        const minX = loX.length ? Math.min(...loX) : -Infinity, maxX = hiX.length ? Math.max(...hiX) : Infinity;
+        const minY = loY.length ? Math.min(...loY) : -Infinity, maxY = hiY.length ? Math.max(...hiY) : Infinity;
+        const tol = 5;
+
+        let hw = st.bgWidth > 0 ? st.bgWidth : 0, hh = st.bgHeight > 0 ? st.bgHeight : 0;
+        for (const s of st.segments) {
+            if (!s.vis || isTransparentColor(s.color)) continue;
+            for (const v of [s.v0.pos, s.v1.pos]) {
+                if (v.x < minX - tol || v.x > maxX + tol || v.y < minY - tol || v.y > maxY + tol) continue;
+                if (Math.abs(v.x) > hw) hw = Math.abs(v.x);
+                if (Math.abs(v.y) > hh) hh = Math.abs(v.y);
+            }
+        }
+        if (!(hw > 0)) hw = isFinite(maxX) ? Math.max(Math.abs(minX), Math.abs(maxX)) : (st.width || 400);
+        if (!(hh > 0)) hh = isFinite(maxY) ? Math.max(Math.abs(minY), Math.abs(maxY)) : (st.height || 200);
+        return { hw, hh };
+    }
+
     /* ---- Chat ---- */
 
-    // Línea de chat reenviada por el host:  "(🦙1️⃣) [👤16866] Nombre: mensaje"  (el rango y el emoji inicial son opcionales)
-    const CHAT_LINE_RE = /^(?:(?<pre>[^\[(]*?)\s*)?(?:\((?<rank>[^)]*)\)\s*)?\[👤(?<uid>\d+)\]\s*(?<name>.+?):\s(?<msg>[\s\S]*)$/;
+    // Línea de chat reenviada por el host:  "(🦙1️⃣) [👤16866] Nombre: mensaje"  (el rango y el emoji inicial son opcionales).
+    // Según la versión de la sala, el ícono dentro de los corchetes cambia (👤, 👑, 🌼, 🥑...): "[🌼 7151]".
+    // Sin ícono ("[16040]: Fulano se retiró") es un aviso de la sala, no un mensaje.
+    const CHAT_LINE_RE = /^(?:(?<pre>[^\[(]*?)\s*)?(?:\((?<rank>[^)]*)\)\s*)?\[(?<icon>[^\d\[\]]+?)\s*(?<uid>\d+)\]\s*(?<name>.+?):\s(?<msg>[\s\S]*)$/;
     const SEPARATOR_RE = /^[\s═─━\-=_*·•~]{6,}$/;
 
     // Clasifica un anuncio del host: 'chat' (mensaje de un jugador), 'sep' (línea decorativa) o 'event' (aviso de la sala)
@@ -84,12 +129,20 @@ const VisorCore = (function () {
         return { type: 'event' };
     }
 
-    // Nombres de los equipos a partir del anuncio "📊 Qatar 🆚 España" que publica el host al empezar
+    // Nombres de los equipos (rojo, azul) a partir de los anuncios del host. Varía según la versión de la sala:
+    //   "📊 Qatar 🆚 España"  |  "⚽ Partido: D. La Serena vs Barnechea"  |  "📊 Qatar | 0 - 4 | España" (marcador tras un gol)
+    const TEAM_NAME_PATTERNS = [
+        /📊\s*(.+?)\s*🆚\s*(.+)$/,
+        /Partido:\s*(.+?)\s+vs\.?\s+(.+)$/i,
+        /^📊\s*(.+?)\s*\|\s*\d+\s*-\s*\d+\s*\|\s*(.+)$/
+    ];
     function extractTeamNames(messages) {
-        for (const m of messages) {
-            if (m.type !== 'event') continue;
-            const r = /📊\s*(.+?)\s*🆚\s*(.+)$/.exec(m.text);
-            if (r) return { red: r[1].trim(), blue: r[2].trim() };
+        for (const re of TEAM_NAME_PATTERNS) {
+            for (const m of messages) {
+                if (m.type !== 'event') continue;
+                const r = re.exec(m.text);
+                if (r && r[1].trim() && r[2].trim()) return { red: r[1].trim(), blue: r[2].trim() };
+            }
         }
         return null;
     }
@@ -261,7 +314,7 @@ const VisorCore = (function () {
 
     return {
         FPS, MAX_REPLAY_BYTES, DEFAULT_TEAM_COLORS,
-        formatTime, formatSeconds, colorToCss, shadeColor,
+        formatTime, formatSeconds, colorToCss, isTransparentColor, shadeColor, fieldExtent,
         parseAnnouncement, extractTeamNames, filterMessages, buildChatText, lastIndexAtOrBefore, describeGoal,
         looksLikeReplay, scanReplay, buildMessages
     };
@@ -298,8 +351,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         followBall: false,
         showNames: true,
         autoScroll: true,
-        filterMode: 'all',
         query: '',
+        busy: false,          // hay una carga en curso
         lastScore: { red: 0, blue: 0 },
         lastClockFrame: -1,
         lastChatIndex: -2,
@@ -324,14 +377,66 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         show(el, !!msg);
     }
 
-    function setProgress(visible, fraction, label) {
-        show($('vz-progress'), visible);
-        if (!visible) return;
-        $('vz-progress-bar').style.width = Math.round(fraction * 100) + '%';
-        $('vz-progress-text').textContent = label + (fraction > 0 && fraction < 1 ? ` ${Math.round(fraction * 100)}%` : '');
+    function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+    /* ---------- Pantalla de carga ---------- */
+
+    // Tramo de la barra que ocupa cada paso (el análisis es lo más lento)
+    const LOAD_STEPS = { read: [0, 0.08], scan: [0.08, 0.9], prep: [0.9, 1] };
+    const MIN_LOADING_MS = 600;   // evita un parpadeo si el archivo es muy pequeño
+    let loadingSince = 0;
+
+    // Espera a que el navegador pinte antes de seguir con trabajo pesado (con la pestaña oculta no hay pintado: no se bloquea)
+    function nextPaint() {
+        return new Promise((resolve) => {
+            let done = false;
+            const fin = () => { if (!done) { done = true; resolve(); } };
+            requestAnimationFrame(() => setTimeout(fin, 0));
+            setTimeout(fin, 80);
+        });
     }
 
-    function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+    function beginLoading(fileLabel, readLabel) {
+        S.busy = true;
+        loadingSince = performance.now();
+        destroyPlayer();
+        showError('');
+        $('vz-loading-file').textContent = fileLabel || '';
+        $('vz-step-read-label').textContent = readLabel;
+        show($('vz-load'), false);
+        show($('vz-viewer'), false);
+        show($('vz-loading'), true);
+        setLoadStep('read', 0);
+        const box = $('vz-loading').getBoundingClientRect();
+        if (box.top < 0 || box.bottom > window.innerHeight) $('vz-loading').scrollIntoView({ block: 'center' });
+    }
+
+    function setLoadStep(step, fraction) {
+        const names = Object.keys(LOAD_STEPS), idx = names.indexOf(step);
+        document.querySelectorAll('#vz-steps li').forEach((li, i) => { li.className = i < idx ? 'done' : (i === idx ? 'active' : 'pending'); });
+        const [a, b] = LOAD_STEPS[step];
+        const pct = Math.round((a + (b - a) * clamp(fraction || 0, 0, 1)) * 100);
+        $('vz-progress-bar').style.width = pct + '%';
+        $('vz-progress-text').textContent = pct + '%';
+    }
+
+    async function waitMinLoading() {
+        const left = MIN_LOADING_MS - (performance.now() - loadingSince);
+        if (left > 0) await new Promise(r => setTimeout(r, left));
+    }
+
+    function endLoading() {
+        S.busy = false;
+        show($('vz-loading'), false);
+    }
+
+    // La carga falló: se vuelve a la pantalla inicial con el mensaje
+    function failLoading(message) {
+        endLoading();
+        show($('vz-viewer'), false);
+        show($('vz-load'), true);
+        showError(message);
+    }
 
     function ensureAPI() {
         if (S.API) return S.API;
@@ -345,52 +450,57 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
     /* ---------- Carga de la repetición ---------- */
 
     async function loadFromFile(file) {
+        if (!file || S.busy) return;
         showError('');
-        if (!file) return;
         if (file.size > C.MAX_REPLAY_BYTES) return showError('El archivo es demasiado grande (máximo 30 MB).');
-        const buf = new Uint8Array(await file.arrayBuffer());
+        beginLoading(file.name, 'Leyendo el archivo');
+        await nextPaint();
+        let buf;
+        try { buf = new Uint8Array(await file.arrayBuffer()); }
+        catch (e) { return failLoading('No se pudo leer el archivo. Vuelve a elegirlo.'); }
         S.sourceUrl = null;
         await loadFromBytes(buf, file.name.replace(/\.hbr2$/i, ''));
     }
 
     async function loadFromUrl(url) {
+        if (S.busy) return;
         showError('');
         let parsed;
         try { parsed = new URL(url, location.href); } catch (e) { return showError('El enlace no es válido.'); }
         if (!/^https?:$/.test(parsed.protocol)) return showError('Solo se permiten enlaces http o https.');
-        setProgress(true, 0, 'Descargando repetición…');
+        const last = decodeURIComponent(parsed.pathname.split('/').pop() || 'repetición');
+        beginLoading(last, 'Descargando la repetición');
+        await nextPaint();
         let buf;
         try {
             const res = await fetch(parsed.href);
             if (!res.ok) throw new Error('HTTP ' + res.status);
             buf = new Uint8Array(await res.arrayBuffer());
         } catch (e) {
-            setProgress(false);
-            return showError('No se pudo descargar el archivo desde ese enlace (puede haber expirado o no permitir descargas desde otras páginas). Descárgalo y súbelo manualmente.');
+            return failLoading('No se pudo descargar el archivo desde ese enlace (puede haber expirado o no permitir descargas desde otras páginas). Descárgalo y súbelo manualmente.');
         }
-        if (buf.length > C.MAX_REPLAY_BYTES) { setProgress(false); return showError('El archivo es demasiado grande (máximo 30 MB).'); }
+        if (buf.length > C.MAX_REPLAY_BYTES) return failLoading('El archivo es demasiado grande (máximo 30 MB).');
         S.sourceUrl = parsed.href;
-        const last = decodeURIComponent(parsed.pathname.split('/').pop() || 'repetición');
         await loadFromBytes(buf, last.replace(/\.hbr2$/i, ''));
     }
 
     async function loadFromBytes(bytes, name) {
-        showError('');
-        if (!C.looksLikeReplay(bytes)) {
-            setProgress(false);
-            return showError('Ese archivo no parece una repetición de HaxBall (.hbr2).');
-        }
+        if (!S.busy) beginLoading(name, 'Leyendo el archivo');
+        if (!C.looksLikeReplay(bytes)) return failLoading('Ese archivo no parece una repetición de HaxBall (.hbr2).');
         try {
             const API = ensureAPI();
             destroyPlayer();
-            setProgress(true, 0, 'Analizando repetición…');
+            setLoadStep('scan', 0);
+            await nextPaint();
 
             // Marcadores de gol y duración: lectura instantánea, sin simular el partido
             const data = API.Replay.readAll(bytes);
             // El marcador del archivo guarda el equipo que RECIBIÓ el gol; aquí se guarda el que lo anotó
             const goalMarkers = (data.goalMarkers || []).map(g => ({ f: g.frameNo, teamId: g.teamId === 1 ? 2 : 1 }));
 
-            const scan = await C.scanReplay(API, bytes, { onProgress: (p) => setProgress(true, p, 'Analizando repetición…') });
+            const scan = await C.scanReplay(API, bytes, { onProgress: (p) => setLoadStep('scan', p) });
+            setLoadStep('prep', 0);
+            await nextPaint();
             const messages = C.buildMessages(scan.raw);
 
             S.bytes = bytes;
@@ -408,13 +518,16 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
             S.lastChatIndex = -2;
             S.lastClockFrame = -1;
             S.camera = { x: 0, y: 0 };
+            S.query = '';
+            $('vz-chat-search').value = '';
 
-            setProgress(false);
+            await waitMinLoading();
             showViewer();
+            endLoading();
         } catch (e) {
             console.error('Error al abrir la repetición:', e);
-            setProgress(false);
-            showError('No se pudo abrir la repetición. El archivo puede estar dañado o ser de una versión no compatible.');
+            destroyPlayer();
+            failLoading('No se pudo abrir la repetición. El archivo puede estar dañado o ser de una versión no compatible.');
         }
     }
 
@@ -623,7 +736,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
     function drawSegments(g, st) {
         g.lineWidth = 3;
         for (const s of st.segments) {
-            if (!s.vis) continue;
+            if (!s.vis || C.isTransparentColor(s.color)) continue;
             g.beginPath();
             g.strokeStyle = C.colorToCss(s.color);
             const a = s.v0.pos, b = s.v1.pos;
@@ -636,23 +749,11 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         }
     }
 
-    // Medio ancho/alto de la cancha real (fondo + líneas visibles del mapa), no del "tamaño de cámara" que suele traer mucho margen
+    // Medio ancho/alto de la cancha real (no del "tamaño de cámara" del mapa, que suele traer mucho margen)
     const boundsCache = new WeakMap();
     function stadiumHalfExtent(st) {
         let b = boundsCache.get(st);
-        if (b) return b;
-        let hw = st.bgWidth > 0 ? st.bgWidth : 0, hh = st.bgHeight > 0 ? st.bgHeight : 0;
-        for (const s of st.segments) {
-            if (!s.vis) continue;
-            for (const v of [s.v0.pos, s.v1.pos]) {
-                if (Math.abs(v.x) > hw) hw = Math.abs(v.x);
-                if (Math.abs(v.y) > hh) hh = Math.abs(v.y);
-            }
-        }
-        if (!(hw > 0)) hw = st.width || 400;
-        if (!(hh > 0)) hh = st.height || 200;
-        b = { hw, hh };
-        boundsCache.set(st, b);
+        if (!b) { b = C.fieldExtent(st); boundsCache.set(st, b); }
         return b;
     }
 
@@ -696,7 +797,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         room.players.forEach(p => { if (p.disc) playerDiscs.add(p.disc); });
         ctx.lineWidth = 2;
         for (const d of discs) {
-            if (playerDiscs.has(d) || d.color < 0) continue;
+            if (playerDiscs.has(d) || C.isTransparentColor(d.color)) continue;   // las barreras de saque son transparentes: ni relleno ni borde
             ctx.beginPath(); ctx.arc(d.pos.x, d.pos.y, d.radius, 0, Math.PI * 2);
             ctx.fillStyle = C.colorToCss(d.color); ctx.fill();
             ctx.strokeStyle = '#000'; ctx.stroke();
@@ -785,7 +886,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
 
     function renderChat() {
         const list = $('vz-chat-list');
-        const shown = C.filterMessages(S.messages, S.filterMode, S.query);
+        const shown = C.filterMessages(S.messages, 'all', S.query);
         S.shown = shown;
         S.lastChatIndex = -2;
         list.innerHTML = '';
@@ -822,9 +923,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         }
         list.appendChild(frag);
 
-        const chats = S.messages.filter(m => m.type === 'chat').length;
-        const events = S.messages.filter(m => m.type === 'event').length;
-        $('vz-chat-count').textContent = `${shown.filter(m => m.type !== 'sep').length} de ${chats + events} mensajes`;
+        const total = S.messages.filter(m => m.type !== 'sep').length;
+        const found = shown.filter(m => m.type !== 'sep').length;
+        $('vz-chat-count').textContent = S.query.trim() ? `${found} de ${total} mensajes` : `${total} mensajes`;
         $('vz-chat-empty').classList.toggle('vz-hidden', shown.length > 0);
     }
 
@@ -882,8 +983,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
     /* ---------- Descargar / copiar chat ---------- */
 
     function chatTextForExport() {
-        // Se exporta lo que se está viendo (respeta el filtro y la búsqueda)
-        return C.buildChatText(S.shown || [], S.title);
+        // Siempre el chat completo, aunque haya algo escrito en el buscador
+        return C.buildChatText(S.messages, S.title);
     }
 
     function downloadChat() {
@@ -954,10 +1055,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
 
         document.querySelectorAll('#vz-tabs .tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
 
-        document.querySelectorAll('#vz-chat-filters .filter-btn').forEach(b => b.addEventListener('click', () => {
-            document.querySelectorAll('#vz-chat-filters .filter-btn').forEach(x => x.classList.toggle('active', x === b));
-            S.filterMode = b.dataset.mode; renderChat();
-        }));
         let searchTimer;
         $('vz-chat-search').addEventListener('input', (e) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => { S.query = e.target.value; renderChat(); }, 180); });
         $('vz-chat-list').addEventListener('click', (e) => {
