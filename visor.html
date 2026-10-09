@@ -188,6 +188,29 @@
         .vz-goal-text small { color: var(--text-soft); overflow-wrap: anywhere; word-break: break-word; }
         .vz-goal-meta { color: var(--text-muted); font-family: monospace; font-size: 0.85rem; white-space: nowrap; }
 
+        .vz-clip { display: flex; flex-direction: column; gap: 12px; }
+        .vz-clip-help, .vz-clip-note { margin: 0; color: var(--text-soft); font-size: 0.88rem; line-height: 1.5; }
+        .vz-clip-help strong { color: var(--gold); }
+        .vz-clip-note { color: var(--text-muted); font-size: 0.82rem; }
+        .vz-clip-label { color: #fff; font-weight: bold; font-size: 0.95rem; margin-bottom: -4px; }
+        .vz-clip-row { display: flex; gap: 8px; align-items: stretch; flex-wrap: wrap; }
+        .vz-clip-row .search-container { flex: 1 1 130px; min-width: 0; }
+        .vz-clip-row .search-container input { min-width: 0; padding: 10px 12px; text-align: left; font-family: monospace; font-size: 1.15rem; }
+        .vz-clip-row .search-container input:disabled { opacity: 0.6; }
+        .vz-clip-row .btn-cmd { padding: 10px 14px; min-height: 44px; white-space: nowrap; }
+        .vz-clip-status { margin: 0; min-height: 1.4em; font-size: 0.85rem; line-height: 1.4; color: var(--text-muted); overflow-wrap: anywhere; }
+        .vz-clip-status.ok { color: var(--mint); }
+        .vz-clip-status.error { color: var(--red-light); }
+        .vz-clip-make, .vz-clip-download { width: 100%; min-height: 48px; padding: 10px 14px; background: var(--gold); border-color: var(--gold); color: #111; text-decoration: none; }
+        .vz-clip-make:hover, .vz-clip-download:hover { background: var(--gold-light); border-color: var(--gold-light); color: #111; }
+        .vz-clip-make:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .vz-clip-progress { display: flex; flex-direction: column; gap: 10px; }
+        .vz-clip-progress-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+        .vz-clip-progress-row .vz-progress-text { margin: 0; text-align: left; font-size: 0.85rem; }
+        .vz-clip-progress-row .btn-cmd { padding: 8px 12px; font-size: 0.85rem; }
+        .vz-clip-result { display: flex; flex-direction: column; gap: 10px; }
+        .vz-clip-video { display: block; width: 100%; aspect-ratio: 16 / 9; background: #000; border: 1px solid var(--border); border-radius: 10px; }
+
         footer p { margin: 0; }
 
         @media (max-width: 1000px) {
@@ -323,6 +346,7 @@
                             <div class="tab active" data-tab="chat" role="tab"><i class="fa-solid fa-comments"></i> Chat</div>
                             <div class="tab" data-tab="players" role="tab"><i class="fa-solid fa-users"></i> Jugadores</div>
                             <div class="tab" data-tab="goals" role="tab"><i class="fa-solid fa-futbol"></i> Goles</div>
+                            <div class="tab" data-tab="clip" role="tab"><i class="fa-solid fa-film"></i> Clip</div>
                         </div>
 
                         <div class="tab-content active" id="tab-chat">
@@ -349,6 +373,39 @@
                         <div class="tab-content" id="tab-goals">
                             <ul class="vz-list" id="vz-goals-list"></ul>
                             <p class="vz-empty vz-hidden" id="vz-goals-empty">No hubo goles en esta repetición.</p>
+                        </div>
+
+                        <div class="tab-content" id="tab-clip">
+                            <div class="vz-clip">
+                                <p class="vz-clip-help">Crea un video de <strong>10 segundos</strong> que termina en el momento que elijas, con la cámara siguiendo la pelota. Usa los mismos tiempos de la barra de la repetición (los del chat y la lista de goles).</p>
+
+                                <label class="vz-clip-label" for="vz-clip-time">¿En qué momento termina el clip?</label>
+                                <div class="vz-clip-row">
+                                    <div class="search-container">
+                                        <input type="text" id="vz-clip-time" placeholder="Ej: 4:58" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="vz-clip-status">
+                                    </div>
+                                    <button type="button" id="vz-clip-now" class="btn-cmd" title="Usar el momento en que está la repetición ahora"><i class="fa-solid fa-location-crosshairs"></i> Momento actual</button>
+                                </div>
+                                <p class="vz-clip-status" id="vz-clip-status" aria-live="polite"></p>
+
+                                <button type="button" id="vz-clip-make" class="btn-cmd vz-clip-make"><i class="fa-solid fa-clapperboard"></i> Crear clip</button>
+
+                                <div class="vz-clip-progress vz-hidden" id="vz-clip-progress" role="status">
+                                    <div class="vz-progress-track"><div id="vz-clip-bar" class="vz-progress-bar"></div></div>
+                                    <div class="vz-clip-progress-row">
+                                        <span id="vz-clip-pct" class="vz-progress-text">Creando el clip… 0%</span>
+                                        <button type="button" id="vz-clip-cancel" class="btn-cmd danger"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+                                    </div>
+                                </div>
+
+                                <div class="vz-clip-result vz-hidden" id="vz-clip-result">
+                                    <video id="vz-clip-video" class="vz-clip-video" controls loop muted playsinline></video>
+                                    <a id="vz-clip-download" class="btn-cmd vz-clip-download"><i class="fa-solid fa-download"></i> <span id="vz-clip-download-label">Descargar clip</span></a>
+                                    <p class="vz-clip-note vz-hidden" id="vz-clip-webm-note">Tu navegador no puede crear MP4, así que el clip se guardó como WebM. Se ve bien en el computador y en Discord (web), pero algunos celulares y WhatsApp no lo abren.</p>
+                                </div>
+
+                                <p class="vz-clip-note">El clip termina justo en el momento que escribas. Si quieres que se vea un gol, escribe uno o dos segundos después de él.</p>
+                            </div>
                         </div>
                     </aside>
                 </div>

@@ -18,6 +18,36 @@ const VisorCore = (function () {
         return formatTime(Math.max(0, seconds) * FPS);
     }
 
+    const CLIP_SECONDS = 10;
+
+    // "4:58", "04:58", "1:04:58", con décimas opcionales ("4:58.43"). Devuelve segundos o null si el formato no es válido.
+    function parseClipTime(text) {
+        const m = /^\s*(?:(\d{1,2}):)?(\d{1,3}):(\d{2})(?:[.,](\d{1,3}))?\s*$/.exec(String(text == null ? '' : text));
+        if (!m) return null;
+        const hours = m[1] ? +m[1] : 0, minutes = +m[2], seconds = +m[3];
+        if (seconds > 59 || (m[1] && minutes > 59)) return null;
+        return hours * 3600 + minutes * 60 + seconds + (m[4] ? +('0.' + m[4]) : 0);
+    }
+
+    // Inverso de parseClipTime: m:ss si cae justo en un segundo, m:ss.cc si no (así "momento actual" no pierde cuadros).
+    function formatClipTime(frame) {
+        frame = Math.max(0, Math.round(frame));
+        const rest = frame % FPS;
+        return formatTime(frame) + (rest ? '.' + String(Math.round(rest * 100 / FPS)).padStart(2, '0') : '');
+    }
+
+    // El clip termina en el cuadro pedido (inclusive) y dura `seconds` segundos hacia atrás.
+    function planClip(endSeconds, maxFrame, seconds) {
+        let endF = Math.round(endSeconds * FPS);
+        if (!(endF >= FPS)) return { error: 'El clip debe terminar como mínimo en 0:01.' };
+        if (endF > maxFrame) {
+            if (endF - maxFrame > FPS) return { error: `Ese momento está después del final de la repetición (dura ${formatTime(maxFrame)}).` };
+            endF = maxFrame;
+        }
+        const startF = Math.max(0, endF - Math.round((seconds || CLIP_SECONDS) * FPS) + 1);
+        return { startF, endF, count: endF - startF + 1 };
+    }
+
     function isTransparentColor(n) {
         return typeof n !== 'number' || !isFinite(n) || n < 0 || n > 0xFFFFFF;
     }
@@ -406,8 +436,8 @@ const VisorCore = (function () {
     }
 
     return {
-        FPS, MAX_REPLAY_BYTES, DEFAULT_TEAM_COLORS,
-        formatTime, formatSeconds, colorToCss, isTransparentColor, shadeColor, fieldExtent,
+        FPS, MAX_REPLAY_BYTES, DEFAULT_TEAM_COLORS, CLIP_SECONDS,
+        formatTime, formatSeconds, parseClipTime, formatClipTime, planClip, colorToCss, isTransparentColor, shadeColor, fieldExtent,
         parseAnnouncement, extractTeamNames, filterMessages, buildChatText, lastIndexAtOrBefore, describeGoal,
         looksLikeReplay, scanReplay, buildMessages, recordedFrame
     };
@@ -486,6 +516,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         loadingSince = performance.now();
         exitFullscreen();
         stopPlayer();
+        cancelClipJob();
         showError('');
         $('vz-loading-file').textContent = fileLabel || '';
         $('vz-step-read-label').textContent = readLabel;
@@ -629,6 +660,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         renderChat();
         renderPlayers();
         renderGoals();
+        resetClipPanel();
         switchTab('chat');
         setupCanvas();
         startPlayer();
@@ -637,6 +669,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
     function backToLoader() {
         exitFullscreen();
         stopPlayer();
+        cancelClipJob();
+        clearClipResult();
         S.rec = null; S.scan = null; S.messages = []; S.goals = [];
         show($('vz-viewer'), false);
         show($('vz-load'), true);
@@ -794,18 +828,26 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
 
     const cur = { x: new Float64Array(64), y: new Float64Array(64) };
 
+    const FOLLOW_ZOOM = 2.2;   // zoom de "Seguir pelota" respecto al campo completo; los clips usan el mismo
+
     function draw() {
-        const rec = S.rec, w = canvas.width, h = canvas.height;
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        const f = Math.min(Math.floor(S.cursor), rec.frames - 1), frac = S.cursor - f;
+        drawScene(ctx, canvas.width, canvas.height, S.cursor, { follow: S.followBall, camera: S.camera, names: S.showNames });
+    }
+
+    // Dibuja el cuadro `cursor` en el contexto `g`. opts: { follow, camera: {x, y, snap?}, names }.
+    // Devuelve false si todavía no hay partido en ese cuadro.
+    function drawScene(g, w, h, cursor, opts) {
+        const rec = S.rec;
+        g.setTransform(1, 0, 0, 1, 0, 0);
+        const f = Math.min(Math.floor(cursor), rec.frames - 1), frac = cursor - f;
         const ep = rec.epochs[rec.epochOf[f]];
 
         if (!ep.stadium) {
-            ctx.fillStyle = '#0a2a2e'; ctx.fillRect(0, 0, w, h);
-            ctx.fillStyle = '#7d7d7d'; ctx.font = `${Math.round(h * 0.05)}px sans-serif`;
-            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText('Esperando el inicio del partido…', w / 2, h / 2);
-            return;
+            g.fillStyle = '#0a2a2e'; g.fillRect(0, 0, w, h);
+            g.fillStyle = '#7d7d7d'; g.font = `${Math.round(h * 0.05)}px sans-serif`;
+            g.textAlign = 'center'; g.textBaseline = 'middle';
+            g.fillText('Esperando el inicio del partido…', w / 2, h / 2);
+            return false;
         }
 
         const n = ep.discCount, pos = rec.pos, off = rec.posOff[f];
@@ -827,50 +869,52 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         let zoom = Math.min(w / (2 * fieldW), h / (2 * fieldH));
         let cx = 0, cy = 0;
 
-        if (S.followBall && n > 0) {
-            const z2 = zoom * 2.2;
+        const cam = opts.camera;
+        if (opts.follow && n > 0) {
+            const z2 = zoom * FOLLOW_ZOOM;
             const vw = w / z2 / 2, vh = h / z2 / 2;
             const tx = clamp(cur.x[0], -fieldW + vw, fieldW - vw);
             const ty = clamp(cur.y[0], -fieldH + vh, fieldH - vh);
-            S.camera.x += (tx - S.camera.x) * 0.15;
-            S.camera.y += (ty - S.camera.y) * 0.15;
-            zoom = z2; cx = S.camera.x; cy = S.camera.y;
-        } else { S.camera.x = 0; S.camera.y = 0; }
+            if (cam.snap) { cam.x = tx; cam.y = ty; cam.snap = false; }
+            else { cam.x += (tx - cam.x) * 0.15; cam.y += (ty - cam.y) * 0.15; }
+            zoom = z2; cx = cam.x; cy = cam.y;
+        } else { cam.x = 0; cam.y = 0; }
 
-        ctx.setTransform(zoom, 0, 0, zoom, w / 2 - cx * zoom, h / 2 - cy * zoom);
-        drawBackground(ctx, st, w, h);
-        drawSegments(ctx, st);
+        g.setTransform(zoom, 0, 0, zoom, w / 2 - cx * zoom, h / 2 - cy * zoom);
+        drawBackground(g, st, w, h);
+        drawSegments(g, st);
 
         if (!ep.playerDiscs) ep.playerDiscs = new Set(ep.players.map(p => p.discIdx));
-        ctx.lineWidth = 2;
+        g.lineWidth = 2;
         for (let i = 0; i < n; i++) {
             if (ep.playerDiscs.has(i) || C.isTransparentColor(ep.discColor[i])) continue;
-            ctx.beginPath(); ctx.arc(cur.x[i], cur.y[i], ep.discRadius[i], 0, Math.PI * 2);
-            ctx.fillStyle = C.colorToCss(ep.discColor[i]); ctx.fill();
-            ctx.strokeStyle = '#000'; ctx.stroke();
+            g.beginPath(); g.arc(cur.x[i], cur.y[i], ep.discRadius[i], 0, Math.PI * 2);
+            g.fillStyle = C.colorToCss(ep.discColor[i]); g.fill();
+            g.strokeStyle = '#000'; g.stroke();
         }
         const kLo = rec.kickLo[f], kHi = rec.kickHi[f];
         for (let k = 0; k < ep.players.length; k++) {
             const p = ep.players[k];
             if (p.discIdx < 0) continue;
             const kicking = k < 32 ? ((kLo >>> k) & 1) === 1 : (k < 64 && ((kHi >>> (k - 32)) & 1) === 1);
-            drawPlayerDisc(ctx, cur.x[p.discIdx], cur.y[p.discIdx], ep.discRadius[p.discIdx], p.label, teamColors(ep, p.teamId), kicking);
+            drawPlayerDisc(g, cur.x[p.discIdx], cur.y[p.discIdx], ep.discRadius[p.discIdx], p.label, teamColors(ep, p.teamId), kicking);
         }
 
-        if (S.showNames) {
-            ctx.setTransform(1, 0, 0, 1, 0, 0);
+        if (opts.names) {
+            g.setTransform(1, 0, 0, 1, 0, 0);
             const px = Math.max(11, Math.round(h * 0.028));
-            ctx.font = `600 ${px}px sans-serif`;
-            ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-            ctx.lineWidth = Math.max(2, px / 5); ctx.strokeStyle = 'rgba(0,0,0,0.85)'; ctx.fillStyle = '#fff';
+            g.font = `600 ${px}px sans-serif`;
+            g.textAlign = 'center'; g.textBaseline = 'top';
+            g.lineWidth = Math.max(2, px / 5); g.strokeStyle = 'rgba(0,0,0,0.85)'; g.fillStyle = '#fff';
             for (const p of ep.players) {
                 if (p.discIdx < 0) continue;
                 const sx = (cur.x[p.discIdx] - cx) * zoom + w / 2;
                 const sy = (cur.y[p.discIdx] - cy) * zoom + h / 2 + ep.discRadius[p.discIdx] * zoom + 2;
-                ctx.strokeText(p.name, sx, sy); ctx.fillText(p.name, sx, sy);
+                g.strokeText(p.name, sx, sy); g.fillText(p.name, sx, sy);
             }
         }
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        g.setTransform(1, 0, 0, 1, 0, 0);
+        return true;
     }
 
     function flashGoal(teamId) {
@@ -1200,14 +1244,298 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         return C.buildChatText(S.messages, S.title);
     }
 
+    function fileSlug() {
+        return (S.fileName || S.title || 'repeticion').replace(/[^\w\-.áéíóúñÁÉÍÓÚÑ ]+/g, '').trim().replace(/\s+/g, '_').slice(0, 60) || 'repeticion';
+    }
+
     function downloadChat() {
         const blob = new Blob(['﻿' + chatTextForExport()], { type: 'text/plain;charset=utf-8' });
         const a = document.createElement('a');
-        const slug = (S.fileName || S.title || 'repeticion').replace(/[^\w\-.áéíóúñÁÉÍÓÚÑ ]+/g, '').trim().replace(/\s+/g, '_').slice(0, 60) || 'repeticion';
         a.href = URL.createObjectURL(blob);
-        a.download = `chat-${slug}.txt`;
+        a.download = `chat-${fileSlug()}.txt`;
         document.body.appendChild(a); a.click(); a.remove();
         setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    }
+
+    // ------------------------------------------------------------------------------------------------------------
+    // Clips de video: se dibujan cuadro a cuadro desde la grabación en memoria (no dependen de lo que se ve en
+    // pantalla), con la cámara de "Seguir pelota", y se codifican con WebCodecs. Sale MP4 (H.264) o, si el navegador
+    // no puede, WebM. Las librerías que arman el archivo se descargan solo cuando alguien pide un clip.
+    // ------------------------------------------------------------------------------------------------------------
+    const CLIP = { W: 1280, H: 720, BITRATE: 4000000 };   // ~5 MB por cada 10 s: cabe holgado en Discord (10 MB) y WhatsApp
+    const CLIP_CODECS = [
+        { codec: 'avc1.640028', container: 'mp4', mux: 'avc', extra: { avc: { format: 'avc' } } },
+        { codec: 'avc1.4d0028', container: 'mp4', mux: 'avc', extra: { avc: { format: 'avc' } } },
+        { codec: 'avc1.42e028', container: 'mp4', mux: 'avc', extra: { avc: { format: 'avc' } } },
+        { codec: 'vp09.00.40.08', container: 'webm', mux: 'V_VP9' },
+        { codec: 'vp8', container: 'webm', mux: 'V_VP8' }
+    ];
+    const MUXERS = { mp4: { src: 'vendor/clips/mp4-muxer.js', global: 'Mp4Muxer' }, webm: { src: 'vendor/clips/webm-muxer.js', global: 'WebMMuxer' } };
+    const CLIP_CANCELLED = { cancelled: true };
+    const CLIP_IDLE_HELP = 'Escribe en qué momento quieres que termine el clip, por ejemplo 4:58.';
+    const CLIP_NO_SUPPORT = 'Este navegador no puede crear videos. Usa una versión reciente de Chrome, Edge, Firefox o Safari.';
+
+    let clipJob = 0;          // el trabajo vigente; cambiar este número cancela el que esté en curso
+    let clipBusy = false;
+    let clipUrl = null;
+    const scriptLoads = {};
+
+    function clipSupported() { return typeof VideoEncoder === 'function' && typeof VideoFrame === 'function'; }
+
+    function loadScriptOnce(src) {
+        if (!scriptLoads[src]) {
+            scriptLoads[src] = new Promise((resolve, reject) => {
+                const el = document.createElement('script');
+                el.src = src; el.async = true;
+                el.onload = () => resolve();
+                el.onerror = () => { delete scriptLoads[src]; el.remove(); reject(new Error('No se pudo cargar ' + src)); };
+                document.head.appendChild(el);
+            });
+        }
+        return scriptLoads[src];
+    }
+
+    const yieldChannel = typeof MessageChannel !== 'undefined' ? new MessageChannel() : null;
+    // Cede el control al navegador sin el retraso de setTimeout (que en pestañas en segundo plano llega a 1 s).
+    function yieldToBrowser() {
+        return new Promise((resolve) => {
+            if (!yieldChannel) { setTimeout(resolve, 0); return; }
+            yieldChannel.port1.onmessage = () => resolve();
+            yieldChannel.port2.postMessage(0);
+        });
+    }
+
+    function waitDequeue(encoder) {
+        return new Promise((resolve) => {
+            let done = false;
+            const fin = () => { if (!done) { done = true; encoder.removeEventListener('dequeue', fin); resolve(); } };
+            encoder.addEventListener('dequeue', fin);
+            setTimeout(fin, 100);
+        });
+    }
+
+    function roundedRect(g, x, y, w, h, r) {
+        g.beginPath();
+        g.moveTo(x + r, y);
+        g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
+        g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r);
+        g.closePath();
+    }
+
+    function fitText(g, text, maxWidth) {
+        let t = String(text);
+        if (g.measureText(t).width <= maxWidth) return t;
+        while (t.length > 1 && g.measureText(t + '…').width > maxWidth) t = t.slice(0, -1);
+        return t + '…';
+    }
+
+    // Marcador compacto arriba al centro, para que el clip se entienda solo (equipos, goles y reloj del partido).
+    function drawClipHud(g, w, h, f) {
+        const d = C.recordedFrame(S.rec, f);
+        const bh = Math.round(h * 0.075), fs = Math.round(bh * 0.5), pad = Math.round(bh * 0.45), gap = Math.round(bh * 0.3);
+        const sans = `700 ${fs}px Arial, sans-serif`, mono = `700 ${fs}px "Courier New", monospace`;
+        g.save();
+        g.font = sans;
+        const red = fitText(g, S.teamNames.red, w * 0.22), blue = fitText(g, S.teamNames.blue, w * 0.22);
+        const side = Math.max(g.measureText(red).width, g.measureText(blue).width);
+        const scoreW = g.measureText('00').width;
+        const clock = C.formatSeconds(d.elapsed);
+        g.font = mono;
+        const clockW = Math.max(g.measureText(clock).width, g.measureText('00:00').width);
+        const total = pad + side + gap + scoreW + gap + clockW + gap + scoreW + gap + side + pad;
+        const x0 = Math.round((w - total) / 2), y0 = Math.round(h * 0.03), cy = y0 + bh / 2 + 1;
+
+        g.fillStyle = 'rgba(0, 0, 0, 0.78)';
+        roundedRect(g, x0, y0, total, bh, bh * 0.35);
+        g.fill();
+        g.textBaseline = 'middle';
+        let x = x0 + pad;
+        g.font = sans; g.textAlign = 'right'; g.fillStyle = '#ff8a75'; g.fillText(red, x + side, cy);
+        x += side + gap;
+        g.textAlign = 'center'; g.fillStyle = '#ffffff'; g.fillText(String(d.red), x + scoreW / 2, cy);
+        x += scoreW + gap;
+        g.font = mono; g.fillStyle = '#2df2c1'; g.fillText(clock, x + clockW / 2, cy);
+        x += clockW + gap;
+        g.font = sans; g.fillStyle = '#ffffff'; g.fillText(String(d.blue), x + scoreW / 2, cy);
+        x += scoreW + gap;
+        g.textAlign = 'left'; g.fillStyle = '#7fb1ff'; g.fillText(blue, x, cy);
+        g.restore();
+    }
+
+    async function encodeClip(plan, cand, cfg, hooks) {
+        await loadScriptOnce(MUXERS[cand.container].src);
+        const lib = window[MUXERS[cand.container].global];
+        if (!lib || !lib.Muxer) throw new Error('No se pudo iniciar la librería de video.');
+        hooks.progress(0);
+
+        const video = { codec: cand.mux, width: CLIP.W, height: CLIP.H, frameRate: C.FPS };
+        const muxer = new lib.Muxer(Object.assign({ target: new lib.ArrayBufferTarget(), video }, cand.container === 'mp4' ? { fastStart: 'in-memory' } : {}));
+        const out = document.createElement('canvas');
+        out.width = CLIP.W; out.height = CLIP.H;
+        const g = out.getContext('2d', { alpha: false });
+        const camera = { x: 0, y: 0, snap: true };
+
+        let failure = null;
+        const encoder = new VideoEncoder({
+            output: (chunk, meta) => { try { muxer.addVideoChunk(chunk, meta); } catch (e) { failure = failure || e; } },
+            error: (e) => { failure = failure || e; }
+        });
+        const frameUs = 1e6 / C.FPS;
+        try {
+            encoder.configure(cfg);
+            let sliceStart = performance.now();
+            for (let i = 0; i < plan.count; i++) {
+                if (hooks.cancelled()) throw CLIP_CANCELLED;
+                if (failure) throw failure;
+                const f = plan.startF + i;
+                if (drawScene(g, CLIP.W, CLIP.H, f, { follow: true, camera, names: S.showNames })) drawClipHud(g, CLIP.W, CLIP.H, f);
+                const frame = new VideoFrame(out, { timestamp: Math.round(i * frameUs), duration: Math.round(frameUs) });
+                encoder.encode(frame, { keyFrame: i % C.FPS === 0 });
+                frame.close();
+                while (encoder.encodeQueueSize > 4 && !failure && !hooks.cancelled()) await waitDequeue(encoder);   // no acumular cuadros en memoria
+                if (performance.now() - sliceStart > 30) { hooks.progress((i + 1) / plan.count); await yieldToBrowser(); sliceStart = performance.now(); }
+            }
+            hooks.progress(1, 'Terminando el archivo…');
+            await encoder.flush();
+            if (hooks.cancelled()) throw CLIP_CANCELLED;
+            if (failure) throw failure;
+            muxer.finalize();
+        } finally {
+            try { encoder.close(); } catch (e) { /* ya estaba cerrado */ }
+        }
+        return { blob: new Blob([muxer.target.buffer], { type: cand.container === 'mp4' ? 'video/mp4' : 'video/webm' }), container: cand.container };
+    }
+
+    // Prueba los formatos en orden de preferencia (MP4 primero: se abre en todos lados) hasta que uno funcione.
+    async function generateClip(plan, hooks) {
+        let lastError = null;
+        for (const cand of CLIP_CODECS) {
+            const cfg = Object.assign({ codec: cand.codec, width: CLIP.W, height: CLIP.H, bitrate: CLIP.BITRATE, framerate: C.FPS }, cand.extra);
+            let support;
+            try { support = await VideoEncoder.isConfigSupported(cfg); } catch (e) { continue; }
+            if (!support || !support.supported) continue;
+            try {
+                return await encodeClip(plan, cand, support.config || cfg, hooks);
+            } catch (e) {
+                if (e === CLIP_CANCELLED || hooks.cancelled()) throw CLIP_CANCELLED;
+                lastError = e;
+                console.warn(`Clip: falló el códec ${cand.codec}, se prueba el siguiente.`, e);
+            }
+        }
+        throw lastError || new Error('Este navegador no tiene un códec de video disponible.');
+    }
+
+    function fileTime(frame) {
+        const t = Math.floor(frame / C.FPS), h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), s = t % 60;
+        return (h ? h + 'h' + String(m).padStart(2, '0') : m) + 'm' + String(s).padStart(2, '0') + 's';
+    }
+
+    function formatBytes(n) { return (n / 1048576).toFixed(1).replace('.', ',') + ' MB'; }
+
+    function setClipStatus(text, kind) {
+        const el = $('vz-clip-status');
+        el.textContent = text;
+        el.className = 'vz-clip-status' + (kind ? ' ' + kind : '');
+    }
+
+    function clipPlanFromInput() {
+        const text = $('vz-clip-time').value;
+        if (!text.trim()) return { empty: true };
+        const seconds = C.parseClipTime(text);
+        if (seconds == null) return { error: 'Escribe el momento como minutos:segundos, por ejemplo 4:58.' };
+        return C.planClip(seconds, S.maxFrame);
+    }
+
+    function updateClipStatus() {
+        if (clipBusy) return;
+        if (!clipSupported()) { setClipStatus(CLIP_NO_SUPPORT, 'error'); return; }
+        const plan = clipPlanFromInput();
+        if (plan.empty) setClipStatus(CLIP_IDLE_HELP);
+        else if (plan.error) setClipStatus(plan.error, 'error');
+        else setClipStatus(`Se grabará de ${C.formatTime(plan.startF)} a ${C.formatTime(plan.endF)} (${Math.round(plan.count / C.FPS)} s).`, 'ok');
+    }
+
+    function setClipBusy(busy) {
+        clipBusy = busy;
+        $('vz-clip-time').disabled = busy;
+        $('vz-clip-now').disabled = busy;
+        show($('vz-clip-make'), !busy);
+        show($('vz-clip-progress'), busy);
+        if (busy) setClipProgress(0, 'Creando el clip…');
+    }
+
+    function setClipProgress(fraction, label) {
+        const pct = Math.round(clamp(fraction, 0, 1) * 100);
+        $('vz-clip-bar').style.width = pct + '%';
+        $('vz-clip-pct').textContent = label ? `${label} ${pct}%` : `Creando el clip… ${pct}%`;
+    }
+
+    function clearClipResult() {
+        const video = $('vz-clip-video');
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
+        const a = $('vz-clip-download');
+        a.removeAttribute('href');
+        show($('vz-clip-result'), false);
+        if (clipUrl) { URL.revokeObjectURL(clipUrl); clipUrl = null; }
+    }
+
+    function showClipResult(plan, result) {
+        clearClipResult();
+        clipUrl = URL.createObjectURL(result.blob);
+        const ext = result.container === 'mp4' ? 'mp4' : 'webm', formatName = ext === 'mp4' ? 'MP4' : 'WebM';
+        const video = $('vz-clip-video');
+        video.src = clipUrl;
+        const a = $('vz-clip-download');
+        a.href = clipUrl;
+        a.download = `clip-${fileSlug()}-${fileTime(plan.startF)}-${fileTime(plan.endF)}.${ext}`;
+        $('vz-clip-download-label').textContent = `Descargar clip (${formatName}, ${formatBytes(result.blob.size)})`;
+        show($('vz-clip-webm-note'), ext === 'webm');
+        show($('vz-clip-result'), true);
+        setClipStatus(`Listo: clip de ${C.formatTime(plan.startF)} a ${C.formatTime(plan.endF)}.`, 'ok');
+        const p = video.play();
+        if (p && p.catch) p.catch(() => { /* sin reproducción automática: queda con controles */ });
+    }
+
+    async function createClip() {
+        if (clipBusy || !S.rec) return;
+        if (!clipSupported()) { setClipStatus(CLIP_NO_SUPPORT, 'error'); return; }
+        const plan = clipPlanFromInput();
+        if (plan.empty || plan.error) {
+            setClipStatus(plan.error || 'Primero escribe el momento donde termina el clip, por ejemplo 4:58.', 'error');
+            $('vz-clip-time').focus();
+            return;
+        }
+        clearClipResult();
+        const job = ++clipJob;
+        setClipBusy(true);
+        const hooks = { cancelled: () => job !== clipJob, progress: setClipProgress };
+        try {
+            const result = await generateClip(plan, hooks);
+            if (job !== clipJob) return;
+            setClipBusy(false);
+            showClipResult(plan, result);
+        } catch (e) {
+            if (job !== clipJob || e === CLIP_CANCELLED) return;
+            console.error('Error al crear el clip:', e);
+            setClipBusy(false);
+            setClipStatus('No se pudo crear el clip. Inténtalo de nuevo o prueba con otro navegador (Chrome, Edge o Firefox actualizados).', 'error');
+        }
+    }
+
+    function cancelClipJob() {
+        clipJob++;
+        if (clipBusy) setClipBusy(false);
+        updateClipStatus();
+    }
+
+    function resetClipPanel() {
+        cancelClipJob();
+        clearClipResult();
+        $('vz-clip-time').value = '';
+        $('vz-clip-make').disabled = !clipSupported();
+        updateClipStatus();
     }
 
     async function copyText(text, button, okLabel) {
@@ -1280,6 +1608,12 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         $('vz-autoscroll').addEventListener('change', (e) => { S.autoScroll = e.target.checked; });
         $('vz-chat-download').addEventListener('click', downloadChat);
         $('vz-chat-copy').addEventListener('click', (e) => copyText(chatTextForExport(), e.currentTarget, 'Copiado'));
+
+        $('vz-clip-time').addEventListener('input', updateClipStatus);
+        $('vz-clip-time').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); createClip(); } });
+        $('vz-clip-now').addEventListener('click', () => { $('vz-clip-time').value = C.formatClipTime(currentFrame()); updateClipStatus(); });
+        $('vz-clip-make').addEventListener('click', createClip);
+        $('vz-clip-cancel').addEventListener('click', cancelClipJob);
 
         document.addEventListener('keydown', (e) => {
             if (!S.rec) return;
