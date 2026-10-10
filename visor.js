@@ -158,7 +158,7 @@ const VisorCore = (function () {
         for (const m of messages) {
             const t = `[${formatTime(m.f)}]`;
             if (m.type === 'sep') lines.push('------------------------------');
-            else if (m.type === 'chat') lines.push(`${t} ${m.rank ? '(' + m.rank + ') ' : ''}${m.name}: ${m.text}`);
+            else if (m.type === 'chat') lines.push(`${t} ${m.rank ? '(' + m.rank + ') ' : ''}${m.name}${m.uid ? ' #' + m.uid : ''}: ${m.text}`);
             else lines.push(`${t} ${m.text}`);
         }
         return lines.join('\r\n');
@@ -427,19 +427,29 @@ const VisorCore = (function () {
     }
 
     function buildMessages(raw) {
-        return raw.map(r => {
+        const messages = raw.map(r => {
             if (r.kind === 'chat') return { f: r.f, type: 'chat', name: r.name, team: r.team, rank: '', text: r.text, color: null };
             const p = parseAnnouncement(r.text);
             if (p.type === 'chat') return { f: r.f, type: 'chat', name: p.name, team: 0, rank: p.rank, uid: p.uid, prefix: p.prefix, text: p.text, color: null };
             return { f: r.f, type: p.type, text: r.text, color: r.color, style: r.style };
         });
+        // El chat normal de HaxBall no trae la ID: se completa con la que el mismo jugador mostró en otros mensajes
+        const uidByName = uidMap(messages);
+        for (const m of messages) if (m.type === 'chat' && !m.uid && uidByName.has(m.name)) m.uid = uidByName.get(m.name);
+        return messages;
+    }
+
+    function uidMap(messages) {
+        const map = new Map();
+        for (const m of messages) if (m.type === 'chat' && m.uid) map.set(m.name, m.uid);
+        return map;
     }
 
     return {
         FPS, MAX_REPLAY_BYTES, DEFAULT_TEAM_COLORS, CLIP_SECONDS,
         formatTime, formatSeconds, parseClipTime, formatClipTime, planClip, colorToCss, isTransparentColor, shadeColor, fieldExtent,
         parseAnnouncement, extractTeamNames, filterMessages, buildChatText, lastIndexAtOrBefore, describeGoal,
-        looksLikeReplay, scanReplay, buildMessages, recordedFrame
+        looksLikeReplay, scanReplay, buildMessages, uidMap, recordedFrame
     };
 })();
 
@@ -1171,7 +1181,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
                 if (m.rank) { const r = document.createElement('span'); r.className = 'vz-rank'; r.textContent = m.rank + ' '; body.appendChild(r); }
                 const n = document.createElement('span');
                 n.className = 'vz-name' + (m.team === 1 ? ' red' : m.team === 2 ? ' blue' : '');
-                n.textContent = m.name + ': ';
+                n.textContent = m.name;
+                if (m.uid) { const u = document.createElement('span'); u.className = 'vz-uid'; u.textContent = ' #' + m.uid; n.appendChild(u); }
+                n.appendChild(document.createTextNode(': '));
                 body.appendChild(n);
                 const tx = document.createElement('span'); tx.className = 'vz-text'; tx.textContent = m.text; body.appendChild(tx);
             } else {
@@ -1194,6 +1206,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         const ul = $('vz-players-list');
         ul.innerHTML = '';
         const players = (S.scan.players || []).slice().sort((a, b) => (b.kicks - a.kicks) || a.name.localeCompare(b.name));
+        const uids = C.uidMap(S.messages);
         for (const p of players) {
             const li = document.createElement('li');
             li.className = 'vz-player';
@@ -1201,6 +1214,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
             const team = p.teams.length === 1 ? p.teams[0] : (p.team || 0);
             dot.className = 'vz-dot ' + (team === 1 ? 'red' : team === 2 ? 'blue' : 'spec');
             const name = document.createElement('span'); name.className = 'vz-pname'; name.textContent = p.name;
+            const uid = uids.get(p.name);
+            if (uid) { const u = document.createElement('span'); u.className = 'vz-uid'; u.textContent = ' #' + uid; name.appendChild(u); }
             const meta = document.createElement('span'); meta.className = 'vz-pmeta';
             const entry = p.firstFrame > 0 ? `Entró ${C.formatTime(p.firstFrame)}` : 'Desde el inicio';
             const exit = p.lastFrame != null ? ` · Salió ${C.formatTime(p.lastFrame)}` : '';
