@@ -15,6 +15,7 @@
     11.  Selección y estadio
     12.  Carrusel de camisetas
     13.  Responsive
+    14.  Componentes ToroHax (scroll, radio/checkbox, números, ventanas)
    ========================================================= */
 
 
@@ -868,33 +869,6 @@ footer {
     font-size: 1.2rem;
 }
 
-/* Barras de scroll de listas */
-.match-list-container::-webkit-scrollbar,
-#listaVitrina::-webkit-scrollbar,
-#listaJugadores::-webkit-scrollbar {
-    width: 6px;
-}
-
-.match-list-container::-webkit-scrollbar-track,
-#listaVitrina::-webkit-scrollbar-track,
-#listaJugadores::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 5px;
-}
-
-.match-list-container::-webkit-scrollbar-thumb,
-#listaVitrina::-webkit-scrollbar-thumb,
-#listaJugadores::-webkit-scrollbar-thumb {
-    background: #555;
-    border-radius: 5px;
-}
-
-.match-list-container::-webkit-scrollbar-thumb:hover,
-#listaVitrina::-webkit-scrollbar-thumb:hover,
-#listaJugadores::-webkit-scrollbar-thumb:hover {
-    background: var(--gold);
-}
-
 
 /* =========================================
    8. FORMULARIOS Y MENÚS DESPLEGABLES
@@ -1115,24 +1089,6 @@ footer {
 
 .custom-option.selected:hover {
     background: #16c9aa;
-}
-
-.custom-select-options::-webkit-scrollbar {
-    width: 7px;
-}
-
-.custom-select-options::-webkit-scrollbar-track {
-    background: #0a2422;
-    border-radius: 0 0 6px 0;
-}
-
-.custom-select-options::-webkit-scrollbar-thumb {
-    background: #555;
-    border-radius: 10px;
-}
-
-.custom-select-options::-webkit-scrollbar-thumb:hover {
-    background: var(--gold);
 }
 
 /* --- 8.3 Select nativo: misma estética cuando no se transforma con JS --- */
@@ -1580,15 +1536,6 @@ select.select-torohax option {
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     width: 100%;
     -webkit-overflow-scrolling: touch;
-}
-
-.table-container::-webkit-scrollbar {
-    height: 8px;
-}
-
-.table-container::-webkit-scrollbar-thumb {
-    background: #555;
-    border-radius: 10px;
 }
 
 table {
@@ -2337,4 +2284,318 @@ tr:hover td {
         padding-top: 10px;
         border-top: 1px solid #444;
     }
+}
+
+
+/* =========================================
+   14. COMPONENTES TOROHAX (reutilizables en todas las páginas)
+   - Barras de desplazamiento
+   - Radio buttons y checkboxes
+   - Campos numéricos sin flechitas
+   - Ventanas de aviso / confirmación (se abren con torohax-ui.js)
+   ========================================= */
+
+/* --- 14.1 Barras de desplazamiento ---
+   Se aplican a toda la página y a cualquier lista con scroll.
+   Para cambiar el color en un contenedor: --sb-thumb: var(--mint); --sb-thumb-hover: ...; */
+:root {
+    --sb-thumb: var(--gold);
+    --sb-thumb-hover: var(--gold-light);
+    --sb-track: rgba(255, 255, 255, 0.05);
+}
+
+*::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+    background: var(--sb-track);
+    border-radius: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: var(--sb-thumb);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: var(--sb-thumb-hover);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* Firefox usa las propiedades estándar */
+@supports not selector(::-webkit-scrollbar) {
+    * {
+        scrollbar-width: thin;
+        scrollbar-color: var(--sb-thumb) transparent;
+    }
+}
+
+/* --- 14.2 Radio buttons y checkboxes ---
+   Se ven igual en cualquier navegador. Para un color distinto: --th-accent: var(--red-light);
+   Etiqueta recomendada: <label class="th-option"><input type="checkbox"> Texto</label> */
+html input[type="radio"],
+html input[type="checkbox"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    display: inline-grid;
+    place-content: center;
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    margin: 0 8px 0 0;
+    vertical-align: middle;
+    background: #111;
+    border: 2px solid #555;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+
+html input[type="radio"] {
+    border-radius: 50%;
+}
+
+html input[type="checkbox"] {
+    border-radius: 6px;
+}
+
+html input[type="radio"]::before,
+html input[type="checkbox"]::before {
+    content: "";
+    transform: scale(0);
+    transition: transform 0.15s ease-out;
+}
+
+html input[type="radio"]::before {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--th-accent, var(--gold));
+}
+
+html input[type="checkbox"]::before {
+    width: 12px;
+    height: 12px;
+    background: #111;
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+}
+
+html input[type="radio"]:checked,
+html input[type="checkbox"]:checked {
+    border-color: var(--th-accent, var(--gold));
+}
+
+html input[type="checkbox"]:checked {
+    background: var(--th-accent, var(--gold));
+}
+
+html input[type="radio"]:checked::before,
+html input[type="checkbox"]:checked::before {
+    transform: scale(1);
+}
+
+html input[type="radio"]:hover:not(:disabled),
+html input[type="checkbox"]:hover:not(:disabled) {
+    border-color: var(--th-accent, var(--gold));
+    box-shadow: 0 0 8px rgba(var(--gold-rgb), 0.25);
+}
+
+html input[type="radio"]:focus-visible,
+html input[type="checkbox"]:focus-visible {
+    outline: 2px solid var(--th-accent, var(--gold));
+    outline-offset: 2px;
+}
+
+html input[type="radio"]:disabled,
+html input[type="checkbox"]:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.th-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+    color: var(--text-soft);
+    user-select: none;
+}
+
+.th-option:has(input:disabled) {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* --- 14.3 Campos numéricos sin flechitas de subir/bajar --- */
+input[type="number"] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* --- 14.4 Ventanas de aviso y confirmación (ThUI.alert / ThUI.confirm / ThUI.open) --- */
+.th-dialog-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 20000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.18s ease-out;
+}
+
+.th-dialog {
+    --th-tone: var(--cyan);
+    --th-tone-rgb: var(--cyan-rgb);
+    width: 100%;
+    max-width: 440px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding: 30px 28px 26px;
+    text-align: center;
+    background: var(--bg-deep);
+    border: 2px solid var(--th-tone);
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(var(--th-tone-rgb), 0.15);
+    animation: thDialogPop 0.2s ease-out;
+}
+
+.th-dialog.th-tone-success { --th-tone: var(--mint); --th-tone-rgb: var(--mint-rgb); }
+.th-dialog.th-tone-error   { --th-tone: var(--red-light); --th-tone-rgb: 231, 76, 60; }
+.th-dialog.th-tone-warn    { --th-tone: var(--gold); --th-tone-rgb: var(--gold-rgb); }
+.th-dialog.th-tone-info    { --th-tone: var(--cyan); --th-tone-rgb: var(--cyan-rgb); }
+
+.th-dialog-icon {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 12px;
+    color: var(--th-tone);
+}
+
+.th-dialog-icon svg {
+    width: 46px;
+    height: 46px;
+    filter: drop-shadow(0 0 8px rgba(var(--th-tone-rgb), 0.45));
+}
+
+.th-dialog-title {
+    margin: 0 0 12px;
+    font-size: 1.45rem;
+    color: var(--gold);
+    letter-spacing: 0.3px;
+}
+
+.th-dialog-body {
+    color: var(--text-soft);
+    line-height: 1.55;
+    font-size: 1.02rem;
+    overflow-wrap: anywhere;
+}
+
+.th-dialog-body p {
+    margin: 0 0 8px;
+}
+
+.th-dialog-body strong {
+    color: #fff;
+}
+
+.th-dialog-rows {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px 14px;
+    margin: 14px 0 6px;
+    text-align: left;
+}
+
+.th-dialog-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 0;
+    border-bottom: 1px solid #262626;
+    color: var(--text-soft);
+    font-size: 0.95rem;
+}
+
+.th-dialog-row:last-child {
+    border-bottom: none;
+}
+
+.th-dialog-row strong {
+    text-align: right;
+    overflow-wrap: anywhere;
+}
+
+.th-dialog-row.total strong {
+    color: var(--mint);
+    font-size: 1.15rem;
+}
+
+.th-dialog-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 22px;
+}
+
+.th-dialog-actions .modal-btn {
+    margin: 0;
+    min-width: 0;
+    font-family: inherit;
+}
+
+.th-dialog-actions .modal-btn.th-cancel {
+    background: transparent;
+    color: var(--text-soft);
+    border: 2px solid #555;
+}
+
+.th-dialog-actions .modal-btn.th-cancel:hover {
+    border-color: var(--text-soft);
+    color: #fff;
+}
+
+.th-dialog.th-danger .modal-btn.th-ok {
+    background: var(--red);
+    color: #fff;
+}
+
+.th-dialog-actions .modal-btn:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+@keyframes thDialogPop {
+    from { opacity: 0; transform: translateY(10px) scale(0.97); }
+    to   { opacity: 1; transform: none; }
+}
+
+@media (max-width: 480px) {
+    .th-dialog { padding: 24px 18px 20px; }
+    .th-dialog-actions { flex-direction: column-reverse; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .th-dialog, .th-dialog-overlay { animation: none; }
 }

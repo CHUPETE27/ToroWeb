@@ -32,8 +32,6 @@
         .main-toggle-btn:hover:not(.active) { color: #fff; }
 
         .tabs { display: flex; border-bottom: 2px solid #333; margin-bottom: 20px; overflow-x: auto; white-space: nowrap; }
-        .tabs::-webkit-scrollbar { height: 4px; }
-        .tabs::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
         .tab { flex: 1; text-align: center; padding: 10px; cursor: pointer; color: #7d7d7d; font-weight: bold; transition: 0.3s; min-width: 80px;}
         .tab.active { border-bottom: 2px solid #e1bc56; color: #e1bc56; }
         .tab:hover:not(.active) { color: white; }
@@ -49,8 +47,8 @@
         .form-group input:focus, .form-group select:focus { border-color: #e1bc56; box-shadow: 0 0 8px rgba(255, 211, 66, 0.2); }
         .form-group input:disabled { background: #222; border-color: #333; color: #555; cursor: not-allowed; }
 
-        .checkbox-container { display: flex; align-items: center; gap: 8px; cursor: pointer; color: #e74c3c; font-weight: bold; padding: 12px; background: rgba(231, 76, 60, 0.1); border-radius: 8px; border: 1px solid #e74c3c;}
-        .checkbox-container input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: #e74c3c; margin: 0;}
+        .checkbox-container { --th-accent: #e74c3c; display: flex; align-items: center; gap: 8px; cursor: pointer; color: #e74c3c; font-weight: bold; padding: 12px; background: rgba(231, 76, 60, 0.1); border-radius: 8px; border: 1px solid #e74c3c;}
+        .checkbox-container input[type="checkbox"] { margin: 0; }
 
         .btn-estandar { 
             width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; 
@@ -73,9 +71,6 @@
         .player-list-room { background: #111; border: 1px solid #333; border-radius: 8px; max-height: 350px; overflow-y: auto; padding: 0; margin: 0; list-style: none; }
         .player-list-room li { padding: 12px 15px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; color: #fff;}
         .player-list-room li:last-child { border-bottom: none; }
-        .player-list-room::-webkit-scrollbar { width: 6px; }
-        .player-list-room::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
-        .player-list-room::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
         
         .id-badge { color: #e1bc56; font-family: monospace; font-size: 0.95rem; background: rgba(255, 211, 66, 0.1); padding: 2px 6px; border-radius: 4px; margin-right: 8px; border: 1px solid rgba(255, 211, 66, 0.3);}
 
@@ -99,9 +94,6 @@
             overflow-y: auto; 
         }
         
-        .modal-content::-webkit-scrollbar { width: 8px; }
-        .modal-content::-webkit-scrollbar-track { background: transparent; }
-        .modal-content::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
 
         .close-modal { position: absolute; top: 20px; right: 25px; font-size: 1.8rem; color: #7d7d7d; cursor: pointer; transition: 0.3s; z-index: 10;}
         .close-modal:hover { color: #cc2a2a; transform: scale(1.1); }
@@ -411,6 +403,7 @@
 
     <footer><p>© 2026 ToroHax. Todos los derechos reservados.</p></footer>
 
+    <script src="torohax-ui.js"></script>
     <script src="header.js"></script>
     <script src="sidebar.js"></script>
 
@@ -430,21 +423,21 @@
                 body: JSON.stringify({ numericId: loggedId, token: token })
             })
             .then(res => res.json())
-            .then(data => {
+            .then(async data => {
                 if (data.success) {
                     adminData = data.adminData;
                     document.getElementById('loader').style.display = 'none';
                     document.getElementById('main-content').style.display = 'block';
                     cargarSalasActivas();
                 } else {
-                    alert("⚠️ Sesión inválida, alterada o expirada.");
+                    await ThUI.alert("⚠️ Sesión inválida, alterada o expirada.");
                     localStorage.removeItem('toroHaxLoggedId');
                     localStorage.removeItem('toroHaxToken');
                     window.location.href = 'login.html';
                 }
             })
-            .catch(err => {
-                alert("Error de conexión al verificar permisos.");
+            .catch(async err => {
+                await ThUI.alert("Error de conexión al verificar permisos.", { tone: 'error' });
                 window.location.href = 'index.html';
             });
         }
@@ -530,7 +523,7 @@
 
         async function agregarCuentaSecundaria() {
             const inputId = document.getElementById('inputNewAlt').value;
-            if (!inputId) return alert("Debes ingresar una ID de HaxBall válida.");
+            if (!inputId) return ThUI.alert("Debes ingresar una ID de HaxBall válida.");
 
             try {
                 const res = await fetch('https://torobot-izu5.onrender.com/api/admin/cuentas/add', {
@@ -544,15 +537,15 @@
                     document.getElementById('inputNewAlt').value = "";
                     cargarCuentasAdmin();
                 } else {
-                    alert(data.message || "Error al agregar cuenta.");
+                    ThUI.alert(data.message || "Error al agregar cuenta.");
                 }
             } catch (e) {
-                alert("Error de red.");
+                ThUI.alert("Error de red.");
             }
         }
 
         async function activarCuentaSecundaria(altId) {
-            if (!confirm(`¿Estás seguro que deseas mover los permisos de Administrador a tu cuenta #${altId}? Las demás secundarias perderán el permiso.`)) return;
+            if (!(await ThUI.confirm(`¿Estás seguro que deseas mover los permisos de Administrador a tu cuenta #${altId}? Las demás secundarias perderán el permiso.`, { title: 'Mover permisos de administrador', okText: 'Mover permisos', tone: 'warn' }))) return;
 
             try {
                 const res = await fetch('https://torobot-izu5.onrender.com/api/admin/cuentas/activate', {
@@ -563,18 +556,18 @@
                 const data = await res.json();
                 
                 if (data.success) {
-                    alert("Permisos de Administrador actualizados correctamente");
+                    ThUI.alert("Permisos de Administrador actualizados correctamente");
                     cargarCuentasAdmin();
                 } else {
-                    alert(data.message || "Error al activar cuenta.");
+                    ThUI.alert(data.message || "Error al activar cuenta.");
                 }
             } catch (e) {
-                alert("Error de red al conectar.");
+                ThUI.alert("Error de red al conectar.");
             }
         }
 
         async function quitarCuentaSecundaria(altId) {
-            if (!confirm(`¿Seguro que deseas eliminar la cuenta #${altId} de tus secundarias? Si tiene permisos de Admin actualmente, los perderá.`)) return;
+            if (!(await ThUI.confirm(`¿Seguro que deseas eliminar la cuenta #${altId} de tus secundarias? Si tiene permisos de Admin actualmente, los perderá.`, { title: 'Quitar cuenta secundaria', okText: 'Quitar cuenta', tone: 'warn', danger: true }))) return;
 
             try {
                 const res = await fetch('https://torobot-izu5.onrender.com/api/admin/cuentas/remove', {
@@ -587,10 +580,10 @@
                 if (data.success) {
                     cargarCuentasAdmin();
                 } else {
-                    alert(data.message || "Error al quitar cuenta.");
+                    ThUI.alert(data.message || "Error al quitar cuenta.");
                 }
             } catch (e) {
-                alert("Error de red al conectar.");
+                ThUI.alert("Error de red al conectar.");
             }
         }
 
@@ -679,7 +672,7 @@
 
         function iniciarDesbaneoGlobal() {
             const targetId = document.getElementById('unbanId').value;
-            if (!targetId || targetId <= 0) return alert("❌ Debes ingresar una ID válida.");
+            if (!targetId || targetId <= 0) return ThUI.alert("❌ Debes ingresar una ID válida.");
             abrirConfirmUnban(targetId);
         }
 
@@ -729,7 +722,7 @@
                     const data = await response.json();
                     const unbannedName = data.name || `ID #${targetId}`;
                     
-                    alert(`✅ ¡Se retiró el ban de ${unbannedName} correctamente!`);
+                    ThUI.alert(`✅ ¡Se retiró el ban de ${unbannedName} correctamente!`);
 
                     const embed = {
                         title: "✅ DESBANEO WEB",
@@ -753,11 +746,11 @@
                     }
 
                 } else {
-                    alert("❌ No se encontró ningún baneo activo para esta ID.");
+                    ThUI.alert("❌ No se encontró ningún baneo activo para esta ID.");
                     cerrarConfirmUnban();
                 }
             } catch (err) { 
-                alert("❌ Error de red o servidor caído."); 
+                ThUI.alert("❌ Error de red o servidor caído."); 
                 cerrarConfirmUnban();
             }
 
@@ -895,20 +888,20 @@
             const banDias = document.getElementById('banDias').value;
             let reason = document.getElementById('banRazon').value.trim();
 
-            if (!targetId || targetId <= 0) return alert("❌ Debes ingresar una ID válida.");
-            if (targetId === "1") return alert("❌ ¡Estás loco! No puedes banear al Creador.");
+            if (!targetId || targetId <= 0) return ThUI.alert("❌ Debes ingresar una ID válida.");
+            if (targetId === "1") return ThUI.alert("❌ ¡Estás loco! No puedes banear al Creador.");
             
             let finalDays = 0;
             if (!isPermanent) {
                 finalDays = parseInt(banDias);
                 if (isNaN(finalDays) || finalDays < 1 || finalDays > 30) {
-                    return alert("❌ Debes ingresar una cantidad válida de días (entre 1 y 30) o marcar 'Permanente'.");
+                    return ThUI.alert("❌ Debes ingresar una cantidad válida de días (entre 1 y 30) o marcar 'Permanente'.");
                 }
             }
 
             if (!reason) reason = "Sin motivo especificado";
 
-            if(!confirm(`¿Seguro que deseas banear la ID #${targetId}?`)) return;
+            if (!(await ThUI.confirm(`¿Seguro que deseas banear la ID #${targetId}?`, { title: 'Confirmar baneo', okText: 'Banear', tone: 'warn', danger: true }))) return;
 
             const btn = document.getElementById('btnSubmitBan');
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Procesando...';
@@ -919,14 +912,14 @@
                 const targetData = await playerRes.json();
                 
                 if (!targetData || !targetData.numericId) {
-                    alert("❌ La ID ingresada no existe en la base de datos.");
+                    ThUI.alert("❌ La ID ingresada no existe en la base de datos.");
                     btn.innerHTML = '<i class="fa-solid fa-hammer"></i> Banear Jugador';
                     btn.disabled = false;
                     return;
                 }
 
                 if (targetData.isAdmin) {
-                    alert("❌ No puedes banear a otro Administrador.");
+                    ThUI.alert("❌ No puedes banear a otro Administrador.");
                     btn.innerHTML = '<i class="fa-solid fa-hammer"></i> Banear Jugador';
                     btn.disabled = false;
                     return;
@@ -957,7 +950,7 @@
                 });
 
                 if (banRes.ok) {
-                    alert(`✅ ¡El jugador ${targetData.name} (ID: ${targetData.numericId}) ha sido baneado!`);
+                    ThUI.alert(`✅ ¡El jugador ${targetData.name} (ID: ${targetData.numericId}) ha sido baneado!`);
 
                     const embed = {
                         title: "🔨 BANEO WEB",
@@ -978,12 +971,12 @@
                     document.getElementById('banDias').disabled = false;
                     document.getElementById('banRazon').value = "";
                 } else if (banRes.status === 409) {
-                    alert("⚠️ Este jugador ya tiene un baneo activo.");
+                    ThUI.alert("⚠️ Este jugador ya tiene un baneo activo.");
                 } else {
-                    alert("❌ Ocurrió un error en el servidor.");
+                    ThUI.alert("❌ Ocurrió un error en el servidor.");
                 }
 
-            } catch (err) { alert("❌ Error de red o servidor caído."); }
+            } catch (err) { ThUI.alert("❌ Error de red o servidor caído."); }
 
             btn.innerHTML = '<i class="fa-solid fa-hammer"></i> Banear Jugador';
             btn.disabled = false;

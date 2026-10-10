@@ -93,8 +93,11 @@ window.checkLogin = function(page) {
     }
 };
 
-window.confirmarLogout = function() {
-    if(confirm("⚠️ ¿Estás seguro que quieres cerrar sesión?")) {
+window.confirmarLogout = async function() {
+    const quiere = window.ThUI
+        ? await ThUI.confirm("¿Estás seguro que quieres cerrar sesión?", { title: 'Cerrar sesión', okText: 'Cerrar sesión', tone: 'warn' })
+        : confirm("⚠️ ¿Estás seguro que quieres cerrar sesión?");
+    if (quiere) {
         localStorage.removeItem('toroHaxLoggedId');
         window.location.href = 'index.html';
     }

@@ -39,8 +39,6 @@
         .add-friend-box button:hover { background: #24c29a; box-shadow: 0 0 15px rgba(45, 242, 193, 0.4); }
 
         .list-container { display: flex; flex-direction: column; gap: 15px; max-height: 500px; overflow-y: auto; padding-right: 10px; overflow-x: hidden;}
-        .list-container::-webkit-scrollbar { width: 8px; }
-        .list-container::-webkit-scrollbar-thumb { background: #555; border-radius: 10px; }
         .empty-msg { color: #7d7d7d; text-align: center; font-style: italic; padding: 20px; }
 
         .friend-card { background: #111; border: 1px solid #444; border-radius: 10px; padding: 15px; display: flex; justify-content: space-between; align-items: center; transition: 0.3s; flex-wrap: wrap; gap: 10px; width: 100%; max-width: 100%;}
@@ -119,6 +117,7 @@
 
     <footer><p>© 2026 ToroHax. Todos los derechos reservados.</p></footer>
 
+    <script src="torohax-ui.js"></script>
     <script src="header.js"></script>
     <script src="sidebar.js"></script>
 
@@ -212,10 +211,10 @@
                     body: JSON.stringify({ fromId: parseInt(loggedId), toId: parseInt(toId) })
                 });
                 const data = await res.json();
-                alert(data.message);
+                ThUI.alert(data.message);
                 input.value = '';
             } catch (e) {
-                alert("❌ Error al conectar con el servidor.");
+                ThUI.alert("❌ Error al conectar con el servidor.");
             }
 
             btn.disabled = false;

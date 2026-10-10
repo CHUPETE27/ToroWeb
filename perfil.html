@@ -138,9 +138,6 @@
 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(8px); padding: 20px; }
         .modal-content { background: rgba(20, 20, 20, 0.95); border: 1px solid #e1bc56; padding: 30px; border-radius: 15px; width: 100%; max-width: 500px; color: white; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.8); max-height: 90vh; overflow-y: auto; }
-        .modal-content::-webkit-scrollbar { width: 8px; }
-        .modal-content::-webkit-scrollbar-track { background: transparent; }
-        .modal-content::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
         .close-modal { position: absolute; top: 20px; right: 25px; font-size: 1.8rem; color: #7d7d7d; cursor: pointer; transition: 0.3s; z-index: 10;}
         .close-modal:hover { color: #cc2a2a; transform: scale(1.1); }
 
@@ -354,6 +351,7 @@
         <p>© 2026 ToroHax. Todos los derechos reservados.</p>
     </footer>
 
+    <script src="torohax-ui.js"></script>
     <script src="header.js"></script>
     <script src="sidebar.js"></script>
 
@@ -429,10 +427,10 @@
             body: JSON.stringify({ numericId: loggedId, token: token })
         })
         .then(res => res.json())
-        .then(data => {
+        .then(async data => {
             if (!data.success) {
                 localStorage.clear();
-                alert("Sesión caducada o inválida. Debes iniciar sesión nuevamente.");
+                await ThUI.alert("Sesión caducada o inválida. Debes iniciar sesión nuevamente.", { tone: 'warn', title: 'Sesión caducada' });
                 window.location.href = "login.html";
                 return;
             }
@@ -700,7 +698,7 @@
 
             const icon = document.getElementById('vipIcon').value;
             if (icon === "👑") {
-                alert("❌ La corona 👑 es exclusiva para los admins. Elige otro emoji.");
+                ThUI.alert("❌ La corona 👑 es exclusiva para los admins. Elige otro emoji.");
                 btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar Cambios';
                 btn.disabled = false;
                 return;
@@ -722,9 +720,9 @@
                     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
                 });
                 const data = await response.json();
-                if (data.success) alert("✅ " + data.message);
-                else alert("❌ Error: " + data.message);
-            } catch (error) { alert("❌ Error de red al intentar guardar."); }
+                if (data.success) ThUI.alert("✅ " + data.message);
+                else ThUI.alert("❌ Error: " + data.message);
+            } catch (error) { ThUI.alert("❌ Error de red al intentar guardar."); }
 
             btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar Cambios';
             btn.disabled = false;

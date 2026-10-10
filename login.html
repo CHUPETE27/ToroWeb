@@ -55,12 +55,6 @@
             border-color: #5dc8e8;
         }
 
-        input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
         .login-btn {
             width: 100%;
             background: #e1bc56;
@@ -130,6 +124,7 @@
         <p id="statusText" class="login-status"><i class="fa-brands fa-discord"></i> Revisa tu Discord. Tienes un nuevo canal temporal para confirmar tu identidad...</p>
     </div>
 
+    <script src="torohax-ui.js"></script>
     <script>
         const loginBtn = document.getElementById('loginBtn');
         const hostIdInput = document.getElementById('hostIdInput');
@@ -138,7 +133,7 @@
 
         loginBtn.addEventListener('click', () => {
             const numericId = hostIdInput.value.trim();
-            if (!numericId) return alert("⚠️ Debes ingresar una ID.");
+            if (!numericId) return ThUI.alert("⚠️ Debes ingresar una ID.");
 
             loginBtn.disabled = true;
             loginBtn.innerText = "PROCESANDO...";
@@ -152,9 +147,9 @@
             .then(data => {
                 if (!data.success) {
                     if (data.reason === "not_registered") {
-                        alert("❌ ALERTA: Tu ID no está registrada en nuestra base de datos o no tienes un Discord vinculado. Por favor, entra a la sala de HaxBall y escribe '!registro' en el chat.");
+                        ThUI.alert("❌ ALERTA: Tu ID no está registrada en nuestra base de datos o no tienes un Discord vinculado. Por favor, entra a la sala de HaxBall y escribe '!registro' en el chat.");
                     } else {
-                        alert("❌ Error: " + data.reason);
+                        ThUI.alert("❌ Error: " + data.reason);
                     }
                     resetButton();
                     return;
@@ -165,7 +160,7 @@
 
             })
             .catch(err => {
-                alert("❌ Error de conexión con el servidor.");
+                ThUI.alert("❌ Error de conexión con el servidor.");
                 resetButton();
             });
         });
@@ -188,13 +183,13 @@
                 } 
                 else if (data.status === 'rejected') {
                     clearInterval(checkInterval);
-                    alert("❌ Inicio de sesión denegado desde Discord.");
+                    ThUI.alert("❌ Inicio de sesión denegado desde Discord.");
                     resetButton();
                     statusText.style.display = "none";
                 }
                 else if (data.status === 'timeout') {
                     clearInterval(checkInterval);
-                    alert("⏳ El tiempo de verificación expiró (3 minutos). Inténtalo de nuevo.");
+                    ThUI.alert("⏳ El tiempo de verificación expiró (3 minutos). Inténtalo de nuevo.");
                     resetButton();
                     statusText.style.display = "none";
                 }

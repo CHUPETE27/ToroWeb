@@ -21,10 +21,6 @@
         * { box-sizing: border-box; }
         body { overflow-x: hidden; background-color: #0a0a0a; color: white; margin: 0; padding: 0; }
         
-        ::-webkit-scrollbar { width: 10px; }
-        ::-webkit-scrollbar-track { background: #1a1a1a; border-radius: 5px;}
-        ::-webkit-scrollbar-thumb { background: #ffe680; border-radius: 5px; border: 2px solid #1a1a1a; }
-        ::-webkit-scrollbar-thumb:hover { background: #e1bc56; }
 
         .carta-wrapper { display: flex; flex-wrap: wrap; width: 95%; max-width: 1200px; margin: 8vh auto 50px; gap: 40px; justify-content: center; align-items: flex-start; }
         
@@ -36,10 +32,10 @@
 
         .radio-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 15px; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 8px; border: 1px solid #333;}
         .radio-label { display: flex; flex-direction: row; align-items: center; cursor: pointer; color: #fff; font-size: 0.95rem; font-weight: bold; line-height: 1; margin: 0; padding: 0;}
-        .radio-label input[type="radio"] { cursor: pointer; accent-color: #e1bc56; width: 18px; height: 18px; margin: 0 10px 0 0; flex-shrink: 0;}
+        .radio-label input[type="radio"] { margin: 0 10px 0 0; }
         .radio-label span { display: inline-flex; align-items: center; }
         .radio-label.disabled { color: #555; cursor: not-allowed; }
-        .radio-label.disabled input[type="radio"] { cursor: not-allowed; filter: grayscale(1); }
+        
 
         .haxcolors-box { 
             background: #02272b;
@@ -441,6 +437,7 @@
 
     <footer><p>© 2026 ToroHax. Todos los derechos reservados.</p></footer>
 
+    <script src="torohax-ui.js"></script>
     <script src="header.js"></script>
     <script src="sidebar.js"></script>
     <script src="diseñador_bola.js"></script>
@@ -505,10 +502,10 @@
             temp: { general: 999, goles: 999, asistencias: 999, defensas: 999, arqueros: 999 }
         };
 
-        window.onload = () => {
+        window.onload = async () => {
             const loggedId = localStorage.getItem('toroHaxLoggedId');
             if (!loggedId) {
-                alert("Debes iniciar sesión para crear tu carta.");
+                await ThUI.alert("Debes iniciar sesión para crear tu carta.", { tone: 'warn', title: 'Inicia sesión' });
                 window.location.href = "login.html";
                 return;
             }
@@ -934,7 +931,7 @@
             }).catch(err => {
                 cartaElement.classList.remove('exportando');
                 console.error(err);
-                alert("Hubo un error al generar la imagen. Inténtalo desde un PC.");
+                ThUI.alert("Hubo un error al generar la imagen. Inténtalo desde un PC.");
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             });

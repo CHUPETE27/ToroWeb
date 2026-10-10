@@ -60,8 +60,6 @@
         #searchResults div { padding: 12px 15px; border-bottom: 1px solid #222; cursor: pointer; color: #fff; transition: 0.2s; font-size: 0.95rem;}
         #searchResults div:hover { background: rgba(45, 242, 193, 0.2); color: #2df2c1; }
         #searchResults div span.id-tag { color: #e1bc56; font-size: 0.8rem; margin-left: 8px; }
-        #searchResults::-webkit-scrollbar { width: 6px; }
-        #searchResults::-webkit-scrollbar-thumb { background: #555; border-radius: 10px; }
 
         .filter-container { display: flex; justify-content: center; flex-direction: column; align-items: center; gap: 10px; margin: 0 auto 30px; background: rgba(0,0,0,0.6); padding: 15px; border-radius: 15px; border: 1px solid #333; width: 100%; max-width: 600px; backdrop-filter: blur(5px);}
         .filter-btn { background: transparent; color: #bdc3c7; border: none; padding: 10px 25px; border-radius: 20px; cursor: pointer; transition: 0.3s; font-weight: bold; font-size: 1.05rem; }
@@ -73,8 +71,6 @@
         .tab-btn:hover { background: #2fe9e0; border-color: #32dcd3; color: #111; }
         .tab-btn.active { background: #e1bc56; color: #111; border-color: #e1bc56; box-shadow: 0 0 15px rgba(255, 211, 66, 0.4); }
         .table-container { background: rgb(20, 20, 20); border: 1px solid #333; border-radius: 15px; overflow-x: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 100%; -webkit-overflow-scrolling: touch; backdrop-filter: blur(10px);}
-        .table-container::-webkit-scrollbar { height: 8px; }
-        .table-container::-webkit-scrollbar-thumb { background: #555; border-radius: 10px; }
 
         table { width: 100%; border-collapse: collapse; min-width: 600px; text-align: center; }
         th { background: rgba(0,0,0,0.6); color: #e1bc56; padding: 15px; font-size: 1.1rem; border-bottom: 2px solid #333; white-space: nowrap;}
@@ -111,9 +107,6 @@
 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(8px); padding: 20px; }
         .modal-content { background: rgba(20, 20, 20, 0.95); border: 1px solid #e1bc56; padding: 30px; border-radius: 15px; width: 100%; max-width: 1000px; color: white; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.8); max-height: 90vh; overflow-y: auto; }
-        .modal-content::-webkit-scrollbar { width: 8px; }
-        .modal-content::-webkit-scrollbar-track { background: transparent; }
-        .modal-content::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
         
         .close-modal { position: absolute; top: 15px; right: 20px; font-size: 1.8rem; color: #7d7d7d; cursor: pointer; transition: 0.3s; z-index: 10;}
         .close-modal:hover { color: #cc2a2a; transform: scale(1.1); }
@@ -351,17 +344,9 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="alertModal" onclick="cerrarAlertModalClickFuera(event)">
-        <div class="modal-content" style="max-width: 400px; text-align: center;">
-            <i class="fa-solid fa-xmark close-modal" onclick="cerrarAlertModal()"></i>
-            <h3 id="alertTitle" style="color: #cc2a2a; margin-top: 0; font-size: 1.6rem;"><i class="fa-solid fa-triangle-exclamation"></i> Error</h3>
-            <p id="alertMessage" style="color: #bdc3c7; font-size: 1.05rem; margin-bottom: 20px;">Mensaje de error.</p>
-            <button class="page-btn" style="width: 100%; max-width: 200px;" onclick="cerrarAlertModal()">Aceptar</button>
-        </div>
-    </div>
-
     <footer><p>© 2026 ToroHax. Todos los derechos reservados.</p></footer>
 
+    <script src="torohax-ui.js"></script>
     <script src="header.js"></script>
     <script src="sidebar.js"></script>
     <script src="scanner.js"></script>
@@ -385,22 +370,8 @@
         };
 
         function mostrarAlerta(titulo, mensaje, esError = true) {
-            const modal = document.getElementById('alertModal');
-            const titleEl = document.getElementById('alertTitle');
-            
-            if (esError) {
-                titleEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ' + titulo;
-                titleEl.style.color = '#cc2a2a';
-            } else {
-                titleEl.innerHTML = '<i class="fa-solid fa-circle-info"></i> ' + titulo;
-                titleEl.style.color = '#2df2c1';
-            }
-            
-            document.getElementById('alertMessage').innerText = mensaje;
-            modal.style.display = 'flex';
+            return ThUI.alert(mensaje, { title: titulo, tone: esError ? 'error' : 'info' });
         }
-        function cerrarAlertModal() { document.getElementById('alertModal').style.display = 'none'; }
-        function cerrarAlertModalClickFuera(e) { if(e.target.id === 'alertModal') cerrarAlertModal(); }
 
         async function cargarConfiguracionTemporada() {
             try {

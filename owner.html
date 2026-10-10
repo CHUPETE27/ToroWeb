@@ -50,9 +50,7 @@
         .player-list-room li { padding: 15px 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; color: #fff; gap: 15px; transition: 0.2s;}
         .player-list-room li:last-child { border-bottom: none; }
         .player-list-room.interactive li:hover { background: rgba(45, 242, 193, 0.1); cursor: pointer; }
-        .player-list-room::-webkit-scrollbar { width: 6px; }
-        .player-list-room::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
-        .player-list-room::-webkit-scrollbar-thumb { background: #2df2c1; border-radius: 5px; }
+        .player-list-room { --sb-thumb: var(--mint); --sb-thumb-hover: #5de8dc; }
 
         .info-col { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
         .id-badge { color: #111; font-family: monospace; font-weight: bold; font-size: 0.95rem; background: #2df2c1; padding: 4px 10px; border-radius: 6px; box-shadow: 0 0 8px rgba(45, 242, 193, 0.4);}
@@ -95,8 +93,6 @@
             font-family: monospace;
         }
         .owner-input:focus { border-color: #2df2c1; box-shadow: 0 0 10px rgba(45, 242, 193, 0.2); }
-        .owner-input::-webkit-outer-spin-button, .owner-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        .owner-input[type=number] { -moz-appearance: textfield; appearance: textfield; }
 
         .copy-btn { background: #111; color: #bdc3c7; border: 1px solid #333; border-radius: 6px; cursor: pointer; padding: 8px 12px; margin-left: 10px; transition: 0.3s; font-size: 0.95rem;}
         .copy-btn:hover { background: #2df2c1; color: #111; border-color: #2df2c1; }
@@ -239,25 +235,7 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="customAlertModal">
-        <div class="modal-content" style="max-width: 400px;">
-            <h3 id="customAlertTitle" style="color: #2df2c1;"><i class="fa-solid fa-circle-check"></i> Éxito</h3>
-            <p id="customAlertMsg" style="color: #bdc3c7; font-size: 1.1rem; margin: 20px 0; line-height: 1.4;"></p>
-            <button class="btn-estandar btn-primary" onclick="closeCustomAlert()" style="margin: 0;">Aceptar</button>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="customConfirmModal">
-        <div class="modal-content" style="max-width: 400px;">
-            <h3 id="customConfirmTitle" style="color: #e74c3c;"><i class="fa-solid fa-triangle-exclamation"></i> Atención</h3>
-            <p id="customConfirmMsg" style="color: #bdc3c7; font-size: 1.1rem; margin: 20px 0; line-height: 1.4;"></p>
-            <div style="display: flex; gap: 15px; justify-content: center; width: 100%;">
-                <button class="btn-estandar" style="background: #cc2a2a; color: white; border: 2px solid transparent;" id="btnConfirmYes">Confirmar</button>
-                <button class="btn-estandar" style="background: transparent; border: 2px solid #7d7d7d; color: #bdc3c7;" id="btnConfirmNo">Cancelar</button>
-            </div>
-        </div>
-    </div>
-
+    <script src="torohax-ui.js"></script>
     <script src="header.js"></script>
     <script src="sidebar.js"></script>
 
@@ -268,51 +246,10 @@
         let currentBot = 'juegantodos';
         let statusInterval = null;
 
-        let alertResolve = null;
-        function showCustomAlert(title, msg, isSuccess = false) {
-            return new Promise(resolve => {
-                const icon = isSuccess ? '<i class="fa-solid fa-circle-check"></i>' : '<i class="fa-solid fa-triangle-exclamation"></i>';
-                const color = isSuccess ? '#2df2c1' : '#cc2a2a';
-                document.getElementById('customAlertTitle').innerHTML = `${icon} ${title}`;
-                document.getElementById('customAlertTitle').style.color = color;
-                document.getElementById('customAlertMsg').innerHTML = msg;
-                const btn = document.querySelector('#customAlertModal .btn-estandar');
-                
-                if(isSuccess) {
-                    btn.className = 'btn-estandar btn-primary';
-                } else {
-                    btn.className = 'btn-estandar btn-danger';
-                }
-                
-                document.getElementById('customAlertModal').style.display = 'flex';
-                alertResolve = resolve;
-            });
-        }
-        function closeCustomAlert() {
-            document.getElementById('customAlertModal').style.display = 'none';
-            if (alertResolve) alertResolve();
-        }
-        function showCustomConfirm(title, msg, isDestructive = true) {
-            return new Promise(resolve => {
-                const color = isDestructive ? '#cc2a2a' : '#2df2c1';
-                document.getElementById('customConfirmTitle').innerHTML = `<i class="fa-solid ${isDestructive ? 'fa-triangle-exclamation' : 'fa-circle-question'}"></i> ${title}`;
-                document.getElementById('customConfirmTitle').style.color = color;
-                document.getElementById('customConfirmMsg').innerHTML = msg;
-                
-                const btnYes = document.getElementById('btnConfirmYes');
-                if(isDestructive) {
-                    btnYes.style.background = '#cc2a2a';
-                    btnYes.style.color = 'white';
-                } else {
-                    btnYes.style.background = '#2df2c1';
-                    btnYes.style.color = '#111';
-                }
-
-                document.getElementById('customConfirmModal').style.display = 'flex';
-                document.getElementById('btnConfirmYes').onclick = () => { document.getElementById('customConfirmModal').style.display = 'none'; resolve(true); };
-                document.getElementById('btnConfirmNo').onclick = () => { document.getElementById('customConfirmModal').style.display = 'none'; resolve(false); };
-            });
-        }
+        const showCustomAlert = (title, msg, isSuccess = false) =>
+            ThUI.open({ tone: isSuccess ? 'success' : 'error', title, html: '<p>' + msg + '</p>', okText: 'Aceptar', cancelText: null });
+        const showCustomConfirm = (title, msg, isDestructive = true) =>
+            ThUI.confirm('', { title, html: '<p>' + msg + '</p>', tone: isDestructive ? 'warn' : 'info', danger: isDestructive, okText: 'Confirmar', cancelText: 'Cancelar' });
 
         if (loggedId !== '1' || !token) {
             window.location.href = 'index.html';

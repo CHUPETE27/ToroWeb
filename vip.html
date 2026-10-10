@@ -64,27 +64,8 @@
         .store-btn:hover:not(:disabled) { background: #007eb5; box-shadow: 0 0 15px rgba(0, 158, 227, 0.4); }
         .store-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        .shop-modal { max-width: 440px; text-align: center; animation: shopPop 0.2s ease; }
-        .shop-modal.tone-error { border-color: #e74c3c; }
-        .shop-modal.tone-warn { border-color: #e1bc56; }
-        .shop-modal.tone-success { border-color: #2df2c1; }
-        .shop-modal-icon { font-size: 2.6rem; margin-bottom: 10px; color: #5dc8e8; }
-        .tone-error .shop-modal-icon { color: #e74c3c; }
-        .tone-warn .shop-modal-icon { color: #e1bc56; }
-        .tone-success .shop-modal-icon { color: #2df2c1; }
-        .shop-modal h3 { margin: 0 0 12px; color: #e1bc56; font-size: 1.4rem; }
-        .shop-modal p { color: #bdc3c7; line-height: 1.5; margin: 0 0 8px; }
-        .shop-summary { background: rgba(0,0,0,0.35); border: 1px solid #333; border-radius: 10px; padding: 4px 14px; margin: 14px 0 6px; text-align: left; }
-        .shop-summary .row { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #262626; color: #bdc3c7; font-size: 0.95rem; }
-        .shop-summary .row:last-child { border-bottom: none; }
-        .shop-summary .row strong { color: #fff; text-align: right; word-break: break-word; }
-        .shop-summary .row.total strong { color: #2df2c1; font-size: 1.15rem; }
-        .shop-modal .modal-btn-row { margin-top: 20px; }
-        .shop-modal .modal-btn.cancel { margin: 0; }
-        @keyframes shopPop { from { opacity: 0; transform: translateY(10px) scale(0.97); } to { opacity: 1; transform: none; } }
-
         @media (max-width: 768px) { .tienda-wrapper { grid-template-columns: 1fr; margin-top: 8vh; } .store-card { padding: 22px 18px; } .store-card:hover { transform: none; } }
-        @media (prefers-reduced-motion: reduce) { .shop-modal { animation: none; } .store-card { transition: none; } }
+        @media (prefers-reduced-motion: reduce) { .store-card { transition: none; } }
     </style>
 </head>
 <body>
@@ -161,20 +142,9 @@
         </div>
     </main>
 
-    <div class="modal-overlay" id="shopModal" role="dialog" aria-modal="true" aria-labelledby="shopModalTitle">
-        <div class="modal-content shop-modal" id="shopModalBox">
-            <div class="shop-modal-icon" id="shopModalIcon"></div>
-            <h3 id="shopModalTitle"></h3>
-            <div id="shopModalBody"></div>
-            <div class="modal-btn-row">
-                <button type="button" class="modal-btn cancel" id="shopModalCancel">Cancelar</button>
-                <button type="button" class="modal-btn" id="shopModalOk">Aceptar</button>
-            </div>
-        </div>
-    </div>
-
     <footer><p>© 2026 ToroHax. Todos los derechos reservados.</p></footer>
 
+    <script src="torohax-ui.js"></script>
     <script src="header.js"></script>
     <script src="sidebar.js"></script>
 
@@ -182,73 +152,14 @@
         const API = 'https://torobot-izu5.onrender.com';
         const PRECIO_MENSUAL = 690, PRECIO_PERMANENTE = 3990, MESES_MAX = 12, PERM = 999;
 
-        const modalEl = document.getElementById('shopModal');
-        const modalBox = document.getElementById('shopModalBox');
-        const modalOk = document.getElementById('shopModalOk');
-        const modalCancel = document.getElementById('shopModalCancel');
-        let modalResolve = null;
-        let modalPrevFocus = null;
-
-        function esc(t) {
-            return String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-        }
-
-        function mostrarModal(opts) {
-            return new Promise(resolve => {
-                if (modalResolve) modalResolve(false);
-                modalResolve = resolve;
-                modalPrevFocus = document.activeElement;
-
-                modalBox.className = 'modal-content shop-modal tone-' + (opts.tone || 'info');
-                document.getElementById('shopModalIcon').innerHTML = '<i class="fa-solid ' + (opts.icon || 'fa-circle-info') + '"></i>';
-                document.getElementById('shopModalTitle').textContent = opts.title || '';
-                document.getElementById('shopModalBody').innerHTML = opts.html || '';
-                modalOk.textContent = opts.okText || 'Aceptar';
-                modalCancel.textContent = opts.cancelText || 'Cancelar';
-                modalCancel.style.display = opts.cancelText === null ? 'none' : '';
-
-                modalEl.style.display = 'flex';
-                document.body.style.overflow = 'hidden';
-                modalOk.focus();
-            });
-        }
-
-        function cerrarModal(resultado) {
-            if (!modalResolve) return;
-            const r = modalResolve;
-            modalResolve = null;
-            modalEl.style.display = 'none';
-            document.body.style.overflow = '';
-            if (modalPrevFocus && modalPrevFocus.focus) modalPrevFocus.focus();
-            r(resultado);
-        }
-
-        modalOk.addEventListener('click', () => cerrarModal(true));
-        modalCancel.addEventListener('click', () => cerrarModal(false));
-        modalEl.addEventListener('click', e => { if (e.target === modalEl) cerrarModal(false); });
-        document.addEventListener('keydown', e => {
-            if (!modalResolve) return;
-            if (e.key === 'Escape') cerrarModal(false);
-            if (e.key === 'Tab') { 
-                const focusables = [modalCancel, modalOk].filter(b => b.style.display !== 'none');
-                const first = focusables[0], last = focusables[focusables.length - 1];
-                if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-                else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-            }
-        });
-
-        function aviso(tone, title, html) {
-            const icon = { error: 'fa-circle-xmark', warn: 'fa-triangle-exclamation', success: 'fa-circle-check', info: 'fa-circle-info' }[tone];
-            return mostrarModal({ tone, icon, title, html: '<p>' + html + '</p>', okText: 'Entendido', cancelText: null });
-        }
-
-        function filas(items) {
-            return '<div class="shop-summary">' + items.map(([k, v, cls]) => '<div class="row ' + (cls || '') + '"><span>' + k + '</span><strong>' + v + '</strong></div>').join('') + '</div>';
-        }
+        const esc = ThUI.esc;
+        const filas = ThUI.rows;
+        const mostrarModal = opts => ThUI.open(opts);
+        const aviso = (tone, title, html) => ThUI.open({ tone, title, html: '<p>' + html + '</p>', okText: 'Entendido', cancelText: null });
 
         const loggedId = localStorage.getItem('toroHaxLoggedId');
         if (!loggedId) {
-            mostrarModal({ tone: 'warn', icon: 'fa-lock', title: 'Inicia sesión', html: '<p>Debes iniciar sesión para acceder a la tienda VIP.</p>', okText: 'Ir a iniciar sesión', cancelText: null })
+            mostrarModal({ tone: 'warn', title: 'Inicia sesión', html: '<p>Debes iniciar sesión para acceder a la tienda VIP.</p>', okText: 'Ir a iniciar sesión', cancelText: null })
                 .then(() => { window.location.href = 'login.html'; });
         }
 
@@ -427,7 +338,6 @@
             liberarBoton();
             const confirmar = await mostrarModal({
                 tone,
-                icon: tone === 'warn' ? 'fa-triangle-exclamation' : (regalo ? 'fa-gift' : 'fa-crown'),
                 title: regalo ? 'Confirmar regalo' : 'Confirmar compra',
                 html: '<p>' + nota + '</p>' + filas(detalle),
                 okText: 'Ir a pagar',

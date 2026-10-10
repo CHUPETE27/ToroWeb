@@ -44,10 +44,6 @@
         .tab-content.active { display: block; }
 
         .match-list-container { max-height: 350px; overflow-y: auto; padding-right: 5px; overflow-x: hidden;}
-        .match-list-container::-webkit-scrollbar { width: 6px; }
-        .match-list-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
-        .match-list-container::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
-        .match-list-container::-webkit-scrollbar-thumb:hover { background: #e1bc56; }
         
         .match-row { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; font-size: 1.05rem; background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 8px; width: 100%; border: 1px solid rgba(255,255,255,0.05);}
         .match-header-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; width: 100%; }
@@ -66,18 +62,12 @@
         .right-col { display: flex; flex-direction: column; gap: 20px; max-width: 100%;}
         
         .roster-container { max-height: 250px; overflow-y: auto; padding-right: 5px; }
-        .roster-container::-webkit-scrollbar { width: 6px; }
-        .roster-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 5px; }
-        .roster-container::-webkit-scrollbar-thumb { background: #555; border-radius: 5px; }
 
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); padding: 15px; }
         .modal-content { 
             background: #111; border: 1px solid #e1bc56; padding: 30px 20px; border-radius: 15px; width: 100%; max-width: 550px; color: white; text-align: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8); max-height: 90vh; overflow-y: auto; position: relative;
         }
-        .modal-content::-webkit-scrollbar { width: 8px; }
-        .modal-content::-webkit-scrollbar-track { background: transparent; }
-        .modal-content::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
 
         .modal-content h3 { color: #e1bc56; margin-top: 0; text-align: center; font-size: 1.4rem; margin-bottom: 15px;}
         .modal-content p { color: #bdc3c7; line-height: 1.5; margin-bottom: 20px; font-size: 1rem;}
@@ -101,9 +91,6 @@
         }
         .editor-input:focus { border-color: #e1bc56; box-shadow: 0 0 10px rgba(255, 211, 66, 0.2); }
         
-        input[type=number]::-webkit-inner-spin-button, 
-        input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type=number] { appearance: textfield; -moz-appearance: textfield; }
 
         .score-box { width: 55px; min-width: 55px; font-size: 1.2rem; font-weight: bold; background: #222; padding: 12px 5px;}
         .vs-text { font-size: 1.1rem; font-weight: bold; color: #7d7d7d; text-align: center; }
@@ -305,11 +292,11 @@
                 <div style="width: 100%; border-bottom: 1px solid #444; padding-bottom: 10px; margin-bottom: 5px;">
                     <span style="color: #e1bc56; font-weight: bold; font-size: 0.95rem; display: block; margin-bottom: 10px;"><i class="fa-solid fa-users"></i> Formato de Equipos</span>
                     <label style="cursor: pointer; font-size: 1rem; display: flex; align-items: center; gap: 10px; color: #fff;">
-                        <input type="radio" name="tm_mode" value="Organizado" style="width: auto; cursor:pointer;"> 
+                        <input type="radio" name="tm_mode" value="Organizado"> 
                         📋 Organizado (Predefinidos)
                     </label>
                     <label style="cursor: pointer; font-size: 1rem; display: flex; align-items: center; gap: 10px; color: #fff; margin-top: 10px;">
-                        <input type="radio" name="tm_mode" value="Barrio" style="width: auto; cursor:pointer;"> 
+                        <input type="radio" name="tm_mode" value="Barrio"> 
                         ⚽ Barrio (Capitanes eligen)
                     </label>
                 </div>
@@ -317,11 +304,11 @@
                 <div style="width: 100%; padding-top: 5px;">
                     <span style="color: #e1bc56; font-weight: bold; font-size: 0.95rem; display: block; margin-bottom: 10px;"><i class="fa-solid fa-map-location-dot"></i> Tipo de Cancha</span>
                     <label style="cursor: pointer; font-size: 1rem; display: flex; align-items: center; gap: 10px; color: #fff;">
-                        <input type="radio" name="tm_cancha" value="Futsal" style="width: auto; cursor:pointer;"> 
+                        <input type="radio" name="tm_cancha" value="Futsal"> 
                         🏟️ Futsal
                     </label>
                     <label style="cursor: pointer; font-size: 1rem; display: flex; align-items: center; gap: 10px; color: #fff; margin-top: 10px;">
-                        <input type="radio" name="tm_cancha" value="RealFutsal" style="width: auto; cursor:pointer;"> 
+                        <input type="radio" name="tm_cancha" value="RealFutsal"> 
                         🚩 Real Futsal
                     </label>
                 </div>
@@ -376,15 +363,15 @@
                     <span style="color: #e1bc56; font-weight: bold; font-size: 1rem;"><i class="fa-solid fa-map-location-dot"></i> Tipo de Cancha</span>
                     <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; margin-top: 5px;">
                         <label style="cursor: pointer; font-size: 1rem; display: flex; align-items: center; gap: 8px; color: #fff;">
-                            <input type="radio" name="modal_m_mode" value="Futsal" style="width: auto; cursor:pointer;" checked> 
+                            <input type="radio" name="modal_m_mode" value="Futsal" checked> 
                             FS (Futsal)
                         </label>
                         <label style="cursor: pointer; font-size: 1rem; display: flex; align-items: center; gap: 8px; color: #fff;">
-                            <input type="radio" name="modal_m_mode" value="RealFutsal" style="width: auto; cursor:pointer;"> 
+                            <input type="radio" name="modal_m_mode" value="RealFutsal"> 
                             RF (Real Futsal)
                         </label>
                         <label style="cursor: pointer; font-size: 1rem; display: flex; align-items: center; gap: 8px; color: #fff;">
-                            <input type="radio" name="modal_m_mode" value="RealSoccer" style="width: auto; cursor:pointer;"> 
+                            <input type="radio" name="modal_m_mode" value="RealSoccer"> 
                             RS (Real Soccer)
                         </label>
                     </div>
@@ -428,6 +415,7 @@
 
     <footer><p>© 2026 ToroHax. Todos los derechos reservados.</p></footer>
 
+    <script src="torohax-ui.js"></script>
     <script src="header.js"></script>
     <script src="sidebar.js"></script>
 
@@ -447,7 +435,8 @@
         let editingId = null; 
         
         let initialDataLoaded = false;
-        let historialMatches = []; 
+        let isRoomActive = false;
+        let historialMatches = [];
 
         const tag = document.createElement('script');
         tag.src = "https://www.youtube.com/iframe_api";
@@ -895,7 +884,7 @@
                     document.querySelector('.modal-btn.cancel').style.display = 'none';
                 }
             } catch (e) { 
-                alert("Error de conexión al abrir postulaciones."); 
+                ThUI.alert("Error de conexión al abrir postulaciones."); 
             }
             
             btn.innerHTML = '<i class="fa-solid fa-door-open"></i> Abrir Inscripciones'; 
@@ -916,9 +905,9 @@
                 if(data.success) {
                     cargarTodoJunto();
                 } else {
-                    alert(data.message);
+                    ThUI.alert(data.message);
                 }
-            } catch (e) { alert("Error de conexión al cerrar."); }
+            } catch (e) { ThUI.alert("Error de conexión al cerrar."); }
             
             btn.innerHTML = '<i class="fa-solid fa-door-closed"></i> Cerrar Inscripciones'; 
             btn.disabled = false;
@@ -953,12 +942,12 @@
                 if(data.success) {
                     cargarTodoJunto();
                 } else { 
-                    alert(data.message);
+                    ThUI.alert(data.message);
                     btn.innerHTML = '<i class="fa-solid fa-check"></i> Inscribirme al Partido'; 
                     btn.disabled = false; 
                 }
             } catch(e) {
-                alert("Error al conectar con el servidor.");
+                ThUI.alert("Error al conectar con el servidor.");
                 btn.innerHTML = '<i class="fa-solid fa-check"></i> Inscribirme al Partido'; 
                 btn.disabled = false;
             }
@@ -983,12 +972,12 @@
                 if(data.success) {
                     cargarTodoJunto();
                 } else { 
-                    alert(data.message);
+                    ThUI.alert(data.message);
                     btn.innerHTML = '<i class="fa-solid fa-xmark"></i> Cancelar Inscripción'; 
                     btn.disabled = false; 
                 }
             } catch(e) {
-                alert("Error al conectar con el servidor.");
+                ThUI.alert("Error al conectar con el servidor.");
                 btn.innerHTML = '<i class="fa-solid fa-xmark"></i> Cancelar Inscripción'; 
                 btn.disabled = false;
             }
@@ -1007,10 +996,10 @@
                 if(data.success) {
                     if (equipo !== 0) btnElement.classList.add('active');
                 } else {
-                    alert(data.message);
+                    ThUI.alert(data.message);
                 }
             } catch(e) {
-                alert("Error de conexión al asignar equipo.");
+                ThUI.alert("Error de conexión al asignar equipo.");
             }
         }
 
@@ -1026,10 +1015,10 @@
                     if(data.success) {
                         cargarTodoJunto(); 
                     } else {
-                        alert(data.message);
+                        ThUI.alert(data.message);
                     }
                 } catch(e) {
-                    alert("Error de conexión al expulsar al jugador.");
+                    ThUI.alert("Error de conexión al expulsar al jugador.");
                 }
             });
         }
@@ -1050,12 +1039,12 @@
                 if(data.success) {
                     cargarTodoJunto();
                 } else {
-                    alert(data.message);
+                    ThUI.alert(data.message);
                     btnElement.innerHTML = originalHTML;
                     btnElement.disabled = false;
                 }
             } catch(e) {
-                alert("Error de conexión al cambiar presencia.");
+                ThUI.alert("Error de conexión al cambiar presencia.");
                 btnElement.innerHTML = originalHTML;
                 btnElement.disabled = false;
             }
@@ -1190,7 +1179,7 @@
         }
 
         async function guardarRating() {
-            if (currentRating === 0) return alert("Por favor selecciona al menos 1 estrella.");
+            if (currentRating === 0) return ThUI.alert("Por favor selecciona al menos 1 estrella.");
             try {
                 const res = await fetch(`https://torobot-izu5.onrender.com/api/matches/${ratingMatchId}/rate`, {
                     method: 'POST',
@@ -1203,10 +1192,10 @@
                     cerrarModalRating();
                     cargarHistorial();
                 } else {
-                    alert(data.message || "Error al guardar calificación.");
+                    ThUI.alert(data.message || "Error al guardar calificación.");
                 }
             } catch(e) {
-                alert("Error de conexión.");
+                ThUI.alert("Error de conexión.");
             }
         }
 
@@ -1274,7 +1263,7 @@
             
             const matchMode = document.querySelector('input[name="modal_m_mode"]:checked').value;
 
-            if(!equipo1 || !equipo2 || !date) return alert("Debes llenar los nombres de los equipos y la fecha.");
+            if(!equipo1 || !equipo2 || !date) return ThUI.alert("Debes llenar los nombres de los equipos y la fecha.");
 
             const url = editingId ? `https://torobot-izu5.onrender.com/api/matches/${editingId}` : 'https://torobot-izu5.onrender.com/api/matches';
             const method = editingId ? 'PUT' : 'POST';
@@ -1297,9 +1286,9 @@
                     cerrarModal();
                     cargarHistorial(); 
                 } else {
-                    alert("Error: No tienes permisos.");
+                    ThUI.alert("Error: No tienes permisos.");
                 }
-            } catch (err) { alert("Error de conexión."); }
+            } catch (err) { ThUI.alert("Error de conexión."); }
         }
 
         function borrarPartido(id) {
@@ -1312,8 +1301,8 @@
                     });
                     const data = await res.json();
                     if(data.success) cargarHistorial();
-                    else alert("Error al borrar.");
-                } catch (err) { alert("Error de conexión."); }
+                    else ThUI.alert("Error al borrar.");
+                } catch (err) { ThUI.alert("Error de conexión."); }
             });
         }
 
