@@ -17,7 +17,6 @@
     <style>
         .tienda-wrapper { width: 95%; max-width: 1000px; margin: 10vh auto 50px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
         .store-card { background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; display: flex; flex-direction: column; justify-content: space-between; transition: 0.3s; }
-        .store-card:hover { border-color: #e1bc56; transform: translateY(-5px); }
         .store-card h2 { color: #e1bc56; text-transform: uppercase; margin-top: 0; letter-spacing: 1px; font-size: 1.8rem; }
         .vip-icon { font-size: 4rem; margin: 20px 0; color: #e6bd35; filter: drop-shadow(0 0 10px rgba(230, 189, 53, 0.4)); }
 
@@ -64,7 +63,7 @@
         .store-btn:hover:not(:disabled) { background: #007eb5; box-shadow: 0 0 15px rgba(0, 158, 227, 0.4); }
         .store-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        @media (max-width: 768px) { .tienda-wrapper { grid-template-columns: 1fr; margin-top: 8vh; } .store-card { padding: 22px 18px; } .store-card:hover { transform: none; } }
+        @media (max-width: 768px) { .tienda-wrapper { grid-template-columns: 1fr; margin-top: 8vh; } .store-card { padding: 22px 18px; } }
         @media (prefers-reduced-motion: reduce) { .store-card { transition: none; } }
     </style>
 </head>
@@ -77,6 +76,8 @@
 
     <main>
         <div class="tienda-wrapper">
+
+            <a href="tienda.html" class="store-btn"><i class="fa-solid fa-cart-shopping"></i> Volver a la tienda</a>
 
             <div class="store-card">
                 <h2>Beneficios VIP</h2>

@@ -518,7 +518,7 @@
                     });
                     const data = await res.json();
                     if (data.success) {
-                        await showCustomAlert("Éxito", `¡${modalCurrentPlayerName} ahora es Administrador!`, true);
+                        await showCustomAlert("Éxito", `¡${modalCurrentPlayerName} ahora es Administrador!` + (data.vip ? ' También recibió VIP permanente.' : ' No recibió VIP porque no tiene Discord enlazado.'), true);
                         cargarListaAdmins();
                         abrirPlayerDetailsOwner(modalCurrentPlayerId); 
                     } else showCustomAlert("Error", data.message);

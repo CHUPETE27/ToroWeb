@@ -18,7 +18,6 @@
         .tienda-wrapper { width: 95%; max-width: 1000px; margin: 10vh auto 50px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
 
         .store-card { background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; display: flex; flex-direction: column; justify-content: space-between; transition: 0.3s; }
-        .store-card:hover { border-color: #e1bc56; transform: translateY(-5px); }
 
         .store-card h2 { color: #e1bc56; text-transform: uppercase; margin-top: 0; letter-spacing: 1px; font-size: 1.8rem; }
         .store-icon { font-size: 4rem; margin: 20px 0; color: #5dc8e8; filter: drop-shadow(0 0 10px rgba(93, 200, 232, 0.4)); }
@@ -68,7 +67,7 @@
         .balance-line { font-size: 0.85rem; color: #7d7d7d; margin: 0 0 15px; min-height: 1.2em; }
         .balance-line strong { color: #5dc8e8; }
 
-        @media (max-width: 768px) { .tienda-wrapper { grid-template-columns: 1fr; margin-top: 8vh; } .store-card { padding: 22px 18px; } .store-card:hover { transform: none; } }
+        @media (max-width: 768px) { .tienda-wrapper { grid-template-columns: 1fr; margin-top: 8vh; } .store-card { padding: 22px 18px; } }
         @media (prefers-reduced-motion: reduce) { .store-card { transition: none; } }
     </style>
 </head>
@@ -86,6 +85,13 @@
                     <h2>Membresía VIP</h2>
                     <i class="fa-solid fa-crown store-icon vip-icon"></i>
                     <p class="store-desc">Accede a ventajas exclusivas, comandos especiales, color en el chat y más torocoins.</p>
+                    <ul class="perks-list">
+                        <li><i class="fa-solid fa-check"></i> Rol y color exclusivo en nuestro Discord.</li>
+                        <li><i class="fa-solid fa-check"></i> Ícono VIP y colores personalizados en el chat de la sala.</li>
+                        <li><i class="fa-solid fa-check"></i> Mensajes de entrada, salida y de gol personalizables.</li>
+                        <li><i class="fa-solid fa-check"></i> Acceso a comandos exclusivos en la sala.</li>
+                        <li><i class="fa-solid fa-check"></i> Descuento de un 30% en la tienda.</li>
+                    </ul>
                 </div>
                 <a href="vip.html" class="store-btn"><i class="fa-solid fa-star"></i> VER OPCIONES VIP</a>
             </div>
