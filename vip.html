@@ -23,35 +23,68 @@
 
         .perks-list { text-align: left; margin: 20px 0; padding: 0; list-style: none; color: #bdc3c7; line-height: 1.8; }
         .perks-list li { border-bottom: 1px solid #333; padding: 10px 0; }
-        .perks-list li i { color: #2df2c1; margin-right: 10px; width: 20px; text-align: center;}
+        .perks-list li i { color: #2df2c1; margin-right: 10px; width: 20px; text-align: center; }
 
-        .vip-type-select { display: flex; gap: 10px; justify-content: center; margin-bottom: 20px; }
-        .vip-type-select label { background: #111; border: 1px solid #555; padding: 10px 15px; border-radius: 8px; cursor: pointer; color: #bdc3c7; transition: 0.3s; font-weight: bold; width: 50%; }
-        .vip-type-select input[type="radio"] { display: none; }
-        .vip-type-select input[type="radio"]:checked + label { background: rgba(255, 211, 66, 0.2); border-color: #e1bc56; color: #e1bc56; }
+        .vip-status { display: none; border-radius: 8px; padding: 10px 12px; font-size: 0.9rem; margin: 0 0 18px; border: 1px solid #333; background: rgba(0,0,0,0.3); color: #bdc3c7; }
+        .vip-status.show { display: block; }
+        .vip-status.active { border-color: #2df2c1; color: #2df2c1; background: rgba(45, 242, 193, 0.07); }
+        .vip-status.perm { border-color: #e1bc56; color: #e1bc56; background: rgba(225, 188, 86, 0.08); }
 
-        .tc-calculator { display: flex; justify-content: center; align-items: center; gap: 15px; margin: 20px 0; transition: opacity 0.3s; }
+        .seg { display: flex; gap: 10px; }
+        .seg input[type="radio"] { position: absolute; opacity: 0; pointer-events: none; }
+        .seg label { flex: 1; text-align: center; background: #111; border: 1px solid #444; padding: 10px 12px; border-radius: 8px; cursor: pointer; color: #bdc3c7; font-weight: bold; font-size: 0.95rem; transition: 0.2s; }
+        .seg label:hover { border-color: #888; }
+        .seg input[type="radio"]:checked + label { background: rgba(225, 188, 86, 0.15); border-color: #e1bc56; color: #e1bc56; }
+        .seg input[type="radio"]:focus-visible + label { outline: 2px solid #e1bc56; outline-offset: 2px; }
+        .vip-type-select { margin-bottom: 20px; }
+
+        .tc-calculator { display: flex; justify-content: center; align-items: center; gap: 15px; margin: 20px 0 8px; transition: opacity 0.3s; }
         .tc-calculator.disabled { opacity: 0.3; pointer-events: none; }
-        .calc-btn { background: #333; color: white; border: 1px solid #555; width: 40px; height: 40px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; transition: 0.2s; }
+        .calc-btn { background: #333; color: white; border: 1px solid #555; width: 42px; height: 42px; border-radius: 50%; font-size: 1.1rem; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
         .calc-btn:hover { background: #e1bc56; color: #111; border-color: #e1bc56; }
+        .calc-btn:focus-visible { outline: 2px solid #e1bc56; outline-offset: 2px; }
 
-        .tc-input { width: 80px; background: #111; border: 1px solid #5dc8e8; color: #e1bc56; font-size: 1.5rem; font-weight: bold; text-align: center; padding: 10px; border-radius: 8px; outline: none; }
-        .tc-input::-webkit-inner-spin-button, .tc-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        .tc-input { width: 90px; background: #111; border: 1px solid #5dc8e8; color: #e1bc56; font-size: 1.6rem; font-weight: bold; text-align: center; padding: 10px; border-radius: 8px; outline: none; transition: 0.2s; font-family: inherit; }
+        .tc-input:focus { border-color: #e1bc56; box-shadow: 0 0 10px rgba(225, 188, 86, 0.25); }
+        .meses-label { margin: 0 0 18px; color: #7d7d7d; font-size: 0.9rem; transition: opacity 0.3s; }
 
-        .price-display { font-size: 1.2rem; color: #bdc3c7; margin-bottom: 20px; }
+        .price-display { font-size: 1.1rem; color: #bdc3c7; margin-bottom: 20px; }
         .price-display strong { color: #2df2c1; font-size: 1.8rem; display: block; margin-top: 5px; }
         .vip-alert { background: rgba(255, 211, 66, 0.1); border: 1px solid #e1bc56; color: #e1bc56; padding: 10px; border-radius: 8px; font-size: 0.9rem; margin-bottom: 20px; display: none; }
 
-        .gift-section { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #333; text-align: left; }
-        .gift-options { display: flex; gap: 15px; margin-bottom: 15px; justify-content: center; }
-        .gift-options label { cursor: pointer; color: #bdc3c7; font-size: 0.95rem; display: flex; align-items: center; gap: 5px; }
-        .gift-id-input { width: 100%; background: #111; border: 1px solid #555; color: white; padding: 10px; border-radius: 5px; text-align: center; display: none; box-sizing: border-box; outline: none; }
-        .gift-id-input:focus { border-color: #e1bc56; }
+        .gift-section { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #333; text-align: left; }
+        .gift-fields { display: none; margin-top: 14px; }
+        .gift-fields.show { display: block; }
+        .gift-id-input { width: 100%; background: #111; border: 1px solid #555; color: white; padding: 12px; border-radius: 8px; text-align: center; box-sizing: border-box; outline: none; font-size: 1rem; transition: 0.2s; font-family: inherit; }
+        .gift-id-input:focus { border-color: #e1bc56; box-shadow: 0 0 8px rgba(225, 188, 86, 0.2); }
+        .gift-id-input.invalid { border-color: #e74c3c; }
+        .gift-note { font-size: 0.8rem; color: #7d7d7d; margin: 8px 0 0; text-align: center; }
 
-        .store-btn { width: 100%; background: #009ee3; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: 0.3s; margin-top: auto; }
-        .store-btn:hover { background: #007eb5; box-shadow: 0 0 15px rgba(0, 158, 227, 0.4); }
+        .store-btn { width: 100%; background: #009ee3; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; cursor: pointer; transition: 0.3s; margin-top: auto; font-family: inherit; }
+        .store-btn:hover:not(:disabled) { background: #007eb5; box-shadow: 0 0 15px rgba(0, 158, 227, 0.4); }
+        .store-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        @media (max-width: 768px) { .tienda-wrapper { grid-template-columns: 1fr; } }
+        .shop-modal { max-width: 440px; text-align: center; animation: shopPop 0.2s ease; }
+        .shop-modal.tone-error { border-color: #e74c3c; }
+        .shop-modal.tone-warn { border-color: #e1bc56; }
+        .shop-modal.tone-success { border-color: #2df2c1; }
+        .shop-modal-icon { font-size: 2.6rem; margin-bottom: 10px; color: #5dc8e8; }
+        .tone-error .shop-modal-icon { color: #e74c3c; }
+        .tone-warn .shop-modal-icon { color: #e1bc56; }
+        .tone-success .shop-modal-icon { color: #2df2c1; }
+        .shop-modal h3 { margin: 0 0 12px; color: #e1bc56; font-size: 1.4rem; }
+        .shop-modal p { color: #bdc3c7; line-height: 1.5; margin: 0 0 8px; }
+        .shop-summary { background: rgba(0,0,0,0.35); border: 1px solid #333; border-radius: 10px; padding: 4px 14px; margin: 14px 0 6px; text-align: left; }
+        .shop-summary .row { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid #262626; color: #bdc3c7; font-size: 0.95rem; }
+        .shop-summary .row:last-child { border-bottom: none; }
+        .shop-summary .row strong { color: #fff; text-align: right; word-break: break-word; }
+        .shop-summary .row.total strong { color: #2df2c1; font-size: 1.15rem; }
+        .shop-modal .modal-btn-row { margin-top: 20px; }
+        .shop-modal .modal-btn.cancel { margin: 0; }
+        @keyframes shopPop { from { opacity: 0; transform: translateY(10px) scale(0.97); } to { opacity: 1; transform: none; } }
+
+        @media (max-width: 768px) { .tienda-wrapper { grid-template-columns: 1fr; margin-top: 8vh; } .store-card { padding: 22px 18px; } .store-card:hover { transform: none; } }
+        @media (prefers-reduced-motion: reduce) { .shop-modal { animation: none; } .store-card { transition: none; } }
     </style>
 </head>
 <body>
@@ -63,7 +96,7 @@
 
     <main>
         <div class="tienda-wrapper">
-            
+
             <div class="store-card">
                 <h2>Beneficios VIP</h2>
                 <i class="fa-solid fa-crown vip-icon"></i>
@@ -79,40 +112,48 @@
             <div class="store-card">
                 <div>
                     <h2>Comprar VIP</h2>
-                    
-                    <div class="vip-type-select">
+
+                    <div class="vip-status" id="vipStatus"></div>
+
+                    <div class="seg vip-type-select" role="radiogroup" aria-label="Tipo de VIP">
                         <input type="radio" id="vipMeses" name="tipoVip" value="mensual" checked onchange="actualizarModoVIP()">
                         <label for="vipMeses">Por Meses</label>
-                        
+
                         <input type="radio" id="vipPerm" name="tipoVip" value="permanente" onchange="actualizarModoVIP()">
                         <label for="vipPerm">Permanente</label>
                     </div>
-                    
+
                     <div class="tc-calculator" id="calcMeses">
-                        <button class="calc-btn" onclick="ajustarMeses(-1)"><i class="fa-solid fa-minus"></i></button>
-                        <input type="number" id="mesesCantidad" class="tc-input" value="1" min="1" max="12" oninput="limitarMesesTiempoReal()" onblur="aplicarMinimoMeses()">
-                        <button class="calc-btn" onclick="ajustarMeses(1)"><i class="fa-solid fa-plus"></i></button>
+                        <button type="button" class="calc-btn" onclick="ajustarMeses(-1)" aria-label="Restar un mes"><i class="fa-solid fa-minus"></i></button>
+                        <input type="text" inputmode="numeric" autocomplete="off" maxlength="2" id="mesesCantidad" class="tc-input" value="1" aria-label="Cantidad de meses" oninput="alEscribirMeses()" onblur="aplicarMinimoMeses()" onkeydown="if(event.key==='Enter'){procesarPago();}">
+                        <button type="button" class="calc-btn" onclick="ajustarMeses(1)" aria-label="Sumar un mes"><i class="fa-solid fa-plus"></i></button>
                     </div>
-                    <p id="mesesLabel" style="margin-top: -10px; margin-bottom: 20px; color: #7d7d7d; font-size: 0.9rem;">(Meses)</p>
+                    <p class="meses-label" id="mesesLabel">Meses (de 1 a 12)</p>
 
                     <div id="vipAlert" class="vip-alert">
                         <i class="fa-solid fa-lightbulb"></i> ¡Te conviene más el <strong>VIP Permanente</strong>! Ahorrarás dinero.
                     </div>
 
                     <div class="price-display">
-                        Total a pagar: <strong>$<span id="clpTotal">690</span> CLP</strong>
+                        Total a pagar
+                        <strong>$<span id="clpTotal">690</span> CLP</strong>
                     </div>
 
                     <div class="gift-section">
-                        <div class="gift-options">
-                            <label><input type="radio" name="destino" value="self" checked onchange="toggleGift()"> Para mí</label>
-                            <label><input type="radio" name="destino" value="gift" onchange="toggleGift()"> Regalar</label>
+                        <div class="seg" role="radiogroup" aria-label="Destino de la compra">
+                            <input type="radio" name="destino" id="destSelf" value="self" checked onchange="toggleGift()">
+                            <label for="destSelf"><i class="fa-solid fa-user"></i> Para mí</label>
+                            <input type="radio" name="destino" id="destGift" value="gift" onchange="toggleGift()">
+                            <label for="destGift"><i class="fa-solid fa-gift"></i> Regalar</label>
                         </div>
-                        <input type="number" id="giftId" class="gift-id-input" placeholder="ID del jugador a regalar (ej: 145)">
+                        <div class="gift-fields" id="giftFields">
+                            <input type="text" inputmode="numeric" autocomplete="off" maxlength="9" id="giftId" class="gift-id-input" placeholder="ID del jugador a regalar (ej: 145)" aria-label="ID del jugador a regalar" oninput="alEscribirGift()" onkeydown="if(event.key==='Enter'){procesarPago();}">
+                            <p class="gift-note">Puedes ver la ID de un jugador con <strong>!id</strong> en la sala.</p>
+                        </div>
                     </div>
                 </div>
 
-                <button id="btnPagar" class="store-btn" onclick="procesarPago()">
+                <button type="button" id="btnPagar" class="store-btn" onclick="procesarPago()">
                     <i class="fa-solid fa-handshake"></i> Pagar
                 </button>
             </div>
@@ -120,96 +161,216 @@
         </div>
     </main>
 
+    <div class="modal-overlay" id="shopModal" role="dialog" aria-modal="true" aria-labelledby="shopModalTitle">
+        <div class="modal-content shop-modal" id="shopModalBox">
+            <div class="shop-modal-icon" id="shopModalIcon"></div>
+            <h3 id="shopModalTitle"></h3>
+            <div id="shopModalBody"></div>
+            <div class="modal-btn-row">
+                <button type="button" class="modal-btn cancel" id="shopModalCancel">Cancelar</button>
+                <button type="button" class="modal-btn" id="shopModalOk">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
     <footer><p>© 2026 ToroHax. Todos los derechos reservados.</p></footer>
 
     <script src="header.js"></script>
     <script src="sidebar.js"></script>
 
     <script>
-        const loggedId = localStorage.getItem('toroHaxLoggedId');
-        if (!loggedId) {
-            alert("Debes iniciar sesión para acceder a la tienda VIP.");
-            window.location.href = 'login.html';
+        const API = 'https://torobot-izu5.onrender.com';
+        const PRECIO_MENSUAL = 690, PRECIO_PERMANENTE = 3990, MESES_MAX = 12, PERM = 999;
+
+        const modalEl = document.getElementById('shopModal');
+        const modalBox = document.getElementById('shopModalBox');
+        const modalOk = document.getElementById('shopModalOk');
+        const modalCancel = document.getElementById('shopModalCancel');
+        let modalResolve = null;
+        let modalPrevFocus = null;
+
+        function esc(t) {
+            return String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         }
 
-        const precioMensual = 690;
-        const precioPermanente = 3990;
-        
+        function mostrarModal(opts) {
+            return new Promise(resolve => {
+                if (modalResolve) modalResolve(false);
+                modalResolve = resolve;
+                modalPrevFocus = document.activeElement;
+
+                modalBox.className = 'modal-content shop-modal tone-' + (opts.tone || 'info');
+                document.getElementById('shopModalIcon').innerHTML = '<i class="fa-solid ' + (opts.icon || 'fa-circle-info') + '"></i>';
+                document.getElementById('shopModalTitle').textContent = opts.title || '';
+                document.getElementById('shopModalBody').innerHTML = opts.html || '';
+                modalOk.textContent = opts.okText || 'Aceptar';
+                modalCancel.textContent = opts.cancelText || 'Cancelar';
+                modalCancel.style.display = opts.cancelText === null ? 'none' : '';
+
+                modalEl.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+                modalOk.focus();
+            });
+        }
+
+        function cerrarModal(resultado) {
+            if (!modalResolve) return;
+            const r = modalResolve;
+            modalResolve = null;
+            modalEl.style.display = 'none';
+            document.body.style.overflow = '';
+            if (modalPrevFocus && modalPrevFocus.focus) modalPrevFocus.focus();
+            r(resultado);
+        }
+
+        modalOk.addEventListener('click', () => cerrarModal(true));
+        modalCancel.addEventListener('click', () => cerrarModal(false));
+        modalEl.addEventListener('click', e => { if (e.target === modalEl) cerrarModal(false); });
+        document.addEventListener('keydown', e => {
+            if (!modalResolve) return;
+            if (e.key === 'Escape') cerrarModal(false);
+            if (e.key === 'Tab') { 
+                const focusables = [modalCancel, modalOk].filter(b => b.style.display !== 'none');
+                const first = focusables[0], last = focusables[focusables.length - 1];
+                if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+                else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+            }
+        });
+
+        function aviso(tone, title, html) {
+            const icon = { error: 'fa-circle-xmark', warn: 'fa-triangle-exclamation', success: 'fa-circle-check', info: 'fa-circle-info' }[tone];
+            return mostrarModal({ tone, icon, title, html: '<p>' + html + '</p>', okText: 'Entendido', cancelText: null });
+        }
+
+        function filas(items) {
+            return '<div class="shop-summary">' + items.map(([k, v, cls]) => '<div class="row ' + (cls || '') + '"><span>' + k + '</span><strong>' + v + '</strong></div>').join('') + '</div>';
+        }
+
+        const loggedId = localStorage.getItem('toroHaxLoggedId');
+        if (!loggedId) {
+            mostrarModal({ tone: 'warn', icon: 'fa-lock', title: 'Inicia sesión', html: '<p>Debes iniciar sesión para acceder a la tienda VIP.</p>', okText: 'Ir a iniciar sesión', cancelText: null })
+                .then(() => { window.location.href = 'login.html'; });
+        }
+
         const mesesInput = document.getElementById('mesesCantidad');
         const clpTotal = document.getElementById('clpTotal');
         const vipAlert = document.getElementById('vipAlert');
         const calcDiv = document.getElementById('calcMeses');
         const mesesLabel = document.getElementById('mesesLabel');
+        const giftIdInput = document.getElementById('giftId');
+        const giftFields = document.getElementById('giftFields');
+        const btnPagar = document.getElementById('btnPagar');
+        const vipStatus = document.getElementById('vipStatus');
 
-        function actualizarModoVIP() {
-            const esPermanente = document.getElementById('vipPerm').checked;
-            if (esPermanente) {
-                calcDiv.classList.add('disabled');
-                mesesLabel.style.opacity = '0.3';
-                vipAlert.style.display = 'none';
-                clpTotal.innerText = precioPermanente;
-            } else {
-                calcDiv.classList.remove('disabled');
-                mesesLabel.style.opacity = '1';
-                calcularPrecio(); 
-            }
+        const fmt = n => Number(n).toLocaleString('es-CL');
+        const BTN_PAGAR = '<i class="fa-solid fa-handshake"></i> Pagar';
+        const fechaLarga = d => new Date(d).toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' });
+
+        function esPermanente() { return document.getElementById('vipPerm').checked; }
+        function mesesActuales() {
+            const n = parseInt(mesesInput.value.replace(/\D/g, ''), 10);
+            return isNaN(n) ? 0 : n;
+        }
+        function precioActual() { return esPermanente() ? PRECIO_PERMANENTE : Math.min(Math.max(mesesActuales(), 1), MESES_MAX) * PRECIO_MENSUAL; }
+
+        function refrescar() {
+            const perm = esPermanente();
+            calcDiv.classList.toggle('disabled', perm);
+            mesesLabel.style.opacity = perm ? '0.3' : '1';
+            const meses = Math.min(Math.max(mesesActuales(), 1), MESES_MAX);
+            mesesLabel.textContent = perm ? 'VIP sin fecha de vencimiento' : (meses === 1 ? 'Mes' : 'Meses') + ' (de 1 a ' + MESES_MAX + ')';
+            vipAlert.style.display = (!perm && meses >= 6) ? 'block' : 'none';
+            clpTotal.textContent = fmt(precioActual());
+            btnPagar.innerHTML = BTN_PAGAR + ' $' + fmt(precioActual()) + ' CLP';
         }
 
-        function limitarMesesTiempoReal() {
-            let meses = parseInt(mesesInput.value);
-            if (meses > 12) { mesesInput.value = 12; meses = 12; }
-            if (!isNaN(meses) && !document.getElementById('vipPerm').checked) {
-                clpTotal.innerText = meses * precioMensual;
-                vipAlert.style.display = (meses >= 6) ? 'block' : 'none';
-            }
+        function actualizarModoVIP() { refrescar(); }
+
+        function alEscribirMeses() {
+            let n = mesesInput.value.replace(/\D/g, '').replace(/^0+/, '');
+            if (n !== '' && parseInt(n, 10) > MESES_MAX) n = String(MESES_MAX);
+            mesesInput.value = n;
+            refrescar();
         }
 
         function aplicarMinimoMeses() {
-            let meses = parseInt(mesesInput.value);
-            if (isNaN(meses) || meses < 1) { mesesInput.value = 1; meses = 1; }
-            if (!document.getElementById('vipPerm').checked) {
-                clpTotal.innerText = meses * precioMensual;
-                vipAlert.style.display = (meses >= 6) ? 'block' : 'none';
-            }
-        }
-
-        function calcularPrecio() {
-            if (document.getElementById('vipPerm').checked) return; 
-            aplicarMinimoMeses();
+            let n = mesesActuales();
+            if (n < 1) n = 1;
+            if (n > MESES_MAX) n = MESES_MAX;
+            mesesInput.value = n;
+            refrescar();
         }
 
         function ajustarMeses(valor) {
-            if (document.getElementById('vipPerm').checked) return;
-            let actual = parseInt(mesesInput.value) || 1;
-            actual += valor;
-            if(actual < 1) actual = 1;
-            if(actual > 12) actual = 12;
-            mesesInput.value = actual;
-            calcularPrecio();
+            if (esPermanente()) return;
+            let n = (mesesActuales() || 1) + valor;
+            if (n < 1) n = 1;
+            if (n > MESES_MAX) n = MESES_MAX;
+            mesesInput.value = n;
+            refrescar();
         }
 
-        const giftIdInput = document.getElementById('giftId');
+        function esRegalo() { return document.querySelector('input[name="destino"]:checked').value === 'gift'; }
+
         function toggleGift() {
-            const isGift = document.querySelector('input[name="destino"]:checked').value === 'gift';
-            giftIdInput.style.display = isGift ? 'block' : 'none';
+            const gift = esRegalo();
+            giftFields.classList.toggle('show', gift);
+            if (gift) giftIdInput.focus();
+        }
+
+        function alEscribirGift() {
+            giftIdInput.value = giftIdInput.value.replace(/\D/g, '');
+            giftIdInput.classList.remove('invalid');
+        }
+
+        const vipPermanente = j => j.isVip && !j.vipExpiration;
+        const vipVigente = j => j.isVip && j.vipExpiration && new Date(j.vipExpiration) > new Date();
+
+        async function cargarEstadoPropio() {
+            if (!loggedId) return;
+            try {
+                const r = await fetch(API + '/get-player/' + encodeURIComponent(loggedId));
+                const d = await r.json();
+                if (!d || !d.numericId) return;
+                if (vipPermanente(d)) {
+                    vipStatus.className = 'vip-status show perm';
+                    vipStatus.innerHTML = '<i class="fa-solid fa-crown"></i> Ya eres VIP permanente. ¡Gracias por apoyar a ToroHax!';
+                } else if (vipVigente(d)) {
+                    vipStatus.className = 'vip-status show active';
+                    vipStatus.innerHTML = '<i class="fa-solid fa-circle-check"></i> Tu VIP vence el <strong>' + fechaLarga(d.vipExpiration) + '</strong>. Si compras meses, se suman al tiempo que te queda.';
+                }
+            } catch (e) { /* es solo informativo */ }
+        }
+
+        function liberarBoton() {
+            btnPagar.disabled = false;
+            refrescar();
+        }
+
+        async function consultarJugador(id) {
+            const r = await fetch(API + '/get-player/' + encodeURIComponent(id));
+            if (!r.ok) throw new Error('http ' + r.status);
+            return r.json();
         }
 
         async function procesarPago() {
-            const esPermanente = document.getElementById('vipPerm').checked;
+            if (btnPagar.disabled || !loggedId) return;
+
+            const perm = esPermanente();
             aplicarMinimoMeses();
-            const meses = esPermanente ? 999 : parseInt(mesesInput.value);
-            const precio = clpTotal.innerText.replace(/[^0-9]/g, '');
-            const isGift = document.querySelector('input[name="destino"]:checked').value === 'gift';
-            
+            const meses = perm ? PERM : mesesActuales();
+            const productoStr = perm ? 'VIP Permanente' : 'VIP por ' + meses + (meses === 1 ? ' mes' : ' meses');
+            const precio = perm ? PRECIO_PERMANENTE : meses * PRECIO_MENSUAL;
+
+            const regalo = esRegalo();
             let targetId = loggedId;
-            let productoStr = esPermanente ? "VIP Permanente" : `VIP por ${meses} mes(es)`;
 
-            const btnPagar = document.getElementById('btnPagar');
-
-            if (isGift) {
+            if (regalo) {
                 targetId = giftIdInput.value.trim();
-                if (!targetId) {
-                    alert("⚠️ Debes ingresar la ID del jugador al que le quieres regalar el VIP.");
+                if (!/^[1-9]\d*$/.test(targetId)) {
+                    giftIdInput.classList.add('invalid');
+                    giftIdInput.focus();
+                    await aviso('warn', 'Falta la ID', 'Ingresa la ID numérica del jugador al que le quieres regalar el VIP.');
                     return;
                 }
             }
@@ -217,66 +378,96 @@
             btnPagar.disabled = true;
             btnPagar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verificando ID...';
 
+            let jugador;
             try {
-                const response = await fetch(`https://torobot-izu5.onrender.com/get-player/${targetId}`);
-                const data = await response.json();
-
-                if (data.message === "Nuevo" || data.error || !data.numericId) {
-                    alert(`❌ La ID #${targetId} no existe en la base de datos de ToroHax.`);
-                    btnPagar.disabled = false;
-                    btnPagar.innerHTML = '<i class="fa-solid fa-handshake"></i> Pagar';
-                    return;
-                }
-                
-                let mensaje = isGift 
-                    ? `¿Quieres regalar [${productoStr}] al jugador ${data.name} (ID: #${targetId}) por $${precio} CLP?`
-                    : `Vas a comprar [${productoStr}] para tu cuenta por $${precio} CLP. ¿Continuar?`;
-
-                if (confirm(mensaje)) {
-                    irAMercadoPago(targetId, meses, precio);
-                } else {
-                    btnPagar.disabled = false;
-                    btnPagar.innerHTML = '<i class="fa-solid fa-handshake"></i> Pagar';
-                }
-
-            } catch (error) {
-                alert("❌ Error al comunicarse con el servidor.");
-                btnPagar.disabled = false;
-                btnPagar.innerHTML = '<i class="fa-solid fa-handshake"></i> Pagar';
+                jugador = await consultarJugador(targetId);
+            } catch (e) {
+                liberarBoton();
+                await aviso('error', 'Sin conexión', 'No pudimos comunicarnos con el servidor para verificar la cuenta. Inténtalo de nuevo en unos segundos.');
+                return;
             }
+
+            if (jugador.message === 'Nuevo' || jugador.error || !jugador.numericId) {
+                liberarBoton();
+                if (regalo) { giftIdInput.classList.add('invalid'); giftIdInput.focus(); }
+                await aviso('error', regalo ? 'Jugador no encontrado' : 'Cuenta no encontrada', regalo ? 'La ID <strong>#' + esc(targetId) + '</strong> no existe en ToroHax.' : 'No pudimos encontrar tu cuenta. Cierra sesión y vuelve a entrar.');
+                return;
+            }
+
+            const nombre = esc(jugador.name) + ' (#' + esc(jugador.numericId) + ')';
+
+            if (vipPermanente(jugador)) {
+                liberarBoton();
+                await aviso('error', 'Ya tiene VIP permanente', (regalo ? '<strong>' + esc(jugador.name) + '</strong> ya' : 'Tu cuenta ya') + ' tiene VIP permanente, no hace falta comprar más tiempo.');
+                return;
+            }
+
+            const vigente = vipVigente(jugador);
+            const detalle = [
+                ['Producto', productoStr],
+                [regalo ? 'Destinatario' : 'Cuenta', nombre]
+            ];
+            let nota = regalo ? 'Revisa los datos antes de continuar a Mercado Pago.' : 'Revisa tu compra antes de continuar a Mercado Pago.';
+            let tone = 'info';
+
+            if (vigente) {
+                detalle.push(['VIP actual vence', fechaLarga(jugador.vipExpiration)]);
+                if (perm) {
+                    tone = 'warn';
+                    nota = 'Ya tiene VIP por meses. Al pasar a <strong>permanente</strong> se reemplaza el tiempo restante y no se devuelve la diferencia.';
+                } else {
+                    const nueva = new Date(jugador.vipExpiration);
+                    nueva.setMonth(nueva.getMonth() + meses);
+                    detalle.push(['Nuevo vencimiento', fechaLarga(nueva)]);
+                    nota = 'Los meses se suman al tiempo VIP que ya tiene.';
+                }
+            }
+            detalle.push(['Total', '$' + fmt(precio) + ' CLP', 'total']);
+
+            liberarBoton();
+            const confirmar = await mostrarModal({
+                tone,
+                icon: tone === 'warn' ? 'fa-triangle-exclamation' : (regalo ? 'fa-gift' : 'fa-crown'),
+                title: regalo ? 'Confirmar regalo' : 'Confirmar compra',
+                html: '<p>' + nota + '</p>' + filas(detalle),
+                okText: 'Ir a pagar',
+                cancelText: 'Cancelar'
+            });
+            if (!confirmar) return;
+
+            irAMercadoPago(jugador.numericId, meses);
         }
 
-        async function irAMercadoPago(idDestino, amountMeses, precio) {
-            const btnPagar = document.getElementById('btnPagar');
+        async function irAMercadoPago(idDestino, amountMeses) {
+            btnPagar.disabled = true;
             btnPagar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando orden segura...';
 
             try {
-                const response = await fetch('https://torobot-izu5.onrender.com/api/create-preference', {
+                const response = await fetch(API + '/api/create-preference', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        type: 'VIP',
-                        targetId: parseInt(idDestino), 
-                        amount: parseInt(amountMeses), 
-                        priceCLP: parseInt(precio) 
-                    })
+                    body: JSON.stringify({ type: 'VIP', targetId: parseInt(idDestino, 10), amount: parseInt(amountMeses, 10) })
                 });
-                
                 const data = await response.json();
 
                 if (data.success && data.redirectUrl) {
+                    btnPagar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Redirigiendo a Mercado Pago...';
                     window.location.href = data.redirectUrl;
-                } else {
-                    alert("❌ Mercado Pago rechazó la orden: " + (data.message || "Error desconocido."));
-                    btnPagar.disabled = false;
-                    btnPagar.innerHTML = '<i class="fa-solid fa-handshake"></i> Pagar';
+                    return;
                 }
+
+                liberarBoton();
+                await aviso('error', 'No se pudo generar el pago', esc(data.message || 'Ocurrió un error inesperado. Inténtalo de nuevo.'));
             } catch (error) {
-                alert("❌ Error de red al intentar generar el pago.");
-                btnPagar.disabled = false;
-                btnPagar.innerHTML = '<i class="fa-solid fa-handshake"></i> Pagar';
+                liberarBoton();
+                await aviso('error', 'Error de conexión', 'No pudimos generar el pago. Revisa tu conexión e inténtalo de nuevo.');
             }
         }
+
+        window.addEventListener('pageshow', e => { if (e.persisted) liberarBoton(); });
+
+        refrescar();
+        cargarEstadoPropio();
     </script>
     <script src="scanner.js"></script>
 </body>
