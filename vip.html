@@ -15,14 +15,14 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .tienda-wrapper { width: 95%; max-width: 1000px; margin: 10vh auto 50px; display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
-        .store-card { background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; display: flex; flex-direction: column; justify-content: space-between; transition: 0.3s; }
-        .tienda-wrapper > .btn-volver { grid-column: 1 / -1; margin-bottom: 0; text-decoration: none; }
-        .store-card h2 { color: #e1bc56; text-transform: uppercase; margin-top: 0; letter-spacing: 1px; font-size: 1.8rem; }
-        .vip-icon { font-size: 4rem; margin: 20px 0; color: #e6bd35; filter: drop-shadow(0 0 10px rgba(230, 189, 53, 0.4)); }
+        .tienda-wrapper { width: min(92%, 860px); max-width: 860px; margin: 8vh auto 32px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: stretch; }
+        .store-card { background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 22px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; display: flex; flex-direction: column; justify-content: space-between; transition: 0.3s; }
+        .tienda-wrapper > .btn-salir { grid-column: 1 / -1; justify-self: center; margin-bottom: 0; text-decoration: none; }
+        .store-card h2 { color: #e1bc56; text-transform: uppercase; margin-top: 0; letter-spacing: 1px; font-size: 1.45rem; }
+        .vip-icon { font-size: 3.2rem; margin: 16px 0; color: #e6bd35; filter: drop-shadow(0 0 10px rgba(230, 189, 53, 0.4)); }
 
-        .perks-list { text-align: left; margin: 20px 0; padding: 0; list-style: none; color: #bdc3c7; line-height: 1.8; }
-        .perks-list li { border-bottom: 1px solid #333; padding: 10px 0; }
+        .perks-list { text-align: left; margin: 16px 0; padding: 0; list-style: none; color: #bdc3c7; line-height: 1.5; }
+        .perks-list li { border-bottom: 1px solid #333; padding: 8px 0; }
         .perks-list li i { color: #2df2c1; margin-right: 10px; width: 20px; text-align: center; }
 
         .vip-status { display: none; border-radius: 8px; padding: 10px 12px; font-size: 0.9rem; margin: 0 0 18px; border: 1px solid #333; background: rgba(0,0,0,0.3); color: #bdc3c7; }
@@ -78,7 +78,7 @@
     <main>
         <div class="tienda-wrapper">
 
-            <a href="tienda.html" class="btn-volver"><i class="fa-solid fa-arrow-left"></i> Volver a la tienda</a>
+            <a href="tienda.html" class="btn-salir"><i class="fa-solid fa-arrow-left"></i> Volver a la tienda</a>
 
             <div class="store-card">
                 <h2>Beneficios VIP</h2>
