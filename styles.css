@@ -488,11 +488,35 @@ footer {
     transform: scale(1.02);
 }
 
+/* Cancelar / Volver / Cerrar: botón con borde, igual que en las ventanas ThUI */
 .modal-btn.cancel {
-    background: var(--red);
-    color: white;
+    background: transparent;
+    color: var(--text-soft);
+    border: 2px solid #555;
     display: block;
     margin: 0 auto;
+}
+
+.modal-btn.cancel:hover:not(:disabled) {
+    border-color: var(--text-soft);
+    color: #fff;
+    filter: none;
+}
+
+/* Acción destructiva (eliminar, cancelar inscripción...) */
+.modal-btn.danger {
+    background: var(--red);
+    color: #fff;
+}
+
+.modal-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.modal-btn:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
 }
 
 .modal-btn-row {
@@ -1144,17 +1168,18 @@ select.select-torohax option {
 /* =========================================
    9. VENTANAS MODALES Y PERFIL DE JUGADOR
    ========================================= */
+/* Mismo aspecto que las ventanas ThUI (sección 14.4): fondo, borde, título dorado y botones.
+   Cada página solo cambia el ancho (max-width) o el color del borde según el tono del aviso. */
 .modal-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    inset: 0;
     background: rgba(0, 0, 0, 0.85);
-    z-index: 2000;
+    z-index: 10000;
     display: none; /* Oculto por defecto; el JS lo muestra con display: flex */
     justify-content: center;
     align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
     backdrop-filter: blur(5px);
 }
 
@@ -1162,11 +1187,47 @@ select.select-torohax option {
     background: var(--bg-deep);
     border: 2px solid var(--cyan);
     border-radius: 15px;
-    padding: 30px;
-    width: 90%;
+    padding: 30px 28px 26px;
+    width: 100%;
     max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-sizing: border-box;
     position: relative;
+    color: #fff;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+    animation: thDialogPop 0.2s ease-out;
+}
+
+.modal-content > h3 {
+    color: var(--gold);
+    font-size: 1.45rem;
+    margin: 0 0 12px;
+    text-align: center;
+    letter-spacing: 0.3px;
+}
+
+.modal-content > p {
+    color: var(--text-soft);
+    line-height: 1.55;
+}
+
+/* Sin brillo en los íconos dentro de ventanas */
+.modal-content i,
+.modal-content svg,
+.th-dialog i,
+.th-dialog svg {
+    text-shadow: none;
+    filter: none;
+}
+
+@media (max-width: 480px) {
+    .modal-content { padding: 24px 18px 20px; }
+    .modal-content > h3 { font-size: 1.25rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .modal-content { animation: none; }
 }
 
 .close-modal {
@@ -2180,14 +2241,16 @@ tr:hover td {
 
 /* Celulares */
 @media (max-width: 480px) {
+    /* Como en ThUI: botones a lo ancho y la acción principal arriba */
     .modal-btn-row {
         justify-content: center;
-        flex-direction: column;
+        align-items: stretch;
+        flex-direction: column-reverse;
         gap: 10px;
     }
 
     .modal-btn {
-        width: 80%;
+        width: 100%;
         flex: 0 1 auto;
     }
 
@@ -2448,6 +2511,13 @@ input[type="number"]::-webkit-inner-spin-button {
     margin: 0;
 }
 
+/* Fecha y hora: selector del navegador en modo oscuro (ícono claro, calendario oscuro) */
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+    color-scheme: dark;
+}
+
 /* --- 14.4 Ventanas de aviso y confirmación (ThUI.alert / ThUI.confirm / ThUI.open) --- */
 .th-dialog-overlay {
     position: fixed;
@@ -2476,7 +2546,7 @@ input[type="number"]::-webkit-inner-spin-button {
     background: var(--bg-deep);
     border: 2px solid var(--th-tone);
     border-radius: 15px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(var(--th-tone-rgb), 0.15);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
     animation: thDialogPop 0.2s ease-out;
 }
 
@@ -2495,7 +2565,6 @@ input[type="number"]::-webkit-inner-spin-button {
 .th-dialog-icon svg {
     width: 46px;
     height: 46px;
-    filter: drop-shadow(0 0 8px rgba(var(--th-tone-rgb), 0.45));
 }
 
 .th-dialog-title {

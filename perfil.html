@@ -136,10 +136,7 @@
         .btn-carta:hover { background: rgba(255, 211, 66, 0.2); box-shadow: 0 0 10px rgba(255, 211, 66, 0.3); }
         .btn-guardar:hover { background: rgba(45, 242, 193, 0.2); box-shadow: 0 0 10px rgba(45, 242, 193, 0.3); }
 
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(8px); padding: 20px; }
-        .modal-content { background: rgba(20, 20, 20, 0.95); border: 1px solid #e1bc56; padding: 30px; border-radius: 15px; width: 100%; max-width: 500px; color: white; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.8); max-height: 90vh; overflow-y: auto; }
-        .close-modal { position: absolute; top: 20px; right: 25px; font-size: 1.8rem; color: #7d7d7d; cursor: pointer; transition: 0.3s; z-index: 10;}
-        .close-modal:hover { color: #cc2a2a; transform: scale(1.1); }
+        /* Aspecto de las ventanas: styles.css (sección 9), igual que las de ThUI */
 
         .rank-info-list { list-style: none; padding: 0; margin: 20px 0; text-align: left; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 15px; border: 1px solid #333;}
         .rank-info-list li { margin-bottom: 8px; font-size: 1.05rem; display: flex; justify-content: space-between; border-bottom: 1px solid #444; padding-bottom: 5px;}
@@ -331,8 +328,8 @@
     <div class="modal-overlay" id="infoRangosModal" onclick="cerrarModalInfoRangosClickFuera(event)">
         <div class="modal-content">
             <i class="fa-solid fa-xmark close-modal" onclick="cerrarModalInfoRangos()"></i>
-            <h3 style="color: #5dc8e8; margin-top: 0; font-size: 1.6rem; text-align: center;"><i class="fa-solid fa-ranking-star"></i> Sistema de Rangos</h3>
-            <p style="text-align: center; color: #bdc3c7; font-size: 0.95rem; margin-bottom: 5px;">Tu rango se basa en tu cantidad de Elo. Debes jugar un mínimo de 10 partidos para clasificar.</p>
+            <h3><i class="fa-solid fa-ranking-star"></i> Sistema de Rangos</h3>
+            <p style="text-align: center; font-size: 0.95rem; margin-bottom: 5px;">Tu rango se basa en tu cantidad de Elo. Debes jugar un mínimo de 10 partidos para clasificar.</p>
             
             <ul class="rank-info-list">
                 <li><span>🐓 Gallina</span> <strong>0 - 359</strong></li>
@@ -351,8 +348,8 @@
                 <p style="margin: 5px 0;"><strong><i class="fa-brands fa-font-awesome"></i> Real Futsal:</strong> Ganas o pierdes <strong>±50 de Elo</strong> por partido.</p>
             </div>
 
-            <div style="margin-top: 20px; display: flex; justify-content: center;">
-                <button class="btn-estandar btn-salir" onclick="cerrarModalInfoRangos()">Entendido</button>
+            <div class="modal-btn-row" style="margin-top: 22px;">
+                <button class="modal-btn" onclick="cerrarModalInfoRangos()">Entendido</button>
             </div>
         </div>
     </div>

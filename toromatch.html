@@ -63,14 +63,9 @@
         
         .roster-container { max-height: 250px; overflow-y: auto; padding-right: 5px; }
 
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); padding: 15px; }
-        .modal-content { 
-            background: #111; border: 1px solid #e1bc56; padding: 30px 20px; border-radius: 15px; width: 100%; max-width: 550px; color: white; text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8); max-height: 90vh; overflow-y: auto; position: relative;
-        }
-
-        .modal-content h3 { color: #e1bc56; margin-top: 0; text-align: center; font-size: 1.4rem; margin-bottom: 15px;}
-        .modal-content p { color: #bdc3c7; line-height: 1.5; margin-bottom: 20px; font-size: 1rem;}
+        /* Aspecto de las ventanas: styles.css (sección 9), igual que las de ThUI */
+        .modal-content { max-width: 550px; text-align: center; }
+        .modal-content > p { margin: 0 0 20px; }
         
         .editor-form { background: rgba(0,0,0,0.3); padding: 20px; border-radius: 12px; border: 1px solid #333; }
         .editor-form-group { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; justify-content: center;}
@@ -146,9 +141,6 @@
             .match-teams { width: 100%; font-size: 1rem; }
             .match-date { width: 100%; border-left: none; text-align: center; border-top: 1px solid #444; padding-top: 8px; font-size: 0.85rem;}
             .action-icons { flex-direction: row; justify-content: center; padding-top: 10px; border-top: 1px solid #444; width: 100%;}
-            
-            .modal-content { padding: 25px 15px; }
-            .modal-content h3 { font-size: 1.2rem; }
             
             .editor-match-grid { grid-template-columns: 1fr 40px 1fr; gap: 5px; }
             .team-side.left { flex-direction: column !important; width: 100%; gap: 5px; }
@@ -242,7 +234,7 @@
     <div class="modal-overlay" id="infoModal" onclick="cerrarModalInfoClickFuera(event)">
         <div class="modal-content" style="border-color: #5dc8e8;">
             <i class="fa-solid fa-xmark close-modal-info" onclick="cerrarModalInfo()"></i>
-            <h3 style="color: #5dc8e8; margin-bottom: 20px;"> ¿Qué es ToroMatch?</h3>
+            <h3><i class="fa-solid fa-circle-info"></i> ¿Qué es ToroMatch?</h3>
             <div style="text-align: left; color: #bdc3c7; line-height: 1.6; margin-bottom: 25px; background: rgba(0,0,0,0.4); padding: 20px; border-radius: 12px; border: 1px solid #333;">
                 <p style="margin-top: 0;"><strong>ToroMatch</strong> son partidos express oficiales organizados por ToroHax.</p>
                 <p>Aquí, 2 equipos conformados por <strong>10 jugadores cada uno</strong> jugarán un partido mucho más competitivo, táctico y emocionante que una partida normal. ¡Es una oportunidad para demostrar tu nivel y dejar una marca!</p>
@@ -256,7 +248,7 @@
                 </div>
             </div>
             <div class="modal-btn-row" style="justify-content: center !important;">
-                <button class="btn-estandar btn-primary" style="background:#5dc8e8; color:#111; border:none;" onclick="cerrarModalInfo()">¡Entendido!</button>
+                <button class="modal-btn" onclick="cerrarModalInfo()">¡Entendido!</button>
             </div>
         </div>
     </div>
@@ -264,7 +256,7 @@
     <div class="modal-overlay" id="mediaModal" onclick="cerrarMediaModalClickFuera(event)">
         <div class="modal-content" style="max-width: 650px; border-color: #5dc8e8;">
             <i class="fa-solid fa-xmark close-modal-info" onclick="cerrarMediaModal()"></i>
-            <h3 style="color: #5dc8e8;"><i class="fa-solid fa-photo-film"></i> Archivos del Partido</h3>
+            <h3><i class="fa-solid fa-photo-film"></i> Archivos del Partido</h3>
             <div id="mediaModalContent" style="margin-top: 20px; text-align: left;">
             </div>
             <div class="modal-btn-row">
@@ -275,11 +267,11 @@
 
     <div class="modal-overlay" id="confirmActionModal">
         <div class="modal-content" style="border-color: #e1bc56;">
-            <h3 style="color: #e1bc56;"><i class="fa-solid fa-triangle-exclamation"></i> Confirmar</h3>
+            <h3><i class="fa-solid fa-triangle-exclamation"></i> Confirmar</h3>
             <p id="confirmActionMsg">¿Estás seguro de continuar?</p>
             <div class="modal-btn-row">
                 <button class="modal-btn cancel" onclick="cerrarModalConfirmacionSegura()">Cancelar</button>
-                <button class="modal-btn" id="btnAceptarAccionSegura" style="background:#2df2c1; color:#111;">Aceptar</button>
+                <button class="modal-btn" id="btnAceptarAccionSegura">Aceptar</button>
             </div>
         </div>
     </div>
@@ -333,11 +325,11 @@
 
     <div class="modal-overlay" id="cancelModal">
         <div class="modal-content" style="border-color: #e74c3c;">
-            <h3 style="color: #e74c3c;"><i class="fa-solid fa-triangle-exclamation"></i> Cancelar Inscripción</h3>
+            <h3><i class="fa-solid fa-triangle-exclamation"></i> Cancelar Inscripción</h3>
             <p>¿Estás seguro de que ya no podrás asistir al ToroMatch? Al cancelar perderás tu cupo y deberás volver a postular si cambias de opinión.</p>
             <div class="modal-btn-row">
-                <button class="modal-btn" style="background: #333; color: white;" onclick="cerrarModalCancel()">Volver</button>
-                <button class="modal-btn cancel" onclick="confirmarCancelacion()">Sí, Cancelar</button>
+                <button class="modal-btn cancel" onclick="cerrarModalCancel()">Volver</button>
+                <button class="modal-btn danger" onclick="confirmarCancelacion()">Sí, Cancelar</button>
             </div>
         </div>
     </div>
@@ -574,8 +566,11 @@
 
         let funcionConfirmacionActual = null;
 
-        function confirmarAccionSegura(mensaje, funcionEjecutar) {
+        // soloAviso: muestra solo el botón "Entendido" (sin Cancelar)
+        function confirmarAccionSegura(mensaje, funcionEjecutar, soloAviso = false) {
             document.getElementById('confirmActionMsg').innerText = mensaje;
+            document.getElementById('btnAceptarAccionSegura').innerText = soloAviso ? 'Entendido' : 'Aceptar';
+            document.querySelector('#confirmActionModal .modal-btn.cancel').style.display = soloAviso ? 'none' : '';
             funcionConfirmacionActual = funcionEjecutar;
             document.getElementById('confirmActionModal').style.display = 'flex';
         }
@@ -879,9 +874,7 @@
                 if(data.success) {
                     cargarTodoJunto();
                 } else {
-                    confirmarAccionSegura(data.message, () => {});
-                    document.getElementById('btnAceptarAccionSegura').innerText = "Entendido";
-                    document.querySelector('.modal-btn.cancel').style.display = 'none';
+                    confirmarAccionSegura(data.message, () => {}, true);
                 }
             } catch (e) { 
                 ThUI.alert("Error de conexión al abrir postulaciones."); 
@@ -1097,7 +1090,7 @@
                         const starColor = myScore > 0 ? '#e1bc56' : '#555';
                         const avgDisplay = avgScore > 0 ? avgScore : '-';
                         
-                        let starAction = `onclick="confirmarAccionSegura('Debes iniciar sesión para calificar un partido.', ()=>{}); document.getElementById('btnAceptarAccionSegura').innerText = 'Entendido'; document.querySelector('.modal-btn.cancel').style.display = 'none';"`;
+                        let starAction = `onclick="confirmarAccionSegura('Debes iniciar sesión para calificar un partido.', ()=>{}, true);"`;
                         if (loggedId !== 'null') {
                             starAction = `onclick="abrirModalRating('${m._id}', ${myScore})"`;
                         }

@@ -20,36 +20,23 @@
             box-sizing: border-box !important;
         }
 
+        /* Aspecto de la ventana: styles.css (sección 9), igual que las de ThUI */
         #editModal .modal-content {
-            background: #061114 !important; 
-            border: 1px solid #5dc8e8 !important; 
-            border-radius: 12px !important;
-            padding: 20px !important;
-            width: 90% !important;
-            max-width: 420px !important;
-            max-height: 90vh !important; 
-            overflow-y: auto !important; 
-            box-shadow: 0 15px 40px rgba(0,0,0,0.9) !important;
-            overflow-x: hidden !important;
-            scrollbar-width: none !important; 
-            -ms-overflow-style: none !important; 
+            max-width: 420px;
+            overflow-x: hidden;
         }
 
-        #editModal .modal-content::-webkit-scrollbar {
-            display: none !important;
+        #editModal .modal-header {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
         }
 
         #editModal #modalTitle {
-            color: #ffffff !important;
-            font-size: 1.2rem !important;
-            margin-top: 0 !important;
-            margin-bottom: 15px !important; 
-            text-align: left !important;
-            display: flex !important;
-            align-items: center !important;
-            gap: 10px !important;
-            font-weight: bold !important;
-            border-bottom: none !important;
+            color: var(--gold);
+            font-size: 1.45rem;
+            margin: 0 0 15px;
+            text-align: center;
         }
 
         #editModal .modal-form {
@@ -163,39 +150,9 @@
         }
 
         #editModal .modal-btn-row {
-            display: flex !important;
-            flex-direction: column !important;
-            gap: 8px !important; 
-            margin-top: 5px !important;
-        }
-
-        #editModal .modal-btn {
-            width: 100% !important;
-            padding: 12px !important; 
-            border-radius: 8px !important;
-            font-size: 1rem !important;
-            font-weight: bold !important;
-            border: none !important;
-            cursor: pointer !important;
-            transition: 0.3s !important;
-        }
-
-        #editModal #modalSubmitBtn {
-            background: #3df2b4 !important;
-            color: #000 !important;
-        }
-        #editModal #modalSubmitBtn:hover {
-            background: #2bc993 !important;
-            transform: scale(1.02) !important;
-        }
-
-        #editModal .modal-btn.cancel {
-            background: #d13636 !important;
-            color: #ffffff !important;
-        }
-        #editModal .modal-btn.cancel:hover {
-            background: #a82020 !important;
-            transform: scale(1.02) !important;
+            flex-wrap: nowrap;
+            gap: 12px;
+            margin-top: 10px;
         }
 
         .action-icons { width: 50px; display: flex; gap: 10px; justify-content: center; margin-left: 0; flex-shrink: 0;}
@@ -206,9 +163,6 @@
             #editModal .form-row-doble {
                 flex-direction: column !important;
                 gap: 10px !important;
-            }
-            #editModal .modal-btn-row {
-                flex-direction: column-reverse !important; 
             }
         }
     </style>

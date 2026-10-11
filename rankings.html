@@ -105,11 +105,8 @@
         .cd-comenzando { color: #e1bc56; font-weight: bold; font-size: 1.3rem; animation: pulse 1.5s infinite; }
         .cd-separator { font-size: 1.5rem; align-self: center; margin-top: -12px; display: none; }
 
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(8px); padding: 20px; }
-        .modal-content { background: rgba(20, 20, 20, 0.95); border: 1px solid #e1bc56; padding: 30px; border-radius: 15px; width: 100%; max-width: 1000px; color: white; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.8); max-height: 90vh; overflow-y: auto; }
-        
-        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 1.8rem; color: #7d7d7d; cursor: pointer; transition: 0.3s; z-index: 10;}
-        .close-modal:hover { color: #cc2a2a; transform: scale(1.1); }
+        /* Aspecto de las ventanas: styles.css (sección 9), igual que las de ThUI; aquí solo el ancho de la ficha del jugador */
+        .modal-content { max-width: 1000px; }
 
         .modal-header { text-align: center; border-bottom: 2px solid #e1bc56; padding-bottom: 20px; margin-bottom: 25px; }
         .modal-avatar { width: 100px; height: 100px; border-radius: 50%; border: 3px solid #e1bc56; object-fit: cover; margin-bottom: 10px; box-shadow: 0 0 15px rgba(255, 211, 66, 0.4); display: inline-block;}
@@ -185,7 +182,6 @@
             .pagination-actions { width: 100%; display: flex; gap: 10px; }
             .pagination-actions .page-btn { flex: 1; padding: 12px; }
             
-            .modal-content { padding: 20px 15px; max-width: 95%;}
             .modal-name { font-size: 1.6rem; }
             .totales-item { min-width: 45%; }
             
