@@ -102,6 +102,11 @@
 
         /* Aspecto de las ventanas: styles.css (sección 9), igual que las de ThUI; aquí solo el tono menta del panel Owner */
         .modal-content { max-width: 450px; text-align: center; border-color: #2df2c1; }
+        /* En el panel Owner los botones de cancelar van con borde, no en rojo */
+        .modal-btn.cancel,
+        .th-dialog-actions .modal-btn.th-cancel { background: transparent; color: #bdc3c7; border: 2px solid #555; }
+        .modal-btn.cancel:hover:not(:disabled),
+        .th-dialog-actions .modal-btn.th-cancel:hover { border-color: #bdc3c7; color: #fff; filter: none; }
 
         @media (max-width: 900px) {
             .owner-grid { grid-template-columns: 1fr; }

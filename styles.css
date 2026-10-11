@@ -488,16 +488,22 @@ footer {
     transform: scale(1.02);
 }
 
-/* Cancelar / Volver / Cerrar: botón con borde, igual que en las ventanas ThUI */
+/* Cancelar / Volver / Cerrar: rojo (owner.html los deja con borde) */
 .modal-btn.cancel {
-    background: transparent;
-    color: var(--text-soft);
-    border: 2px solid #555;
+    background: var(--red-light);
+    color: #fff;
     display: block;
     margin: 0 auto;
 }
 
-.modal-btn.cancel:hover:not(:disabled) {
+/* Si la ventana ya tiene una acción destructiva en rojo, Cancelar queda con borde para no confundirlos */
+.modal-btn-row:has(.danger) .modal-btn.cancel {
+    background: transparent;
+    color: var(--text-soft);
+    border: 2px solid #555;
+}
+
+.modal-btn-row:has(.danger) .modal-btn.cancel:hover:not(:disabled) {
     border-color: var(--text-soft);
     color: #fff;
     filter: none;
@@ -2634,13 +2640,19 @@ input[type="datetime-local"] {
     font-family: inherit;
 }
 
+/* Cancelar en rojo, como en las ventanas de las páginas (owner.html y avisos de peligro lo dejan con borde) */
 .th-dialog-actions .modal-btn.th-cancel {
+    background: var(--red-light);
+    color: #fff;
+}
+
+.th-dialog.th-danger .modal-btn.th-cancel {
     background: transparent;
     color: var(--text-soft);
     border: 2px solid #555;
 }
 
-.th-dialog-actions .modal-btn.th-cancel:hover {
+.th-dialog.th-danger .modal-btn.th-cancel:hover {
     border-color: var(--text-soft);
     color: #fff;
 }
