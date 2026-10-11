@@ -72,6 +72,44 @@
         .balance-line { font-size: 0.85rem; color: #7d7d7d; margin: 0 0 15px; min-height: 1.2em; }
         .balance-line strong { color: #5dc8e8; }
 
+        /* Pestañas ToroCoins / Fichas (mismo estilo que toromatch.html) */
+        .tc-card { justify-content: flex-start; }
+        .tc-card .tabs { margin: -10px 0 20px; }
+        .tc-card .tab { background: none; border: none; border-bottom: 2px solid transparent; margin-bottom: -2px; font-family: inherit; font-size: 1rem; }
+        .tc-card .tab.active { border-bottom-color: #e1bc56; }
+        .tc-card .tab:focus-visible { outline: 2px solid #e1bc56; outline-offset: -2px; }
+        .tc-card .tab i { margin-right: 6px; }
+        .tc-card .tab-content.active { display: flex; flex-direction: column; justify-content: space-between; flex: 1; }
+        #panelFichas.active { justify-content: flex-start; }
+
+        .wallet { background: rgba(0,0,0,0.3); border: 1px solid #333; border-radius: 10px; padding: 14px; margin: 20px 0; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+        .wallet-label { font-size: 0.85rem; color: #7d7d7d; text-transform: uppercase; letter-spacing: 1px; }
+        .wallet-amount { font-size: 1.8rem; font-weight: bold; color: #e1bc56; }
+        .wallet-amount i { color: #5dc8e8; font-size: 1.4rem; }
+        .wallet-vip { font-size: 0.85rem; color: #e6bd35; }
+
+        .ficha-list { display: flex; flex-direction: column; gap: 12px; text-align: left; }
+        .ficha-item { display: flex; align-items: center; gap: 14px; background: #111; border: 1px solid #333; border-radius: 10px; padding: 14px; transition: 0.2s; }
+        .ficha-item:hover { border-color: #555; }
+        .ficha-icon { font-size: 1.6rem; width: 36px; text-align: center; flex-shrink: 0; }
+        .ficha-info { flex: 1; min-width: 0; }
+        .ficha-name { margin: 0; color: white; font-size: 1rem; }
+        .ficha-owned { font-size: 0.75rem; color: #111; background: #e1bc56; border-radius: 10px; padding: 1px 7px; margin-left: 6px; font-weight: bold; vertical-align: middle; }
+        .ficha-desc { margin: 4px 0 0; font-size: 0.85rem; color: #bdc3c7; line-height: 1.4; }
+        .ficha-buy { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+        .ficha-price { font-weight: bold; color: #2df2c1; white-space: nowrap; }
+        .ficha-price s { color: #7d7d7d; font-weight: normal; font-size: 0.8rem; margin-right: 4px; }
+        .ficha-btn { background: #e1bc56; color: #111; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-family: inherit; transition: 0.2s; white-space: nowrap; }
+        .ficha-btn:hover:not(:disabled) { background: #e6bd35; box-shadow: 0 0 12px rgba(255, 211, 66, 0.35); }
+        .ficha-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .ficha-btn:focus-visible { outline: 2px solid #e1bc56; outline-offset: 2px; }
+        .ficha-falta { font-size: 0.75rem; color: #e74c3c; }
+
+        @media (max-width: 480px) {
+            .ficha-item { flex-wrap: wrap; }
+            .ficha-buy { flex-direction: row; align-items: center; justify-content: space-between; width: 100%; }
+        }
+
         @media (max-width: 768px) { .tienda-wrapper { grid-template-columns: 1fr; margin-top: 8vh; } .store-card { padding: 22px 18px; } }
         @media (prefers-reduced-motion: reduce) { .store-card { transition: none; } }
     </style>
@@ -101,7 +139,13 @@
                 <a href="vip.html" class="store-btn"><i class="fa-solid fa-star"></i> VER OPCIONES VIP</a>
             </div>
 
-            <div class="store-card">
+            <div class="store-card tc-card">
+                <div class="tabs" role="tablist" aria-label="Secciones de la tienda de ToroCoins">
+                    <button type="button" class="tab active" role="tab" id="tabTC" aria-selected="true" aria-controls="panelTC" onclick="cambiarSeccion('TC')"><i class="fa-solid fa-coins"></i> ToroCoins</button>
+                    <button type="button" class="tab" role="tab" id="tabFichas" aria-selected="false" aria-controls="panelFichas" onclick="cambiarSeccion('Fichas')"><i class="fa-solid fa-ticket-simple"></i> Fichas</button>
+                </div>
+
+                <div id="panelTC" class="tab-content active" role="tabpanel" aria-labelledby="tabTC">
                 <div>
                     <h2>ToroCoins</h2>
                     <i class="fa-solid fa-coins store-icon"></i>
@@ -146,6 +190,21 @@
                 <button type="button" id="btnPagar" class="store-btn pay" onclick="procesarPago()">
                     <i class="fa-solid fa-credit-card"></i> Pagar
                 </button>
+                </div>
+
+                <div id="panelFichas" class="tab-content" role="tabpanel" aria-labelledby="tabFichas">
+                    <h2>Fichas</h2>
+                    <i class="fa-solid fa-ticket-simple store-icon"></i>
+                    <p class="store-desc">Canjea tus ToroCoins por fichas. Úsalas en el Juegan Todos con <strong>!ficha [tipo]</strong>.</p>
+
+                    <div class="wallet">
+                        <span class="wallet-label">Tus ToroCoins</span>
+                        <span class="wallet-amount"><i class="fa-solid fa-coins"></i> <span id="walletTC">—</span></span>
+                        <span class="wallet-vip" id="walletVip" hidden><i class="fa-solid fa-crown"></i> VIP: 30% de descuento aplicado</span>
+                    </div>
+
+                    <div class="ficha-list" id="fichaList"><p class="tc-hint" style="text-align:center;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando tu saldo...</p></div>
+                </div>
             </div>
 
         </div>
@@ -249,11 +308,150 @@
                 const r = await fetch(API + '/get-player/' + encodeURIComponent(loggedId));
                 const d = await r.json();
                 if (d && d.numericId) {
-                    const tiene = parseInt(d.torocoins, 10) || 0;
-                    balanceLine.innerHTML = 'Tu saldo actual: <strong>' + fmt(tiene) + ' TC</strong> (máximo ' + fmt(TC_MAX) + ')';
+                    miCuenta = d;
+                    pintarSaldo();
+                    return;
                 }
-            } catch (e) { /* es solo informativo */ }
+            } catch (e) { /* se avisa abajo */ }
+            fichaList.innerHTML = '<p class="tc-hint error" style="text-align:center;">No pudimos cargar tu saldo. Recarga la página para intentarlo de nuevo.</p>';
         }
+
+        function pintarSaldo() {
+            const tiene = parseInt(miCuenta.torocoins, 10) || 0;
+            balanceLine.innerHTML = 'Tu saldo actual: <strong>' + fmt(tiene) + ' TC</strong> (máximo ' + fmt(TC_MAX) + ')';
+            walletTC.textContent = fmt(tiene) + ' TC';
+            walletVip.hidden = !esVipVigente(miCuenta);
+            renderFichas();
+        }
+
+        // ---------- Sección Fichas (se compran con ToroCoins) ----------
+        const loggedToken = localStorage.getItem('toroHaxToken');
+        const fichaList = document.getElementById('fichaList');
+        const walletTC = document.getElementById('walletTC');
+        const walletVip = document.getElementById('walletVip');
+        let miCuenta = null;
+        let comprandoFicha = false;
+
+        // Precios iguales a los del !tienda de la sala; el servidor vuelve a calcularlos al comprar
+        const FICHAS = [
+            { tipo: 'cambio',  campo: 'ficha_cambio',  nombre: 'Ficha de Cambio',    precio: 3000, icono: 'fa-repeat',         color: '#e1bc56', desc: 'Cámbiate al equipo contrario si hay espacio disponible.' },
+            { tipo: 'balance', campo: 'ficha_balance', nombre: 'Ficha de Balance',   precio: 1800, icono: 'fa-scale-balanced', color: '#5dc8e8', desc: 'Evita ser movido por el auto-balance durante un partido.' },
+            { tipo: 'camis',   campo: 'ficha_camis',   nombre: 'Ficha de Camisetas', precio: 1000, icono: 'fa-shirt',          color: '#e74c3c', desc: 'Escoge las camisetas de tu equipo en este partido.' }
+        ];
+
+        const esVipVigente = p => !!(p && p.isVip) && !(p.vipExpiration && new Date(p.vipExpiration) < new Date());
+        const precioFicha = f => esVipVigente(miCuenta) ? Math.floor(f.precio * 0.7) : f.precio;
+
+        function renderFichas() {
+            if (!miCuenta) return;
+            const tiene = parseInt(miCuenta.torocoins, 10) || 0;
+            const vip = esVipVigente(miCuenta);
+            fichaList.innerHTML = FICHAS.map(f => {
+                const precio = precioFicha(f);
+                const falta = precio - tiene;
+                return '<div class="ficha-item">' +
+                    '<i class="fa-solid ' + f.icono + ' ficha-icon" style="color:' + f.color + ';"></i>' +
+                    '<div class="ficha-info">' +
+                        '<h4 class="ficha-name">' + f.nombre + '<span class="ficha-owned" title="Las que tienes">x' + (parseInt(miCuenta[f.campo], 10) || 0) + '</span></h4>' +
+                        '<p class="ficha-desc">' + f.desc + '</p>' +
+                    '</div>' +
+                    '<div class="ficha-buy">' +
+                        '<span class="ficha-price">' + (vip ? '<s>' + fmt(f.precio) + '</s>' : '') + fmt(precio) + ' TC</span>' +
+                        '<button type="button" class="ficha-btn" data-tipo="' + f.tipo + '"' + (falta > 0 || comprandoFicha ? ' disabled' : '') + '>' +
+                            '<i class="fa-solid fa-cart-shopping"></i> Comprar</button>' +
+                        (falta > 0 ? '<span class="ficha-falta">Te faltan ' + fmt(falta) + ' TC</span>' : '') +
+                    '</div>' +
+                '</div>';
+            }).join('');
+        }
+
+        fichaList.addEventListener('click', e => {
+            const btn = e.target.closest('.ficha-btn');
+            if (btn && !btn.disabled) comprarFicha(btn.dataset.tipo);
+        });
+
+        function cambiarSeccion(seccion) {
+            ['TC', 'Fichas'].forEach(s => {
+                const activa = s === seccion;
+                document.getElementById('tab' + s).classList.toggle('active', activa);
+                document.getElementById('tab' + s).setAttribute('aria-selected', activa);
+                document.getElementById('panel' + s).classList.toggle('active', activa);
+            });
+            try { history.replaceState(null, '', seccion === 'Fichas' ? '#fichas' : location.pathname + location.search); } catch (e) { /* solo recuerda la pestaña en la URL */ }
+        }
+
+        async function comprarFicha(tipo) {
+            const f = FICHAS.find(x => x.tipo === tipo);
+            if (!f || !miCuenta || comprandoFicha) return;
+
+            if (!loggedToken) {
+                await aviso('warn', 'Sesión expirada', 'Vuelve a iniciar sesión para comprar fichas.');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const tiene = parseInt(miCuenta.torocoins, 10) || 0;
+            const precio = precioFicha(f);
+            const vip = esVipVigente(miCuenta);
+
+            const confirmar = await mostrarModal({
+                tone: 'info',
+                title: 'Confirmar compra',
+                html: '<p>Se descontarán los ToroCoins de tu cuenta al instante.</p>' + filas([
+                    ['Producto', f.nombre],
+                    ['Cuenta', esc(miCuenta.name) + ' (#' + esc(miCuenta.numericId) + ')'],
+                    ['Saldo después', fmt(tiene - precio) + ' TC'],
+                    ['Precio', fmt(precio) + ' TC' + (vip ? ' (VIP −30%)' : ''), 'total']
+                ]),
+                okText: 'Comprar',
+                cancelText: 'Cancelar'
+            });
+            if (!confirmar) return;
+
+            comprandoFicha = true;
+            renderFichas();
+            const btnActual = fichaList.querySelector('.ficha-btn[data-tipo="' + tipo + '"]');
+            if (btnActual) btnActual.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Comprando...';
+
+            let data;
+            try {
+                const r = await fetch(API + '/api/tienda/comprar-ficha', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ numericId: loggedId, token: loggedToken, tipo })
+                });
+                data = await r.json();
+            } catch (e) {
+                data = null;
+            }
+
+            comprandoFicha = false;
+
+            if (!data) {
+                renderFichas();
+                await aviso('error', 'Error de conexión', 'No pudimos completar la compra. Revisa tu conexión e inténtalo de nuevo.');
+                return;
+            }
+
+            if (typeof data.torocoins === 'number') miCuenta.torocoins = data.torocoins;
+
+            if (!data.success) {
+                pintarSaldo();
+                if (data.code === 'session') {
+                    await aviso('warn', 'Sesión expirada', esc(data.message));
+                    window.location.href = 'login.html';
+                    return;
+                }
+                await aviso('error', 'No se pudo comprar', esc(data.message || 'Ocurrió un error inesperado. Inténtalo de nuevo.'));
+                return;
+            }
+
+            miCuenta[f.campo] = data.cantidad;
+            pintarSaldo();
+            await aviso('success', '¡Compra realizada!', 'Compraste una <strong>' + esc(data.nombre) + '</strong> por <strong>' + fmt(data.precio) + ' TC</strong>. Ahora tienes <strong>x' + fmt(data.cantidad) + '</strong>.<br>Úsala en la sala con <strong>' + esc(data.uso) + '</strong>.');
+        }
+
+        if (location.hash === '#fichas') cambiarSeccion('Fichas');
 
         function liberarBoton() {
             btnPagar.disabled = false;
