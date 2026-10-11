@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     <i class="fa-solid fa-shield-halved fa-fw"></i> Panel Admin
                 </a>
 
-                <a href="#" id="sidebar-owner-btn" onclick="checkLogin('owner.html')" style="display: none; color: #e74c3c; margin-top: 5px;">
+                <a href="#" id="sidebar-owner-btn" onclick="checkLogin('owner.html')" style="display: none; color: #1fc9b2; margin-top: 5px;">
                     <i class="fa-solid fa-key fa-fw"></i> Panel Owner
                 </a>
             </div>
