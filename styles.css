@@ -2716,7 +2716,7 @@ footer p { margin: 0; }
     width: 92%;
     max-width: 860px;
     margin: 10vh auto 50px;
-    background: var(--panel);
+    background: #01181C;
     border: 1px solid var(--border);
     border-radius: 15px;
     padding: 36px 40px;
