@@ -136,6 +136,12 @@
                             <p class="gift-note">Puedes ver la ID de un jugador con <strong>!id</strong> en la sala.</p>
                         </div>
                     </div>
+
+                    <label class="terms-check" id="termsCheckLabel">
+                        <input type="checkbox" id="termsCheck" onchange="this.parentElement.classList.remove('invalid')">
+                        <span>Acepto los <a href="terminos.html" target="_blank">Términos y Condiciones</a> y entiendo que, al ser un producto digital que se entrega al instante, la compra <strong>no tiene derecho a retracto</strong>.</span>
+                    </label>
+                    <p class="terms-note">El VIP por meses no se renueva solo. Si un problema técnico del host te impide usarlo, puedes pedir una extensión o reembolso (<a href="terminos.html#tecnicos" target="_blank">ver condiciones</a>).</p>
                 </div>
 
                 <button type="button" id="btnPagar" class="store-btn" onclick="procesarPago()">
@@ -146,7 +152,14 @@
         </div>
     </main>
 
-    <footer><p>© 2026 ToroHax. Todos los derechos reservados.</p></footer>
+    <footer>
+        <nav class="footer-links" aria-label="Enlaces legales">
+            <a href="terminos.html">Términos y Condiciones</a>
+            <a href="privacidad.html">Política de Privacidad</a>
+            <a href="mailto:torohaxball27@gmail.com">Contacto</a>
+        </nav>
+        <p>© 2026 ToroHax. Todos los derechos reservados.</p>
+    </footer>
 
     <script src="torohax-ui.js"></script>
     <script src="header.js"></script>
@@ -262,6 +275,17 @@
             refrescar();
         }
 
+        // Aceptación expresa de los Términos (incluye la renuncia al retracto) antes de ir a pagar
+        function terminosAceptados() {
+            const check = document.getElementById('termsCheck');
+            if (check.checked) return true;
+            const label = document.getElementById('termsCheckLabel');
+            label.classList.add('invalid');
+            check.focus();
+            aviso('warn', 'Acepta los Términos', 'Para continuar debes aceptar los <strong>Términos y Condiciones</strong> marcando la casilla que está sobre el botón de pago.');
+            return false;
+        }
+
         async function consultarJugador(id) {
             const r = await fetch(API + '/get-player/' + encodeURIComponent(id));
             if (!r.ok) throw new Error('http ' + r.status);
@@ -289,6 +313,8 @@
                     return;
                 }
             }
+
+            if (!terminosAceptados()) return;
 
             btnPagar.disabled = true;
             btnPagar.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Verificando ID...';
@@ -343,7 +369,7 @@
             const confirmar = await mostrarModal({
                 tone,
                 title: regalo ? 'Confirmar regalo' : 'Confirmar compra',
-                html: '<p>' + nota + '</p>' + filas(detalle),
+                html: '<p>' + nota + '</p>' + filas(detalle) + '<p class="terms-note">' + (perm ? 'El VIP permanente dura mientras exista ToroHax.' : 'Pago único: no se renueva automáticamente.') + ' Se entrega al instante y no tiene derecho a retracto.</p>',
                 okText: 'Ir a pagar',
                 cancelText: 'Cancelar'
             });

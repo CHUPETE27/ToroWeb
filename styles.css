@@ -2680,3 +2680,190 @@ input[type="datetime-local"] {
 @media (prefers-reduced-motion: reduce) {
     .th-dialog, .th-dialog-overlay { animation: none; }
 }
+
+
+/* =========================================
+   15. PÁGINAS LEGALES Y ACEPTACIÓN DE TÉRMINOS
+   - Enlaces del footer (Términos / Privacidad / Contacto)
+   - terminos.html y privacidad.html
+   - Casilla "Acepto los Términos" junto a los botones de pago
+   ========================================= */
+.footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px 18px;
+    margin: 0 0 8px;
+}
+
+.footer-links a {
+    color: var(--text-soft);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footer-links a:hover,
+.footer-links a:focus-visible {
+    color: var(--gold);
+    text-decoration: underline;
+}
+
+footer p { margin: 0; }
+
+.legal-wrapper {
+    display: block;
+    flex: none;
+    width: 92%;
+    max-width: 860px;
+    margin: 10vh auto 50px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    padding: 36px 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    color: var(--text-soft);
+    line-height: 1.65;
+    box-sizing: border-box;
+}
+
+.legal-wrapper h1 {
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 1.9rem;
+    margin: 0 0 6px;
+}
+
+.legal-updated {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin: 0 0 24px;
+}
+
+.legal-summary {
+    background: rgba(var(--cyan-rgb), 0.07);
+    border: 1px solid rgba(var(--cyan-rgb), 0.35);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin: 0 0 24px;
+}
+
+.legal-summary strong { color: var(--cyan); }
+.legal-summary ul { margin: 8px 0 0; padding-left: 20px; }
+
+.legal-toc {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin: 0 0 30px;
+}
+
+.legal-toc p {
+    margin: 0 0 6px;
+    color: var(--gold);
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+}
+
+.legal-toc ol {
+    margin: 0;
+    padding-left: 22px;
+    columns: 2;
+    column-gap: 30px;
+}
+
+.legal-toc a { color: var(--text-soft); text-decoration: none; }
+.legal-toc a:hover, .legal-toc a:focus-visible { color: var(--gold); text-decoration: underline; }
+
+.legal-wrapper section { scroll-margin-top: 90px; }
+
+.legal-wrapper h2 {
+    color: var(--gold);
+    font-size: 1.2rem;
+    margin: 32px 0 10px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+
+.legal-wrapper h3 {
+    color: white;
+    font-size: 1rem;
+    margin: 18px 0 6px;
+}
+
+.legal-wrapper ul, .legal-wrapper ol { padding-left: 22px; }
+.legal-wrapper li { margin-bottom: 6px; }
+.legal-wrapper strong { color: white; }
+.legal-wrapper a { color: var(--cyan); }
+.legal-wrapper a:hover { color: var(--gold); }
+
+.legal-note {
+    border-left: 3px solid var(--gold);
+    background: rgba(var(--gold-rgb), 0.07);
+    padding: 10px 14px;
+    border-radius: 0 8px 8px 0;
+    margin: 12px 0;
+}
+
+.legal-table-wrap { overflow-x: auto; margin: 12px 0; }
+
+.legal-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+    min-width: 520px;
+}
+
+.legal-table th, .legal-table td {
+    border: 1px solid var(--border);
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: top;
+    white-space: normal;
+    font-size: 0.92rem;
+    cursor: auto;
+    transition: none;
+}
+
+.legal-table td { color: var(--text-soft); }
+
+.legal-table th {
+    background: rgba(0, 0, 0, 0.4);
+    color: var(--gold);
+    font-weight: bold;
+}
+
+/* Casilla de aceptación junto al botón de pago */
+.terms-check {
+    display: flex;
+    align-items: flex-start;
+    text-align: left;
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: var(--text-soft);
+    margin: 14px 0 0;
+    cursor: pointer;
+}
+
+.terms-check input { margin-top: 1px; }
+.terms-check a { color: var(--gold); }
+.terms-check.invalid { color: var(--red-light); }
+html .terms-check.invalid input { border-color: var(--red-light); }
+
+.terms-note {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin: 10px 0 0;
+    line-height: 1.4;
+}
+
+.terms-note a { color: var(--gold); }
+
+@media (max-width: 600px) {
+    .legal-wrapper { padding: 24px 18px; margin-top: 8vh; }
+    .legal-wrapper h1 { font-size: 1.5rem; }
+    .legal-toc ol { columns: 1; }
+}
