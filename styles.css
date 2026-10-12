@@ -2461,11 +2461,11 @@ html input[type="checkbox"]::before {
 
 html input[type="radio"]:checked,
 html input[type="checkbox"]:checked {
-    border-color: var(--th-accent, var(--gold));
+    border-color: var(--th-accent, var(--cyan));
 }
 
 html input[type="checkbox"]:checked {
-    background: var(--th-accent, var(--gold));
+    background: var(--th-accent, var(--cyan));
 }
 
 html input[type="radio"]:checked::before,
