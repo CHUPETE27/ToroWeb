@@ -2475,13 +2475,13 @@ html input[type="checkbox"]:checked::before {
 
 html input[type="radio"]:hover:not(:disabled),
 html input[type="checkbox"]:hover:not(:disabled) {
-    border-color: var(--th-accent, var(--gold));
-    box-shadow: 0 0 8px rgba(var(--gold-rgb), 0.25);
+    border-color: var(--th-accent, var(--cyan));
+    box-shadow: 0 0 8px rgba(var(--cyan-rgb), 0.25);
 }
 
 html input[type="radio"]:focus-visible,
 html input[type="checkbox"]:focus-visible {
-    outline: 2px solid var(--th-accent, var(--gold));
+    outline: 2px solid var(--th-accent, var(--cyan));
     outline-offset: 2px;
 }
 
