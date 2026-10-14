@@ -382,6 +382,25 @@ footer {
     justify-content: center;
     align-items: center;
     gap: 8px;
+    text-decoration: none;
+}
+
+/* Botón secundario (acción de apoyo junto a un .btn-primary) */
+.btn-secundario {
+    background: rgba(0, 0, 0, 0.4);
+    color: var(--text-soft);
+    border: 1px solid #555;
+}
+
+.btn-secundario:hover:not(:disabled) {
+    border-color: var(--text-soft);
+    color: #fff;
+    transform: scale(1.05);
+}
+
+.btn-estandar:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
 }
 
 .btn-estandar:disabled {
@@ -2866,4 +2885,109 @@ html .terms-check.invalid input { border-color: var(--red-light); }
     .legal-wrapper { padding: 24px 18px; margin-top: 8vh; }
     .legal-wrapper h1 { font-size: 1.5rem; }
     .legal-toc ol { columns: 1; }
+}
+
+
+/* =========================================
+   16. PÁGINAS DE ERROR (404.html y error.html)
+   - Botones: .btn-estandar + .btn-primary / .btn-secundario (sección 5)
+   - .error-container.is-critical: variante roja para errores del servidor
+   ========================================= */
+.error-main {
+    flex: 1;
+    justify-content: center;
+    padding: 40px 20px;
+    margin-top: 5vh;
+}
+
+.error-container {
+    text-align: center;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 15px;
+    padding: 50px 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+    max-width: 600px;
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+}
+
+.error-container::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(var(--gold-rgb), 0.05) 0%, transparent 50%);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.error-container > * { position: relative; z-index: 1; }
+
+.error-container.is-critical {
+    border-color: var(--red);
+    box-shadow: 0 10px 30px rgba(var(--red-rgb), 0.15);
+}
+
+.error-container.is-critical::before {
+    background: radial-gradient(circle, rgba(var(--red-rgb), 0.05) 0%, transparent 50%);
+    animation: pulse 2s infinite;
+}
+
+.error-icon { font-size: 4rem; color: var(--red); margin-bottom: 20px; }
+.is-critical .error-icon { color: var(--gold); }
+
+.error-code {
+    font-size: 8rem;
+    font-weight: bold;
+    color: var(--gold);
+    margin: 0;
+    line-height: 1;
+    text-shadow: 0 0 20px rgba(var(--gold-rgb), 0.4), 4px 4px 0 #111, 6px 6px 0 var(--red);
+}
+
+.is-critical .error-code {
+    font-size: 6rem;
+    color: var(--red);
+    text-shadow: 0 0 20px rgba(var(--red-rgb), 0.4);
+}
+
+.error-title { color: #fff; margin: 10px 0 0; font-size: 1.8rem; }
+
+.toro-quote {
+    background: rgba(0, 0, 0, 0.5);
+    border-left: 4px solid var(--red);
+    padding: 15px;
+    margin: 25px 0;
+    border-radius: 0 8px 8px 0;
+    font-style: italic;
+    color: var(--text-soft);
+    font-size: 1.1rem;
+    text-align: left;
+}
+
+.is-critical .toro-quote { border-left-color: var(--gold); }
+.toro-quote strong { color: var(--gold); font-style: normal; }
+
+.error-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.error-actions .btn-estandar { margin-bottom: 0; }
+
+@media (max-width: 480px) {
+    .error-code { font-size: 5.5rem; }
+    .is-critical .error-code { font-size: 4rem; }
+    .error-container { padding: 36px 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .error-container.is-critical::before { animation: none; }
 }
