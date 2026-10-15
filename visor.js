@@ -346,6 +346,8 @@ const VisorCore = (function () {
             const raw = [];
             const players = new Map();
             const kicks = new Map();
+            const sfx = [];   // eventos con sonido: { f, t: 'kick' | 'bounce' | 'whistle' | 'end' }
+            let lastBounce = -10;
             let stadiumName = null;
             let reader = null, progressTimer = null, killTimer = null, done = false, recorder = null, hookedState = null;
             const scheduler = createFastScheduler();
@@ -376,7 +378,11 @@ const VisorCore = (function () {
                     return;
                 }
                 raw.sort((a, b) => a.f - b.f);
-                resolve({ raw, players: list, stadiumName, maxFrame, recording });
+                resolve({ raw, players: list, stadiumName, maxFrame, recording, sfx });
+            };
+            const bounce = (disc) => {
+                const f = frame();
+                if (disc === 0 && f - lastBounce > 6) { lastBounce = f; sfx.push({ f, t: 'bounce' }); }
             };
             const fail = (err) => { if (done) return; done = true; cleanup(); reject(err); };
 
@@ -390,7 +396,13 @@ const VisorCore = (function () {
                     onPlayerJoin: (p) => touch(p.id, p.name, p.team ? p.team.id : 0, frame()),
                     onPlayerLeave: (p) => { const q = touch(p.id, p.name, null, frame()); q.lastFrame = frame(); },
                     onPlayerTeamChange: (id, teamId) => { const p = reader.state.getPlayer(id); touch(id, p ? p.name : null, teamId, frame()); },
-                    onPlayerBallKick: (id) => kicks.set(id, (kicks.get(id) || 0) + 1),
+                    onPlayerBallKick: (id) => { kicks.set(id, (kicks.get(id) || 0) + 1); sfx.push({ f: frame(), t: 'kick' }); },
+                    onKickOff: () => sfx.push({ f: frame(), t: 'whistle' }),
+                    onGameEnd: () => sfx.push({ f: frame(), t: 'end' }),
+                    // el disco 0 es la pelota; un roce largo contra la pared dispara muchos choques seguidos
+                    onCollisionDiscVsSegment: (disc) => bounce(disc),
+                    onCollisionDiscVsPlane: (disc) => bounce(disc),
+                    onCollisionDiscVsVertex: (disc) => bounce(disc),
                     onStadiumChange: (st) => { if (st && st.name) stadiumName = st.name; },
                     onGameStart: () => {
                         try { const st = reader.gameState && reader.gameState.stadium; if (st && st.name) stadiumName = st.name; } catch (e) { /* sin estadio aún */ }
@@ -478,6 +490,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         playing: false,
         followBall: false,
         showNames: true,
+        zoom: 1,              // 1 = campo completo (máximo); la barra solo aleja
+        sfx: [],
+        muted: (function () { try { return localStorage.getItem('vzMuted') === '1'; } catch (e) { return false; } })(),
         autoScroll: true,
         query: '',
         busy: false,
@@ -634,6 +649,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
                 const d = C.describeGoal(messages, g.f);
                 return { f: g.f, teamId: g.teamId, text: d && d.description, red: d && d.red, blue: d && d.blue };
             });
+            S.sfx = (scan.sfx || []).concat(goalMarkers.map(g => ({ f: g.f, t: 'goal' }))).sort((a, b) => a.f - b.f);
             S.title = C.extractTeamNames(messages) ? `${S.teamNames.red} vs ${S.teamNames.blue}` : name;
             S.fileName = name;
             S.lastScore = { red: 0, blue: 0 };
@@ -681,7 +697,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         stopPlayer();
         cancelClipJob();
         clearClipResult();
-        S.rec = null; S.scan = null; S.messages = []; S.goals = [];
+        S.rec = null; S.scan = null; S.messages = []; S.goals = []; S.sfx = [];
         show($('vz-viewer'), false);
         show($('vz-load'), true);
         showError('');
@@ -839,13 +855,14 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
     const cur = { x: new Float64Array(64), y: new Float64Array(64) };
 
     const FOLLOW_ZOOM = 2.2;   // zoom de "Seguir pelota" respecto al campo completo; los clips usan el mismo
-    const NAME_SIZE = 0.02;    // tamaño de los nombres: fracción del alto del lienzo (antes 0.028)
+    const NAME_SIZE = 7;       // alto de los nombres en unidades del estadio (el disco de un jugador mide 15 de radio)
 
     function draw() {
-        drawScene(ctx, canvas.width, canvas.height, S.cursor, { follow: S.followBall, camera: S.camera, names: S.showNames });
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        drawScene(ctx, canvas.width, canvas.height, S.cursor, { follow: S.followBall, camera: S.camera, names: S.showNames, zoom: S.zoom, namePxMin: 8 * dpr });
     }
 
-    // Dibuja el cuadro `cursor` en el contexto `g`. opts: { follow, camera: {x, y, snap?}, names }.
+    // Dibuja el cuadro `cursor` en el contexto `g`. opts: { follow, camera: {x, y, snap?}, names, zoom?, namePxMin? }.
     // Devuelve false si todavía no hay partido en ese cuadro.
     function drawScene(g, w, h, cursor, opts) {
         const rec = S.rec;
@@ -877,15 +894,15 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         const ext = stadiumHalfExtent(st);
         const fieldW = ext.hw * 1.05 + 25;
         const fieldH = ext.hh * 1.05 + 25;
-        let zoom = Math.min(w / (2 * fieldW), h / (2 * fieldH));
+        let zoom = Math.min(w / (2 * fieldW), h / (2 * fieldH)) * (opts.zoom || 1);
         let cx = 0, cy = 0;
 
         const cam = opts.camera;
         if (opts.follow && n > 0) {
             const z2 = zoom * FOLLOW_ZOOM;
             const vw = w / z2 / 2, vh = h / z2 / 2;
-            const tx = clamp(cur.x[0], -fieldW + vw, fieldW - vw);
-            const ty = clamp(cur.y[0], -fieldH + vh, fieldH - vh);
+            const tx = vw >= fieldW ? 0 : clamp(cur.x[0], -fieldW + vw, fieldW - vw);
+            const ty = vh >= fieldH ? 0 : clamp(cur.y[0], -fieldH + vh, fieldH - vh);
             if (cam.snap) { cam.x = tx; cam.y = ty; cam.snap = false; }
             else { cam.x += (tx - cam.x) * 0.15; cam.y += (ty - cam.y) * 0.15; }
             zoom = z2; cx = cam.x; cy = cam.y;
@@ -913,19 +930,110 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
 
         if (opts.names) {
             g.setTransform(1, 0, 0, 1, 0, 0);
-            const px = Math.max(9, Math.round(h * NAME_SIZE));
+            const px = Math.round(Math.max(opts.namePxMin || 9, zoom * NAME_SIZE));
             g.font = `600 ${px}px sans-serif`;
             g.textAlign = 'center'; g.textBaseline = 'top';
             g.lineWidth = Math.max(1.5, px / 5); g.strokeStyle = 'rgba(0,0,0,0.85)'; g.fillStyle = '#fff';
             for (const p of ep.players) {
                 if (p.discIdx < 0) continue;
                 const sx = (cur.x[p.discIdx] - cx) * zoom + w / 2;
-                const sy = (cur.y[p.discIdx] - cy) * zoom + h / 2 + ep.discRadius[p.discIdx] * zoom + 2;
+                const sy = (cur.y[p.discIdx] - cy) * zoom + h / 2 + ep.discRadius[p.discIdx] * zoom + px * 0.2;
                 g.strokeText(p.name, sx, sy); g.fillText(p.name, sx, sy);
             }
         }
         g.setTransform(1, 0, 0, 1, 0, 0);
         return true;
+    }
+
+    // Sonidos sintetizados con Web Audio: los de HaxBall (res.dat) no se pueden redistribuir en un repo público.
+    const Sfx = (function () {
+        let ac = null, noise = null;
+        function ctx() {
+            if (!ac) {
+                const AC = window.AudioContext || window.webkitAudioContext;
+                if (!AC) return null;
+                ac = new AC();
+                noise = ac.createBuffer(1, ac.sampleRate * 3, ac.sampleRate);
+                const d = noise.getChannelData(0);
+                for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+            }
+            if (ac.state === 'suspended') ac.resume().catch(() => {});
+            return ac;
+        }
+        function env(a, t, peak, attack, decay) {
+            const g = a.createGain();
+            g.gain.setValueAtTime(0.0001, t);
+            g.gain.exponentialRampToValueAtTime(peak, t + attack);
+            g.gain.exponentialRampToValueAtTime(0.0001, t + attack + decay);
+            g.connect(a.destination);
+            return g;
+        }
+        function tone(a, t, type, f0, f1, dur, peak) {
+            const o = a.createOscillator();
+            o.type = type;
+            o.frequency.setValueAtTime(f0, t);
+            o.frequency.exponentialRampToValueAtTime(f1, t + dur);
+            o.connect(env(a, t, peak, 0.004, dur));
+            o.start(t); o.stop(t + dur + 0.05);
+        }
+        function hiss(a, t, filter, freq, q, dur, peak, attack) {
+            const src = a.createBufferSource(), bq = a.createBiquadFilter();
+            src.buffer = noise;
+            bq.type = filter; bq.frequency.value = freq; bq.Q.value = q;
+            src.connect(bq); bq.connect(env(a, t, peak, attack || 0.002, dur));
+            src.start(t, Math.random() * 1.5); src.stop(t + (attack || 0) + dur + 0.05);
+        }
+        function whistle(a, t, dur) {
+            const o = a.createOscillator(), lfo = a.createOscillator(), depth = a.createGain(), g = a.createGain();
+            o.type = 'sine'; o.frequency.value = 2900;
+            lfo.frequency.value = 38; depth.gain.value = 120;
+            lfo.connect(depth); depth.connect(o.frequency);
+            g.gain.setValueAtTime(0.0001, t);
+            g.gain.exponentialRampToValueAtTime(0.12, t + 0.02);
+            g.gain.setValueAtTime(0.12, t + dur - 0.05);
+            g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+            o.connect(g); g.connect(a.destination);
+            o.start(t); lfo.start(t); o.stop(t + dur + 0.02); lfo.stop(t + dur + 0.02);
+        }
+        const SOUNDS = {
+            kick: (a, t) => { tone(a, t, 'sine', 160, 45, 0.12, 0.7); hiss(a, t, 'bandpass', 1800, 1.2, 0.03, 0.25); },
+            bounce: (a, t) => tone(a, t, 'triangle', 320, 180, 0.07, 0.25),
+            whistle: (a, t) => whistle(a, t, 0.45),
+            end: (a, t) => { whistle(a, t, 0.3); whistle(a, t + 0.4, 0.3); whistle(a, t + 0.8, 0.9); },
+            goal: (a, t) => { hiss(a, t, 'bandpass', 900, 0.6, 2.6, 0.5, 0.35); hiss(a, t, 'lowpass', 500, 0.7, 2.2, 0.35, 0.25); }
+        };
+        return {
+            unlock() { ctx(); },
+            play(type) {
+                const a = ctx(), fn = SOUNDS[type];
+                if (!a || !fn || a.state !== 'running') return;
+                try { fn(a, a.currentTime + 0.01); } catch (e) { /* audio no disponible */ }
+            }
+        };
+    })();
+
+    function syncSoundButton() {
+        const b = $('vz-sound');
+        b.innerHTML = S.muted ? '<i class="fa-solid fa-volume-xmark"></i>' : '<i class="fa-solid fa-volume-high"></i>';
+        b.classList.toggle('on', !S.muted);
+        b.setAttribute('aria-pressed', String(!S.muted));
+        b.setAttribute('aria-label', S.muted ? 'Activar sonido' : 'Silenciar');
+        b.title = S.muted ? 'Activar sonido (M)' : 'Silenciar (M)';
+    }
+
+    function toggleMute() {
+        S.muted = !S.muted;
+        try { localStorage.setItem('vzMuted', S.muted ? '1' : '0'); } catch (e) { /* sin almacenamiento */ }
+        if (!S.muted) Sfx.unlock();
+        syncSoundButton();
+        if (S.fs) showUi();
+    }
+
+    function setZoom(pct) {
+        S.zoom = clamp(pct, 40, 100) / 100;
+        $('vz-zoom-val').textContent = Math.round(S.zoom * 100) + '%';
+        S.camera.snap = true;
+        S.needsRedraw = true;
     }
 
     function flashGoal(teamId) {
@@ -946,6 +1054,10 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
             const prev = S.cursor;
             S.cursor = Math.min(S.maxFrame, S.cursor + dt * FRAMES_PER_MS * S.speed);
             for (const g of S.goals) { if (g.f > prev && g.f <= S.cursor) { flashGoal(g.teamId); break; } }
+            if (!S.muted) {
+                // máximo 3 por cuadro: a 8x se juntan muchas patadas
+                for (let i = C.lastIndexAtOrBefore(S.sfx, prev) + 1, n = 0; i < S.sfx.length && S.sfx[i].f <= S.cursor && n < 3; i++, n++) Sfx.play(S.sfx[i].t);
+            }
             if (S.cursor >= S.maxFrame) { S.playing = false; syncPlayButton(); if (S.fs) showUi(); }
         }
 
@@ -1602,6 +1714,11 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         $('vz-seek').addEventListener('input', (e) => { seekTo(+e.target.value); if (S.fs) showUi(); });
         $('vz-follow').addEventListener('click', (e) => { S.followBall = !S.followBall; e.currentTarget.classList.toggle('on', S.followBall); S.needsRedraw = true; if (S.fs) showUi(); });
         $('vz-names').addEventListener('click', (e) => { S.showNames = !S.showNames; e.currentTarget.classList.toggle('on', S.showNames); S.needsRedraw = true; if (S.fs) showUi(); });
+        $('vz-sound').addEventListener('click', toggleMute);
+        syncSoundButton();
+        $('vz-zoom').addEventListener('input', (e) => { setZoom(+e.target.value); if (S.fs) showUi(); });
+        // el navegador solo deja sonar el audio después de un gesto del usuario
+        ['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, () => { if (!S.muted) Sfx.unlock(); }, { capture: true, passive: true }));
         $('vz-fullscreen').addEventListener('click', toggleFullscreen);
         $('vz-fs-exit').addEventListener('click', exitFullscreen);
         document.addEventListener('fullscreenchange', onFullscreenChange);
@@ -1642,6 +1759,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
             else if (e.code === 'ArrowLeft') { e.preventDefault(); seekTo(currentFrame() - 5 * C.FPS); if (S.fs) showUi(); }
             else if (e.code === 'ArrowRight') { e.preventDefault(); seekTo(currentFrame() + 5 * C.FPS); if (S.fs) showUi(); }
             else if (e.code === 'KeyF') { e.preventDefault(); toggleFullscreen(); }
+            else if (e.code === 'KeyM') { e.preventDefault(); toggleMute(); }
         });
     }
 

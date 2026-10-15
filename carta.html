@@ -887,10 +887,12 @@
             const cartaElement = document.getElementById('cartaFifa');
             cartaElement.classList.add('exportando');
 
-            htmlToImage.toCanvas(cartaElement, {
-                pixelRatio: 3,
-                backgroundColor: 'rgba(0,0,0,0)'
-            }).then(canvas => {
+            const opciones = { pixelRatio: 3, backgroundColor: 'rgba(0,0,0,0)' };
+            // Safari de iPhone/iPad suele dejar fuera las imágenes en la primera pasada: se dibuja dos veces
+            const esIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            (esIOS ? htmlToImage.toCanvas(cartaElement, opciones).catch(() => {}) : Promise.resolve())
+            .then(() => htmlToImage.toCanvas(cartaElement, opciones))
+            .then(canvas => {
                 cartaElement.classList.remove('exportando');
                 
                 const pad = 24; 
@@ -935,13 +937,10 @@
                 ctx.lineJoin = 'miter'; 
                 ctx.stroke();
 
-                const link = document.createElement('a');
-                link.download = `Carta_ToroHax_${playerData.name.replace(/\s+/g, '_')}.png`;
-                link.href = finalCanvas.toDataURL('image/png');
-                link.click();
-                
-                btn.innerHTML = originalText;
-                btn.disabled = false;
+                const nombre = `Carta_ToroHax_${playerData.name.replace(/[^\w-]+/g, '_')}.png`;
+                return new Promise((ok, fail) => finalCanvas.toBlob(b => b ? ok(b) : fail(new Error('toBlob vacío')), 'image/png'))
+                    .then(blob => entregarCarta(blob, nombre))
+                    .then(() => { btn.innerHTML = originalText; btn.disabled = false; });
             }).catch(err => {
                 cartaElement.classList.remove('exportando');
                 console.error(err);
@@ -949,6 +948,39 @@
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             });
+        }
+
+        // Celular: hoja de compartir (guardar en Fotos/Galería); si no existe, descarga y además muestra la imagen para guardarla a mano
+        async function entregarCarta(blob, nombre) {
+            const movil = window.matchMedia('(pointer: coarse)').matches;
+            const file = new File([blob], nombre, { type: 'image/png' });
+            if (movil && navigator.canShare && navigator.canShare({ files: [file] })) {
+                try { await navigator.share({ files: [file], title: 'Mi carta ToroHax' }); return; }
+                catch (e) {
+                    if (e.name === 'AbortError') return;
+                    // el permiso del toque se venció mientras se generaba la imagen: se pide otro toque
+                    if (e.name === 'NotAllowedError' && await ThUI.confirm('✅ Tu carta está lista.', { okText: 'Guardar / Compartir', cancelText: 'Cerrar' })) {
+                        try { await navigator.share({ files: [file], title: 'Mi carta ToroHax' }); return; }
+                        catch (e2) { if (e2.name === 'AbortError') return; }
+                    }
+                }
+            }
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.download = nombre;
+            link.href = url;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            if (movil) {
+                // navegadores dentro de apps (Instagram, WhatsApp...) ignoran la descarga
+                await ThUI.alert('✅', {
+                    title: 'Tu carta está lista',
+                    html: '<img src="' + url + '" alt="Tu carta ToroHax" style="display:block;width:100%;max-height:55vh;object-fit:contain;-webkit-touch-callout:default;">' +
+                          '<p style="margin:10px 0 0;">Si no se descargó, mantén presionada la imagen y elige «Guardar imagen».</p>'
+                });
+            }
+            setTimeout(() => URL.revokeObjectURL(url), 60000);
         }
 
         function toggleLayers() {

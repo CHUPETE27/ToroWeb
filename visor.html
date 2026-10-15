@@ -97,7 +97,8 @@
         .vz-fs-bottom { left: 0; right: 0; bottom: 0; padding: 22px 10px max(8px, env(safe-area-inset-bottom)); background: linear-gradient(transparent, rgba(0, 0, 0, 0.82)); }
         .vz-fs-bottom .vz-controls { padding: 4px; background: transparent; border: none; box-shadow: none; gap: 6px; }
         .vz-fs-bottom .vz-btnrow .btn-cmd:not(.vz-play), .vz-fs-bottom .vz-btnrow .custom-select-trigger { background: rgba(0, 0, 0, 0.55); }
-        .vz-fs-bottom .vz-btnrow .vz-toggle.on { background: rgba(var(--cyan-rgb), 0.25); }
+        .vz-fs-bottom #vz-sound { background: rgba(0, 0, 0, 0.55); }
+        .vz-fs-bottom .vz-btnrow .vz-toggle.on, .vz-fs-bottom #vz-sound.on { background: rgba(var(--cyan-rgb), 0.25); }
         .vz-fs-exit { top: 8px; right: 8px; min-width: 44px; min-height: 44px; justify-content: center; align-items: center; background: rgba(0, 0, 0, 0.55); }
         .vz-stage.vz-fs.vz-ui-hidden .vz-fs-top, .vz-stage.vz-fs.vz-ui-hidden .vz-fs-bottom, .vz-stage.vz-fs.vz-ui-hidden .vz-fs-exit { opacity: 0; pointer-events: none; }
         .vz-stage.vz-fs.vz-ui-hidden #vz-canvas { cursor: none; }
@@ -111,12 +112,18 @@
         .vz-seekrow { display: flex; align-items: center; gap: 10px; }
         .vz-timecode { font-family: monospace; font-size: 0.85rem; color: var(--text-soft); min-width: 3.4em; text-align: center; }
         .vz-seek-wrap { position: relative; flex: 1; height: 34px; display: flex; align-items: center; }
-        #vz-seek { -webkit-appearance: none; appearance: none; width: 100%; height: 34px; margin: 0; background: transparent; cursor: pointer; position: relative; z-index: 2; touch-action: none; }
-        #vz-seek::-webkit-slider-runnable-track { height: 6px; background: #3a3a3a; border-radius: 3px; }
-        #vz-seek::-moz-range-track { height: 6px; background: #3a3a3a; border-radius: 3px; }
-        #vz-seek::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--gold); border: 2px solid #111; margin-top: -7px; box-shadow: 0 0 8px rgba(var(--gold-rgb), 0.6); }
-        #vz-seek::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--gold); border: 2px solid #111; box-shadow: 0 0 8px rgba(var(--gold-rgb), 0.6); }
-        #vz-seek:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; border-radius: 4px; }
+        .vz-range { -webkit-appearance: none; appearance: none; width: 100%; height: 34px; margin: 0; background: transparent; cursor: pointer; position: relative; z-index: 2; touch-action: none; }
+        .vz-range::-webkit-slider-runnable-track { height: 6px; background: #3a3a3a; border-radius: 3px; }
+        .vz-range::-moz-range-track { height: 6px; background: #3a3a3a; border-radius: 3px; }
+        .vz-range::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--gold); border: 2px solid #111; margin-top: -7px; box-shadow: 0 0 8px rgba(var(--gold-rgb), 0.6); }
+        .vz-range::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--gold); border: 2px solid #111; box-shadow: 0 0 8px rgba(var(--gold-rgb), 0.6); }
+        .vz-range:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; border-radius: 4px; }
+        .vz-zoomrow { display: flex; align-items: center; gap: 12px; }
+        .vz-zoomctl { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; color: var(--text-soft); font-size: 0.85rem; }
+        .vz-zoomctl .vz-range { flex: 1; min-width: 0; height: 28px; }
+        .vz-zoomctl i { flex: 0 0 auto; }
+        #vz-sound { padding: 10px 14px; min-height: 44px; min-width: 44px; justify-content: center; }
+        #vz-zoom-val { font-family: monospace; min-width: 3.4em; text-align: center; }
         .vz-markers { position: absolute; left: 10px; right: 10px; top: 50%; height: 0; z-index: 3; pointer-events: none; }
         .vz-marker { position: absolute; top: -9px; width: 4px; height: 18px; margin-left: -2px; border-radius: 2px; border: 1px solid #000; }
         .vz-marker.red { background: #ff7a66; }
@@ -127,7 +134,7 @@
         .vz-btnrow .btn-cmd { padding: 10px 14px; min-height: 44px; min-width: 44px; justify-content: center; }
         .vz-btnrow .vz-play { background: var(--gold); border-color: var(--gold); color: #111; min-width: 56px; font-size: 1.1rem; }
         .vz-btnrow .vz-play:hover { background: var(--gold-light); border-color: var(--gold-light); color: #111; }
-        .vz-btnrow .vz-toggle.on { background: rgba(var(--cyan-rgb), 0.15); border-color: var(--cyan); color: var(--cyan); }
+        .vz-controls .vz-toggle.on { background: rgba(var(--cyan-rgb), 0.15); border-color: var(--cyan); color: var(--cyan); }
 
         @container (max-width: 560px) {
             .vz-grp { flex: 1 1 100%; }
@@ -310,7 +317,7 @@
                             <div class="vz-seekrow">
                                 <span class="vz-timecode" id="vz-time-cur">0:00</span>
                                 <div class="vz-seek-wrap">
-                                    <input type="range" id="vz-seek" min="0" max="1" step="1" value="0" aria-label="Posición de la repetición">
+                                    <input type="range" id="vz-seek" class="vz-range" min="0" max="1" step="1" value="0" aria-label="Posición de la repetición">
                                     <div class="vz-markers" id="vz-markers" aria-hidden="true"></div>
                                 </div>
                                 <span class="vz-timecode" id="vz-time-total">0:00</span>
@@ -335,6 +342,16 @@
                                     <button type="button" id="vz-names" class="btn-cmd vz-toggle on" title="Mostrar nombres"><i class="fa-solid fa-signature"></i> <span class="vz-label">Nombres</span></button>
                                     <button type="button" id="vz-fullscreen" class="btn-cmd" aria-label="Pantalla completa" title="Pantalla completa (F)"><i class="fa-solid fa-expand"></i></button>
                                 </div>
+                            </div>
+
+                            <div class="vz-zoomrow">
+                                <label class="vz-zoomctl" title="Alejar la cámara (100% = campo completo)">
+                                    <i class="fa-solid fa-magnifying-glass-minus" aria-hidden="true"></i>
+                                    <input type="range" id="vz-zoom" class="vz-range" min="40" max="100" step="5" value="100" aria-label="Zoom">
+                                    <i class="fa-solid fa-magnifying-glass-plus" aria-hidden="true"></i>
+                                    <span id="vz-zoom-val">100%</span>
+                                </label>
+                                <button type="button" id="vz-sound" class="btn-cmd vz-toggle on" aria-label="Silenciar" aria-pressed="true" title="Silenciar (M)"><i class="fa-solid fa-volume-high"></i></button>
                             </div>
                         </div>
                     </div>
