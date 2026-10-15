@@ -280,7 +280,7 @@
 
         async function cargarEstadoHost() {
             try {
-                const res = await fetch(`https://torobot-izu5.onrender.com/api/predio/estado?bot=${currentBot}`);
+                const res = await fetch(`https://torobot-izu5.onrender.com/api/predio/estado?bot=${currentBot}&numericId=${encodeURIComponent(loggedId)}&token=${encodeURIComponent(token)}`);
                 const data = await res.json();
 
                 const statusText = document.getElementById('host-status-text');

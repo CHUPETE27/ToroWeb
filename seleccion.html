@@ -463,7 +463,7 @@
 
         async function cargarEstadoPredio() {
             try {
-                const res = await fetch(`https://torobot-izu5.onrender.com/api/predio/estado`);
+                const res = await fetch(`https://torobot-izu5.onrender.com/api/predio/estado?numericId=${encodeURIComponent(loggedId)}&token=${encodeURIComponent(token)}`);
                 const data = await res.json();
 
                 const statusText = document.getElementById('predio-status-text');
@@ -736,7 +736,7 @@
                             if (isManager) {
                                 fetch(`https://torobot-izu5.onrender.com/api/matches/${m._id}`, {
                                     method: 'DELETE', headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({ numericId: loggedId, team: 'seleccion', mode: currentMode })
+                                    body: JSON.stringify({ numericId: loggedId, token: token, team: 'seleccion', mode: currentMode })
                                 }).catch(()=>{});
                             }
                             return;
@@ -852,7 +852,7 @@
                 const res = await fetch(url, {
                     method: method,
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ numericId: loggedId, team: 'seleccion', mode: currentMode, isHistory, rival, golesLocal, golesVisita, matchType, date })
+                    body: JSON.stringify({ numericId: loggedId, token: token, team: 'seleccion', mode: currentMode, isHistory, rival, golesLocal, golesVisita, matchType, date })
                 });
                 const data = await res.json();
                 if (data.success) { cerrarModal(); cargarPartidos(); } 
@@ -867,7 +867,7 @@
             try {
                 const res = await fetch(`https://torobot-izu5.onrender.com/api/matches/${id}`, {
                     method: 'DELETE', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ numericId: loggedId, team: 'seleccion', mode: currentMode })
+                    body: JSON.stringify({ numericId: loggedId, token: token, team: 'seleccion', mode: currentMode })
                 });
                 const data = await res.json();
                 if(data.success) cargarPartidos();

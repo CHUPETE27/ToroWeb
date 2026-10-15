@@ -151,9 +151,16 @@
             });
         }
 
+        function escapeHtml(str) {
+            return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
         function construirTarjeta(sala, tituloCerrado) {
             if (sala) {
-                const linkLimpio = sala.link ? sala.link.replace('https://', '') : 'Esperando link...';
+                // Solo enlaces de HaxBall: el nombre y el enlace los reporta la sala y se pintan como HTML
+                const link = typeof sala.link === 'string' && sala.link.startsWith('https://www.haxball.com/') ? sala.link : '';
+                const linkLimpio = link ? link.replace('https://', '') : 'Esperando link...';
+                const nombre = escapeHtml(sala.name);
                 
                 let numPlayers = 0;
                 if (Array.isArray(sala.players)) {
@@ -165,18 +172,18 @@
                 return `
                     <div class="room-card">
                         <div class="room-header">
-                            <h4 class="room-name" title="${sala.name}">${sala.name}</h4>
+                            <h4 class="room-name" title="${nombre}">${nombre}</h4>
                             <div class="room-status">
                                 <span class="status-circle green"></span>
-                                <span>${numPlayers}/${sala.maxPlayers}</span> </div>
+                                <span>${numPlayers}/${escapeHtml(sala.maxPlayers)}</span> </div>
                         </div>
                         <div class="room-link-container">
-                            <span class="room-link-text">${linkLimpio}</span>
-                            <button class="copy-btn" onclick="copiarLink('${sala.link}', this)" title="Copiar enlace">
+                            <span class="room-link-text">${escapeHtml(linkLimpio)}</span>
+                            <button class="copy-btn" data-link="${escapeHtml(link)}" onclick="copiarLink(this.dataset.link, this)" title="Copiar enlace">
                                 <i class="fa-regular fa-copy"></i>
                             </button>
                         </div>
-                        <a href="${sala.link}" target="_blank" rel="noopener noreferrer" class="room-jugar-btn">JUGAR</a>
+                        <a href="${escapeHtml(link || '#')}" target="_blank" rel="noopener noreferrer" class="room-jugar-btn">JUGAR</a>
                     </div>
                 `;
             } else {
@@ -207,7 +214,7 @@
                 let salaSecundaria = null;
 
                 salas.forEach(sala => {
-                    if (sala.id === 'jt_principal' || sala.name.toLowerCase().includes('ᴊᴜᴇɢᴀɴ ᴛᴏᴅᴏs')) {
+                    if (sala.id === 'jt_principal' || String(sala.name || '').toLowerCase().includes('ᴊᴜᴇɢᴀɴ ᴛᴏᴅᴏs')) {
                         salaPrincipal = sala;
                     } else if (!salaSecundaria) {
                         salaSecundaria = sala;

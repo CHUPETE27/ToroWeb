@@ -476,7 +476,7 @@
                 const data = await res.json();
 
                 if (data.success) {
-                    divPrincipal.innerHTML = `<span class="id-badge" style="border-color:#e1bc56; color:#e1bc56;">#${data.principal.numericId}</span> <strong style="color:white;">${data.principal.name}</strong>`;
+                    divPrincipal.innerHTML = `<span class="id-badge" style="border-color:#e1bc56; color:#e1bc56;">#${data.principal.numericId}</span> <strong style="color:white;">${escapeHtml(data.principal.name)}</strong>`;
                     
                     ulSecundarias.innerHTML = '';
                     if (data.secundarias.length === 0) {
@@ -489,7 +489,7 @@
                                 
                             ulSecundarias.innerHTML += `
                                 <li style="display:flex; justify-content:space-between; align-items:center; padding:12px 15px; border-bottom:1px solid #333;">
-                                    <span><span class="id-badge" style="border-color:#5dc8e8; color:#5dc8e8;">#${alt.numericId}</span> <strong style="color:white;">${alt.name}</strong></span>
+                                    <span><span class="id-badge" style="border-color:#5dc8e8; color:#5dc8e8;">#${alt.numericId}</span> <strong style="color:white;">${escapeHtml(alt.name)}</strong></span>
                                     <div style="display:flex; gap: 8px;">
                                         ${btnHtml}
                                         <button class="btn-estandar" style="width:auto; margin:0; padding:6px 10px; background:transparent; color:#cc2a2a; border: 1px solid #cc2a2a;" onclick="quitarCuentaSecundaria(${alt.numericId})" title="Quitar cuenta"><i class="fa-solid fa-trash"></i></button>
@@ -579,7 +579,7 @@
             ul.innerHTML = '<li style="justify-content: center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando baneos...</li>';
             
             try {
-                const res = await fetch('https://torobot-izu5.onrender.com/list-bans');
+                const res = await fetch(`https://torobot-izu5.onrender.com/list-bans?adminId=${encodeURIComponent(loggedId)}&token=${encodeURIComponent(token)}`);
                 globalBans = await res.json();
                 
                 document.getElementById('banSearchInput').value = ""; 
@@ -603,8 +603,8 @@
                 const banId = ban._id;
                 
                 html += `
-                    <li class="search-item" onclick="abrirBanById('${banId}')" style="display:flex; justify-content:space-between; align-items:center; padding:12px 15px; border-bottom:1px solid #333;">
-                        <span><i class="fa-solid fa-user-slash" style="color:#e74c3c; margin-right:8px;"></i> <strong style="color:white;">${nameDisplay}</strong> <span style="color:#7d7d7d;">(ID: ${idDisplay})</span></span>
+                    <li class="search-item" onclick="abrirBanById('${escapeHtml(banId)}')" style="display:flex; justify-content:space-between; align-items:center; padding:12px 15px; border-bottom:1px solid #333;">
+                        <span><i class="fa-solid fa-user-slash" style="color:#e74c3c; margin-right:8px;"></i> <strong style="color:white;">${escapeHtml(nameDisplay)}</strong> <span style="color:#7d7d7d;">(ID: ${idDisplay})</span></span>
                         <i class="fa-solid fa-eye" style="color:#5dc8e8;"></i>
                     </li>
                 `;
@@ -864,7 +864,7 @@
                 await fetch('https://torobot-izu5.onrender.com/api/webhook/lista-negra', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ embeds: [embed] })
+                    body: JSON.stringify({ adminId: loggedId, token: token, embeds: [embed] })
                 });
             } catch (error) { console.error("Error enviando webhook seguro:", error); }
         }
@@ -997,7 +997,7 @@
                             const iconDiscord = p.discordId ? '<i class="fa-brands fa-discord" style="color:#5dc8e8; font-size:0.9rem;" title="Vinculado"></i>' : '';
                             ul.innerHTML += `
                                 <li class="search-item" onclick="abrirPlayerDetails(${p.numericId})">
-                                    <span><span class="id-badge">#${p.numericId}</span> ${p.name} ${iconVip}</span>
+                                    <span><span class="id-badge">#${p.numericId}</span> ${escapeHtml(p.name)} ${iconVip}</span>
                                     <span>${iconDiscord}</span>
                                 </li>
                             `;
@@ -1055,7 +1055,7 @@
                 
                 const elDiscord = document.getElementById('modal_p_discord');
                 if (p.discordName) {
-                    elDiscord.innerHTML = `<i class="fa-brands fa-discord"></i> ${p.discordName}`;
+                    elDiscord.innerHTML = `<i class="fa-brands fa-discord"></i> ${escapeHtml(p.discordName)}`;
                     elDiscord.style.color = "#2df2c1"; elDiscord.style.borderColor = "#2df2c1"; elDiscord.style.background = "rgba(45,242,193,0.1)";
                 } else if (p.discordId) {
                     elDiscord.innerHTML = `<i class="fa-brands fa-discord"></i> ID: ${p.discordId}`;

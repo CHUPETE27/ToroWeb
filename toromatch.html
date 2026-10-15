@@ -574,6 +574,10 @@
         let funcionConfirmacionActual = null;
 
         // soloAviso: muestra solo el botón "Entendido" (sin Cancelar)
+        function escapeHtml(str) {
+            return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
         function confirmarAccionSegura(mensaje, funcionEjecutar, soloAviso = false) {
             document.getElementById('confirmActionMsg').innerText = mensaje;
             document.getElementById('btnAceptarAccionSegura').innerText = soloAviso ? 'Entendido' : 'Aceptar';
@@ -712,7 +716,7 @@
                                     botonesManager = `
                                         <div style="flex-shrink:0; display:flex; gap:5px; align-items:center;">
                                             <button class="assign-btn" style="background:transparent; color:${btnPresenceColor}; border-color:${btnPresenceColor}; font-size: 0.9rem; padding: 4px 8px;" onclick="togglePresence('${jug.numericId}', this)" title="${btnPresenceTitle}"><i class="fa-solid ${btnPresenceIcon}"></i></button>
-                                            <button class="assign-btn" style="background:#cc2a2a; border-color:#cc2a2a;" onclick="expulsarJugador('${jug.discordId}', '${jug.name}')" title="Expulsar jugador"><i class="fa-solid fa-trash"></i></button>
+                                            <button class="assign-btn" style="background:#cc2a2a; border-color:#cc2a2a;" data-name="${escapeHtml(jug.name)}" onclick="expulsarJugador('${escapeHtml(jug.discordId)}', this.dataset.name)" title="Expulsar jugador"><i class="fa-solid fa-trash"></i></button>
                                         </div>
                                     `;
                                 } else {
@@ -724,14 +728,14 @@
                                             <button class="assign-btn eq2 ${eq2Active}" onclick="asignarEquipo('${jug.discordId}', 2, this)" title="Asignar al Eq 2">2</button>
                                             <button class="assign-btn" onclick="asignarEquipo('${jug.discordId}', 0, this)" title="Quitar equipo">X</button>
                                             <button class="assign-btn" style="background:transparent; color:${btnPresenceColor}; border-color:${btnPresenceColor}; font-size: 0.9rem; padding: 4px 8px;" onclick="togglePresence('${jug.numericId}', this)" title="${btnPresenceTitle}"><i class="fa-solid ${btnPresenceIcon}"></i></button>
-                                            <button class="assign-btn" style="background:#cc2a2a; border-color:#cc2a2a;" onclick="expulsarJugador('${jug.discordId}', '${jug.name}')" title="Expulsar jugador"><i class="fa-solid fa-trash"></i></button>
+                                            <button class="assign-btn" style="background:#cc2a2a; border-color:#cc2a2a;" data-name="${escapeHtml(jug.name)}" onclick="expulsarJugador('${escapeHtml(jug.discordId)}', this.dataset.name)" title="Expulsar jugador"><i class="fa-solid fa-trash"></i></button>
                                         </div>
                                     `;
                                 }
                             }
                             ulInscritos.innerHTML += `
                                 <li>
-                                    <span style="flex-grow:1; display:flex; align-items:center; word-break: break-word;">${statusIcon}<strong>${i+1}.</strong> <span style="margin-left:5px;">${jug.name}</span> <span style="color:#7d7d7d; font-size:0.8rem; margin:0 5px;">(#${jug.numericId})</span> - <span style="color:#5dc8e8; margin-left:5px;">${jug.discordName}</span></span>
+                                    <span style="flex-grow:1; display:flex; align-items:center; word-break: break-word;">${statusIcon}<strong>${i+1}.</strong> <span style="margin-left:5px;">${escapeHtml(jug.name)}</span> <span style="color:#7d7d7d; font-size:0.8rem; margin:0 5px;">(#${jug.numericId})</span> - <span style="color:#5dc8e8; margin-left:5px;">${escapeHtml(jug.discordName)}</span></span>
                                     ${botonesManager}
                                 </li>`;
                         });
@@ -757,13 +761,13 @@
                                 botonesManager = `
                                     <div style="flex-shrink:0; display:flex; gap:5px; align-items:center;">
                                         <button class="assign-btn" style="background:transparent; color:${btnPresenceColor}; border-color:${btnPresenceColor}; font-size: 0.9rem; padding: 4px 8px;" onclick="togglePresence('${jug.numericId}', this)" title="${btnPresenceTitle}"><i class="fa-solid ${btnPresenceIcon}"></i></button>
-                                        <button class="assign-btn" style="background:#cc2a2a; border-color:#cc2a2a;" onclick="expulsarJugador('${jug.discordId}', '${jug.name}')" title="Expulsar parche"><i class="fa-solid fa-trash"></i></button>
+                                        <button class="assign-btn" style="background:#cc2a2a; border-color:#cc2a2a;" data-name="${escapeHtml(jug.name)}" onclick="expulsarJugador('${escapeHtml(jug.discordId)}', this.dataset.name)" title="Expulsar parche"><i class="fa-solid fa-trash"></i></button>
                                     </div>
                                 `;
                             }
                             ulParches.innerHTML += `
                                 <li>
-                                    <span style="flex-grow:1; display:flex; align-items:center; word-break: break-word;">${statusIcon}<strong>${i+1}.</strong> <span style="margin-left:5px;">${jug.name}</span> <span style="color:#7d7d7d; font-size:0.8rem; margin:0 5px;">(#${jug.numericId})</span> - <span style="color:#5dc8e8; margin-left:5px;">${jug.discordName}</span></span>
+                                    <span style="flex-grow:1; display:flex; align-items:center; word-break: break-word;">${statusIcon}<strong>${i+1}.</strong> <span style="margin-left:5px;">${escapeHtml(jug.name)}</span> <span style="color:#7d7d7d; font-size:0.8rem; margin:0 5px;">(#${jug.numericId})</span> - <span style="color:#5dc8e8; margin-left:5px;">${escapeHtml(jug.discordName)}</span></span>
                                     ${botonesManager}
                                 </li>`;
                         });
@@ -1131,9 +1135,9 @@
                                 <div style="display:flex; width:100%; justify-content:space-between; align-items:center; gap: 10px;" class="match-header-row">
                                     <div class="mode-col">${modeBadgeHtml}</div>
                                     <div class="match-teams" style="display: flex; width: 100%; justify-content: center; align-items: center;">
-                                        <div style="flex: 1; text-align: right; line-height: 1.2;">${m.matchType}</div>
+                                        <div style="flex: 1; text-align: right; line-height: 1.2;">${escapeHtml(m.matchType)}</div>
                                         <div style="margin: 0 10px; flex-shrink: 0;">${scorePill}</div>
-                                        <div style="flex: 1; text-align: left; line-height: 1.2;">${m.rival}</div>
+                                        <div style="flex: 1; text-align: left; line-height: 1.2;">${escapeHtml(m.rival)}</div>
                                     </div>
                                     <div class="match-date" style="border-left:none;">${formatFecha(m.date)}</div>
                                     ${ratingHtml}

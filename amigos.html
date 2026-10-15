@@ -129,9 +129,15 @@
     <script src="sidebar.js"></script>
 
     <script>
+        const token = localStorage.getItem('toroHaxToken');
+
+        function escapeHtml(str) {
+            return String(str ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+        }
+
         async function cargarDatos() {
             try {
-                const res = await fetch(`https://torobot-izu5.onrender.com/api/friends/${loggedId}`);
+                const res = await fetch(`https://torobot-izu5.onrender.com/api/friends/${encodeURIComponent(loggedId)}?token=${encodeURIComponent(token || '')}`);
                 const data = await res.json();
                 
                 if(data.success) {
@@ -155,7 +161,7 @@
                 container.innerHTML += `
                     <div class="friend-card">
                         <div class="friend-info">
-                            <h4>${req.name} <span class="id-tag">#${req.numericId}</span></h4>
+                            <h4>${escapeHtml(req.name)} <span class="id-tag">#${req.numericId}</span></h4>
                         </div>
                         <div class="card-actions">
                             <button class="btn-action btn-accept" onclick="responderSolicitud(${req.numericId}, 'accept')"><i class="fa-solid fa-check"></i></button>
@@ -180,19 +186,19 @@
             friends.forEach(f => {
                 const isOnline = f.currentRoom !== null;
                 const statusHtml = isOnline 
-                    ? `<div class="status-online"><i class="fa-solid fa-circle"></i> Jugando en: ${f.currentRoom}</div>` 
+                    ? `<div class="status-online"><i class="fa-solid fa-circle"></i> Jugando en: ${escapeHtml(f.currentRoom)}</div>`
                     : `<div class="status-offline"><i class="fa-regular fa-circle"></i> Desconectado</div>`;
                 
                 const btnHtml = isOnline 
                     ? `<a href="salas.html" class="btn-action btn-join"><i class="fa-solid fa-right-to-bracket"></i> Unirse</a>`
                     : ``;
 
-                const vipBadge = f.isVip ? `<span style="color:#e1bc56;" title="VIP">${f.vipIcon || '⭐'}</span>` : '';
+                const vipBadge = f.isVip ? `<span style="color:#e1bc56;" title="VIP">${escapeHtml(f.vipIcon || '⭐')}</span>` : '';
 
                 container.innerHTML += `
                     <div class="friend-card" style="${isOnline ? 'border-color: #2df2c1;' : ''}">
                         <div class="friend-info">
-                            <h4>${vipBadge} ${f.name} <span class="id-tag">#${f.numericId}</span></h4>
+                            <h4>${vipBadge} ${escapeHtml(f.name)} <span class="id-tag">#${f.numericId}</span></h4>
                             ${statusHtml}
                         </div>
                         <div class="card-actions">${btnHtml}</div>
@@ -215,7 +221,7 @@
                 const res = await fetch('https://torobot-izu5.onrender.com/api/friends/add', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ fromId: parseInt(loggedId), toId: parseInt(toId) })
+                    body: JSON.stringify({ fromId: parseInt(loggedId), toId: parseInt(toId), token: token })
                 });
                 const data = await res.json();
                 ThUI.alert(data.message);
@@ -233,7 +239,7 @@
                 await fetch('https://torobot-izu5.onrender.com/api/friends/respond', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: parseInt(loggedId), requesterId: parseInt(requesterId), action: action })
+                    body: JSON.stringify({ userId: parseInt(loggedId), requesterId: parseInt(requesterId), action: action, token: token })
                 });
                 cargarDatos();
             } catch (e) {
