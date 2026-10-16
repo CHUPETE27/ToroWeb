@@ -1053,7 +1053,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
     }
 
     function setZoom(pct) {
-        S.zoom = clamp(pct, 100, 300) / 100;
+        S.zoom = clamp(pct, 100, 500) / 100;
         $('vz-zoom-val').textContent = Math.round(S.zoom * 100) + '%';
         S.camera.snap = true;
         S.needsRedraw = true;
