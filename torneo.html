@@ -26,8 +26,8 @@
         .main-toggle-btn.active { background: #e1bc56; color: #111; box-shadow: 0 0 10px rgba(255, 211, 66, 0.3); }
         .main-toggle-btn:hover:not(.active) { color: #fff; }
 
-        .gestor-bar { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-        .gestor-bar .btn-estandar { width: auto; margin: 0; padding: 10px 16px; font-size: 0.95rem; }
+        .gestor-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; width: 100%; max-width: 900px; margin: 0 auto; }
+        .gestor-bar .btn-estandar { width: auto; margin: 0; padding: 10px 12px; font-size: 0.95rem; line-height: 1.2; text-align: center; }
 
         .torneo-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 30px; align-items: start; }
         .torneo-grid.modo-ko { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
@@ -45,10 +45,13 @@
         .nav-pill { background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 25px; padding: 10px 24px; min-width: 170px; text-align: center; font-weight: bold; color: var(--gold); }
 
         /* Tabla de posiciones */
-        .caja-tabla { padding: 10px; }
+        .caja-tabla { padding: 8px 16px 6px; }
         .tabla-wrap { overflow-x: auto; }
         .tabla-torneo { min-width: 0; }
-        .tabla-torneo th { padding: 12px 8px; font-size: 1rem; }
+        /* Cabecera sin fondo propio: así no queda un bloque oscuro cortado por el borde redondeado de la caja */
+        .tabla-torneo th { padding: 14px 8px 12px; font-size: 1rem; background: transparent; border-bottom: 2px solid rgba(var(--gold-rgb), 0.35); }
+        .tabla-torneo th.col-equipo { font-size: 1.1rem; letter-spacing: 0.5px; }
+        .tabla-torneo tbody tr:last-child td { border-bottom: none; }
         .tabla-torneo td { padding: 10px 8px; font-size: 1rem; cursor: default; }
         .tabla-torneo .col-equipo { text-align: left; width: 100%; max-width: 0; }
         .tabla-torneo .col-pos { color: var(--text-muted); width: 34px; }
@@ -238,6 +241,11 @@
 
         @media (max-width: 480px) {
             .main-toggle-btn { font-size: 1rem; padding: 10px 6px; }
+            .gestor-bar { grid-template-columns: 1fr 1fr; }
+            .gestor-bar .btn-estandar { font-size: 0.88rem; padding: 10px 8px; }
+            .gestor-bar .btn-estandar:last-child:nth-child(odd) { grid-column: 1 / -1; }
+            .caja-tabla { padding: 4px 8px; }
+            .fechas-lista { max-height: 380px; }
             .nom-largo { display: none; }
             .nom-corto { display: inline; }
             .equipo-link .nom-largo { display: inline; }
@@ -607,7 +615,8 @@
         // ---------- Carga ----------
         async function cargarTorneo() {
             try {
-                const res = await fetch(`${API}/api/torneo/data?numericId=${encodeURIComponent(loggedId)}`);
+                // El token va en un header (no en la URL): con él el backend confirma sesión y rol antes de mostrar el modo gestor
+                const res = await fetch(`${API}/api/torneo/data?numericId=${encodeURIComponent(loggedId)}`, { headers: { 'x-token': token } });
                 const data = await res.json();
                 if (!data.success) throw new Error(data.message || 'Error');
                 T = data;
