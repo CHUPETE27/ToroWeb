@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-TNG2QC64');</script>
+    <!-- End Google Tag Manager -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Torneo - ToroHax</title>
+    <link rel="icon" type="image/png" href="logo_torohax.png">
+    <link rel="stylesheet" href="styles.css?v=2.4">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; }
+        [hidden] { display: none !important; }
+
+        .torneo-wrapper { width: 100%; max-width: 1200px; display: flex; flex-direction: column; gap: 20px; }
+
+        /* Selector principal: mismo estilo que admin.html */
+        .main-toggle-container { display: flex; justify-content: center; background: rgba(0,0,0,0.5); padding: 5px; border-radius: 12px; border: 1px solid #333; width: 100%; max-width: 480px; margin: 0 auto; }
+        .main-toggle-btn { flex: 1; padding: 12px; background: transparent; color: #7d7d7d; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; border-radius: 8px; font-size: 1.1rem; }
+        .main-toggle-btn.active { background: #e1bc56; color: #111; box-shadow: 0 0 10px rgba(255, 211, 66, 0.3); }
+        .main-toggle-btn:hover:not(.active) { color: #fff; }
+
+        .gestor-bar { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+        .gestor-bar .btn-estandar { width: auto; margin: 0; padding: 10px 16px; font-size: 0.95rem; }
+
+        .torneo-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 30px; align-items: start; }
+        .torneo-grid.modo-ko { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
+        .col-fechas { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+        .btn-ranking { width: auto; min-width: 200px; margin: 0 auto; border-radius: 25px; }
+
+        .vacio, .celda-vacia { color: var(--text-muted); text-align: center; }
+        .celda-vacia { padding: 30px 10px !important; white-space: normal !important; }
+
+        /* Navegación ◀ [Grupo A] ▶ debajo de cada caja */
+        .nav-pill-row { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 14px; }
+        .nav-flecha { background: none; border: none; color: var(--gold); font-size: 2.4rem; cursor: pointer; line-height: 1; padding: 0 6px; transition: 0.2s; }
+        .nav-flecha:hover:not(:disabled) { transform: scale(1.15); }
+        .nav-flecha:disabled { color: #444; cursor: default; }
+        .nav-pill { background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 25px; padding: 10px 24px; min-width: 170px; text-align: center; font-weight: bold; color: var(--gold); }
+
+        /* Tabla de posiciones */
+        .caja-tabla { padding: 10px; }
+        .tabla-wrap { overflow-x: auto; }
+        .tabla-torneo { min-width: 0; }
+        .tabla-torneo th { padding: 12px 8px; font-size: 1rem; }
+        .tabla-torneo td { padding: 10px 8px; font-size: 1rem; cursor: default; }
+        .tabla-torneo .col-equipo { text-align: left; width: 100%; max-width: 0; }
+        .tabla-torneo .col-pos { color: var(--text-muted); width: 34px; }
+        .tabla-torneo .col-pts { color: var(--gold); font-weight: bold; }
+        .tabla-torneo tr.clasifica td:first-child { box-shadow: inset 3px 0 var(--mint); }
+        .equipo-link { display: inline-flex; align-items: center; gap: 10px; max-width: 100%; background: none; border: 0; padding: 0; color: #fff; font: inherit; font-weight: bold; cursor: pointer; }
+        .equipo-link:hover { color: var(--gold); }
+        .equipo-link .nom-largo { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+        .equipo-link .nom-corto { display: none !important; }
+
+        .escudo { width: 26px; height: 26px; object-fit: contain; flex-shrink: 0; }
+        .escudo-vacio { display: inline-flex; align-items: center; justify-content: center; font-size: 1.2rem; color: var(--text-muted); }
+        .escudo-grande { width: 72px; height: 72px; font-size: 3.6rem; }
+        .nom-corto { display: none; }
+
+        /* Lista de partidos */
+        .fechas-lista { display: flex; flex-direction: column; gap: 10px; max-height: 460px; overflow-y: auto; padding-right: 4px; }
+        .partido { background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: 0.2s; }
+        .partido:hover { border-color: var(--gold); }
+        .partido-main { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 10px; }
+        .partido-eq { display: flex; align-items: center; gap: 8px; min-width: 0; font-weight: bold; }
+        .partido-eq.local { justify-content: flex-end; text-align: right; }
+        .partido-eq span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .partido-eq.gana { color: var(--mint); }
+        .marcador { font-size: 1.3rem; font-weight: 900; min-width: 64px; text-align: center; white-space: nowrap; }
+        .marcador.pendiente { font-size: 1rem; color: var(--text-muted); }
+        .marcador small { display: block; font-size: 0.7rem; color: var(--gold); }
+        .partido-meta { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 4px 8px; margin-top: 8px; font-size: 0.82rem; color: var(--text-soft); }
+        .partido-meta .sep { color: #555; }
+        .chip { background: var(--border); color: #fff; padding: 1px 8px; border-radius: 4px; font-size: 0.75rem; }
+        .chip.replay { background: rgba(var(--cyan-rgb), 0.15); color: var(--cyan); }
+        .partido-acciones { display: inline-flex; gap: 14px; margin-left: 6px; }
+        .partido-acciones i { cursor: pointer; color: var(--text-soft); padding: 4px; }
+        .partido-acciones .fa-pen:hover { color: var(--gold); }
+        .partido-acciones .fa-trash:hover { color: var(--red-light); }
+
+        /* Cuadro de llaves */
+        .caja-bracket { padding: 20px 15px 15px; background-color: rgba(2, 8, 20, 0.85); background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 40px 40px; }
+        .bracket-scroll { overflow: auto; }
+        .bracket { display: flex; gap: 24px; width: max-content; min-width: 100%; justify-content: center; padding: 4px 4px 44px; }
+        .bracket > .vacio { width: 100%; padding: 30px 0; }
+        .ronda { display: flex; flex-direction: column; width: 175px; flex-shrink: 0; }
+        .ronda-titulo { text-align: center; color: var(--gold); font-weight: bold; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; white-space: nowrap; }
+        .ronda-cuerpo { flex: 1; display: flex; flex-direction: column; }
+        .par { flex: 1; display: flex; flex-direction: column; position: relative; }
+        .slot { flex: 1; display: flex; align-items: center; position: relative; padding: 8px 0; }
+        .llave-wrap { position: relative; width: 100%; }
+        .llave { width: 100%; background: #111827; border: 1px solid #2a3344; border-radius: 8px; overflow: hidden; cursor: pointer; transition: 0.2s; }
+        .llave:hover { border-color: var(--gold); }
+        .llave.sin-partido { cursor: default; }
+        .llave.sin-partido:hover { border-color: #2a3344; }
+        .final .llave { border-color: var(--gold); box-shadow: 0 0 14px rgba(var(--gold-rgb), 0.35); }
+        .llave-eq { display: flex; align-items: center; gap: 7px; padding: 6px 8px; font-size: 0.85rem; }
+        .llave-eq + .llave-eq { border-top: 1px solid #222; }
+        .llave-eq .escudo { width: 20px; height: 20px; font-size: 1rem; }
+        .llave-eq .nombre { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .llave-eq .goles { font-weight: 900; white-space: nowrap; }
+        .llave-eq .goles small { font-weight: normal; color: var(--gold); margin-left: 2px; }
+        .llave-eq.gana { color: var(--mint); }
+        .llave-eq.vacio { color: var(--text-muted); font-style: italic; }
+        .campeon { position: absolute; top: calc(100% + 8px); left: -20px; right: -20px; text-align: center; color: var(--gold); font-weight: bold; font-size: 0.9rem; overflow-wrap: anywhere; }
+        /* Conectores: la llave i de una ronda sale de las llaves 2i y 2i+1 de la anterior (izquierda celeste, derecha roja) */
+        .slot::before, .slot::after, .par.doble::after { content: ''; position: absolute; display: none; }
+        .lado-izq:not(.ultima) .slot::after { display: block; right: -12px; top: 50%; width: 12px; border-top: 2px solid var(--cyan); }
+        .lado-izq:not(.primera) .slot::before { display: block; left: -12px; top: 50%; width: 12px; border-top: 2px solid var(--cyan); }
+        .lado-izq:not(.ultima) .par.doble::after { display: block; right: -12px; top: 25%; bottom: 25%; border-right: 2px solid var(--cyan); }
+        .lado-der .slot::after { display: block; left: -12px; top: 50%; width: 12px; border-top: 2px solid var(--red-light); }
+        .lado-der:not(.primera) .slot::before { display: block; right: -12px; top: 50%; width: 12px; border-top: 2px solid var(--red-light); }
+        .lado-der .par.doble::after { display: block; left: -12px; top: 25%; bottom: 25%; border-left: 2px solid var(--red-light); }
+        .centro .slot::before { display: block; left: -12px; top: 50%; width: 12px; border-top: 2px solid var(--cyan); }
+        .centro .slot::after { display: block; right: -12px; top: 50%; width: 12px; border-top: 2px solid var(--red-light); }
+        .btn-fs { position: absolute; right: 12px; bottom: 12px; width: 40px; height: 40px; border-radius: 8px; background: rgba(0,0,0,0.6); color: var(--mint); border: 1px solid var(--mint); cursor: pointer; font-size: 1.1rem; transition: 0.2s; }
+        .btn-fs:hover { background: var(--mint); color: #111; }
+
+        /* Pantalla completa del cuadro (debajo de las ventanas, que tienen z-index 10000) */
+        .bracket-fs { position: fixed; inset: 0; z-index: 9000; display: none; background-color: #020814; background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px); background-size: 40px 40px; }
+        .bracket-fs.abierto { display: block; }
+        .bracket-fs-vista { position: absolute; inset: 0; overflow: hidden; touch-action: none; cursor: grab; }
+        .bracket-fs-vista.arrastrando { cursor: grabbing; }
+        .bracket-fs-lienzo { position: absolute; left: 0; top: 0; width: max-content; transform-origin: 0 0; }
+        .bracket-fs-controles { position: absolute; top: 15px; right: 15px; display: flex; gap: 8px; z-index: 2; }
+        .bracket-fs-controles button { width: 42px; height: 42px; border-radius: 50%; background: rgba(0,0,0,0.7); color: #fff; border: 1px solid #444; cursor: pointer; font-size: 1rem; transition: 0.2s; }
+        .bracket-fs-controles button:hover { border-color: var(--gold); color: var(--gold); }
+        .bracket-fs-ayuda { position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); width: 90%; margin: 0; text-align: center; color: var(--text-muted); font-size: 0.85rem; pointer-events: none; }
+
+        /* Ventanas */
+        a.modal-btn { text-decoration: none; display: inline-flex; justify-content: center; align-items: center; gap: 8px; }
+        .modal-btn.btn-gris { background: rgba(0,0,0,0.4); color: var(--text-soft); border: 1px solid #555; }
+        .modal-btn.btn-gris:hover:not(:disabled) { color: #fff; border-color: var(--text-soft); }
+        .modal-content h4 { margin: 0; }
+
+        #modalDetalle .modal-content { max-width: 560px; }
+        .det-titulo { font-size: 1rem !important; color: var(--text-soft) !important; text-transform: uppercase; letter-spacing: 1px; }
+        .det-marcador { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 12px; margin: 10px 0; }
+        .det-eq { background: none; border: 0; padding: 0; color: #fff; font: inherit; font-weight: bold; display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; min-width: 0; overflow-wrap: anywhere; text-align: center; }
+        .det-eq:hover span { color: var(--gold); }
+        .det-eq.gana span { color: var(--mint); }
+        .det-goles { font-size: 2.2rem; font-weight: 900; text-align: center; white-space: nowrap; }
+        .det-goles small { display: block; font-size: 0.8rem; color: var(--gold); font-weight: bold; }
+        .det-fecha { text-align: center; color: var(--text-soft); margin: 0 0 15px; }
+        .det-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .det-cols ul { list-style: none; margin: 0; padding: 6px 12px; background: rgba(0,0,0,0.35); border: 1px solid var(--border); border-radius: 10px; }
+        .det-cols li { display: flex; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px solid #222; font-size: 0.9rem; overflow-wrap: anywhere; }
+        .det-cols li:last-child { border-bottom: none; }
+        .det-iconos { display: flex; gap: 8px; color: var(--gold); white-space: nowrap; }
+        .det-iconos .ag { color: var(--red-light); font-weight: bold; }
+        .det-mvp { text-align: center; color: var(--text-soft); margin: 12px 0 0; }
+        .det-mvp i { color: var(--gold); }
+        #detAcciones .modal-btn { flex: 1 1 45%; }
+
+        .modal-form .form-group { margin: 0; }
+        .form-row-doble { display: flex; gap: 10px; }
+        .form-row-doble > * { flex: 1; min-width: 0; }
+        .score-row { display: flex; align-items: center; justify-content: space-between; background: #05080a; border: 1px solid #222; border-radius: 8px; padding: 10px; }
+        .score-col { display: flex; flex-direction: column; align-items: center; gap: 5px; flex: 1; min-width: 0; }
+        .team-label { font-size: 0.85rem; font-weight: bold; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .modal-form .score-col input { width: 64px; text-align: center; font-size: 1.3rem; font-weight: 900; padding: 6px; }
+        .score-divider { font-weight: 900; color: #555; margin: 0 10px; }
+        .ayuda { color: var(--text-muted); font-size: 0.85rem; margin: 0; line-height: 1.45; }
+
+        #modalStats .modal-content { max-width: 620px; }
+        .st-equipo h4 { display: flex; align-items: center; gap: 8px; color: var(--gold); margin: 16px 0 8px; overflow-wrap: anywhere; }
+        .st-wrap { overflow-x: auto; }
+        .st-tabla { min-width: 0; }
+        .st-tabla th, .st-tabla td { padding: 6px 4px; font-size: 0.9rem; cursor: default; }
+        .st-tabla tr:hover td { background: none; }
+        .st-tabla .st-nombre { text-align: left; white-space: normal; overflow-wrap: anywhere; width: 100%; }
+        .st-tabla input[type="number"] { width: 46px; background: #111; border: 1px solid #444; color: #fff; border-radius: 6px; padding: 6px 2px; text-align: center; font-size: 0.95rem; outline: none; }
+        .st-tabla input[type="number"]:focus { border-color: var(--gold); }
+        .st-tabla input[type="checkbox"], .st-tabla input[type="radio"] { margin: 0; }
+        .st-sin-mvp { margin-top: 12px; }
+
+        #modalSorteo .modal-content { max-width: 640px; }
+        .sg-lista { max-height: 42vh; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; padding-right: 4px; }
+        .sg-fila { display: flex; justify-content: space-between; align-items: center; gap: 8px 10px; flex-wrap: wrap; background: rgba(0,0,0,0.35); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
+        .sg-equipo { display: flex; align-items: center; gap: 8px; font-weight: bold; min-width: 0; overflow-wrap: anywhere; }
+        .sg-bombos { display: flex; gap: 4px; flex-wrap: wrap; }
+        .bombo-pill { min-width: 32px; height: 32px; padding: 0 6px; border-radius: 16px; border: 1px solid #555; background: #111; color: var(--text-soft); font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .bombo-pill:hover { border-color: var(--gold); }
+        .bombo-pill.active { background: var(--gold); border-color: var(--gold); color: #111; }
+
+        #modalCruces .modal-content { max-width: 560px; }
+        .cruces-lista { counter-reset: cruce; display: flex; flex-direction: column; gap: 8px; max-height: 50vh; overflow-y: auto; padding-right: 4px; }
+        .cruce-fila { display: grid; grid-template-columns: auto minmax(0, 1fr) auto minmax(0, 1fr) auto; gap: 6px; align-items: center; }
+        .cruce-num::before { counter-increment: cruce; content: counter(cruce); color: var(--gold); font-weight: bold; }
+        .cruce-fila select.select-torohax { min-width: 0; min-height: 42px; padding: 10px 28px 10px 10px; font-size: 0.9rem; background-position: calc(100% - 16px) 18px, calc(100% - 10px) 18px; }
+        .cruce-vs { color: var(--text-muted); font-size: 0.8rem; }
+        .cruce-quitar { background: none; border: 0; color: var(--text-soft); cursor: pointer; padding: 6px; }
+        .cruce-quitar:hover { color: var(--red-light); }
+        #btnAddCruce { width: 100%; margin: 10px 0 0; }
+
+        #modalEquipo .modal-content { max-width: 480px; text-align: center; }
+        .ficha-top { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .ficha-top h3 { margin: 6px 0 0; color: var(--gold); font-size: 1.5rem; overflow-wrap: anywhere; }
+        .ficha-abrev { font-family: monospace; color: var(--cyan); border: 1px solid rgba(var(--cyan-rgb), 0.4); padding: 2px 8px; border-radius: 4px; }
+        #fichaDiscord { display: inline-flex; align-items: center; gap: 8px; margin: 14px 0 4px; }
+        .ficha-seccion { color: var(--gold); text-transform: uppercase; font-size: 0.95rem; letter-spacing: 1px; margin: 18px 0 10px !important; border-bottom: 1px solid var(--border); padding-bottom: 6px; }
+        .ficha-kits { display: flex; justify-content: center; flex-wrap: wrap; gap: 14px; }
+        .ficha-kit { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--text-soft); }
+        .hax-avatar-preview.kit-mini { width: 64px; height: 64px; font-size: 1.2rem; border-width: 3px; }
+        .ficha-jugadores { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: 6px; text-align: left; }
+        .ficha-jugadores li { background: rgba(0,0,0,0.35); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; font-size: 0.9rem; overflow-wrap: anywhere; }
+        .ficha-jugadores li i { color: var(--cyan); margin-right: 6px; }
+        .ficha-jugadores li.vacio { grid-column: 1 / -1; text-align: center; }
+
+        @media (max-width: 900px) {
+            .torneo-grid, .torneo-grid.modo-ko { grid-template-columns: minmax(0, 1fr); }
+        }
+
+        @media (max-width: 480px) {
+            .main-toggle-btn { font-size: 1rem; padding: 10px 6px; }
+            .nom-largo { display: none; }
+            .nom-corto { display: inline; }
+            .equipo-link .nom-largo { display: inline; }
+            .nav-pill { min-width: 140px; padding: 10px 16px; }
+            .partido { padding: 10px 8px; }
+            .marcador { min-width: 52px; font-size: 1.15rem; }
+            .det-cols { grid-template-columns: 1fr; }
+            .det-goles { font-size: 1.8rem; }
+            .escudo-grande { width: 56px; height: 56px; font-size: 2.8rem; }
+            .form-row-doble { flex-direction: column; }
+            .st-tabla input[type="number"] { width: 40px; }
+            .ficha-jugadores { grid-template-columns: 1fr; }
+            #detAcciones .modal-btn { flex-basis: auto; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TNG2QC64"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <header></header>
+
+    <main>
+        <div class="torneo-wrapper">
+            <div class="main-toggle-container">
+                <button class="main-toggle-btn active" id="btnVistaGrupos" onclick="cambiarVista('grupos')"><i class="fa-solid fa-table-list"></i> Grupos</button>
+                <button class="main-toggle-btn" id="btnVistaKo" onclick="cambiarVista('ko')"><i class="fa-solid fa-sitemap"></i> Fase K.O.</button>
+            </div>
+
+            <div class="gestor-bar" id="gestorGrupos" hidden>
+                <button class="btn-estandar btn-primary" onclick="abrirSorteo()"><i class="fa-solid fa-shuffle"></i> Sortear grupos</button>
+                <button class="btn-estandar btn-abrir" onclick="abrirModalPartido('grupo')"><i class="fa-solid fa-plus"></i> Añadir fecha</button>
+            </div>
+            <div class="gestor-bar" id="gestorKo" hidden>
+                <button class="btn-estandar btn-primary" onclick="asignarLlaves('ranking')"><i class="fa-solid fa-ranking-star"></i> Llaves por ranking</button>
+                <button class="btn-estandar btn-primary" onclick="asignarLlaves('orden')"><i class="fa-solid fa-list-ol"></i> Llaves por orden</button>
+                <button class="btn-estandar btn-secundario" onclick="abrirCruces()"><i class="fa-solid fa-pen"></i> Editar cruces</button>
+                <button class="btn-estandar btn-abrir" onclick="abrirModalPartido('eliminatoria')"><i class="fa-solid fa-plus"></i> Añadir fecha</button>
+            </div>
+
+            <div class="torneo-grid" id="torneoGrid">
+                <section class="col-principal">
+                    <div id="panelGrupos">
+                        <div class="box caja-tabla">
+                            <div class="tabla-wrap">
+                                <table class="tabla-torneo">
+                                    <thead>
+                                        <tr><th class="col-pos">#</th><th class="col-equipo" id="tituloGrupo">Grupo</th><th>PTS</th><th>GF</th><th>GC</th><th>DIF</th></tr>
+                                    </thead>
+                                    <tbody id="tablaGrupo">
+                                        <tr><td colspan="6" class="celda-vacia"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="nav-pill-row">
+                            <button class="nav-flecha" id="grupoPrev" onclick="moverGrupo(-1)" aria-label="Grupo anterior"><i class="fa-solid fa-caret-left"></i></button>
+                            <span class="nav-pill" id="pillGrupo">Grupo</span>
+                            <button class="nav-flecha" id="grupoNext" onclick="moverGrupo(1)" aria-label="Grupo siguiente"><i class="fa-solid fa-caret-right"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="panelKo" hidden>
+                        <div class="box caja-bracket">
+                            <h3><i class="fa-solid fa-sitemap"></i> Fase K.O.</h3>
+                            <div class="bracket-scroll"><div class="bracket" id="bracket"></div></div>
+                            <button class="btn-fs" id="btnFs" onclick="abrirBracketFs()" title="Pantalla completa" aria-label="Ver el cuadro en pantalla completa" hidden><i class="fa-solid fa-expand"></i></button>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="col-fechas">
+                    <a class="btn-estandar btn-abrir btn-ranking" href="ranking_torneo.html"><i class="fa-solid fa-ranking-star"></i> Ranking</a>
+                    <div class="box">
+                        <div class="fechas-lista" id="listaFechas">
+                            <p class="vacio"><i class="fa-solid fa-spinner fa-spin"></i> Cargando partidos...</p>
+                        </div>
+                    </div>
+                    <div class="nav-pill-row" style="margin-top: 0;">
+                        <button class="nav-flecha" id="fechaPrev" onclick="moverFecha(-1)" aria-label="Anterior"><i class="fa-solid fa-caret-left"></i></button>
+                        <span class="nav-pill" id="pillFecha">Fecha</span>
+                        <button class="nav-flecha" id="fechaNext" onclick="moverFecha(1)" aria-label="Siguiente"><i class="fa-solid fa-caret-right"></i></button>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Cuadro en pantalla completa -->
+    <div class="bracket-fs" id="bracketFs">
+        <div class="bracket-fs-vista" id="fsVista"><div class="bracket-fs-lienzo" id="fsLienzo"></div></div>
+        <div class="bracket-fs-controles">
+            <button type="button" onclick="zoomBoton(1.25)" aria-label="Acercar" title="Acercar"><i class="fa-solid fa-plus"></i></button>
+            <button type="button" onclick="zoomBoton(0.8)" aria-label="Alejar" title="Alejar"><i class="fa-solid fa-minus"></i></button>
+            <button type="button" onclick="ajustarBracketFs()" aria-label="Centrar" title="Centrar"><i class="fa-solid fa-compress"></i></button>
+            <button type="button" onclick="cerrarBracketFs()" aria-label="Cerrar" title="Cerrar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <p class="bracket-fs-ayuda">Arrastra para moverte · rueda del mouse o pellizca para hacer zoom</p>
+    </div>
+
+    <!-- Detalle de partido -->
+    <div class="modal-overlay" id="modalDetalle">
+        <div class="modal-content">
+            <div class="close-modal" role="button" aria-label="Cerrar" onclick="cerrarModal('modalDetalle')"><i class="fa-solid fa-xmark"></i></div>
+            <h3 class="det-titulo" id="detTitulo">Partido</h3>
+            <div class="det-marcador" id="detMarcador"></div>
+            <p class="det-fecha" id="detFecha"></p>
+            <div id="detStats"></div>
+            <div class="modal-btn-row" id="detAcciones"></div>
+            <input type="file" id="inputReplay" accept=".hbr2" hidden>
+        </div>
+    </div>
+
+    <!-- Añadir / editar partido -->
+    <div class="modal-overlay" id="modalPartido">
+        <div class="modal-content">
+            <div class="close-modal" role="button" aria-label="Cerrar" onclick="cerrarModal('modalPartido')"><i class="fa-solid fa-xmark"></i></div>
+            <h3 id="mpTitulo">Añadir fecha</h3>
+            <div class="modal-form">
+                <div class="form-group" id="mpSoloGrupo">
+                    <label for="mpJornada">Fecha N°</label>
+                    <input type="number" id="mpJornada" min="1" max="99" inputmode="numeric">
+                </div>
+                <div class="form-row-doble" id="mpSoloKo">
+                    <div class="form-group">
+                        <label for="mpRonda">Ronda</label>
+                        <select id="mpRonda" onchange="llenarLlaves(); if (!editandoId) prefillDesdeLlave();"></select>
+                    </div>
+                    <div class="form-group">
+                        <label for="mpLlave">Llave</label>
+                        <select id="mpLlave" onchange="if (!editandoId) prefillDesdeLlave();"></select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="mpEq1">Equipo 1</label>
+                    <select id="mpEq1" onchange="actualizarEtiquetasMarcador()"></select>
+                </div>
+                <div class="form-group">
+                    <label for="mpEq2">Equipo 2</label>
+                    <select id="mpEq2" onchange="actualizarEtiquetasMarcador()"></select>
+                </div>
+                <div class="form-row-doble">
+                    <div class="form-group">
+                        <label for="mpFecha">Día</label>
+                        <input type="date" id="mpFecha">
+                    </div>
+                    <div class="form-group">
+                        <label for="mpHora">Hora</label>
+                        <input type="time" id="mpHora">
+                    </div>
+                </div>
+                <label class="th-option"><input type="checkbox" id="mpJugado" onchange="toggleResultado()"> Partido finalizado</label>
+                <div id="mpResultado" class="form-group">
+                    <label>Resultado</label>
+                    <div class="score-row">
+                        <div class="score-col"><span class="team-label" id="mpLbl1">Equipo 1</span><input type="number" id="mpG1" min="0" max="99" placeholder="0" inputmode="numeric"></div>
+                        <div class="score-divider">-</div>
+                        <div class="score-col"><span class="team-label" id="mpLbl2">Equipo 2</span><input type="number" id="mpG2" min="0" max="99" placeholder="0" inputmode="numeric"></div>
+                    </div>
+                    <div id="mpPenales" style="margin-top: 10px;">
+                        <label>Penales (solo si hubo)</label>
+                        <div class="score-row">
+                            <div class="score-col"><input type="number" id="mpP1" min="0" max="99" placeholder="-" inputmode="numeric"></div>
+                            <div class="score-divider">-</div>
+                            <div class="score-col"><input type="number" id="mpP2" min="0" max="99" placeholder="-" inputmode="numeric"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-btn-row">
+                    <button class="modal-btn cancel" onclick="cerrarModal('modalPartido')">Cancelar</button>
+                    <button class="modal-btn submit" id="mpGuardar" onclick="guardarPartido()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas de un partido -->
+    <div class="modal-overlay" id="modalStats">
+        <div class="modal-content">
+            <div class="close-modal" role="button" aria-label="Cerrar" onclick="cerrarModal('modalStats')"><i class="fa-solid fa-xmark"></i></div>
+            <h3><i class="fa-solid fa-chart-simple"></i> Estadísticas</h3>
+            <p class="ayuda">Marca quién jugó (J) y anota goles (G), asistencias (A) y autogoles (AG). Los jugadores salen del canal de equipos de Discord.</p>
+            <div id="statsCuerpo"></div>
+            <div class="modal-btn-row">
+                <button class="modal-btn cancel" onclick="cerrarModal('modalStats')">Cancelar</button>
+                <button class="modal-btn submit" id="statsGuardar" onclick="guardarStats()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sorteo de grupos -->
+    <div class="modal-overlay" id="modalSorteo">
+        <div class="modal-content">
+            <div class="close-modal" role="button" aria-label="Cerrar" onclick="cerrarModal('modalSorteo')"><i class="fa-solid fa-xmark"></i></div>
+            <h3><i class="fa-solid fa-shuffle"></i> Sortear grupos</h3>
+            <div class="modal-form">
+                <div class="form-row-doble">
+                    <div class="form-group">
+                        <label for="sgGrupos">Cantidad de grupos</label>
+                        <input type="number" id="sgGrupos" min="1" max="16" inputmode="numeric" oninput="renderSorteo()">
+                    </div>
+                    <div class="form-group">
+                        <label for="sgPorGrupo">Equipos por grupo</label>
+                        <input type="number" id="sgPorGrupo" min="2" max="16" inputmode="numeric" oninput="renderSorteo()">
+                    </div>
+                </div>
+                <p class="ayuda" id="sgInfo"></p>
+                <div class="sg-lista" id="sgLista"></div>
+                <div class="modal-btn-row">
+                    <button class="modal-btn cancel" onclick="cerrarModal('modalSorteo')">Cancelar</button>
+                    <button class="modal-btn submit" id="sgSortear" onclick="realizarSorteo()"><i class="fa-solid fa-shuffle"></i> Sortear</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Editar cruces de la primera ronda K.O. -->
+    <div class="modal-overlay" id="modalCruces">
+        <div class="modal-content">
+            <div class="close-modal" role="button" aria-label="Cerrar" onclick="cerrarModal('modalCruces')"><i class="fa-solid fa-xmark"></i></div>
+            <h3><i class="fa-solid fa-sitemap"></i> Editar cruces</h3>
+            <p class="ayuda" style="margin-bottom: 12px;">Primera ronda de la fase K.O. Las siguientes rondas se arman solas con los ganadores. Deja un lado en "Libre" para que el otro pase directo.</p>
+            <div class="cruces-lista" id="crucesLista"></div>
+            <button class="btn-estandar btn-secundario" id="btnAddCruce" type="button" onclick="agregarCruce()"><i class="fa-solid fa-plus"></i> Añadir cruce</button>
+            <div class="modal-btn-row">
+                <button class="modal-btn cancel" onclick="cerrarModal('modalCruces')">Cancelar</button>
+                <button class="modal-btn submit" id="crucesGuardar" onclick="guardarCruces()">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ficha de equipo (al final: se abre encima del detalle de partido) -->
+    <div class="modal-overlay" id="modalEquipo">
+        <div class="modal-content">
+            <div class="close-modal" role="button" aria-label="Cerrar" onclick="cerrarModal('modalEquipo')"><i class="fa-solid fa-xmark"></i></div>
+            <div class="ficha-top">
+                <div id="fichaEscudo"></div>
+                <h3 id="fichaNombre">Equipo</h3>
+                <span class="ficha-abrev" id="fichaAbrev"></span>
+            </div>
+            <a class="social-btn discord" id="fichaDiscord" href="#" target="_blank" rel="noopener noreferrer" hidden><i class="fa-brands fa-discord"></i> Discord del equipo</a>
+            <h4 class="ficha-seccion">Camisetas</h4>
+            <div class="ficha-kits" id="fichaKits"></div>
+            <h4 class="ficha-seccion" id="fichaTituloJug">Jugadores</h4>
+            <ul class="ficha-jugadores" id="fichaJugadores"></ul>
+        </div>
+    </div>
+
+    <footer>
+        <nav class="footer-links" aria-label="Enlaces legales">
+            <a href="terminos.html">Términos y Condiciones</a>
+            <a href="privacidad.html">Política de Privacidad</a>
+            <a href="mailto:torohaxball27@gmail.com">Contacto</a>
+        </nav>
+        <p>© 2026 ToroHax. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="torohax-ui.js"></script>
+    <script src="header.js"></script>
+    <script src="sidebar.js"></script>
+    <script src="diseñador_bola.js"></script>
+
+    <script>
+        // Datos: GET /api/torneo/data (tabla, cuadro y ranking los calcula bot.js; aquí solo se muestran)
+        const API = 'https://torobot-izu5.onrender.com';
+        const loggedId = localStorage.getItem('toroHaxLoggedId') || 'null';
+        const token = localStorage.getItem('toroHaxToken') || 'null';
+        const escapeHtml = ThUI.esc;
+        const $ = id => document.getElementById(id);
+        // Igual que normalizeTeamName de bot.js
+        const norm = s => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+
+        let T = null;
+        let canEdit = false;
+        let vista = 'grupos';
+        let grupoIdx = 0;
+        const fechaSel = { grupos: null, ko: null };
+        let editandoId = null;
+        let faseModal = 'grupo';
+        let partidoStats = null;
+        let replayDestino = null;
+
+        function equipo(nombre) {
+            return (T && T.equipos.find(e => norm(e.nombre) === norm(nombre))) ||
+                { nombre: nombre || '?', abrev: String(nombre || '?').slice(0, 3).toUpperCase(), escudo: null, discord: null, jugadores: [], camisetas: {} };
+        }
+        const escudoHtml = (eq, cls = '') => eq.escudo
+            ? `<img class="escudo ${cls}" src="${escapeHtml(eq.escudo)}" alt="" loading="lazy">`
+            : `<i class="fa-solid fa-shield-halved escudo escudo-vacio ${cls}" aria-hidden="true"></i>`;
+        const nombreHtml = eq => `<span class="nom-largo">${escapeHtml(eq.nombre)}</span><span class="nom-corto">${escapeHtml(eq.abrev)}</span>`;
+        const formatoFecha = f => f && f.split('-').length === 3 ? f.split('-').reverse().join('/') : '';
+        const tienePenales = m => m.jugado && m.penales_eq1 != null && m.penales_eq2 != null;
+
+        function ganadorPartido(m) {
+            if (!m.jugado) return 0;
+            if (m.goles_eq1 !== m.goles_eq2) return m.goles_eq1 > m.goles_eq2 ? 1 : 2;
+            if (tienePenales(m) && m.penales_eq1 !== m.penales_eq2) return m.penales_eq1 > m.penales_eq2 ? 1 : 2;
+            return 0;
+        }
+
+        function nombreRonda(r) {
+            const n = T && T.llaves.rondas[r] ? T.llaves.rondas[r].length : 0;
+            return { 1: 'Final', 2: 'Semifinal', 4: 'Cuartos de final', 8: 'Octavos de final', 16: 'Dieciseisavos' }[n] || `Ronda ${r + 1}`;
+        }
+
+        // ---------- Carga ----------
+        async function cargarTorneo() {
+            try {
+                const res = await fetch(`${API}/api/torneo/data?numericId=${encodeURIComponent(loggedId)}`);
+                const data = await res.json();
+                if (!data.success) throw new Error(data.message || 'Error');
+                T = data;
+                canEdit = !!data.canEdit;
+                if (grupoIdx >= T.grupos.length) grupoIdx = 0;
+                render();
+                return true;
+            } catch (e) {
+                if (!T) {
+                    $('tablaGrupo').innerHTML = '<tr><td colspan="6" class="celda-vacia"><i class="fa-solid fa-spinner fa-spin"></i> Reintentando conexión...</td></tr>';
+                    $('listaFechas').innerHTML = '<p class="vacio"><i class="fa-solid fa-spinner fa-spin"></i> Reintentando conexión...</p>';
+                    setTimeout(cargarTorneo, 5000);
+                }
+                return false;
+            }
+        }
+
+        function render() {
+            $('gestorGrupos').hidden = !(canEdit && vista === 'grupos');
+            $('gestorKo').hidden = !(canEdit && vista === 'ko');
+            $('panelGrupos').hidden = vista !== 'grupos';
+            $('panelKo').hidden = vista !== 'ko';
+            $('torneoGrid').classList.toggle('modo-ko', vista === 'ko');
+            if (!T) return;
+            renderGrupo();
+            renderBracket();
+            renderFechas();
+            ajustarBracket();
+        }
+
+        // El cuadro se achica hasta el 55 % para caber en su caja; más chico se recorre con scroll o en pantalla completa
+        function ajustarBracket() {
+            const el = $('bracket'), caja = el.parentElement;
+            el.style.zoom = 1;
+            if (vista !== 'ko' || !caja.clientWidth) return;
+            el.style.zoom = Math.max(0.55, Math.min(1, caja.clientWidth / el.scrollWidth));
+        }
+        window.addEventListener('resize', ajustarBracket);
+
+        function cambiarVista(v) {
+            vista = v;
+            $('btnVistaGrupos').classList.toggle('active', v === 'grupos');
+            $('btnVistaKo').classList.toggle('active', v === 'ko');
+            render();
+        }
+
+        // ---------- Grupos ----------
+        function renderGrupo() {
+            const g = T.grupos[grupoIdx];
+            $('tituloGrupo').textContent = g ? `Grupo ${g.nombre}` : 'Grupos';
+            $('pillGrupo').textContent = g ? `Grupo ${g.nombre}` : 'Sin grupos';
+            $('grupoPrev').disabled = grupoIdx <= 0;
+            $('grupoNext').disabled = grupoIdx >= T.grupos.length - 1;
+            if (!g) {
+                $('tablaGrupo').innerHTML = '<tr><td colspan="6" class="celda-vacia">Los grupos aún no se sortean.</td></tr>';
+                return;
+            }
+            $('tablaGrupo').innerHTML = g.tabla.map((f, i) => {
+                const eq = equipo(f.equipo);
+                return `<tr class="${i < 2 ? 'clasifica' : ''}">
+                    <td class="col-pos">${i + 1}</td>
+                    <td class="col-equipo"><button type="button" class="equipo-link" data-equipo="${escapeHtml(eq.nombre)}">${escudoHtml(eq)}${nombreHtml(eq)}</button></td>
+                    <td class="col-pts">${f.pts}</td><td>${f.gf}</td><td>${f.gc}</td><td>${f.dg > 0 ? '+' : ''}${f.dg}</td>
+                </tr>`;
+            }).join('');
+        }
+
+        function moverGrupo(d) {
+            const i = grupoIdx + d;
+            if (i < 0 || i >= T.grupos.length) return;
+            grupoIdx = i;
+            renderGrupo();
+        }
+
+        // ---------- Fechas (jornadas en grupos, rondas en K.O.) ----------
+        function opcionesFecha() {
+            if (vista === 'grupos') {
+                const js = [...new Set(T.partidos.filter(m => m.fase === 'grupo').map(m => m.jornada || 1))].sort((a, b) => a - b);
+                return js.map(j => ({ valor: j, etiqueta: `Fecha ${j}` }));
+            }
+            const max = Math.max(T.llaves.rondas.length - 1, -1, ...T.partidos.filter(m => m.fase === 'eliminatoria').map(m => m.ronda || 0));
+            return Array.from({ length: max + 1 }, (_, r) => ({ valor: r, etiqueta: nombreRonda(r) }));
+        }
+
+        function partidosDe(valor) {
+            return vista === 'grupos'
+                ? T.partidos.filter(m => m.fase === 'grupo' && (m.jornada || 1) === valor).sort((a, b) => String(a.grupo || '~').localeCompare(String(b.grupo || '~')))
+                : T.partidos.filter(m => m.fase === 'eliminatoria' && (m.ronda || 0) === valor).sort((a, b) => (a.llave || 0) - (b.llave || 0));
+        }
+
+        function renderFechas() {
+            const ops = opcionesFecha();
+            if (!ops.some(o => o.valor === fechaSel[vista])) {
+                // Por defecto: la primera con partidos pendientes, o la última con partidos
+                const elegida = ops.find(o => partidosDe(o.valor).some(m => !m.jugado)) || [...ops].reverse().find(o => partidosDe(o.valor).length) || ops[0];
+                fechaSel[vista] = elegida ? elegida.valor : null;
+            }
+            const idx = ops.findIndex(o => o.valor === fechaSel[vista]);
+            $('pillFecha').textContent = idx >= 0 ? ops[idx].etiqueta : (vista === 'grupos' ? 'Fechas' : 'Rondas');
+            $('fechaPrev').disabled = idx <= 0;
+            $('fechaNext').disabled = idx < 0 || idx >= ops.length - 1;
+            const lista = idx >= 0 ? partidosDe(fechaSel[vista]) : [];
+            $('listaFechas').innerHTML = lista.length ? lista.map(filaPartido).join('') : '<p class="vacio">No hay partidos programados.</p>';
+        }
+
+        function moverFecha(d) {
+            const ops = opcionesFecha();
+            const sig = ops[ops.findIndex(o => o.valor === fechaSel[vista]) + d];
+            if (!sig) return;
+            fechaSel[vista] = sig.valor;
+            renderFechas();
+        }
+
+        function filaPartido(m) {
+            const e1 = equipo(m.equipo1), e2 = equipo(m.equipo2), g = ganadorPartido(m);
+            const centro = m.jugado
+                ? `<div class="marcador">${m.goles_eq1} - ${m.goles_eq2}${tienePenales(m) ? `<small>(${m.penales_eq1} - ${m.penales_eq2} pen.)</small>` : ''}</div>`
+                : '<div class="marcador pendiente">VS</div>';
+            const meta = [
+                m.fase === 'grupo' ? (m.grupo ? `Grupo ${escapeHtml(m.grupo)}` : '') : `Llave ${(m.llave || 0) + 1}`,
+                m.fecha ? formatoFecha(escapeHtml(m.fecha)) : 'Fecha por definir',
+                m.hora ? `${escapeHtml(m.hora)} hrs` : ''
+            ].filter(Boolean).map(t => `<span>${t}</span>`).join('<span class="sep">|</span>');
+            const chips = (m.jugado ? '<span class="chip">Finalizado</span>' : '') +
+                (m.replay ? '<span class="chip replay" title="Tiene repetición"><i class="fa-solid fa-clapperboard"></i></span>' : '');
+            const id = escapeHtml(m.id);
+            const acciones = canEdit
+                ? `<span class="partido-acciones"><i class="fa-solid fa-pen" data-accion="editar" data-id="${id}" title="Editar"></i><i class="fa-solid fa-trash" data-accion="borrar" data-id="${id}" title="Borrar"></i></span>`
+                : '';
+            return `<div class="partido" data-partido="${id}">
+                <div class="partido-main">
+                    <div class="partido-eq local${g === 1 ? ' gana' : ''}">${nombreHtml(e1)}${escudoHtml(e1)}</div>
+                    ${centro}
+                    <div class="partido-eq${g === 2 ? ' gana' : ''}">${escudoHtml(e2)}${nombreHtml(e2)}</div>
+                </div>
+                <div class="partido-meta">${meta}${chips}${acciones}</div>
+            </div>`;
+        }
+
+        // ---------- Cuadro de llaves ----------
+        function slotHtml(ll, extra) {
+            const ultimo = ll.partidos && ll.partidos.length ? ll.partidos[ll.partidos.length - 1] : '';
+            const fila = (nombre, goles, pen) => {
+                if (!nombre) return `<div class="llave-eq vacio"><i class="fa-solid fa-shield-halved escudo escudo-vacio"></i><span class="nombre">${ll.bye ? 'Libre' : 'Por definir'}</span></div>`;
+                const eq = equipo(nombre);
+                const gana = ll.ganador && norm(ll.ganador) === norm(nombre);
+                return `<div class="llave-eq${gana ? ' gana' : ''}">${escudoHtml(eq)}<span class="nombre">${escapeHtml(eq.nombre)}</span><span class="goles">${goles ?? ''}${pen != null ? `<small>(${pen})</small>` : ''}</span></div>`;
+            };
+            return `<div class="slot"><div class="llave-wrap"><div class="llave${ultimo ? '' : ' sin-partido'}"${ultimo ? ` data-partido="${escapeHtml(ultimo)}"` : ''}>${fila(ll.eq1, ll.g1, ll.p1)}${fila(ll.eq2, ll.g2, ll.p2)}</div>${extra || ''}</div></div>`;
+        }
+
+        function columnaHtml(llaves, r, clase, extra) {
+            const pares = [];
+            for (let i = 0; i < llaves.length; i += 2) {
+                const par = llaves.slice(i, i + 2);
+                pares.push(`<div class="par${par.length === 2 ? ' doble' : ''}">${par.map(ll => slotHtml(ll, extra)).join('')}</div>`);
+            }
+            return `<div class="ronda ${clase}"><div class="ronda-titulo">${nombreRonda(r)}</div><div class="ronda-cuerpo">${pares.join('')}</div></div>`;
+        }
+
+        function renderBracket() {
+            const rondas = T.llaves.rondas, el = $('bracket');
+            $('btnFs').hidden = !rondas.length;
+            el.className = 'bracket';
+            if (!rondas.length) { el.innerHTML = '<p class="vacio">Las llaves aún no se arman.</p>'; return; }
+            const R = rondas.length, n0 = rondas[0].length;
+            const final = rondas[R - 1][0];
+            const campeon = final && final.ganador ? `<div class="campeon"><i class="fa-solid fa-trophy"></i> ${escapeHtml(final.ganador)}</div>` : '';
+            // Dos lados con la final al centro solo si la primera ronda es potencia de 2; si no, el cuadro va de izquierda a derecha
+            if (R < 2 || (n0 & (n0 - 1)) !== 0) {
+                el.innerHTML = rondas.map((ll, r) => columnaHtml(ll, r, 'lado-izq' + (r === 0 ? ' primera' : '') + (r === R - 1 ? ' ultima final' : ''), r === R - 1 ? campeon : '')).join('');
+                return;
+            }
+            const izq = [], der = [];
+            for (let r = 0; r < R - 1; r++) {
+                const mitad = rondas[r].length / 2;
+                izq.push(columnaHtml(rondas[r].slice(0, mitad), r, 'lado-izq' + (r === 0 ? ' primera' : '')));
+                der.unshift(columnaHtml(rondas[r].slice(mitad), r, 'lado-der' + (r === 0 ? ' primera' : '')));
+            }
+            el.innerHTML = izq.join('') + columnaHtml(rondas[R - 1], R - 1, 'centro final', campeon) + der.join('');
+        }
+
+        // ---------- Pantalla completa: arrastrar y zoom ----------
+        const fs = { s: 1, x: 0, y: 0, punteros: new Map(), recorrido: 0, movido: false };
+        const aplicarFs = () => { $('fsLienzo').style.transform = `translate(${fs.x}px, ${fs.y}px) scale(${fs.s})`; };
+
+        function abrirBracketFs() {
+            $('fsLienzo').innerHTML = `<div class="${$('bracket').className}">${$('bracket').innerHTML}</div>`;
+            $('bracketFs').classList.add('abierto');
+            document.body.style.overflow = 'hidden';
+            const raiz = document.documentElement;
+            // Toda la página en pantalla completa (no solo el cuadro) para que las ventanas de partido se vean encima
+            if (raiz.requestFullscreen && !document.fullscreenElement) raiz.requestFullscreen().catch(() => {});
+            requestAnimationFrame(ajustarBracketFs);
+        }
+
+        function cerrarBracketFs() {
+            $('bracketFs').classList.remove('abierto');
+            document.body.style.overflow = '';
+            if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+        }
+
+        function ajustarBracketFs() {
+            const v = $('fsVista').getBoundingClientRect(), c = $('fsLienzo');
+            const w = c.offsetWidth || 1, h = c.offsetHeight || 1;
+            fs.s = Math.min(1.5, Math.max(0.2, Math.min((v.width - 40) / w, (v.height - 120) / h)));
+            fs.x = (v.width - w * fs.s) / 2;
+            fs.y = (v.height - h * fs.s) / 2;
+            aplicarFs();
+        }
+
+        function zoomFs(px, py, factor) {
+            const s = Math.min(4, Math.max(0.2, fs.s * factor));
+            fs.x = px - (px - fs.x) * s / fs.s;
+            fs.y = py - (py - fs.y) * s / fs.s;
+            fs.s = s;
+            aplicarFs();
+        }
+
+        function zoomBoton(factor) {
+            const v = $('fsVista').getBoundingClientRect();
+            zoomFs(v.width / 2, v.height / 2, factor);
+        }
+
+        // Sin setPointerCapture: el clic tiene que llegar a la llave para abrir el partido
+        $('fsVista').addEventListener('pointerdown', e => {
+            if (!fs.punteros.size) { fs.recorrido = 0; fs.movido = false; }
+            fs.punteros.set(e.pointerId, { x: e.clientX, y: e.clientY });
+            $('fsVista').classList.add('arrastrando');
+        });
+        window.addEventListener('pointermove', e => {
+            const p = fs.punteros.get(e.pointerId);
+            if (!p) return;
+            if (fs.punteros.size >= 2) {
+                const otro = [...fs.punteros.entries()].find(([id]) => id !== e.pointerId)[1];
+                const antes = Math.hypot(p.x - otro.x, p.y - otro.y), ahora = Math.hypot(e.clientX - otro.x, e.clientY - otro.y);
+                const r = $('fsVista').getBoundingClientRect();
+                if (antes > 0) zoomFs((e.clientX + otro.x) / 2 - r.left, (e.clientY + otro.y) / 2 - r.top, ahora / antes);
+                fs.movido = true;
+            } else {
+                fs.x += e.clientX - p.x;
+                fs.y += e.clientY - p.y;
+                fs.recorrido += Math.abs(e.clientX - p.x) + Math.abs(e.clientY - p.y);
+                if (fs.recorrido > 6) fs.movido = true;
+                aplicarFs();
+            }
+            p.x = e.clientX;
+            p.y = e.clientY;
+        });
+        const soltarPuntero = e => {
+            fs.punteros.delete(e.pointerId);
+            if (!fs.punteros.size) $('fsVista').classList.remove('arrastrando');
+        };
+        window.addEventListener('pointerup', soltarPuntero);
+        window.addEventListener('pointercancel', soltarPuntero);
+        $('fsVista').addEventListener('wheel', e => {
+            e.preventDefault();
+            const r = $('fsVista').getBoundingClientRect();
+            zoomFs(e.clientX - r.left, e.clientY - r.top, e.deltaY < 0 ? 1.15 : 1 / 1.15);
+        }, { passive: false });
+        window.addEventListener('resize', () => { if ($('bracketFs').classList.contains('abierto')) ajustarBracketFs(); });
+        document.addEventListener('fullscreenchange', () => {
+            if (!document.fullscreenElement && $('bracketFs').classList.contains('abierto')) cerrarBracketFs();
+        });
+
+        // ---------- Ventanas ----------
+        function abrirModal(id) { $(id).style.display = 'flex'; }
+        function cerrarModal(id) { $(id).style.display = 'none'; }
+        document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('mousedown', e => { if (e.target === o) cerrarModal(o.id); }));
+        document.addEventListener('keydown', e => {
+            if (e.key !== 'Escape' || document.querySelector('.th-dialog-overlay')) return;
+            const abiertos = [...document.querySelectorAll('.modal-overlay')].filter(o => o.style.display === 'flex');
+            if (abiertos.length) cerrarModal(abiertos[abiertos.length - 1].id);
+            else if ($('bracketFs').classList.contains('abierto')) cerrarBracketFs();
+        });
+
+        // Un solo manejador de clics: acciones, fichas de equipo y partidos
+        document.addEventListener('click', e => {
+            if (fs.movido && e.target.closest('#bracketFs')) return; // fue un arrastre, no un clic
+            const accion = e.target.closest('[data-accion]');
+            if (accion) { e.stopPropagation(); ejecutarAccion(accion.dataset.accion, accion.dataset.id, accion); return; }
+            const eq = e.target.closest('[data-equipo]');
+            if (eq) { abrirEquipo(eq.dataset.equipo); return; }
+            const p = e.target.closest('[data-partido]');
+            if (p) abrirDetalle(p.dataset.partido);
+        });
+
+        function ejecutarAccion(accion, id, el) {
+            if (accion === 'editar') abrirModalPartido(null, id);
+            else if (accion === 'borrar') borrarPartido(id);
+            else if (accion === 'stats') abrirStats(id);
+            else if (accion === 'subir-replay') { replayDestino = id; $('inputReplay').value = ''; $('inputReplay').click(); }
+            else if (accion === 'bombo') asignarBombo(el);
+            else if (accion === 'quitar-cruce') el.closest('.cruce-fila').remove();
+        }
+
+        // POST/PUT/DELETE con la sesión web; el backend valida sesión y el rol de gestionador
+        async function enviar(metodo, ruta, cuerpo) {
+            try {
+                const res = await fetch(API + ruta, {
+                    method: metodo,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(Object.assign({ numericId: loggedId, token }, cuerpo))
+                });
+                const data = await res.json();
+                if (!data.success) ThUI.alert('❌ ' + (data.message || 'No se pudo guardar.'));
+                return data;
+            } catch (e) {
+                ThUI.alert('❌ Error de conexión con el servidor.');
+                return { success: false };
+            }
+        }
+
+        async function conBoton(id, accion) {
+            const btn = $(id), html = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+            try { return await accion(); } finally { btn.disabled = false; btn.innerHTML = html; }
+        }
+
+        // ---------- Ficha de equipo ----------
+        function abrirEquipo(nombre) {
+            const eq = equipo(nombre);
+            $('fichaEscudo').innerHTML = escudoHtml(eq, 'escudo-grande');
+            $('fichaNombre').textContent = eq.nombre;
+            $('fichaAbrev').textContent = eq.abrev;
+            $('fichaDiscord').hidden = !eq.discord;
+            if (eq.discord) $('fichaDiscord').href = eq.discord;
+            const kits = [['local', 'Local'], ['visita', 'Visita'], ['tercera', 'Tercera'], ['train', 'Train']].filter(([k]) => eq.camisetas && eq.camisetas[k]);
+            $('fichaKits').innerHTML = kits.length
+                ? kits.map(([k, t]) => `<div class="ficha-kit"><div class="hax-avatar-preview kit-mini" id="kit_${k}">${escapeHtml(eq.abrev.slice(0, 3))}</div><span>${t}</span></div>`).join('')
+                : '<p class="vacio">Sin camisetas registradas.</p>';
+            kits.forEach(([k]) => { const c = eq.camisetas[k]; dibujarAvatarHaxball('kit_' + k, c.colors, c.angle, c.text); });
+            $('fichaTituloJug').textContent = `Jugadores (${eq.jugadores.length})`;
+            $('fichaJugadores').innerHTML = eq.jugadores.length
+                ? eq.jugadores.map(j => `<li><i class="fa-solid fa-user"></i>${escapeHtml(j)}</li>`).join('')
+                : '<li class="vacio">Sin jugadores registrados.</li>';
+            abrirModal('modalEquipo');
+        }
+
+        // ---------- Detalle de partido ----------
+        function abrirDetalle(id) {
+            const m = T && T.partidos.find(p => p.id === id);
+            if (!m) return;
+            const e1 = equipo(m.equipo1), e2 = equipo(m.equipo2), g = ganadorPartido(m);
+            $('detTitulo').textContent = m.fase === 'grupo'
+                ? `${m.grupo ? 'Grupo ' + m.grupo + ' · ' : ''}Fecha ${m.jornada || 1}`
+                : `${nombreRonda(m.ronda || 0)} · Llave ${(m.llave || 0) + 1}`;
+            const lado = (eq, n) => `<button type="button" class="det-eq${g === n ? ' gana' : ''}" data-equipo="${escapeHtml(eq.nombre)}">${escudoHtml(eq, 'escudo-grande')}<span>${escapeHtml(eq.nombre)}</span></button>`;
+            $('detMarcador').innerHTML = lado(e1, 1) +
+                `<div class="det-goles">${m.jugado ? `${m.goles_eq1} - ${m.goles_eq2}` : 'VS'}${tienePenales(m) ? `<small>Penales ${m.penales_eq1} - ${m.penales_eq2}</small>` : ''}</div>` +
+                lado(e2, 2);
+            $('detFecha').textContent = [m.fecha ? formatoFecha(m.fecha) : 'Fecha por definir', m.hora ? m.hora + ' hrs' : '', m.jugado ? 'Finalizado' : ''].filter(Boolean).join(' · ');
+
+            const aportes = n => m.jugadores.filter(j => j.equipo === n && (j.goles || j.asistencias || j.autogoles));
+            const filaStat = j => `<li><span>${escapeHtml(j.nombre)}</span><span class="det-iconos">` +
+                (j.goles ? `<span title="Goles"><i class="fa-solid fa-futbol"></i> ${j.goles}</span>` : '') +
+                (j.asistencias ? `<span title="Asistencias"><i class="fa-solid fa-handshake-angle"></i> ${j.asistencias}</span>` : '') +
+                (j.autogoles ? `<span class="ag" title="Autogoles">AG ${j.autogoles}</span>` : '') + '</span></li>';
+            const columna = n => `<ul>${aportes(n).map(filaStat).join('') || '<li class="vacio">Sin aportes</li>'}</ul>`;
+            if (!m.jugado) $('detStats').innerHTML = '';
+            else if (!m.jugadores.length && !m.mvp) $('detStats').innerHTML = '<p class="vacio">Aún no se cargan las estadísticas.</p>';
+            else {
+                const mvpEq = m.mvp ? equipo(m.mvp.equipo === 1 ? m.equipo1 : m.equipo2) : null;
+                $('detStats').innerHTML = `<div class="det-cols">${columna(1)}${columna(2)}</div>` +
+                    (m.mvp ? `<p class="det-mvp"><i class="fa-solid fa-star"></i> MVP: <strong>${escapeHtml(m.mvp.nombre)}</strong> (${escapeHtml(mvpEq.abrev)})</p>` : '');
+            }
+
+            const url = `${API}/api/torneo/partidos/${encodeURIComponent(m.id)}/replay`;
+            const idHtml = escapeHtml(m.id);
+            let acciones = '';
+            if (m.replay) {
+                acciones += `<a class="modal-btn" href="visor.html?replay=${encodeURIComponent(url)}"><i class="fa-solid fa-clapperboard"></i> Ver repetición</a>` +
+                    `<a class="modal-btn btn-gris" href="${url}" download><i class="fa-solid fa-download"></i> Descargar .hbr2</a>`;
+            }
+            if (canEdit && m.jugado) {
+                acciones += `<button class="modal-btn btn-gris" data-accion="stats" data-id="${idHtml}"><i class="fa-solid fa-chart-simple"></i> Estadísticas</button>` +
+                    `<button class="modal-btn btn-gris" data-accion="subir-replay" data-id="${idHtml}" id="btnSubirReplay"><i class="fa-solid fa-upload"></i> ${m.replay ? 'Cambiar' : 'Subir'} .hbr2</button>`;
+            }
+            if (canEdit) acciones += `<button class="modal-btn btn-gris" data-accion="editar" data-id="${idHtml}"><i class="fa-solid fa-pen"></i> Editar</button>`;
+            $('detAcciones').innerHTML = acciones;
+            $('detAcciones').hidden = !acciones;
+            abrirModal('modalDetalle');
+        }
+
+        // Sube el .hbr2 en bruto (Discord acepta hasta 10 MB); la sesión va en headers
+        $('inputReplay').addEventListener('change', async () => {
+            const file = $('inputReplay').files[0];
+            if (!file || !replayDestino) return;
+            if (file.size > 10 * 1024 * 1024) return ThUI.alert('❌ El archivo supera los 10 MB que permite Discord.');
+            const cabecera = new Uint8Array(await file.slice(0, 4).arrayBuffer());
+            if (String.fromCharCode(...cabecera) !== 'HBR2') return ThUI.alert('❌ Ese archivo no es una repetición .hbr2 de HaxBall.');
+            const btn = $('btnSubirReplay');
+            if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Subiendo...'; }
+            let data = { success: false };
+            try {
+                const res = await fetch(`${API}/api/torneo/partidos/${encodeURIComponent(replayDestino)}/replay`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/octet-stream', 'x-numeric-id': loggedId, 'x-token': token },
+                    body: file
+                });
+                data = await res.json().catch(() => ({ success: false, message: res.status === 413 ? 'El archivo supera los 10 MB.' : null }));
+            } catch (e) {
+                data = { success: false, message: 'Error de conexión con el servidor.' };
+            }
+            if (data.success) await cargarTorneo();
+            abrirDetalle(replayDestino);
+            ThUI.alert(data.success ? '✅ Repetición subida.' : '❌ ' + (data.message || 'No se pudo subir la repetición.'));
+        });
+
+        // ---------- Añadir / editar partido ----------
+        function llenarSelectEquipos() {
+            const op = n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`;
+            let html = '<option value="">Elige un equipo</option>';
+            if (faseModal === 'grupo' && T.grupos.length) {
+                html += T.grupos.map(g => `<optgroup label="Grupo ${escapeHtml(g.nombre)}">${g.equipos.map(op).join('')}</optgroup>`).join('');
+                const sinGrupo = T.equipos.filter(e => !T.grupos.some(g => g.equipos.some(n => norm(n) === norm(e.nombre))));
+                if (sinGrupo.length) html += `<optgroup label="Sin grupo">${sinGrupo.map(e => op(e.nombre)).join('')}</optgroup>`;
+            } else {
+                html += T.equipos.map(e => op(e.nombre)).join('');
+            }
+            $('mpEq1').innerHTML = html;
+            $('mpEq2').innerHTML = html;
+        }
+
+        function llenarRondas(sel) {
+            const n = Math.max(T.llaves.rondas.length, sel + 1, 1);
+            $('mpRonda').innerHTML = Array.from({ length: n }, (_, r) => `<option value="${r}">${nombreRonda(r)}</option>`).join('');
+            $('mpRonda').value = sel;
+        }
+
+        function llenarLlaves(minimo = 0) {
+            const ronda = T.llaves.rondas[+$('mpRonda').value] || [];
+            const n = Math.max(ronda.length, minimo + 1, 1);
+            $('mpLlave').innerHTML = Array.from({ length: n }, (_, i) => {
+                const ll = ronda[i];
+                const cruce = ll ? ` · ${ll.eq1 ? equipo(ll.eq1).abrev : '?'} vs ${ll.eq2 ? equipo(ll.eq2).abrev : '?'}` : '';
+                return `<option value="${i}">Llave ${i + 1}${escapeHtml(cruce)}</option>`;
+            }).join('');
+        }
+
+        function prefillDesdeLlave() {
+            const ll = (T.llaves.rondas[+$('mpRonda').value] || [])[+$('mpLlave').value];
+            if (ll && ll.eq1) $('mpEq1').value = ll.eq1;
+            if (ll && ll.eq2) $('mpEq2').value = ll.eq2;
+            actualizarEtiquetasMarcador();
+        }
+
+        function actualizarEtiquetasMarcador() {
+            $('mpLbl1').textContent = $('mpEq1').value || 'Equipo 1';
+            $('mpLbl2').textContent = $('mpEq2').value || 'Equipo 2';
+        }
+
+        function toggleResultado() { $('mpResultado').hidden = !$('mpJugado').checked; }
+
+        function abrirModalPartido(fase, id) {
+            const m = id ? T.partidos.find(p => p.id === id) : null;
+            if (id && !m) return;
+            cerrarModal('modalDetalle');
+            editandoId = m ? m.id : null;
+            faseModal = m ? m.fase : fase;
+            const ko = faseModal === 'eliminatoria';
+            $('mpTitulo').innerHTML = m ? '<i class="fa-solid fa-pen"></i> Editar partido' : '<i class="fa-solid fa-plus"></i> Añadir fecha';
+            $('mpSoloGrupo').hidden = ko;
+            $('mpSoloKo').hidden = !ko;
+            $('mpPenales').hidden = !ko;
+            llenarSelectEquipos();
+            $('mpJornada').value = m ? m.jornada || 1 : fechaSel.grupos || 1;
+            if (ko) {
+                llenarRondas(m ? m.ronda || 0 : fechaSel.ko || 0);
+                llenarLlaves(m ? m.llave || 0 : 0);
+                $('mpLlave').value = m ? m.llave || 0 : 0;
+            }
+            $('mpEq1').value = m ? m.equipo1 : '';
+            $('mpEq2').value = m ? m.equipo2 : '';
+            if (!m && ko) prefillDesdeLlave();
+            $('mpFecha').value = m ? m.fecha : '';
+            $('mpHora').value = m ? m.hora : '';
+            $('mpJugado').checked = !!(m && m.jugado);
+            $('mpG1').value = m && m.jugado ? m.goles_eq1 : '';
+            $('mpG2').value = m && m.jugado ? m.goles_eq2 : '';
+            $('mpP1').value = m && m.penales_eq1 != null ? m.penales_eq1 : '';
+            $('mpP2').value = m && m.penales_eq2 != null ? m.penales_eq2 : '';
+            toggleResultado();
+            actualizarEtiquetasMarcador();
+            abrirModal('modalPartido');
+        }
+
+        async function guardarPartido() {
+            const ko = faseModal === 'eliminatoria';
+            const previo = editandoId ? T.partidos.find(p => p.id === editandoId) : null;
+            const partido = {
+                equipo1: $('mpEq1').value, equipo2: $('mpEq2').value, fase: faseModal, jugado: $('mpJugado').checked,
+                jornada: +$('mpJornada').value || 1, ronda: +$('mpRonda').value || 0, llave: +$('mpLlave').value || 0,
+                fecha: $('mpFecha').value, hora: $('mpHora').value,
+                goles_eq1: $('mpG1').value, goles_eq2: $('mpG2').value,
+                penales_eq1: ko ? $('mpP1').value : '', penales_eq2: ko ? $('mpP2').value : '',
+                // Al editar se conservan las estadísticas ya cargadas
+                jugadores: previo ? previo.jugadores.map(j => Object.assign({}, j, { jugo: true })) : [],
+                mvp: previo ? previo.mvp : null
+            };
+            if (!partido.equipo1 || !partido.equipo2 || partido.equipo1 === partido.equipo2) return ThUI.alert('⚠️ Elige dos equipos distintos.');
+            if (ko && (partido.penales_eq1 === '') !== (partido.penales_eq2 === '')) return ThUI.alert('⚠️ Completa los penales de los dos equipos o deja ambos vacíos.');
+            const data = await conBoton('mpGuardar', () => editandoId
+                ? enviar('PUT', `/api/torneo/partidos/${encodeURIComponent(editandoId)}`, { partido })
+                : enviar('POST', '/api/torneo/partidos', { partido }));
+            if (!data.success) return;
+            cerrarModal('modalPartido');
+            if (ko) fechaSel.ko = partido.ronda; else fechaSel.grupos = partido.jornada;
+            await cargarTorneo();
+        }
+
+        async function borrarPartido(id) {
+            const m = T.partidos.find(p => p.id === id);
+            if (!m) return;
+            const ok = await ThUI.confirm(`¿Borrar ${m.equipo1} vs ${m.equipo2}? También se borran sus estadísticas y la repetición.`, { title: 'Borrar partido', danger: true, okText: 'Borrar' });
+            if (!ok) return;
+            const data = await enviar('DELETE', `/api/torneo/partidos/${encodeURIComponent(id)}`, {});
+            if (data.success) await cargarTorneo();
+        }
+
+        // ---------- Estadísticas ----------
+        function abrirStats(id) {
+            const m = T.partidos.find(p => p.id === id);
+            if (!m) return;
+            cerrarModal('modalDetalle');
+            partidoStats = m;
+            const numero = (campo, j) => `<td><input type="number" min="0" max="99" inputmode="numeric" placeholder="0" data-campo="${campo}" value="${j && j[campo] ? j[campo] : ''}" aria-label="${campo}"></td>`;
+            const bloque = n => {
+                const eq = equipo(n === 1 ? m.equipo1 : m.equipo2);
+                const filas = eq.jugadores.map(nombre => {
+                    const j = m.jugadores.find(x => x.equipo === n && x.nombre === nombre);
+                    const esMvp = m.mvp && m.mvp.equipo === n && m.mvp.nombre === nombre;
+                    return `<tr data-lado="${n}" data-nombre="${escapeHtml(nombre)}">
+                        <td><input type="checkbox" class="st-jugo" ${j ? 'checked' : ''} aria-label="Jugó"></td>
+                        <td class="st-nombre">${escapeHtml(nombre)}</td>
+                        ${numero('goles', j)}${numero('asistencias', j)}${numero('autogoles', j)}
+                        <td><input type="radio" name="stMvp" ${esMvp ? 'checked' : ''} aria-label="MVP"></td>
+                    </tr>`;
+                }).join('');
+                return `<div class="st-equipo"><h4>${escudoHtml(eq)} ${escapeHtml(eq.nombre)} · ${n === 1 ? m.goles_eq1 : m.goles_eq2}</h4>` +
+                    (filas
+                        ? `<div class="st-wrap"><table class="st-tabla"><thead><tr><th title="Jugó">J</th><th class="st-nombre">Jugador</th><th title="Goles">G</th><th title="Asistencias">A</th><th title="Autogoles">AG</th><th title="MVP">MVP</th></tr></thead><tbody>${filas}</tbody></table></div>`
+                        : '<p class="vacio">Este equipo no tiene jugadores en su mensaje de Discord.</p>') +
+                    '</div>';
+            };
+            $('statsCuerpo').innerHTML = bloque(1) + bloque(2) +
+                `<label class="th-option st-sin-mvp"><input type="radio" name="stMvp" ${m.mvp ? '' : 'checked'}> Sin MVP</label>`;
+            abrirModal('modalStats');
+        }
+
+        // Anotar algo o elegir MVP marca "jugó"
+        $('statsCuerpo').addEventListener('input', e => {
+            const tr = e.target.closest('tr[data-lado]');
+            if (tr && (e.target.type === 'radio' || +e.target.value > 0)) tr.querySelector('.st-jugo').checked = true;
+        });
+
+        async function guardarStats() {
+            const m = partidoStats;
+            if (!m) return;
+            const filas = [...document.querySelectorAll('#statsCuerpo tr[data-lado]')];
+            const jugadores = filas.map(tr => ({
+                nombre: tr.dataset.nombre,
+                equipo: +tr.dataset.lado,
+                jugo: tr.querySelector('.st-jugo').checked,
+                goles: tr.querySelector('[data-campo="goles"]').value,
+                asistencias: tr.querySelector('[data-campo="asistencias"]').value,
+                autogoles: tr.querySelector('[data-campo="autogoles"]').value
+            }));
+            const radio = document.querySelector('#statsCuerpo input[name="stMvp"]:checked');
+            const fila = radio && radio.closest('tr[data-lado]');
+            const mvp = fila ? { nombre: fila.dataset.nombre, equipo: +fila.dataset.lado } : null;
+            const data = await conBoton('statsGuardar', () => enviar('PUT', `/api/torneo/partidos/${encodeURIComponent(m.id)}`, { partido: Object.assign({}, m, { jugadores, mvp }) }));
+            if (!data.success) return;
+            cerrarModal('modalStats');
+            await cargarTorneo();
+            abrirDetalle(m.id);
+        }
+
+        // ---------- Sorteo de grupos ----------
+        let sorteo = new Map(); // nombre del equipo -> número de bombo
+
+        function abrirSorteo() {
+            if (!T.equipos.length) return ThUI.alert('⚠️ No hay equipos en el canal de equipos de Discord.');
+            sorteo = new Map();
+            T.grupos.forEach(g => g.equipos.forEach((n, i) => { if (T.equipos.some(e => e.nombre === n)) sorteo.set(n, i + 1); }));
+            const grupos = T.grupos.length || Math.max(1, Math.round(T.equipos.length / 4));
+            $('sgGrupos').value = grupos;
+            $('sgPorGrupo').value = T.grupos.length ? Math.max(2, ...T.grupos.map(g => g.equipos.length)) : Math.max(2, Math.ceil(T.equipos.length / grupos));
+            renderSorteo();
+            abrirModal('modalSorteo');
+        }
+
+        function porGrupoSorteo() { return Math.min(16, Math.max(0, parseInt($('sgPorGrupo').value) || 0)); }
+
+        function renderSorteo() {
+            const bombos = porGrupoSorteo();
+            for (const [n, b] of sorteo) if (b > bombos) sorteo.delete(n);
+            $('sgLista').innerHTML = T.equipos.map(eq => {
+                const actual = sorteo.get(eq.nombre) || 0;
+                const pills = Array.from({ length: bombos + 1 }, (_, b) =>
+                    `<button type="button" class="bombo-pill${actual === b ? ' active' : ''}" data-accion="bombo" data-bombo="${b}" data-nombre="${escapeHtml(eq.nombre)}" title="${b ? 'Bombo ' + b : 'Sin bombo'}">${b || '–'}</button>`).join('');
+                return `<div class="sg-fila"><span class="sg-equipo">${escudoHtml(eq)} ${escapeHtml(eq.nombre)}</span><span class="sg-bombos">${pills}</span></div>`;
+            }).join('');
+            infoSorteo();
+        }
+
+        function infoSorteo() {
+            const bombos = porGrupoSorteo(), cupos = (parseInt($('sgGrupos').value) || 0) * bombos;
+            const cuenta = Array.from({ length: bombos }, (_, i) => `B${i + 1}: ${[...sorteo.values()].filter(v => v === i + 1).length}`).join(' · ');
+            $('sgInfo').textContent = `Un bombo por puesto del grupo: cada bombo reparte un equipo a cada grupo. Asignados ${sorteo.size} de ${cupos} cupos. ${cuenta}`;
+        }
+
+        function asignarBombo(el) {
+            const b = +el.dataset.bombo;
+            if (b) sorteo.set(el.dataset.nombre, b); else sorteo.delete(el.dataset.nombre);
+            el.parentElement.querySelectorAll('.bombo-pill').forEach(p => p.classList.toggle('active', p === el));
+            infoSorteo();
+        }
+
+        async function realizarSorteo() {
+            const grupos = parseInt($('sgGrupos').value), porGrupo = porGrupoSorteo();
+            if (!(grupos >= 1 && grupos <= 16) || !(porGrupo >= 2)) return ThUI.alert('⚠️ Elige entre 1 y 16 grupos y entre 2 y 16 equipos por grupo.');
+            if (sorteo.size < 2 || sorteo.size > grupos * porGrupo) return ThUI.alert(`⚠️ Asigna entre 2 y ${grupos * porGrupo} equipos a los bombos.`);
+            if (T.grupos.length && !(await ThUI.confirm('Ya hay grupos sorteados y se van a reemplazar. Los partidos cargados no se borran.', { title: 'Sortear de nuevo', danger: true, okText: 'Sortear' }))) return;
+            const bombos = Array.from({ length: porGrupo }, (_, i) => T.equipos.map(e => e.nombre).filter(n => sorteo.get(n) === i + 1)).filter(b => b.length);
+            const data = await conBoton('sgSortear', () => enviar('POST', '/api/torneo/sortear', { grupos, equiposPorGrupo: porGrupo, bombos }));
+            if (!data.success) return;
+            cerrarModal('modalSorteo');
+            grupoIdx = 0;
+            await cargarTorneo();
+            ThUI.open({
+                tone: 'success', title: '¡Grupos sorteados!', okText: 'Aceptar',
+                html: ThUI.rows(data.grupos.map(g => ['Grupo ' + ThUI.esc(g.nombre), g.equipos.map(ThUI.esc).join(', ')]))
+            });
+        }
+
+        // ---------- Llaves ----------
+        async function asignarLlaves(modo) {
+            if (!T.grupos.length) return ThUI.alert('⚠️ Primero sortea los grupos.');
+            const texto = modo === 'ranking'
+                ? 'El mejor primero de grupo enfrenta al peor segundo, el segundo mejor primero al penúltimo segundo, y así.'
+                : 'Por orden de grupo: 1° del A contra 2° del B, 1° del B contra 2° del A, 1° del C contra 2° del D...';
+            const ok = await ThUI.confirm(texto + (T.llaves.cruces.length ? ' Los cruces actuales se reemplazan.' : ''), { title: 'Armar llaves', okText: 'Armar llaves' });
+            if (!ok) return;
+            const data = await enviar('POST', '/api/torneo/llaves', { modo });
+            if (!data.success) return;
+            await cargarTorneo();
+            ThUI.alert('✅ Llaves armadas. Puedes ajustarlas con "Editar cruces".');
+        }
+
+        function filaCruce(par) {
+            const sel = v => `<select class="select-torohax" aria-label="Equipo"><option value="">— Libre —</option>${T.equipos.map(e =>
+                `<option value="${escapeHtml(e.nombre)}"${v && norm(v) === norm(e.nombre) ? ' selected' : ''}>${escapeHtml(e.nombre)}</option>`).join('')}</select>`;
+            return `<div class="cruce-fila"><span class="cruce-num"></span>${sel(par[0])}<span class="cruce-vs">vs</span>${sel(par[1])}<button type="button" class="cruce-quitar" data-accion="quitar-cruce" aria-label="Quitar cruce"><i class="fa-solid fa-trash"></i></button></div>`;
+        }
+
+        function abrirCruces() {
+            if (!T.equipos.length) return ThUI.alert('⚠️ No hay equipos en el canal de equipos de Discord.');
+            $('crucesLista').innerHTML = (T.llaves.cruces.length ? T.llaves.cruces : [[null, null]]).map(filaCruce).join('');
+            abrirModal('modalCruces');
+        }
+
+        function agregarCruce() { $('crucesLista').insertAdjacentHTML('beforeend', filaCruce([null, null])); }
+
+        async function guardarCruces() {
+            const cruces = [...document.querySelectorAll('#crucesLista .cruce-fila')]
+                .map(f => [...f.querySelectorAll('select')].map(s => s.value || null))
+                .filter(([a, b]) => a || b);
+            const nombres = cruces.flat().filter(Boolean);
+            if (new Set(nombres).size !== nombres.length) return ThUI.alert('⚠️ Un equipo aparece en más de un cruce.');
+            const data = await conBoton('crucesGuardar', () => enviar('POST', '/api/torneo/llaves', { cruces }));
+            if (!data.success) return;
+            cerrarModal('modalCruces');
+            await cargarTorneo();
+        }
+
+        cargarTorneo();
+    </script>
+    <script src="scanner.js"></script>
+</body>
+</html>

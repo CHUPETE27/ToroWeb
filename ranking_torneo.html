@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-TNG2QC64');</script>
+    <!-- End Google Tag Manager -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking del Torneo - ToroHax</title>
+    <link rel="icon" type="image/png" href="logo_torohax.png">
+    <link rel="stylesheet" href="styles.css?v=2.4">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; }
+
+        .ranking-wrapper { width: 100%; max-width: 900px; display: flex; flex-direction: column; align-items: center; }
+        .rankings-title { margin-top: 0; }
+        .btn-volver-torneo { width: auto; min-width: 180px; border-radius: 25px; margin: 0 auto 20px; }
+        .filter-container { margin-bottom: 20px; }
+        .filtro-fila { display: flex; gap: 10px; width: 100%; justify-content: center; }
+
+        .tabs-container { align-items: center; }
+        /* Interruptor Totales / Promedios */
+        .switch-modo { display: inline-flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 25px; padding: 6px 14px; color: var(--text-muted); font: inherit; font-weight: bold; cursor: pointer; }
+        .switch-modo .lbl-total { color: var(--gold); }
+        .switch-modo[aria-checked="true"] .lbl-total { color: var(--text-muted); }
+        .switch-modo[aria-checked="true"] .lbl-prom { color: var(--gold); }
+        .switch-pista { position: relative; width: 46px; height: 24px; border-radius: 12px; background: #111; border: 2px solid #555; transition: 0.2s; flex-shrink: 0; }
+        .switch-bola { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--text-soft); transition: 0.2s; }
+        .switch-modo[aria-checked="true"] .switch-pista { border-color: var(--gold); }
+        .switch-modo[aria-checked="true"] .switch-bola { left: 24px; background: var(--gold); }
+        .switch-modo:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+        .tabla-ranking { min-width: 0; }
+        .tabla-ranking th, .tabla-ranking td { padding: 12px 8px; }
+        .tabla-ranking td { cursor: default; }
+        .tabla-ranking .izq { text-align: left; }
+        .tabla-ranking .col-jugador { width: 45%; max-width: 0; overflow: hidden; text-overflow: ellipsis; }
+        .tabla-ranking .col-activa { color: var(--gold); font-weight: bold; }
+        .equipo-celda { display: inline-flex; align-items: center; gap: 8px; }
+        .escudo { width: 24px; height: 24px; object-fit: contain; flex-shrink: 0; }
+        .escudo-vacio { display: inline-flex; align-items: center; justify-content: center; color: var(--text-muted); }
+        .nom-corto { display: none; }
+        .celda-vacia { padding: 40px 10px !important; color: var(--text-muted); white-space: normal !important; }
+
+        @media (max-width: 480px) {
+            .filter-btn { width: auto; flex: 1; padding: 10px 6px; }
+            .tab-btn { flex-basis: 30%; padding: 10px 4px; font-size: 0.9rem; }
+            .tab-btn i { display: none; }
+            .tabla-ranking th, .tabla-ranking td { padding: 10px 5px; font-size: 0.9rem; }
+            .nom-largo { display: none; }
+            .nom-corto { display: inline; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TNG2QC64"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <header></header>
+
+    <main>
+        <div class="ranking-wrapper">
+            <h2 class="rankings-title">Ranking del torneo</h2>
+
+            <button class="btn-estandar btn-salir btn-volver-torneo" onclick="volver()"><i class="fa-solid fa-arrow-left"></i> Volver</button>
+
+            <div class="filter-container">
+                <div class="filtro-fila">
+                    <button class="filter-btn active" data-fase="grupo" onclick="cambiarFase('grupo')"><i class="fa-solid fa-table-list"></i> Grupos</button>
+                    <button class="filter-btn" data-fase="todo" onclick="cambiarFase('todo')"><i class="fa-solid fa-layer-group"></i> Todo</button>
+                    <button class="filter-btn" data-fase="eliminatoria" onclick="cambiarFase('eliminatoria')"><i class="fa-solid fa-sitemap"></i> K.O.</button>
+                </div>
+            </div>
+
+            <div class="tabs-container">
+                <button class="tab-btn active" data-tipo="goles" onclick="cambiarTipo('goles')"><i class="fa-solid fa-futbol"></i> Goles</button>
+                <button class="tab-btn" data-tipo="asistencias" onclick="cambiarTipo('asistencias')"><i class="fa-solid fa-handshake-angle"></i> Asistencias</button>
+                <button class="tab-btn" data-tipo="mvps" onclick="cambiarTipo('mvps')"><i class="fa-solid fa-star"></i> MVPs</button>
+                <button type="button" class="switch-modo" id="switchModo" role="switch" aria-checked="false" onclick="cambiarModo()">
+                    <span class="lbl-total">Totales</span>
+                    <span class="switch-pista"><span class="switch-bola"></span></span>
+                    <span class="lbl-prom">Promedios</span>
+                </button>
+            </div>
+
+            <div class="table-container">
+                <table class="tabla-ranking">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th class="izq">Jugador</th>
+                            <th class="izq">Equipo</th>
+                            <th id="thTotal">Goles</th>
+                            <th id="thProm">G/P</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablaBody">
+                        <tr><td colspan="5" class="celda-vacia"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <nav class="footer-links" aria-label="Enlaces legales">
+            <a href="terminos.html">Términos y Condiciones</a>
+            <a href="privacidad.html">Política de Privacidad</a>
+            <a href="mailto:torohaxball27@gmail.com">Contacto</a>
+        </nav>
+        <p>© 2026 ToroHax. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="torohax-ui.js"></script>
+    <script src="header.js"></script>
+    <script src="sidebar.js"></script>
+
+    <script>
+        // Datos: GET /api/torneo/ranking (bot.js suma las estadísticas de los partidos y ordena)
+        const API = 'https://torobot-izu5.onrender.com';
+        const escapeHtml = ThUI.esc;
+        const ETIQUETAS = { goles: ['Goles', 'G/P'], asistencias: ['Asistencias', 'A/P'], mvps: ['MVPs', 'MVP/P'] };
+        let fase = 'grupo', tipo = 'goles', promedio = false, peticion = 0;
+
+        function volver() {
+            if (document.referrer.startsWith(location.origin) && history.length > 1) history.back();
+            else location.href = 'torneo.html';
+        }
+
+        function cambiarFase(f) {
+            fase = f;
+            document.querySelectorAll('[data-fase]').forEach(b => b.classList.toggle('active', b.dataset.fase === f));
+            cargarRanking();
+        }
+
+        function cambiarTipo(t) {
+            tipo = t;
+            document.querySelectorAll('[data-tipo]').forEach(b => b.classList.toggle('active', b.dataset.tipo === t));
+            cargarRanking();
+        }
+
+        function cambiarModo() {
+            promedio = !promedio;
+            $switch.setAttribute('aria-checked', String(promedio));
+            cargarRanking();
+        }
+        const $switch = document.getElementById('switchModo');
+
+        async function cargarRanking() {
+            const n = ++peticion; // si se cambia de filtro rápido, solo vale la última respuesta
+            const body = document.getElementById('tablaBody');
+            const [total, prom] = ETIQUETAS[tipo];
+            document.getElementById('thTotal').textContent = total;
+            document.getElementById('thProm').textContent = prom;
+            document.getElementById('thTotal').classList.toggle('col-activa', !promedio);
+            document.getElementById('thProm').classList.toggle('col-activa', promedio);
+            body.innerHTML = '<tr><td colspan="5" class="celda-vacia"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</td></tr>';
+            try {
+                const res = await fetch(`${API}/api/torneo/ranking?fase=${fase}&tipo=${tipo}&modo=${promedio ? 'promedio' : 'total'}`);
+                const data = await res.json();
+                if (n !== peticion) return;
+                if (!data.success) throw new Error(data.message || 'Error');
+                if (!data.jugadores.length) {
+                    body.innerHTML = '<tr><td colspan="5" class="celda-vacia">Aún no hay estadísticas para este filtro.</td></tr>';
+                    return;
+                }
+                body.innerHTML = data.jugadores.map((j, i) => {
+                    const pos = i + 1;
+                    const escudo = j.escudo
+                        ? `<img class="escudo" src="${escapeHtml(j.escudo)}" alt="" loading="lazy">`
+                        : '<i class="fa-solid fa-shield-halved escudo escudo-vacio" aria-hidden="true"></i>';
+                    return `<tr>
+                        <td><span class="rank-number${pos <= 3 ? ' rank-' + pos : ''}">${pos}</span></td>
+                        <td class="izq col-jugador player-name">${escapeHtml(j.nombre)}</td>
+                        <td class="izq"><span class="equipo-celda">${escudo}<span class="nom-largo">${escapeHtml(j.equipo)}</span><span class="nom-corto">${escapeHtml(j.abrev)}</span></span></td>
+                        <td class="${promedio ? '' : 'col-activa'}">${j[tipo]}</td>
+                        <td class="${promedio ? 'col-activa' : ''}">${Number(j.promedio).toFixed(2)}</td>
+                    </tr>`;
+                }).join('');
+            } catch (e) {
+                if (n !== peticion) return;
+                body.innerHTML = '<tr><td colspan="5" class="celda-vacia"><i class="fa-solid fa-spinner fa-spin"></i> Reintentando conexión...</td></tr>';
+                setTimeout(() => { if (n === peticion) cargarRanking(); }, 5000);
+            }
+        }
+
+        cargarRanking();
+    </script>
+    <script src="scanner.js"></script>
+</body>
+</html>

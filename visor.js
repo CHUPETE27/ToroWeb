@@ -247,6 +247,7 @@ const VisorCore = (function () {
         const epochOf = new Uint32Array(cap), posOff = new Uint32Array(cap);
         const red = new Uint16Array(cap), blue = new Uint16Array(cap), elapsed = new Float32Array(cap);
         const kickLo = new Uint32Array(cap), kickHi = new Uint32Array(cap);
+        const phase = new Uint8Array(cap);   // gameState.state (1 jugando, 2 gol); 0 en pausa
         let pos = new Float32Array(1 << 16), posLen = 0;
         const epochs = [];
         let count = 0, warned = false;
@@ -302,6 +303,7 @@ const VisorCore = (function () {
                 if (posLen + n * 2 > pos.length) { const bigger = new Float32Array(Math.max(pos.length * 2, posLen + n * 2)); bigger.set(pos); pos = bigger; }
                 for (let i = 0; i < n; i++) { const p = discs[i].pos; pos[posLen++] = p.x; pos[posLen++] = p.y; }
                 red[f] = gs.redScore; blue[f] = gs.blueScore; elapsed[f] = gs.timeElapsed;
+                phase[f] = gs.paused || gs.pauseGameTickCounter > 0 ? 0 : gs.state;
                 let lo = 0, hi = 0;
                 const rows = ep.players;
                 for (let i = 0; i < rows.length && i < 64; i++) {
@@ -319,7 +321,7 @@ const VisorCore = (function () {
                 frames: count,
                 epochs, epochOf: epochOf.subarray(0, count), posOff: posOff.subarray(0, count), pos: pos.subarray(0, posLen),
                 red: red.subarray(0, count), blue: blue.subarray(0, count), elapsed: elapsed.subarray(0, count),
-                kickLo: kickLo.subarray(0, count), kickHi: kickHi.subarray(0, count)
+                kickLo: kickLo.subarray(0, count), kickHi: kickHi.subarray(0, count), phase: phase.subarray(0, count)
             };
         }
 
@@ -346,8 +348,7 @@ const VisorCore = (function () {
             const raw = [];
             const players = new Map();
             const kicks = new Map();
-            const sfx = [];   // eventos con sonido: { f, t: 'kick' | 'bounce' | 'whistle' | 'end' }
-            let lastBounce = -10;
+            const sfx = [];   // cuadros con patada a la pelota: { f, t: 'kick' }
             let stadiumName = null;
             let reader = null, progressTimer = null, killTimer = null, done = false, recorder = null, hookedState = null;
             const scheduler = createFastScheduler();
@@ -380,10 +381,6 @@ const VisorCore = (function () {
                 raw.sort((a, b) => a.f - b.f);
                 resolve({ raw, players: list, stadiumName, maxFrame, recording, sfx });
             };
-            const bounce = (disc) => {
-                const f = frame();
-                if (disc === 0 && f - lastBounce > 6) { lastBounce = f; sfx.push({ f, t: 'bounce' }); }
-            };
             const fail = (err) => { if (done) return; done = true; cleanup(); reject(err); };
 
             try {
@@ -397,12 +394,6 @@ const VisorCore = (function () {
                     onPlayerLeave: (p) => { const q = touch(p.id, p.name, null, frame()); q.lastFrame = frame(); },
                     onPlayerTeamChange: (id, teamId) => { const p = reader.state.getPlayer(id); touch(id, p ? p.name : null, teamId, frame()); },
                     onPlayerBallKick: (id) => { kicks.set(id, (kicks.get(id) || 0) + 1); sfx.push({ f: frame(), t: 'kick' }); },
-                    onKickOff: () => sfx.push({ f: frame(), t: 'whistle' }),
-                    onGameEnd: () => sfx.push({ f: frame(), t: 'end' }),
-                    // el disco 0 es la pelota; un roce largo contra la pared dispara muchos choques seguidos
-                    onCollisionDiscVsSegment: (disc) => bounce(disc),
-                    onCollisionDiscVsPlane: (disc) => bounce(disc),
-                    onCollisionDiscVsVertex: (disc) => bounce(disc),
                     onStadiumChange: (st) => { if (st && st.name) stadiumName = st.name; },
                     onGameStart: () => {
                         try { const st = reader.gameState && reader.gameState.stadium; if (st && st.name) stadiumName = st.name; } catch (e) { /* sin estadio aún */ }
@@ -490,7 +481,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         playing: false,
         followBall: false,
         showNames: true,
-        zoom: 1,              // 1 = campo completo (máximo); la barra solo aleja
+        zoom: 1,              // 1 = campo completo (mínimo); al acercar, la cámara sigue a la pelota
         sfx: [],
         muted: (function () { try { return localStorage.getItem('vzMuted') === '1'; } catch (e) { return false; } })(),
         autoScroll: true,
@@ -894,12 +885,13 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         const ext = stadiumHalfExtent(st);
         const fieldW = ext.hw * 1.05 + 25;
         const fieldH = ext.hh * 1.05 + 25;
-        let zoom = Math.min(w / (2 * fieldW), h / (2 * fieldH)) * (opts.zoom || 1);
+        let zoom = Math.min(w / (2 * fieldW), h / (2 * fieldH));
         let cx = 0, cy = 0;
 
         const cam = opts.camera;
-        if (opts.follow && n > 0) {
-            const z2 = zoom * FOLLOW_ZOOM;
+        const extra = opts.follow ? Math.max(opts.zoom || 1, FOLLOW_ZOOM) : (opts.zoom || 1);
+        if (extra > 1 && n > 0) {
+            const z2 = zoom * extra;
             const vw = w / z2 / 2, vh = h / z2 / 2;
             const tx = vw >= fieldW ? 0 : clamp(cur.x[0], -fieldW + vw, fieldW - vw);
             const ty = vh >= fieldH ? 0 : clamp(cur.y[0], -fieldH + vh, fieldH - vh);
@@ -945,72 +937,92 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         return true;
     }
 
-    // Sonidos sintetizados con Web Audio: los de HaxBall (res.dat) no se pueden redistribuir en un repo público.
+    // Sonidos originales de HaxBall (kick.wav, goal.wav y crowd.ogg de su res.dat) en la carpeta sonidos/.
+    // Suenan como en el juego: patada, gol y un público en bucle cuyo volumen sube con las jugadas de peligro.
+    const SFX_FILES = { kick: 'sonidos/kick.wav', goal: 'sonidos/goal.wav', crowd: 'sonidos/crowd.ogg' };
     const Sfx = (function () {
-        let ac = null, noise = null;
+        let ac = null, crowdGain = null, decoding = null;
+        const raw = {}, buffers = {};
+        const crowd = { target: 0, value: 0, hold: 0 };
         function ctx() {
             if (!ac) {
                 const AC = window.AudioContext || window.webkitAudioContext;
                 if (!AC) return null;
                 ac = new AC();
-                noise = ac.createBuffer(1, ac.sampleRate * 3, ac.sampleRate);
-                const d = noise.getChannelData(0);
-                for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
             }
             if (ac.state === 'suspended') ac.resume().catch(() => {});
+            if (!decoding) decoding = decodeAll();
             return ac;
         }
-        function env(a, t, peak, attack, decay) {
-            const g = a.createGain();
-            g.gain.setValueAtTime(0.0001, t);
-            g.gain.exponentialRampToValueAtTime(peak, t + attack);
-            g.gain.exponentialRampToValueAtTime(0.0001, t + attack + decay);
-            g.connect(a.destination);
-            return g;
+        function decodeAll() {
+            return Promise.all(Object.keys(raw).map(k => new Promise(ok => {
+                ac.decodeAudioData(raw[k].slice(0), (buf) => { buffers[k] = buf; ok(); }, () => ok());
+            }))).then(() => {
+                if (!buffers.crowd) return;
+                // igual que HaxBall: el público suena siempre en bucle y solo cambia su volumen
+                crowdGain = ac.createGain();
+                crowdGain.gain.value = 0;
+                crowdGain.connect(ac.destination);
+                const src = ac.createBufferSource();
+                src.buffer = buffers.crowd; src.loop = true;
+                src.connect(crowdGain); src.start();
+            });
         }
-        function tone(a, t, type, f0, f1, dur, peak) {
-            const o = a.createOscillator();
-            o.type = type;
-            o.frequency.setValueAtTime(f0, t);
-            o.frequency.exponentialRampToValueAtTime(f1, t + dur);
-            o.connect(env(a, t, peak, 0.004, dur));
-            o.start(t); o.stop(t + dur + 0.05);
-        }
-        function hiss(a, t, filter, freq, q, dur, peak, attack) {
-            const src = a.createBufferSource(), bq = a.createBiquadFilter();
-            src.buffer = noise;
-            bq.type = filter; bq.frequency.value = freq; bq.Q.value = q;
-            src.connect(bq); bq.connect(env(a, t, peak, attack || 0.002, dur));
-            src.start(t, Math.random() * 1.5); src.stop(t + (attack || 0) + dur + 0.05);
-        }
-        function whistle(a, t, dur) {
-            const o = a.createOscillator(), lfo = a.createOscillator(), depth = a.createGain(), g = a.createGain();
-            o.type = 'sine'; o.frequency.value = 2900;
-            lfo.frequency.value = 38; depth.gain.value = 120;
-            lfo.connect(depth); depth.connect(o.frequency);
-            g.gain.setValueAtTime(0.0001, t);
-            g.gain.exponentialRampToValueAtTime(0.12, t + 0.02);
-            g.gain.setValueAtTime(0.12, t + dur - 0.05);
-            g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-            o.connect(g); g.connect(a.destination);
-            o.start(t); lfo.start(t); o.stop(t + dur + 0.02); lfo.stop(t + dur + 0.02);
-        }
-        const SOUNDS = {
-            kick: (a, t) => { tone(a, t, 'sine', 160, 45, 0.12, 0.7); hiss(a, t, 'bandpass', 1800, 1.2, 0.03, 0.25); },
-            bounce: (a, t) => tone(a, t, 'triangle', 320, 180, 0.07, 0.25),
-            whistle: (a, t) => whistle(a, t, 0.45),
-            end: (a, t) => { whistle(a, t, 0.3); whistle(a, t + 0.4, 0.3); whistle(a, t + 0.8, 0.9); },
-            goal: (a, t) => { hiss(a, t, 'bandpass', 900, 0.6, 2.6, 0.5, 0.35); hiss(a, t, 'lowpass', 500, 0.7, 2.2, 0.35, 0.25); }
-        };
         return {
-            unlock() { ctx(); },
+            load() {
+                return Promise.all(Object.keys(SFX_FILES).map(k => fetch(SFX_FILES[k])
+                    .then(r => r.ok ? r.arrayBuffer() : null)
+                    .then(b => { if (b) raw[k] = b; })
+                    .catch(() => {}))).then(() => Object.keys(raw).length > 0);
+            },
+            unlock() { if (Object.keys(raw).length) ctx(); },
             play(type) {
-                const a = ctx(), fn = SOUNDS[type];
-                if (!a || !fn || a.state !== 'running') return;
-                try { fn(a, a.currentTime + 0.01); } catch (e) { /* audio no disponible */ }
+                const a = ac, buf = buffers[type];
+                if (!a || !buf || a.state !== 'running') return;
+                const src = a.createBufferSource();
+                src.buffer = buf; src.connect(a.destination); src.start();
+            },
+            // Copia del público de HaxBall: cada pedido mantiene el objetivo 166 ms y el volumen
+            // se acerca un 2,5 % por cada paso de 17 ms.
+            crowd(target, dt) {
+                if (target < 0) { crowd.target = crowd.value = crowd.hold = 0; target = 0; }   // silenciado: corta al instante
+                if (target > 0) { crowd.target = target; crowd.hold = 166.67; }
+                crowd.hold -= dt;
+                if (crowd.hold <= 0) { crowd.hold = 0; crowd.target = 0; }
+                crowd.value += (crowd.target - crowd.value) * (1 - Math.pow(0.975, dt / 17));
+                if (crowd.target <= 0 && crowd.value < 0.05) crowd.value = 0;
+                if (crowdGain) crowdGain.gain.value = crowd.value;
             }
         };
     })();
+
+    // Volumen objetivo del público en el cuadro f (misma regla que el cliente de HaxBall):
+    // 1 tras un gol; 0,3 si el rojo más cercano a la pelota pasó al azul más adelantado con la pelota en x > 20,
+    // o si el azul más cercano está detrás del rojo más adelantado con la pelota en x < -20.
+    function crowdTarget(f) {
+        const rec = S.rec, ph = rec.phase[f];
+        if (ph === 2) return 1;
+        if (ph !== 1) return 0;
+        const ep = rec.epochs[rec.epochOf[f]], pos = rec.pos, off = rec.posOff[f];
+        if (!ep.stadium || !ep.discCount) return 0;
+        const bx = pos[off], by = pos[off + 1];
+        let redFront = null, redNear = null, redD = 0, blueFront = null, blueNear = null, blueD = 0;
+        for (const p of ep.players) {
+            if (p.discIdx < 0) continue;
+            const x = pos[off + 2 * p.discIdx], y = pos[off + 2 * p.discIdx + 1];
+            const d = (x - bx) * (x - bx) + (y - by) * (y - by);
+            if (p.teamId === 1) {
+                if (redFront === null || x > redFront) redFront = x;
+                if (redNear === null || d < redD) { redNear = x; redD = d; }
+            } else if (p.teamId === 2) {
+                if (blueFront === null || x > blueFront) blueFront = x;
+                if (blueNear === null || d < blueD) { blueNear = x; blueD = d; }
+            }
+        }
+        if (blueFront === null || redFront === null) return 0;
+        if ((redNear > blueFront && bx > blueFront && bx > 20) || (blueNear < redFront && bx < redFront && bx < -20)) return 0.3;
+        return 0;
+    }
 
     function syncSoundButton() {
         const b = $('vz-sound');
@@ -1030,7 +1042,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
     }
 
     function setZoom(pct) {
-        S.zoom = clamp(pct, 40, 100) / 100;
+        S.zoom = clamp(pct, 100, 300) / 100;
         $('vz-zoom-val').textContent = Math.round(S.zoom * 100) + '%';
         S.camera.snap = true;
         S.needsRedraw = true;
@@ -1060,6 +1072,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
             }
             if (S.cursor >= S.maxFrame) { S.playing = false; syncPlayButton(); if (S.fs) showUi(); }
         }
+
+        if (S.rec.phase) Sfx.crowd(S.muted ? -1 : S.playing ? crowdTarget(Math.min(currentFrame(), S.rec.frames - 1)) : 0, dt);
 
         if (S.needsRedraw || S.cursor !== S.lastDrawn) {
             try { draw(); } catch (e) { console.error('Error al dibujar', e); }
@@ -1716,6 +1730,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         $('vz-names').addEventListener('click', (e) => { S.showNames = !S.showNames; e.currentTarget.classList.toggle('on', S.showNames); S.needsRedraw = true; if (S.fs) showUi(); });
         $('vz-sound').addEventListener('click', toggleMute);
         syncSoundButton();
+        // sin los archivos en sonidos/ el botón no sirve y se oculta
+        Sfx.load().then(ok => { $('vz-sound').classList.toggle('vz-hidden', !ok); if (ok && !S.muted) Sfx.unlock(); });
         $('vz-zoom').addEventListener('input', (e) => { setZoom(+e.target.value); if (S.fs) showUi(); });
         // el navegador solo deja sonar el audio después de un gesto del usuario
         ['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, () => { if (!S.muted) Sfx.unlock(); }, { capture: true, passive: true }));
