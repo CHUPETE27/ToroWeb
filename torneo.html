@@ -214,6 +214,24 @@
         .ficha-jugadores li i { color: var(--cyan); margin-right: 6px; }
         .ficha-jugadores li.vacio { grid-column: 1 / -1; text-align: center; }
 
+        #modalEquipos .modal-content, #modalEditEquipo .modal-content { max-width: 560px; }
+        .eq-lista { display: flex; flex-direction: column; gap: 6px; max-height: 50vh; overflow-y: auto; padding-right: 4px; margin-bottom: 12px; }
+        .eq-fila { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.35); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
+        .eq-nombre { flex: 1; min-width: 0; font-weight: bold; overflow-wrap: anywhere; }
+        .eq-fila button { background: none; border: 0; color: var(--text-soft); cursor: pointer; padding: 6px; font-size: 1rem; }
+        .eq-fila button:hover { color: var(--gold); }
+        .eq-fila .eq-borrar:hover { color: var(--red-light); }
+        #btnNuevoEquipo { width: 100%; margin: 0; }
+        .escudo-edit { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .escudo-edit .btn-estandar { width: auto; margin: 0; padding: 10px 14px; font-size: 0.95rem; }
+        .kit-edit { display: flex; align-items: center; gap: 10px; }
+        .kit-edit input { flex: 1; min-width: 0; font-family: monospace; }
+        .hax-avatar-preview.kit-prev { width: 42px; height: 42px; font-size: 0.8rem; border-width: 2px; background: #222; color: #555; }
+        .modal-form textarea { width: 100%; min-height: 130px; background: #111; border: 1px solid #444; color: #fff; padding: 12px; border-radius: 8px; font: inherit; resize: vertical; outline: none; user-select: auto; }
+        .modal-form textarea:focus { border-color: var(--gold); }
+        #fichaEditar { margin: 18px auto 0; width: 100%; }
+        .form-row-doble > .ee-abrev { flex: 0 0 110px; }
+
         @media (max-width: 900px) {
             .torneo-grid, .torneo-grid.modo-ko { grid-template-columns: minmax(0, 1fr); }
         }
@@ -230,6 +248,7 @@
             .det-goles { font-size: 1.8rem; }
             .escudo-grande { width: 56px; height: 56px; font-size: 2.8rem; }
             .form-row-doble { flex-direction: column; }
+            .form-row-doble > .ee-abrev { flex: 1; }
             .st-tabla input[type="number"] { width: 40px; }
             .ficha-jugadores { grid-template-columns: 1fr; }
             #detAcciones .modal-btn { flex-basis: auto; }
@@ -251,10 +270,12 @@
             </div>
 
             <div class="gestor-bar" id="gestorGrupos" hidden>
+                <button class="btn-estandar btn-secundario" onclick="abrirEquipos()"><i class="fa-solid fa-shield-halved"></i> Equipos</button>
                 <button class="btn-estandar btn-primary" onclick="abrirSorteo()"><i class="fa-solid fa-shuffle"></i> Sortear grupos</button>
                 <button class="btn-estandar btn-abrir" onclick="abrirModalPartido('grupo')"><i class="fa-solid fa-plus"></i> Añadir fecha</button>
             </div>
             <div class="gestor-bar" id="gestorKo" hidden>
+                <button class="btn-estandar btn-secundario" onclick="abrirEquipos()"><i class="fa-solid fa-shield-halved"></i> Equipos</button>
                 <button class="btn-estandar btn-primary" onclick="asignarLlaves('ranking')"><i class="fa-solid fa-ranking-star"></i> Llaves por ranking</button>
                 <button class="btn-estandar btn-primary" onclick="asignarLlaves('orden')"><i class="fa-solid fa-list-ol"></i> Llaves por orden</button>
                 <button class="btn-estandar btn-secundario" onclick="abrirCruces()"><i class="fa-solid fa-pen"></i> Editar cruces</button>
@@ -452,6 +473,62 @@
         </div>
     </div>
 
+    <!-- Lista de equipos (gestionadores) -->
+    <div class="modal-overlay" id="modalEquipos">
+        <div class="modal-content">
+            <div class="close-modal" role="button" aria-label="Cerrar" onclick="cerrarModal('modalEquipos')"><i class="fa-solid fa-xmark"></i></div>
+            <h3><i class="fa-solid fa-shield-halved"></i> Equipos</h3>
+            <div class="eq-lista" id="eqLista"></div>
+            <button class="btn-estandar btn-abrir" id="btnNuevoEquipo" type="button" onclick="abrirEditorEquipo(null)"><i class="fa-solid fa-plus"></i> Añadir equipo</button>
+        </div>
+    </div>
+
+    <!-- Añadir / editar equipo -->
+    <div class="modal-overlay" id="modalEditEquipo">
+        <div class="modal-content">
+            <div class="close-modal" role="button" aria-label="Cerrar" onclick="cerrarModal('modalEditEquipo')"><i class="fa-solid fa-xmark"></i></div>
+            <h3 id="eeTitulo">Añadir equipo</h3>
+            <div class="modal-form">
+                <div class="form-row-doble">
+                    <div class="form-group">
+                        <label for="eeNombre">Nombre</label>
+                        <input type="text" id="eeNombre" maxlength="40" oninput="previsualizarKits()">
+                    </div>
+                    <div class="form-group ee-abrev">
+                        <label for="eeAbrev">Abreviatura</label>
+                        <input type="text" id="eeAbrev" maxlength="5" placeholder="TFC" oninput="previsualizarKits()">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="eeDiscord">Discord del equipo (opcional)</label>
+                    <input type="text" id="eeDiscord" placeholder="https://discord.gg/...">
+                </div>
+                <div class="form-group">
+                    <label>Escudo</label>
+                    <div class="escudo-edit">
+                        <span id="eeEscudoPrev"></span>
+                        <button type="button" class="btn-estandar btn-secundario" onclick="$('eeEscudo').click()"><i class="fa-solid fa-image"></i> Elegir imagen</button>
+                        <input type="file" id="eeEscudo" accept="image/*" hidden>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Camisetas</label>
+                    <p class="ayuda" style="margin-bottom: 8px;">Lo mismo que en /colors: ángulo, color del texto y 1 a 3 colores. Ej: 90 D3A778 3F6B73 5CC1BB 3F6B73</p>
+                    <div style="display: flex; flex-direction: column; gap: 8px;" id="eeKits"></div>
+                </div>
+                <div class="form-group">
+                    <label for="eeJugadores">Jugadores (uno por línea)</label>
+                    <textarea id="eeJugadores" placeholder="Pepe&#10;Juan&#10;Pedro"></textarea>
+                </div>
+                <p class="ayuda">Si cambias el nombre, se actualiza también en los partidos, los grupos y las llaves.</p>
+                <div class="modal-btn-row">
+                    <button class="modal-btn cancel" onclick="cerrarModal('modalEditEquipo')">Cancelar</button>
+                    <button class="modal-btn submit" id="eeGuardar" onclick="guardarEquipo()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Ficha de equipo (al final: se abre encima del detalle de partido) -->
     <div class="modal-overlay" id="modalEquipo">
         <div class="modal-content">
@@ -466,6 +543,7 @@
             <div class="ficha-kits" id="fichaKits"></div>
             <h4 class="ficha-seccion" id="fichaTituloJug">Jugadores</h4>
             <ul class="ficha-jugadores" id="fichaJugadores"></ul>
+            <button class="modal-btn btn-gris" id="fichaEditar" data-accion="editar-equipo" hidden><i class="fa-solid fa-pen"></i> Editar equipo</button>
         </div>
     </div>
 
@@ -824,6 +902,8 @@
             else if (accion === 'subir-replay') { replayDestino = id; $('inputReplay').value = ''; $('inputReplay').click(); }
             else if (accion === 'bombo') asignarBombo(el);
             else if (accion === 'quitar-cruce') el.closest('.cruce-fila').remove();
+            else if (accion === 'editar-equipo') abrirEditorEquipo(id);
+            else if (accion === 'borrar-equipo') borrarEquipo(id);
         }
 
         // POST/PUT/DELETE con la sesión web; el backend valida sesión y el rol de gestionador
@@ -867,6 +947,8 @@
             $('fichaJugadores').innerHTML = eq.jugadores.length
                 ? eq.jugadores.map(j => `<li><i class="fa-solid fa-user"></i>${escapeHtml(j)}</li>`).join('')
                 : '<li class="vacio">Sin jugadores registrados.</li>';
+            $('fichaEditar').hidden = !(canEdit && eq.id);
+            $('fichaEditar').dataset.id = eq.id || '';
             abrirModal('modalEquipo');
         }
 
@@ -1113,7 +1195,7 @@
         let sorteo = new Map(); // nombre del equipo -> número de bombo
 
         function abrirSorteo() {
-            if (!T.equipos.length) return ThUI.alert('⚠️ No hay equipos en el canal de equipos de Discord.');
+            if (!T.equipos.length) return ThUI.alert('⚠️ Primero añade equipos con el botón "Equipos".');
             sorteo = new Map();
             T.grupos.forEach(g => g.equipos.forEach((n, i) => { if (T.equipos.some(e => e.nombre === n)) sorteo.set(n, i + 1); }));
             const grupos = T.grupos.length || Math.max(1, Math.round(T.equipos.length / 4));
@@ -1188,7 +1270,7 @@
         }
 
         function abrirCruces() {
-            if (!T.equipos.length) return ThUI.alert('⚠️ No hay equipos en el canal de equipos de Discord.');
+            if (!T.equipos.length) return ThUI.alert('⚠️ Primero añade equipos con el botón "Equipos".');
             $('crucesLista').innerHTML = (T.llaves.cruces.length ? T.llaves.cruces : [[null, null]]).map(filaCruce).join('');
             abrirModal('modalCruces');
         }
@@ -1205,6 +1287,121 @@
             if (!data.success) return;
             cerrarModal('modalCruces');
             await cargarTorneo();
+        }
+
+        // ---------- Equipos (gestionadores) ----------
+        const KITS = [['local', 'Local'], ['visita', 'Visita'], ['tercera', 'Tercera'], ['train', 'Train']];
+        let equipoEditando = null;
+        let escudoNuevo = null;
+
+        $('eeKits').innerHTML = KITS.map(([k, t]) => `<div class="kit-edit"><div class="hax-avatar-preview kit-prev" id="eePrev_${k}"></div><input type="text" id="eeKit_${k}" placeholder="${t} (vacío = sin camiseta)" aria-label="Camiseta ${t}" oninput="previsualizarKits()"></div>`).join('');
+
+        function abrirEquipos() {
+            renderListaEquipos();
+            abrirModal('modalEquipos');
+        }
+
+        function renderListaEquipos() {
+            $('eqLista').innerHTML = T.equipos.length ? T.equipos.map(eq => {
+                const id = escapeHtml(eq.id), nombre = escapeHtml(eq.nombre);
+                return `<div class="eq-fila">${escudoHtml(eq)}<span class="eq-nombre">${nombre} <span class="ficha-abrev">${escapeHtml(eq.abrev)}</span></span>` +
+                    `<button type="button" data-accion="editar-equipo" data-id="${id}" aria-label="Editar ${nombre}"><i class="fa-solid fa-pen"></i></button>` +
+                    `<button type="button" class="eq-borrar" data-accion="borrar-equipo" data-id="${id}" aria-label="Borrar ${nombre}"><i class="fa-solid fa-trash"></i></button></div>`;
+            }).join('') : '<p class="vacio">Aún no hay equipos.</p>';
+        }
+
+        const kitTexto = c => c ? [c.angle, c.text, ...c.colors].map(v => String(v).replace('#', '')).join(' ') : '';
+        // Misma lectura que camisetaTorneo de bot.js (solo para la vista previa; el backend valida)
+        function leerKit(v) {
+            const p = v.trim().replace(/^\/colors\s+(red|blue)\s+/i, '').split(/\s+/);
+            const angle = parseInt(p[0]);
+            const hex = p.slice(1, 5).filter(c => /^#?[0-9a-f]{6}$/i.test(c)).map(c => '#' + c.replace('#', ''));
+            return Number.isFinite(angle) && hex.length >= 2 ? { angle, text: hex[0], colors: hex.slice(1) } : null;
+        }
+
+        function previsualizarKits() {
+            const abrev = ($('eeAbrev').value.trim() || $('eeNombre').value.trim().slice(0, 3)).toUpperCase().slice(0, 3);
+            KITS.forEach(([k]) => {
+                const el = $('eePrev_' + k), c = leerKit($('eeKit_' + k).value);
+                el.textContent = abrev;
+                if (c) dibujarAvatarHaxball('eePrev_' + k, c.colors, c.angle, c.text);
+                else { el.style.background = '#222'; el.style.color = '#555'; }
+            });
+        }
+
+        function abrirEditorEquipo(id) {
+            const eq = id ? T.equipos.find(e => e.id === id) : null;
+            if (id && !eq) return;
+            equipoEditando = eq ? eq.id : null;
+            escudoNuevo = null;
+            $('eeTitulo').innerHTML = eq ? '<i class="fa-solid fa-pen"></i> Editar equipo' : '<i class="fa-solid fa-plus"></i> Añadir equipo';
+            $('eeNombre').value = eq ? eq.nombre : '';
+            $('eeAbrev').value = eq ? eq.abrev : '';
+            $('eeDiscord').value = eq && eq.discord ? eq.discord : '';
+            $('eeJugadores').value = eq ? eq.jugadores.join('\n') : '';
+            KITS.forEach(([k]) => { $('eeKit_' + k).value = eq ? kitTexto(eq.camisetas[k]) : ''; });
+            $('eeEscudoPrev').innerHTML = escudoHtml(eq || { escudo: null }, 'escudo-grande');
+            $('eeEscudo').value = '';
+            previsualizarKits();
+            cerrarModal('modalEquipo');
+            abrirModal('modalEditEquipo');
+        }
+
+        // El escudo se achica a un PNG de ~128 px para que viaje dentro del JSON (la API acepta hasta 100 KB)
+        async function escudoAPng(file) {
+            const img = await createImageBitmap(file);
+            for (let lado = 128; lado >= 48; lado -= 16) {
+                const s = Math.min(1, lado / Math.max(img.width, img.height));
+                const c = document.createElement('canvas');
+                c.width = Math.max(1, Math.round(img.width * s));
+                c.height = Math.max(1, Math.round(img.height * s));
+                c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+                const url = c.toDataURL('image/png');
+                if (url.length < 80000) return url;
+            }
+            throw new Error('Imagen demasiado pesada');
+        }
+
+        $('eeEscudo').addEventListener('change', async () => {
+            const file = $('eeEscudo').files[0];
+            if (!file) return;
+            try {
+                escudoNuevo = await escudoAPng(file);
+                $('eeEscudoPrev').innerHTML = `<img class="escudo escudo-grande" src="${escudoNuevo}" alt="Escudo nuevo">`;
+            } catch (e) {
+                escudoNuevo = null;
+                ThUI.alert('❌ No se pudo leer esa imagen.');
+            }
+        });
+
+        async function guardarEquipo() {
+            const equipo = {
+                nombre: $('eeNombre').value,
+                abrev: $('eeAbrev').value,
+                discord: $('eeDiscord').value,
+                jugadores: $('eeJugadores').value.split('\n'),
+                camisetas: Object.fromEntries(KITS.map(([k]) => [k, $('eeKit_' + k).value]))
+            };
+            if (!equipo.nombre.trim()) return ThUI.alert('⚠️ El equipo necesita un nombre.');
+            if (escudoNuevo) equipo.escudo = escudoNuevo;
+            const data = await conBoton('eeGuardar', () => equipoEditando
+                ? enviar('PUT', `/api/torneo/equipos/${encodeURIComponent(equipoEditando)}`, { equipo })
+                : enviar('POST', '/api/torneo/equipos', { equipo }));
+            if (!data.success) return;
+            cerrarModal('modalEditEquipo');
+            await cargarTorneo();
+            if ($('modalEquipos').style.display === 'flex') renderListaEquipos();
+        }
+
+        async function borrarEquipo(id) {
+            const eq = T.equipos.find(e => e.id === id);
+            if (!eq) return;
+            const ok = await ThUI.confirm(`¿Borrar ${eq.nombre}? Sus partidos se mantienen, pero el equipo desaparece de la lista y de los sorteos.`, { title: 'Borrar equipo', danger: true, okText: 'Borrar' });
+            if (!ok) return;
+            const data = await enviar('DELETE', `/api/torneo/equipos/${encodeURIComponent(id)}`, {});
+            if (!data.success) return;
+            await cargarTorneo();
+            renderListaEquipos();
         }
 
         cargarTorneo();
