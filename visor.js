@@ -348,7 +348,7 @@ const VisorCore = (function () {
             const raw = [];
             const players = new Map();
             const kicks = new Map();
-            const sfx = [];   // cuadros con patada a la pelota: { f, t: 'kick' }
+            const sfx = [];   // cuadros con sonido: { f, t: 'kick' | 'join' | 'leave' }
             let stadiumName = null;
             let reader = null, progressTimer = null, killTimer = null, done = false, recorder = null, hookedState = null;
             const scheduler = createFastScheduler();
@@ -390,8 +390,8 @@ const VisorCore = (function () {
                         raw.push({ f: frame(), kind: 'chat', id, name: p ? p.name : '#' + id, team: p && p.team ? p.team.id : 0, text: message });
                     },
                     onAnnouncement: (msg, color, style) => raw.push({ f: frame(), kind: 'ann', text: msg, color, style }),
-                    onPlayerJoin: (p) => touch(p.id, p.name, p.team ? p.team.id : 0, frame()),
-                    onPlayerLeave: (p) => { const q = touch(p.id, p.name, null, frame()); q.lastFrame = frame(); },
+                    onPlayerJoin: (p) => { touch(p.id, p.name, p.team ? p.team.id : 0, frame()); sfx.push({ f: frame(), t: 'join' }); },
+                    onPlayerLeave: (p) => { const q = touch(p.id, p.name, null, frame()); q.lastFrame = frame(); sfx.push({ f: frame(), t: 'leave' }); },
                     onPlayerTeamChange: (id, teamId) => { const p = reader.state.getPlayer(id); touch(id, p ? p.name : null, teamId, frame()); },
                     onPlayerBallKick: (id) => { kicks.set(id, (kicks.get(id) || 0) + 1); sfx.push({ f: frame(), t: 'kick' }); },
                     onStadiumChange: (st) => { if (st && st.name) stadiumName = st.name; },
@@ -640,7 +640,15 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
                 const d = C.describeGoal(messages, g.f);
                 return { f: g.f, teamId: g.teamId, text: d && d.description, red: d && d.red, blue: d && d.blue };
             });
-            S.sfx = (scan.sfx || []).concat(goalMarkers.map(g => ({ f: g.f, t: 'goal' }))).sort((a, b) => a.f - b.f);
+            // chat de jugador -> chat.wav; cualquier otro texto de la sala -> highlight.wav (las líneas separadoras no suenan)
+            // otras salas reenvían el chat como anuncio "nombre: texto": también cuenta como chat si nombra a un jugador
+            const names = (scan.players || []).map(p => p.name + ': ').filter(n => n.length > 3);
+            const isChat = (m) => m.type === 'chat' || names.some(n => String(m.text).includes(n));
+            const chatSfx = messages.filter(m => m.type !== 'sep').map(m => ({ f: m.f, t: isChat(m) ? 'chat' : 'highlight' }));
+            const seenSfx = new Set();
+            S.sfx = (scan.sfx || []).concat(goalMarkers.map(g => ({ f: g.f, t: 'goal' })), chatSfx)
+                .filter(e => { const k = e.t + e.f; if (seenSfx.has(k)) return false; seenSfx.add(k); return true; })   // un bloque de anuncios en el mismo cuadro suena una vez
+                .sort((a, b) => a.f - b.f);
             S.title = C.extractTeamNames(messages) ? `${S.teamNames.red} vs ${S.teamNames.blue}` : name;
             S.fileName = name;
             S.lastScore = { red: 0, blue: 0 };
@@ -939,7 +947,10 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
 
     // Sonidos originales de HaxBall (kick.wav, goal.wav y crowd.ogg de su res.dat) en la carpeta sonidos/.
     // Suenan como en el juego: patada, gol y un público en bucle cuyo volumen sube con las jugadas de peligro.
-    const SFX_FILES = { kick: 'sonidos/kick.wav', goal: 'sonidos/goal.wav', crowd: 'sonidos/crowd.ogg' };
+    const SFX_FILES = {
+        kick: 'sonidos/kick.wav', goal: 'sonidos/goal.wav', crowd: 'sonidos/crowd.ogg',
+        join: 'sonidos/join.wav', leave: 'sonidos/leave.wav', chat: 'sonidos/chat.wav', highlight: 'sonidos/highlight.wav'
+    };
     const Sfx = (function () {
         let ac = null, crowdGain = null, decoding = null;
         const raw = {}, buffers = {};
