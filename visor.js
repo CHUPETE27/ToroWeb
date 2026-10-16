@@ -858,10 +858,11 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
 
     function draw() {
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        drawScene(ctx, canvas.width, canvas.height, S.cursor, { follow: S.followBall, camera: S.camera, names: S.showNames, zoom: S.zoom, namePxMin: 8 * dpr });
+        drawScene(ctx, canvas.width, canvas.height, S.cursor, { camera: S.camera, names: S.showNames, zoom: S.zoom, namePxMin: 8 * dpr });
     }
 
-    // Dibuja el cuadro `cursor` en el contexto `g`. opts: { follow, camera: {x, y, snap?}, names, zoom?, namePxMin? }.
+    // Dibuja el cuadro `cursor` en el contexto `g`. opts: { zoom? (1 = campo completo; > 1 sigue a la pelota) | follow (zoom de clip),
+    // camera: {x, y, f?, snap?}, names, namePxMin? }.
     // Devuelve false si todavía no hay partido en ese cuadro.
     function drawScene(g, w, h, cursor, opts) {
         const rec = S.rec;
@@ -897,16 +898,21 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         let cx = 0, cy = 0;
 
         const cam = opts.camera;
-        const extra = opts.follow ? Math.max(opts.zoom || 1, FOLLOW_ZOOM) : (opts.zoom || 1);
+        const extra = opts.zoom || (opts.follow ? FOLLOW_ZOOM : 1);
         if (extra > 1 && n > 0) {
             const z2 = zoom * extra;
             const vw = w / z2 / 2, vh = h / z2 / 2;
             const tx = vw >= fieldW ? 0 : clamp(cur.x[0], -fieldW + vw, fieldW - vw);
             const ty = vh >= fieldH ? 0 : clamp(cur.y[0], -fieldH + vh, fieldH - vh);
-            if (cam.snap) { cam.x = tx; cam.y = ty; cam.snap = false; }
-            else { cam.x += (tx - cam.x) * 0.15; cam.y += (ty - cam.y) * 0.15; }
+            // El suavizado avanza por cuadros de partido, no por dibujos: igual a cualquier velocidad, y salta directo
+            // al buscar, en pausa o cuando la pelota se teletransporta (saque tras un gol).
+            const steps = cam.f == null ? Infinity : cursor - cam.f;
+            const far = Math.abs(tx - cam.x) > vw * 1.5 || Math.abs(ty - cam.y) > vh * 1.5;
+            if (cam.snap || steps <= 0 || steps > 30 || far) { cam.x = tx; cam.y = ty; cam.snap = false; }
+            else { const k = 1 - Math.pow(0.85, steps); cam.x += (tx - cam.x) * k; cam.y += (ty - cam.y) * k; }
+            cam.f = cursor;
             zoom = z2; cx = cam.x; cy = cam.y;
-        } else { cam.x = 0; cam.y = 0; }
+        } else { cam.x = 0; cam.y = 0; cam.f = null; }
 
         g.setTransform(zoom, 0, 0, zoom, w / 2 - cx * zoom, h / 2 - cy * zoom);
         drawBackground(g, st, w, h);
@@ -951,10 +957,25 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         kick: 'sonidos/kick.wav', goal: 'sonidos/goal.wav', crowd: 'sonidos/crowd.ogg',
         join: 'sonidos/join.wav', leave: 'sonidos/leave.wav', chat: 'sonidos/chat.wav', highlight: 'sonidos/highlight.wav'
     };
+    // Copia del público de HaxBall: cada pedido mantiene el objetivo 166 ms y el volumen
+    // se acerca un 2,5 % por cada paso de 17 ms. Devuelve el volumen tras avanzar dt ms; target < 0 corta al instante.
+    function crowdSmoother() {
+        const c = { target: 0, value: 0, hold: 0 };
+        return (target, dt) => {
+            if (target < 0) { c.target = c.value = c.hold = 0; target = 0; }
+            if (target > 0) { c.target = target; c.hold = 166.67; }
+            c.hold -= dt;
+            if (c.hold <= 0) { c.hold = 0; c.target = 0; }
+            c.value += (c.target - c.value) * (1 - Math.pow(0.975, dt / 17));
+            if (c.target <= 0 && c.value < 0.05) c.value = 0;
+            return c.value;
+        };
+    }
+
     const Sfx = (function () {
         let ac = null, crowdGain = null, decoding = null;
         const raw = {}, buffers = {};
-        const crowd = { target: 0, value: 0, hold: 0 };
+        const crowd = crowdSmoother();
         function ctx() {
             if (!ac) {
                 const AC = window.AudioContext || window.webkitAudioContext;
@@ -987,22 +1008,20 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
                     .catch(() => {}))).then(() => Object.keys(raw).length > 0);
             },
             unlock() { if (Object.keys(raw).length) ctx(); },
+            // Sonidos ya decodificados (sirven también en un OfflineAudioContext); null si no hay archivos.
+            decoded() {
+                if (!Object.keys(raw).length || !ctx()) return Promise.resolve(null);
+                return decoding.then(() => buffers);
+            },
             play(type) {
                 const a = ac, buf = buffers[type];
                 if (!a || !buf || a.state !== 'running') return;
                 const src = a.createBufferSource();
                 src.buffer = buf; src.connect(a.destination); src.start();
             },
-            // Copia del público de HaxBall: cada pedido mantiene el objetivo 166 ms y el volumen
-            // se acerca un 2,5 % por cada paso de 17 ms.
             crowd(target, dt) {
-                if (target < 0) { crowd.target = crowd.value = crowd.hold = 0; target = 0; }   // silenciado: corta al instante
-                if (target > 0) { crowd.target = target; crowd.hold = 166.67; }
-                crowd.hold -= dt;
-                if (crowd.hold <= 0) { crowd.hold = 0; crowd.target = 0; }
-                crowd.value += (crowd.target - crowd.value) * (1 - Math.pow(0.975, dt / 17));
-                if (crowd.target <= 0 && crowd.value < 0.05) crowd.value = 0;
-                if (crowdGain) crowdGain.gain.value = crowd.value;
+                const v = crowd(target, dt);
+                if (crowdGain) crowdGain.gain.value = v;
             }
         };
     })();
@@ -1052,9 +1071,13 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         if (S.fs) showUi();
     }
 
+    // "Seguir pelota" es un atajo de la barra: seguir = zoom mayor a 100 %, así nunca se contradicen.
     function setZoom(pct) {
-        S.zoom = clamp(pct, 100, 500) / 100;
+        S.zoom = clamp(Math.round(pct), 100, 500) / 100;
+        S.followBall = S.zoom > 1;
+        $('vz-zoom').value = Math.round(S.zoom * 100);
         $('vz-zoom-val').textContent = Math.round(S.zoom * 100) + '%';
+        $('vz-follow').classList.toggle('on', S.followBall);
         S.camera.snap = true;
         S.needsRedraw = true;
     }
@@ -1515,16 +1538,86 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         g.restore();
     }
 
+    // Audio del clip: los mismos sonidos que el visor, en el cuadro exacto de cada evento, más el público.
+    // AAC en MP4 (se abre en todos lados); Opus si el navegador no codifica AAC (Firefox) y siempre en WebM.
+    const CLIP_AUDIO = { SR: 48000, CH: 2, BITRATE: 128000, codecs: { mp4: [['mp4a.40.2', 'aac'], ['opus', 'opus']], webm: [['opus', 'A_OPUS']] } };
+
+    async function renderClipAudio(plan) {
+        const bufs = await Sfx.decoded();
+        if (!bufs || typeof OfflineAudioContext !== 'function') return null;
+        const oc = new OfflineAudioContext(CLIP_AUDIO.CH, Math.ceil(plan.count / C.FPS * CLIP_AUDIO.SR), CLIP_AUDIO.SR);
+        const end = plan.startF + plan.count;
+        let lastF = -1, sameF = 0;
+        for (let i = C.lastIndexAtOrBefore(S.sfx, plan.startF - 1) + 1; i < S.sfx.length && S.sfx[i].f < end; i++) {
+            const e = S.sfx[i], buf = bufs[e.t];
+            sameF = e.f === lastF ? sameF + 1 : 0; lastF = e.f;
+            if (!buf || sameF >= 3) continue;   // mismo tope que el visor
+            const src = oc.createBufferSource();
+            src.buffer = buf; src.connect(oc.destination); src.start((e.f - plan.startF) / C.FPS);
+        }
+        if (bufs.crowd && S.rec.phase) {
+            const gain = oc.createGain(), src = oc.createBufferSource();
+            src.buffer = bufs.crowd; src.loop = true;
+            src.connect(gain); gain.connect(oc.destination);
+            const crowd = crowdSmoother(), dt = 1000 / C.FPS, last = S.rec.frames - 1;
+            // 3 s previos para que el clip no empiece con el público en silencio a mitad de una jugada
+            for (let f = Math.max(0, plan.startF - 3 * C.FPS); f < plan.startF; f++) crowd(crowdTarget(f), dt);
+            for (let i = 0; i < plan.count; i++) gain.gain.setValueAtTime(crowd(crowdTarget(Math.min(plan.startF + i, last)), dt), i / C.FPS);
+            src.start(0);
+        }
+        return oc.startRendering();
+    }
+
+    // Devuelve { mux, chunks } listo para el muxer, o null si no hay audio posible (el clip sale igual, mudo).
+    async function encodeClipAudio(plan, container, cancelled) {
+        if (typeof AudioEncoder !== 'function' || typeof AudioData !== 'function') return null;
+        let pick = null;
+        for (const [codec, mux] of CLIP_AUDIO.codecs[container]) {
+            const cfg = { codec, sampleRate: CLIP_AUDIO.SR, numberOfChannels: CLIP_AUDIO.CH, bitrate: CLIP_AUDIO.BITRATE };
+            try { const sup = await AudioEncoder.isConfigSupported(cfg); if (sup && sup.supported) { pick = { cfg: sup.config || cfg, mux }; break; } } catch (e) { /* se prueba el siguiente */ }
+        }
+        if (!pick) return null;
+        const audio = await renderClipAudio(plan);
+        if (!audio || cancelled()) return null;
+
+        const chunks = [];
+        let failure = null;
+        const encoder = new AudioEncoder({ output: (chunk, meta) => chunks.push([chunk, meta]), error: (e) => { failure = failure || e; } });
+        try {
+            encoder.configure(pick.cfg);
+            const len = audio.length, step = 4800;
+            for (let off = 0; off < len && !failure; off += step) {
+                const n = Math.min(step, len - off), data = new Float32Array(n * CLIP_AUDIO.CH);
+                for (let c = 0; c < CLIP_AUDIO.CH; c++) data.set(audio.getChannelData(c).subarray(off, off + n), c * n);
+                const ad = new AudioData({ format: 'f32-planar', sampleRate: CLIP_AUDIO.SR, numberOfFrames: n, numberOfChannels: CLIP_AUDIO.CH, timestamp: Math.round(off / CLIP_AUDIO.SR * 1e6), data });
+                encoder.encode(ad);
+                ad.close();
+            }
+            await encoder.flush();
+        } finally {
+            try { encoder.close(); } catch (e) { /* ya estaba cerrado */ }
+        }
+        if (failure) throw failure;
+        return { mux: pick.mux, chunks };
+    }
+
     async function encodeClip(plan, cand, cfg, hooks) {
         await loadScriptOnce(MUXERS[cand.container].src);
         const lib = window[MUXERS[cand.container].global];
         if (!lib || !lib.Muxer) throw new Error('No se pudo iniciar la librería de video.');
         hooks.progress(0);
 
+        let audio = null;
+        try { audio = await encodeClipAudio(plan, cand.container, hooks.cancelled); }
+        catch (e) { console.warn('Clip: no se pudo crear el audio, el clip sale sin sonido.', e); }
+        if (hooks.cancelled()) throw CLIP_CANCELLED;
+
         const video = { codec: cand.mux, width: CLIP.W, height: CLIP.H, frameRate: C.FPS };
         const options = { target: new lib.ArrayBufferTarget(), video };
+        if (audio) options.audio = { codec: audio.mux, numberOfChannels: CLIP_AUDIO.CH, sampleRate: CLIP_AUDIO.SR };
         if (cand.container === 'mp4') options.fastStart = 'in-memory';
         const muxer = new lib.Muxer(options);
+        if (audio) for (const [chunk, meta] of audio.chunks) muxer.addAudioChunk(chunk, meta);
         const out = document.createElement('canvas');
         out.width = CLIP.W; out.height = CLIP.H;
         const g = out.getContext('2d', { alpha: false });
@@ -1737,7 +1830,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         $('vz-fwd10').addEventListener('click', () => { seekTo(currentFrame() + 10 * C.FPS); if (S.fs) showUi(); });
         $('vz-speed').addEventListener('change', (e) => setSpeed(parseFloat(e.target.value)));
         $('vz-seek').addEventListener('input', (e) => { seekTo(+e.target.value); if (S.fs) showUi(); });
-        $('vz-follow').addEventListener('click', (e) => { S.followBall = !S.followBall; e.currentTarget.classList.toggle('on', S.followBall); S.needsRedraw = true; if (S.fs) showUi(); });
+        $('vz-follow').addEventListener('click', () => { setZoom(S.followBall ? 100 : FOLLOW_ZOOM * 100); if (S.fs) showUi(); });
         $('vz-names').addEventListener('click', (e) => { S.showNames = !S.showNames; e.currentTarget.classList.toggle('on', S.showNames); S.needsRedraw = true; if (S.fs) showUi(); });
         $('vz-sound').addEventListener('click', toggleMute);
         syncSoundButton();
