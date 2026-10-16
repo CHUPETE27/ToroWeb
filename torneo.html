@@ -218,6 +218,8 @@
         .ficha-jugadores li.vacio { grid-column: 1 / -1; text-align: center; }
 
         #modalEquipos .modal-content, #modalEditEquipo .modal-content { max-width: 560px; }
+        .gen-opciones { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; margin: 14px 0 4px; }
+        #genAviso { margin-top: 10px; }
         .eq-lista { display: flex; flex-direction: column; gap: 6px; max-height: 50vh; overflow-y: auto; padding-right: 4px; margin-bottom: 12px; }
         .eq-fila { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.35); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
         .eq-nombre { flex: 1; min-width: 0; font-weight: bold; overflow-wrap: anywhere; }
@@ -280,6 +282,7 @@
             <div class="gestor-bar" id="gestorGrupos" hidden>
                 <button class="btn-estandar btn-secundario" onclick="abrirEquipos()"><i class="fa-solid fa-shield-halved"></i> Equipos</button>
                 <button class="btn-estandar btn-primary" onclick="abrirSorteo()"><i class="fa-solid fa-shuffle"></i> Sortear grupos</button>
+                <button class="btn-estandar btn-primary" onclick="abrirGenerar()"><i class="fa-solid fa-calendar-days"></i> Generar fechas</button>
                 <button class="btn-estandar btn-abrir" onclick="abrirModalPartido('grupo')"><i class="fa-solid fa-plus"></i> Añadir fecha</button>
             </div>
             <div class="gestor-bar" id="gestorKo" hidden>
@@ -466,6 +469,25 @@
         </div>
     </div>
 
+    <!-- Generar el calendario de la fase de grupos -->
+    <div class="modal-overlay" id="modalGenerar">
+        <div class="modal-content">
+            <div class="close-modal" role="button" aria-label="Cerrar" onclick="cerrarModal('modalGenerar')"><i class="fa-solid fa-xmark"></i></div>
+            <h3><i class="fa-solid fa-calendar-days"></i> Generar fechas</h3>
+            <p class="ayuda">Todos contra todos dentro de cada grupo, con la localía repartida en partes iguales, como en una liga profesional.</p>
+            <div class="gen-opciones">
+                <label class="th-option"><input type="radio" name="genModo" value="unico" checked onchange="infoGenerar()"> Partido único</label>
+                <label class="th-option"><input type="radio" name="genModo" value="idavuelta" onchange="infoGenerar()"> Ida y vuelta</label>
+            </div>
+            <div id="genInfo"></div>
+            <p class="ayuda" id="genAviso"></p>
+            <div class="modal-btn-row">
+                <button class="modal-btn cancel" onclick="cerrarModal('modalGenerar')">Cancelar</button>
+                <button class="modal-btn submit" id="genGenerar" onclick="generarFechas()"><i class="fa-solid fa-calendar-days"></i> Generar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Editar cruces de la primera ronda K.O. -->
     <div class="modal-overlay" id="modalCruces">
         <div class="modal-content">
@@ -598,6 +620,15 @@
             : `<i class="fa-solid fa-shield-halved escudo escudo-vacio ${cls}" aria-hidden="true"></i>`;
         const nombreHtml = eq => `<span class="nom-largo">${escapeHtml(eq.nombre)}</span><span class="nom-corto">${escapeHtml(eq.abrev)}</span>`;
         const formatoFecha = f => f && f.split('-').length === 3 ? f.split('-').reverse().join('/') : '';
+        const dos = n => String(n).padStart(2, '0');
+        // Partidos con "inicio" (instante UTC): día y hora en la zona horaria de quien mira. Los viejos usan fecha/hora tal cual.
+        function diaHoraLocal(m) {
+            if (!m.inicio) return { fecha: m.fecha || '', hora: m.hora || '' };
+            const d = new Date(m.inicio);
+            return { fecha: `${d.getFullYear()}-${dos(d.getMonth() + 1)}-${dos(d.getDate())}`, hora: `${dos(d.getHours())}:${dos(d.getMinutes())}` };
+        }
+        const fechaTexto = m => { const f = diaHoraLocal(m).fecha; return f ? formatoFecha(f) : 'Fecha por definir'; };
+        const horaTexto = m => { const h = diaHoraLocal(m).hora; return h ? h + ' hrs' : ''; };
         const tienePenales = m => m.jugado && m.penales_eq1 != null && m.penales_eq2 != null;
 
         function ganadorPartido(m) {
@@ -737,8 +768,8 @@
                 : '<div class="marcador pendiente">VS</div>';
             const meta = [
                 m.fase === 'grupo' ? (m.grupo ? `Grupo ${escapeHtml(m.grupo)}` : '') : `Llave ${(m.llave || 0) + 1}`,
-                m.fecha ? formatoFecha(escapeHtml(m.fecha)) : 'Fecha por definir',
-                m.hora ? `${escapeHtml(m.hora)} hrs` : ''
+                escapeHtml(fechaTexto(m)),
+                escapeHtml(horaTexto(m))
             ].filter(Boolean).map(t => `<span>${t}</span>`).join('<span class="sep">|</span>');
             const chips = (m.jugado ? '<span class="chip">Finalizado</span>' : '') +
                 (m.replay ? '<span class="chip replay" title="Tiene repetición"><i class="fa-solid fa-clapperboard"></i></span>' : '');
@@ -973,7 +1004,7 @@
             $('detMarcador').innerHTML = lado(e1, 1) +
                 `<div class="det-goles">${m.jugado ? `${m.goles_eq1} - ${m.goles_eq2}` : 'VS'}${tienePenales(m) ? `<small>Penales ${m.penales_eq1} - ${m.penales_eq2}</small>` : ''}</div>` +
                 lado(e2, 2);
-            $('detFecha').textContent = [m.fecha ? formatoFecha(m.fecha) : 'Fecha por definir', m.hora ? m.hora + ' hrs' : '', m.jugado ? 'Finalizado' : ''].filter(Boolean).join(' · ');
+            $('detFecha').textContent = [fechaTexto(m), horaTexto(m), m.jugado ? 'Finalizado' : ''].filter(Boolean).join(' · ');
 
             const aportes = n => m.jugadores.filter(j => j.equipo === n && (j.goles || j.asistencias || j.autogoles));
             const filaStat = j => `<li><span>${escapeHtml(j.nombre)}</span><span class="det-iconos">` +
@@ -1097,8 +1128,8 @@
             $('mpEq1').value = m ? m.equipo1 : '';
             $('mpEq2').value = m ? m.equipo2 : '';
             if (!m && ko) prefillDesdeLlave();
-            $('mpFecha').value = m ? m.fecha : '';
-            $('mpHora').value = m ? m.hora : '';
+            $('mpFecha').value = m ? diaHoraLocal(m).fecha : '';
+            $('mpHora').value = m ? diaHoraLocal(m).hora : '';
             $('mpJugado').checked = !!(m && m.jugado);
             $('mpG1').value = m && m.jugado ? m.goles_eq1 : '';
             $('mpG2').value = m && m.jugado ? m.goles_eq2 : '';
@@ -1116,6 +1147,8 @@
                 equipo1: $('mpEq1').value, equipo2: $('mpEq2').value, fase: faseModal, jugado: $('mpJugado').checked,
                 jornada: +$('mpJornada').value || 1, ronda: +$('mpRonda').value || 0, llave: +$('mpLlave').value || 0,
                 fecha: $('mpFecha').value, hora: $('mpHora').value,
+                // Día y hora se leen en la zona del gestionador y viajan como instante UTC; cada visitante los ve en su hora
+                inicio: $('mpFecha').value && $('mpHora').value ? new Date(`${$('mpFecha').value}T${$('mpHora').value}`).toISOString() : '',
                 goles_eq1: $('mpG1').value, goles_eq2: $('mpG2').value,
                 penales_eq1: ko ? $('mpP1').value : '', penales_eq2: ko ? $('mpP2').value : '',
                 // Al editar se conservan las estadísticas ya cargadas
@@ -1256,6 +1289,64 @@
                 tone: 'success', title: '¡Grupos sorteados!', okText: 'Aceptar',
                 html: ThUI.rows(data.grupos.map(g => ['Grupo ' + ThUI.esc(g.nombre), g.equipos.map(ThUI.esc).join(', ')]))
             });
+        }
+
+        // ---------- Generar fechas (el calendario lo arma bot.js; aquí solo se eligen el modo y los días) ----------
+        // Fecha 1: hoy + 7 días a las 20:00 de la hora local; cada fecha siguiente, una semana después
+        function fechasSemanales(cantidad) {
+            const base = new Date();
+            base.setDate(base.getDate() + 7);
+            base.setHours(20, 0, 0, 0);
+            return Array.from({ length: cantidad }, (_, i) => { const d = new Date(base); d.setDate(base.getDate() + 7 * i); return d; });
+        }
+
+        // Misma cuenta que fixtureGrupoTorneo de bot.js: n-1 fechas con n par, n con n impar (uno descansa), el doble con ida y vuelta
+        function planGenerar() {
+            const ida = document.querySelector('input[name="genModo"]:checked').value === 'idavuelta', k = ida ? 2 : 1;
+            const jornadas = Math.max(0, ...T.grupos.map(g => { const n = g.equipos.length; return n < 2 ? 0 : (n % 2 ? n : n - 1) * k; }));
+            const partidos = T.grupos.reduce((s, g) => s + g.equipos.length * (g.equipos.length - 1) / 2 * k, 0);
+            return { ida, jornadas, partidos };
+        }
+
+        function abrirGenerar() {
+            if (!T.grupos.length) return ThUI.alert('⚠️ Primero sortea los grupos.');
+            infoGenerar();
+            abrirModal('modalGenerar');
+        }
+
+        function infoGenerar() {
+            const p = planGenerar(), f = fechasSemanales(Math.max(p.jornadas, 1));
+            const dia = d => d.toLocaleDateString('es-CL', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+            $('genInfo').innerHTML = ThUI.rows([
+                ['Partidos', p.partidos],
+                ['Fechas', p.jornadas],
+                ['Fecha 1', ThUI.esc(dia(f[0])) + ' · 20:00'],
+                ['Última fecha', ThUI.esc(dia(f[f.length - 1])) + ' · 20:00']
+            ]);
+            const previos = T.partidos.filter(m => m.fase === 'grupo').length;
+            $('genAviso').textContent = 'Una fecha por semana, siempre a las 20:00 de tu hora. Cada visitante ve los horarios en su propia zona horaria.' +
+                (previos ? ` Se reemplazarán los ${previos} partidos de grupos que ya existen.` : '');
+        }
+
+        async function generarFechas() {
+            const p = planGenerar();
+            if (!p.jornadas) return ThUI.alert('⚠️ Los grupos necesitan al menos dos equipos.');
+            const previos = T.partidos.filter(m => m.fase === 'grupo').length;
+            if (previos && !(await ThUI.confirm(`Se borrarán los ${previos} partidos de grupos actuales, con sus resultados y estadísticas. ¿Continuar?`, { title: 'Reemplazar fechas', danger: true, okText: 'Reemplazar' }))) return;
+            const btn = $('genGenerar'), html = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generando (puede tardar un minuto)...';
+            const data = await enviar('POST', '/api/torneo/generar-fechas', {
+                idaVuelta: p.ida, reemplazar: previos > 0,
+                fechas: fechasSemanales(p.jornadas).map(d => d.toISOString())
+            });
+            btn.disabled = false;
+            btn.innerHTML = html;
+            if (!data.success) return;
+            cerrarModal('modalGenerar');
+            fechaSel.grupos = 1;
+            await cargarTorneo();
+            ThUI.alert(`✅ Se crearon ${data.creados} partidos en ${data.jornadas} fechas.`);
         }
 
         // ---------- Llaves ----------
