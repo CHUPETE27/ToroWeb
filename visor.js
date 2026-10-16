@@ -479,7 +479,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         lastTs: 0,
         speed: 1,
         playing: false,
-        followBall: false,
         showNames: true,
         zoom: 1,              // 1 = campo completo (mínimo); al acercar, la cámara sigue a la pelota
         sfx: [],
@@ -853,7 +852,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
 
     const cur = { x: new Float64Array(64), y: new Float64Array(64) };
 
-    const FOLLOW_ZOOM = 2.2;   // zoom de "Seguir pelota" respecto al campo completo; los clips usan el mismo
+    const FOLLOW_ZOOM = 2.2;   // zoom de los clips (siguen a la pelota) respecto al campo completo
     const NAME_SIZE = 7;       // alto de los nombres en unidades del estadio (el disco de un jugador mide 15 de radio)
 
     function draw() {
@@ -1071,13 +1070,10 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         if (S.fs) showUi();
     }
 
-    // "Seguir pelota" es un atajo de la barra: seguir = zoom mayor a 100 %, así nunca se contradicen.
+    // Con zoom mayor a 100 % la cámara sigue a la pelota.
     function setZoom(pct) {
         S.zoom = clamp(Math.round(pct), 100, 500) / 100;
-        S.followBall = S.zoom > 1;
-        $('vz-zoom').value = Math.round(S.zoom * 100);
         $('vz-zoom-val').textContent = Math.round(S.zoom * 100) + '%';
-        $('vz-follow').classList.toggle('on', S.followBall);
         S.camera.snap = true;
         S.needsRedraw = true;
     }
@@ -1435,7 +1431,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
 
     // ------------------------------------------------------------------------------------------------------------
     // Clips de video: se dibujan cuadro a cuadro desde la grabación en memoria (no dependen de lo que se ve en
-    // pantalla), con la cámara de "Seguir pelota", y se codifican con WebCodecs. Sale MP4 (H.264) o, si el navegador
+    // pantalla), con la cámara siguiendo la pelota, y se codifican con WebCodecs. Sale MP4 (H.264) o, si el navegador
     // no puede, WebM. Las librerías que arman el archivo se descargan solo cuando alguien pide un clip.
     // ------------------------------------------------------------------------------------------------------------
     const CLIP = { W: 1280, H: 720, BITRATE: 4000000 };   // ~5 MB por cada 10 s: cabe holgado en Discord (10 MB) y WhatsApp
@@ -1743,7 +1739,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         show($('vz-clip-result'), true);
         setClipStatus(`Listo: clip de ${C.formatTime(plan.startF)} a ${C.formatTime(plan.endF)}.`, 'ok');
         const p = video.play();
-        if (p && p.catch) p.catch(() => { /* sin reproducción automática: queda con controles */ });
+        // con sonido; si el navegador no deja reproducir solo con audio, arranca silenciado y se activa en los controles
+        if (p && p.catch) p.catch(() => { video.muted = true; const q = video.play(); if (q && q.catch) q.catch(() => {}); });
     }
 
     async function createClip() {
@@ -1830,7 +1827,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         $('vz-fwd10').addEventListener('click', () => { seekTo(currentFrame() + 10 * C.FPS); if (S.fs) showUi(); });
         $('vz-speed').addEventListener('change', (e) => setSpeed(parseFloat(e.target.value)));
         $('vz-seek').addEventListener('input', (e) => { seekTo(+e.target.value); if (S.fs) showUi(); });
-        $('vz-follow').addEventListener('click', () => { setZoom(S.followBall ? 100 : FOLLOW_ZOOM * 100); if (S.fs) showUi(); });
         $('vz-names').addEventListener('click', (e) => { S.showNames = !S.showNames; e.currentTarget.classList.toggle('on', S.showNames); S.needsRedraw = true; if (S.fs) showUi(); });
         $('vz-sound').addEventListener('click', toggleMute);
         syncSoundButton();
