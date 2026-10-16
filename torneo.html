@@ -26,8 +26,12 @@
         .main-toggle-btn.active { background: #e1bc56; color: #111; box-shadow: 0 0 10px rgba(255, 211, 66, 0.3); }
         .main-toggle-btn:hover:not(.active) { color: #fff; }
 
-        .gestor-bar { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; width: 100%; max-width: 900px; margin: 0 auto; }
-        .gestor-bar .btn-estandar { width: auto; margin: 0; padding: 10px 12px; font-size: 0.95rem; line-height: 1.2; text-align: center; }
+        /* Botones de gestionador: todos con el mismo estilo; el ícono marca la acción (rojo = borra datos) */
+        .gestor-bar { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; width: 100%; margin: 0 auto; }
+        .gestor-bar .btn-estandar { flex: 1 1 160px; width: auto; max-width: 210px; margin: 0; padding: 10px 12px; font-size: 0.95rem; line-height: 1.2; text-align: center; }
+        .gestor-bar .btn-estandar i { color: var(--gold); margin-right: 4px; }
+        .gestor-bar .btn-reiniciar i { color: var(--red-light); }
+        .gestor-bar .btn-reiniciar:hover:not(:disabled) { border-color: var(--red-light); }
 
         .torneo-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 30px; align-items: start; }
         .torneo-grid.modo-ko { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); }
@@ -172,11 +176,21 @@
         .score-divider { font-weight: 900; color: #555; margin: 0 10px; }
         .ayuda { color: var(--text-muted); font-size: 0.85rem; margin: 0; line-height: 1.45; }
 
-        #modalStats .modal-content { max-width: 620px; }
-        .st-equipo h4 { display: flex; align-items: center; gap: 8px; color: var(--gold); margin: 16px 0 8px; overflow-wrap: anywhere; }
+        #modalPartido .modal-content { max-width: 620px; }
+        .mp-tabs { margin: 0 0 16px; }
+        .mp-tabs .tab { background: none; border: 0; border-bottom: 2px solid transparent; font: inherit; font-weight: bold; }
+        .mp-tabs .tab.active { border-bottom-color: var(--gold); }
+        .mp-tabs .tab:focus-visible { outline: 2px solid var(--gold); outline-offset: -2px; }
+        #mpTabStats .ayuda { margin-bottom: 4px; }
+        .st-equipo { background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 10px; padding: 4px 10px 6px; margin-top: 12px; }
+        .st-equipo h4 { display: flex; align-items: center; gap: 8px; color: var(--gold); margin: 8px 0 4px; overflow-wrap: anywhere; }
+        .st-equipo h4 .st-goles { margin-left: auto; color: #fff; white-space: nowrap; }
         .st-wrap { overflow-x: auto; }
         .st-tabla { min-width: 0; }
         .st-tabla th, .st-tabla td { padding: 6px 4px; font-size: 0.9rem; cursor: default; }
+        /* Cabecera sin bloque de fondo: no queda cortada por el borde redondeado de la caja */
+        .st-tabla th { background: transparent; border-bottom: 2px solid rgba(var(--gold-rgb), 0.35); }
+        .st-tabla tbody tr:last-child td { border-bottom: none; }
         .st-tabla tr:hover td { background: none; }
         .st-tabla .st-nombre { text-align: left; white-space: normal; overflow-wrap: anywhere; width: 100%; }
         .st-tabla input[type="number"] { width: 46px; background: #111; border: 1px solid #444; color: #fff; border-radius: 6px; padding: 6px 2px; text-align: center; font-size: 0.95rem; outline: none; }
@@ -219,7 +233,13 @@
 
         #modalEquipos .modal-content, #modalEditEquipo .modal-content { max-width: 560px; }
         .gen-opciones { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; margin: 14px 0 4px; }
-        #genAviso { margin-top: 10px; }
+        #genAviso, #llAviso { margin-top: 10px; }
+        .reset-lista { display: flex; flex-direction: column; gap: 8px; }
+        .reset-opcion { display: flex; align-items: center; gap: 12px; width: 100%; text-align: left; background: rgba(0,0,0,0.35); border: 1px solid var(--border); border-radius: 8px; padding: 12px; color: #fff; font: inherit; cursor: pointer; transition: 0.2s; }
+        .reset-opcion:hover { border-color: var(--red-light); }
+        .reset-opcion > i { color: var(--red-light); font-size: 1.2rem; width: 24px; text-align: center; flex-shrink: 0; }
+        .reset-opcion strong { display: block; }
+        .reset-opcion small { color: var(--text-muted); }
         .eq-lista { display: flex; flex-direction: column; gap: 6px; max-height: 50vh; overflow-y: auto; padding-right: 4px; margin-bottom: 12px; }
         .eq-fila { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.35); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; }
         .eq-nombre { flex: 1; min-width: 0; font-weight: bold; overflow-wrap: anywhere; }
@@ -243,8 +263,8 @@
 
         @media (max-width: 480px) {
             .main-toggle-btn { font-size: 1rem; padding: 10px 6px; }
-            .gestor-bar { grid-template-columns: 1fr 1fr; }
-            .gestor-bar .btn-estandar { font-size: 0.88rem; padding: 10px 8px; }
+            .gestor-bar { display: grid; grid-template-columns: 1fr 1fr; }
+            .gestor-bar .btn-estandar { max-width: none; font-size: 0.88rem; padding: 10px 8px; }
             .gestor-bar .btn-estandar:last-child:nth-child(odd) { grid-column: 1 / -1; }
             .caja-tabla { padding: 4px 8px; }
             .fechas-lista { max-height: 380px; }
@@ -281,16 +301,18 @@
 
             <div class="gestor-bar" id="gestorGrupos" hidden>
                 <button class="btn-estandar btn-secundario" onclick="abrirEquipos()"><i class="fa-solid fa-shield-halved"></i> Equipos</button>
-                <button class="btn-estandar btn-primary" onclick="abrirSorteo()"><i class="fa-solid fa-shuffle"></i> Sortear grupos</button>
-                <button class="btn-estandar btn-primary" onclick="abrirGenerar()"><i class="fa-solid fa-calendar-days"></i> Generar fechas</button>
-                <button class="btn-estandar btn-abrir" onclick="abrirModalPartido('grupo')"><i class="fa-solid fa-plus"></i> Añadir fecha</button>
+                <button class="btn-estandar btn-secundario" onclick="abrirSorteo()"><i class="fa-solid fa-shuffle"></i> Sortear grupos</button>
+                <button class="btn-estandar btn-secundario" onclick="abrirGenerar()"><i class="fa-solid fa-calendar-days"></i> Generar fechas</button>
+                <button class="btn-estandar btn-secundario" onclick="abrirModalPartido('grupo')"><i class="fa-solid fa-plus"></i> Añadir fecha</button>
+                <button class="btn-estandar btn-secundario btn-reiniciar" onclick="abrirModal('modalReiniciar')"><i class="fa-solid fa-rotate-left"></i> Reiniciar</button>
             </div>
             <div class="gestor-bar" id="gestorKo" hidden>
                 <button class="btn-estandar btn-secundario" onclick="abrirEquipos()"><i class="fa-solid fa-shield-halved"></i> Equipos</button>
-                <button class="btn-estandar btn-primary" onclick="asignarLlaves('ranking')"><i class="fa-solid fa-ranking-star"></i> Llaves por ranking</button>
-                <button class="btn-estandar btn-primary" onclick="asignarLlaves('orden')"><i class="fa-solid fa-list-ol"></i> Llaves por orden</button>
+                <button class="btn-estandar btn-secundario" onclick="abrirLlaves('ranking')"><i class="fa-solid fa-ranking-star"></i> Llaves por ranking</button>
+                <button class="btn-estandar btn-secundario" onclick="abrirLlaves('orden')"><i class="fa-solid fa-list-ol"></i> Llaves por orden</button>
                 <button class="btn-estandar btn-secundario" onclick="abrirCruces()"><i class="fa-solid fa-pen"></i> Editar cruces</button>
-                <button class="btn-estandar btn-abrir" onclick="abrirModalPartido('eliminatoria')"><i class="fa-solid fa-plus"></i> Añadir fecha</button>
+                <button class="btn-estandar btn-secundario" onclick="abrirModalPartido('eliminatoria')"><i class="fa-solid fa-plus"></i> Añadir fecha</button>
+                <button class="btn-estandar btn-secundario btn-reiniciar" onclick="abrirModal('modalReiniciar')"><i class="fa-solid fa-rotate-left"></i> Reiniciar</button>
             </div>
 
             <div class="torneo-grid" id="torneoGrid">
@@ -371,7 +393,13 @@
         <div class="modal-content">
             <div class="close-modal" role="button" aria-label="Cerrar" onclick="cerrarModal('modalPartido')"><i class="fa-solid fa-xmark"></i></div>
             <h3 id="mpTitulo">Añadir fecha</h3>
+            <div class="tabs mp-tabs" id="mpTabs" role="tablist">
+                <button type="button" class="tab active" role="tab" data-tab="editar" onclick="tabPartido('editar')"><i class="fa-solid fa-pen"></i> Editar</button>
+                <button type="button" class="tab" role="tab" data-tab="stats" onclick="tabPartido('stats')"><i class="fa-solid fa-chart-simple"></i> Estadísticas</button>
+            </div>
             <div class="modal-form">
+                <div class="tab-content active" id="mpTabEditar">
+                <div class="modal-form">
                 <div class="form-group" id="mpSoloGrupo">
                     <label for="mpJornada">Fecha N°</label>
                     <input type="number" id="mpJornada" min="1" max="99" inputmode="numeric">
@@ -421,24 +449,16 @@
                         </div>
                     </div>
                 </div>
+                </div>
+                </div>
+                <div class="tab-content" id="mpTabStats">
+                    <p class="ayuda">Marca quién jugó (J) y anota goles (G), asistencias (A) y autogoles (AG). Los jugadores salen del canal de equipos de Discord.</p>
+                    <div id="statsCuerpo"></div>
+                </div>
                 <div class="modal-btn-row">
                     <button class="modal-btn cancel" onclick="cerrarModal('modalPartido')">Cancelar</button>
                     <button class="modal-btn submit" id="mpGuardar" onclick="guardarPartido()">Guardar</button>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Estadísticas de un partido -->
-    <div class="modal-overlay" id="modalStats">
-        <div class="modal-content">
-            <div class="close-modal" role="button" aria-label="Cerrar" onclick="cerrarModal('modalStats')"><i class="fa-solid fa-xmark"></i></div>
-            <h3><i class="fa-solid fa-chart-simple"></i> Estadísticas</h3>
-            <p class="ayuda">Marca quién jugó (J) y anota goles (G), asistencias (A) y autogoles (AG). Los jugadores salen del canal de equipos de Discord.</p>
-            <div id="statsCuerpo"></div>
-            <div class="modal-btn-row">
-                <button class="modal-btn cancel" onclick="cerrarModal('modalStats')">Cancelar</button>
-                <button class="modal-btn submit" id="statsGuardar" onclick="guardarStats()">Guardar</button>
             </div>
         </div>
     </div>
@@ -484,6 +504,40 @@
             <div class="modal-btn-row">
                 <button class="modal-btn cancel" onclick="cerrarModal('modalGenerar')">Cancelar</button>
                 <button class="modal-btn submit" id="genGenerar" onclick="generarFechas()"><i class="fa-solid fa-calendar-days"></i> Generar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Armar llaves K.O. y su calendario -->
+    <div class="modal-overlay" id="modalLlaves">
+        <div class="modal-content">
+            <div class="close-modal" role="button" aria-label="Cerrar" onclick="cerrarModal('modalLlaves')"><i class="fa-solid fa-xmark"></i></div>
+            <h3 id="llTitulo">Armar llaves</h3>
+            <p class="ayuda" id="llTexto"></p>
+            <div class="gen-opciones">
+                <label class="th-option"><input type="radio" name="llModo" value="unico" checked onchange="infoLlaves()"> Partido único</label>
+                <label class="th-option"><input type="radio" name="llModo" value="idavuelta" onchange="infoLlaves()"> Ida y vuelta</label>
+            </div>
+            <div id="llInfo"></div>
+            <p class="ayuda" id="llAviso"></p>
+            <div class="modal-btn-row">
+                <button class="modal-btn cancel" onclick="cerrarModal('modalLlaves')">Cancelar</button>
+                <button class="modal-btn submit" id="llArmar" onclick="armarLlaves()"><i class="fa-solid fa-sitemap"></i> Armar llaves</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reiniciar el torneo (los equipos no se tocan) -->
+    <div class="modal-overlay" id="modalReiniciar">
+        <div class="modal-content">
+            <div class="close-modal" role="button" aria-label="Cerrar" onclick="cerrarModal('modalReiniciar')"><i class="fa-solid fa-xmark"></i></div>
+            <h3><i class="fa-solid fa-rotate-left"></i> Reiniciar</h3>
+            <p class="ayuda" style="margin-bottom: 12px;">Los equipos nunca se borran. Lo que reinicies se borra de Discord y no se puede deshacer.</p>
+            <div class="reset-lista">
+                <button type="button" class="reset-opcion" data-accion="reiniciar" data-id="todo"><i class="fa-solid fa-trash-can"></i><span><strong>Reiniciar todo</strong><small>Grupos, fechas de grupos, llaves y partidos K.O.</small></span></button>
+                <button type="button" class="reset-opcion" data-accion="reiniciar" data-id="grupos"><i class="fa-solid fa-table-list"></i><span><strong>Solo grupos</strong><small>Borra el sorteo. Los partidos se mantienen.</small></span></button>
+                <button type="button" class="reset-opcion" data-accion="reiniciar" data-id="fechas"><i class="fa-solid fa-calendar-xmark"></i><span><strong>Solo fechas de grupos</strong><small>Borra los partidos de la fase de grupos con sus resultados.</small></span></button>
+                <button type="button" class="reset-opcion" data-accion="reiniciar" data-id="llaves"><i class="fa-solid fa-sitemap"></i><span><strong>Solo fase K.O.</strong><small>Borra los cruces y los partidos K.O. con sus resultados.</small></span></button>
             </div>
         </div>
     </div>
@@ -608,7 +662,7 @@
         const fechaSel = { grupos: null, ko: null };
         let editandoId = null;
         let faseModal = 'grupo';
-        let partidoStats = null;
+        let statsBorrador = { jugadores: [], mvp: null }; // estadísticas del modal de partido mientras no se guardan
         let replayDestino = null;
 
         function equipo(nombre) {
@@ -938,7 +992,7 @@
         function ejecutarAccion(accion, id, el) {
             if (accion === 'editar') abrirModalPartido(null, id);
             else if (accion === 'borrar') borrarPartido(id);
-            else if (accion === 'stats') abrirStats(id);
+            else if (accion === 'reiniciar') reiniciar(id);
             else if (accion === 'subir-replay') { replayDestino = id; $('inputReplay').value = ''; $('inputReplay').click(); }
             else if (accion === 'bombo') asignarBombo(el);
             else if (accion === 'quitar-cruce') el.closest('.cruce-fila').remove();
@@ -1028,8 +1082,7 @@
                     `<a class="modal-btn btn-gris" href="${url}" download><i class="fa-solid fa-download"></i> Descargar .hbr2</a>`;
             }
             if (canEdit && m.jugado) {
-                acciones += `<button class="modal-btn btn-gris" data-accion="stats" data-id="${idHtml}"><i class="fa-solid fa-chart-simple"></i> Estadísticas</button>` +
-                    `<button class="modal-btn btn-gris" data-accion="subir-replay" data-id="${idHtml}" id="btnSubirReplay"><i class="fa-solid fa-upload"></i> ${m.replay ? 'Cambiar' : 'Subir'} .hbr2</button>`;
+                acciones += `<button class="modal-btn btn-gris" data-accion="subir-replay" data-id="${idHtml}" id="btnSubirReplay"><i class="fa-solid fa-upload"></i> ${m.replay ? 'Cambiar' : 'Subir'} .hbr2</button>`;
             }
             if (canEdit) acciones += `<button class="modal-btn btn-gris" data-accion="editar" data-id="${idHtml}"><i class="fa-solid fa-pen"></i> Editar</button>`;
             $('detAcciones').innerHTML = acciones;
@@ -1107,6 +1160,14 @@
 
         function toggleResultado() { $('mpResultado').hidden = !$('mpJugado').checked; }
 
+        function tabPartido(t) {
+            if (t === 'stats') renderStats();
+            else if ($('statsCuerpo').dataset.listo) statsBorrador = leerStats();
+            document.querySelectorAll('#mpTabs .tab').forEach(b => { b.classList.toggle('active', b.dataset.tab === t); b.setAttribute('aria-selected', b.dataset.tab === t); });
+            $('mpTabEditar').classList.toggle('active', t === 'editar');
+            $('mpTabStats').classList.toggle('active', t === 'stats');
+        }
+
         function abrirModalPartido(fase, id) {
             const m = id ? T.partidos.find(p => p.id === id) : null;
             if (id && !m) return;
@@ -1137,12 +1198,15 @@
             $('mpP2').value = m && m.penales_eq2 != null ? m.penales_eq2 : '';
             toggleResultado();
             actualizarEtiquetasMarcador();
+            statsBorrador = { jugadores: m ? m.jugadores.map(j => Object.assign({}, j, { jugo: true })) : [], mvp: m ? m.mvp : null };
+            $('statsCuerpo').dataset.listo = '';
+            tabPartido('editar');
             abrirModal('modalPartido');
         }
 
         async function guardarPartido() {
             const ko = faseModal === 'eliminatoria';
-            const previo = editandoId ? T.partidos.find(p => p.id === editandoId) : null;
+            const stats = $('statsCuerpo').dataset.listo ? leerStats() : statsBorrador;
             const partido = {
                 equipo1: $('mpEq1').value, equipo2: $('mpEq2').value, fase: faseModal, jugado: $('mpJugado').checked,
                 jornada: +$('mpJornada').value || 1, ronda: +$('mpRonda').value || 0, llave: +$('mpLlave').value || 0,
@@ -1151,9 +1215,7 @@
                 inicio: $('mpFecha').value && $('mpHora').value ? new Date(`${$('mpFecha').value}T${$('mpHora').value}`).toISOString() : '',
                 goles_eq1: $('mpG1').value, goles_eq2: $('mpG2').value,
                 penales_eq1: ko ? $('mpP1').value : '', penales_eq2: ko ? $('mpP2').value : '',
-                // Al editar se conservan las estadísticas ya cargadas
-                jugadores: previo ? previo.jugadores.map(j => Object.assign({}, j, { jugo: true })) : [],
-                mvp: previo ? previo.mvp : null
+                jugadores: stats.jugadores, mvp: stats.mvp
             };
             if (!partido.equipo1 || !partido.equipo2 || partido.equipo1 === partido.equipo2) return ThUI.alert('⚠️ Elige dos equipos distintos.');
             if (ko && (partido.penales_eq1 === '') !== (partido.penales_eq2 === '')) return ThUI.alert('⚠️ Completa los penales de los dos equipos o deja ambos vacíos.');
@@ -1175,47 +1237,42 @@
             if (data.success) await cargarTorneo();
         }
 
-        // ---------- Estadísticas ----------
-        function abrirStats(id) {
-            const m = T.partidos.find(p => p.id === id);
-            if (!m) return;
-            cerrarModal('modalDetalle');
-            partidoStats = m;
+        // ---------- Estadísticas (pestaña del modal de partido) ----------
+        // Se dibuja con los equipos y el marcador elegidos en "Editar"; lo ya anotado se guarda en statsBorrador
+        function renderStats() {
+            const cuerpo = $('statsCuerpo');
+            if (cuerpo.dataset.listo) statsBorrador = leerStats();
+            const n1 = $('mpEq1').value, n2 = $('mpEq2').value;
+            const aviso = !$('mpJugado').checked ? 'Marca "Partido finalizado" en la pestaña Editar para cargar las estadísticas.'
+                : !n1 || !n2 || n1 === n2 ? 'Elige los dos equipos en la pestaña Editar.' : '';
+            if (aviso) { cuerpo.dataset.listo = ''; cuerpo.innerHTML = `<p class="vacio" style="margin: 20px 0;">${aviso}</p>`; return; }
+            const b = statsBorrador;
             const numero = (campo, j) => `<td><input type="number" min="0" max="99" inputmode="numeric" placeholder="0" data-campo="${campo}" value="${j && j[campo] ? j[campo] : ''}" aria-label="${campo}"></td>`;
             const bloque = n => {
-                const eq = equipo(n === 1 ? m.equipo1 : m.equipo2);
+                const eq = equipo(n === 1 ? n1 : n2);
                 const filas = eq.jugadores.map(nombre => {
-                    const j = m.jugadores.find(x => x.equipo === n && x.nombre === nombre);
-                    const esMvp = m.mvp && m.mvp.equipo === n && m.mvp.nombre === nombre;
+                    const j = b.jugadores.find(x => x.equipo === n && x.nombre === nombre);
+                    const esMvp = b.mvp && b.mvp.equipo === n && b.mvp.nombre === nombre;
                     return `<tr data-lado="${n}" data-nombre="${escapeHtml(nombre)}">
-                        <td><input type="checkbox" class="st-jugo" ${j ? 'checked' : ''} aria-label="Jugó"></td>
+                        <td><input type="checkbox" class="st-jugo" ${j && j.jugo !== false ? 'checked' : ''} aria-label="Jugó"></td>
                         <td class="st-nombre">${escapeHtml(nombre)}</td>
                         ${numero('goles', j)}${numero('asistencias', j)}${numero('autogoles', j)}
                         <td><input type="radio" name="stMvp" ${esMvp ? 'checked' : ''} aria-label="MVP"></td>
                     </tr>`;
                 }).join('');
-                return `<div class="st-equipo"><h4>${escudoHtml(eq)} ${escapeHtml(eq.nombre)} · ${n === 1 ? m.goles_eq1 : m.goles_eq2}</h4>` +
+                return `<div class="st-equipo"><h4>${escudoHtml(eq)} <span>${escapeHtml(eq.nombre)}</span><span class="st-goles">${+$(n === 1 ? 'mpG1' : 'mpG2').value || 0}</span></h4>` +
                     (filas
                         ? `<div class="st-wrap"><table class="st-tabla"><thead><tr><th title="Jugó">J</th><th class="st-nombre">Jugador</th><th title="Goles">G</th><th title="Asistencias">A</th><th title="Autogoles">AG</th><th title="MVP">MVP</th></tr></thead><tbody>${filas}</tbody></table></div>`
                         : '<p class="vacio">Este equipo no tiene jugadores en su mensaje de Discord.</p>') +
                     '</div>';
             };
-            $('statsCuerpo').innerHTML = bloque(1) + bloque(2) +
-                `<label class="th-option st-sin-mvp"><input type="radio" name="stMvp" ${m.mvp ? '' : 'checked'}> Sin MVP</label>`;
-            abrirModal('modalStats');
+            cuerpo.innerHTML = bloque(1) + bloque(2) +
+                `<label class="th-option st-sin-mvp"><input type="radio" name="stMvp" ${b.mvp ? '' : 'checked'}> Sin MVP</label>`;
+            cuerpo.dataset.listo = '1';
         }
 
-        // Anotar algo o elegir MVP marca "jugó"
-        $('statsCuerpo').addEventListener('input', e => {
-            const tr = e.target.closest('tr[data-lado]');
-            if (tr && (e.target.type === 'radio' || +e.target.value > 0)) tr.querySelector('.st-jugo').checked = true;
-        });
-
-        async function guardarStats() {
-            const m = partidoStats;
-            if (!m) return;
-            const filas = [...document.querySelectorAll('#statsCuerpo tr[data-lado]')];
-            const jugadores = filas.map(tr => ({
+        function leerStats() {
+            const jugadores = [...document.querySelectorAll('#statsCuerpo tr[data-lado]')].map(tr => ({
                 nombre: tr.dataset.nombre,
                 equipo: +tr.dataset.lado,
                 jugo: tr.querySelector('.st-jugo').checked,
@@ -1225,13 +1282,14 @@
             }));
             const radio = document.querySelector('#statsCuerpo input[name="stMvp"]:checked');
             const fila = radio && radio.closest('tr[data-lado]');
-            const mvp = fila ? { nombre: fila.dataset.nombre, equipo: +fila.dataset.lado } : null;
-            const data = await conBoton('statsGuardar', () => enviar('PUT', `/api/torneo/partidos/${encodeURIComponent(m.id)}`, { partido: Object.assign({}, m, { jugadores, mvp }) }));
-            if (!data.success) return;
-            cerrarModal('modalStats');
-            await cargarTorneo();
-            abrirDetalle(m.id);
+            return { jugadores, mvp: fila ? { nombre: fila.dataset.nombre, equipo: +fila.dataset.lado } : null };
         }
+
+        // Anotar algo o elegir MVP marca "jugó"
+        $('statsCuerpo').addEventListener('input', e => {
+            const tr = e.target.closest('tr[data-lado]');
+            if (tr && (e.target.type === 'radio' || +e.target.value > 0)) tr.querySelector('.st-jugo').checked = true;
+        });
 
         // ---------- Sorteo de grupos ----------
         let sorteo = new Map(); // nombre del equipo -> número de bombo
@@ -1350,17 +1408,80 @@
         }
 
         // ---------- Llaves ----------
-        async function asignarLlaves(modo) {
+        // Armar llaves + calendario: el backend crea los partidos de cada llave en cuanto conoce sus dos equipos
+        let modoLlaves = 'ranking';
+
+        function abrirLlaves(modo) {
             if (!T.grupos.length) return ThUI.alert('⚠️ Primero sortea los grupos.');
-            const texto = modo === 'ranking'
+            modoLlaves = modo;
+            $('llTitulo').innerHTML = modo === 'ranking' ? '<i class="fa-solid fa-ranking-star"></i> Llaves por ranking' : '<i class="fa-solid fa-list-ol"></i> Llaves por orden';
+            $('llTexto').textContent = modo === 'ranking'
                 ? 'El mejor primero de grupo enfrenta al peor segundo, el segundo mejor primero al penúltimo segundo, y así.'
                 : 'Por orden de grupo: 1° del A contra 2° del B, 1° del B contra 2° del A, 1° del C contra 2° del D...';
-            const ok = await ThUI.confirm(texto + (T.llaves.cruces.length ? ' Los cruces actuales se reemplazan.' : ''), { title: 'Armar llaves', okText: 'Armar llaves' });
-            if (!ok) return;
-            const data = await enviar('POST', '/api/torneo/llaves', { modo });
+            infoLlaves();
+            abrirModal('modalLlaves');
+        }
+
+        // Cruces = uno por grupo (los dos primeros de cada grupo); rondas hasta llegar a la final
+        function planLlaves() {
+            const ida = document.querySelector('input[name="llModo"]:checked').value === 'idavuelta';
+            let n = T.grupos.length, rondas = 1;
+            while (n > 1) { n = Math.ceil(n / 2); rondas++; }
+            return { ida, rondas, fechas: rondas * (ida ? 2 : 1) };
+        }
+
+        function infoLlaves() {
+            const p = planLlaves(), f = fechasSemanales(p.fechas);
+            const dia = d => d.toLocaleDateString('es-CL', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' });
+            $('llInfo').innerHTML = ThUI.rows([
+                ['Rondas', p.rondas],
+                ['Primer partido', ThUI.esc(dia(f[0])) + ' · 20:00'],
+                [p.ida ? 'Vuelta de la final' : 'Final', ThUI.esc(dia(f[f.length - 1])) + ' · 20:00']
+            ]);
+            const previos = T.partidos.filter(m => m.fase === 'eliminatoria').length;
+            $('llAviso').textContent = 'Una ronda por semana' + (p.ida ? ' (ida y vuelta en semanas seguidas)' : '') + ', a las 20:00 de tu hora. Los partidos de cada ronda se crean solos cuando se conocen sus equipos.' +
+                (previos ? ` Se reemplazarán los cruces y los ${previos} partidos K.O. que ya existen.` : T.llaves.cruces.length ? ' Los cruces actuales se reemplazan.' : '');
+        }
+
+        async function armarLlaves() {
+            const p = planLlaves();
+            const previos = T.partidos.filter(m => m.fase === 'eliminatoria').length;
+            if (previos && !(await ThUI.confirm(`Se borrarán los ${previos} partidos K.O. actuales, con sus resultados y estadísticas. ¿Continuar?`, { title: 'Reemplazar llaves', danger: true, okText: 'Reemplazar' }))) return;
+            const btn = $('llArmar'), html = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Armando...';
+            // Se mandan fechas de sobra; el backend usa las que necesita según los cruces que arme
+            const data = await enviar('POST', '/api/torneo/llaves', { modo: modoLlaves, idaVuelta: p.ida, fechas: fechasSemanales(p.fechas + 4).map(d => d.toISOString()) });
+            btn.disabled = false;
+            btn.innerHTML = html;
             if (!data.success) return;
+            cerrarModal('modalLlaves');
+            fechaSel.ko = 0;
             await cargarTorneo();
-            ThUI.alert('✅ Llaves armadas. Puedes ajustarlas con "Editar cruces".');
+            ThUI.alert(`✅ Llaves armadas y ${data.creados || 0} partidos creados. Puedes ajustar los cruces con "Editar cruces".`);
+        }
+
+        // ---------- Reiniciar ----------
+        const TEXTO_REINICIO = {
+            todo: 'Se borrarán los grupos, todas las fechas y las llaves, con sus resultados y estadísticas. Los equipos se mantienen.',
+            grupos: 'Se borrará el sorteo de grupos. Los partidos se mantienen.',
+            fechas: 'Se borrarán todos los partidos de la fase de grupos, con sus resultados y estadísticas.',
+            llaves: 'Se borrarán los cruces y todos los partidos K.O., con sus resultados y estadísticas.'
+        };
+
+        async function reiniciar(que) {
+            if (!TEXTO_REINICIO[que]) return;
+            if (!(await ThUI.confirm(TEXTO_REINICIO[que] + ' No se puede deshacer.', { title: 'Reiniciar', danger: true, okText: 'Reiniciar' }))) return;
+            const botones = document.querySelectorAll('.reset-opcion');
+            botones.forEach(b => { b.disabled = true; });
+            const data = await enviar('POST', '/api/torneo/reiniciar', { que });
+            botones.forEach(b => { b.disabled = false; });
+            if (!data.success) return;
+            cerrarModal('modalReiniciar');
+            grupoIdx = 0;
+            fechaSel.grupos = fechaSel.ko = null;
+            await cargarTorneo();
+            ThUI.alert('✅ Listo.');
         }
 
         function filaCruce(par) {
