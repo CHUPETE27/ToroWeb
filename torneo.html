@@ -252,9 +252,17 @@
         .kit-edit { display: flex; align-items: center; gap: 10px; }
         .kit-edit input { flex: 1; min-width: 0; font-family: monospace; }
         .hax-avatar-preview.kit-prev { width: 42px; height: 42px; font-size: 0.8rem; border-width: 2px; background: #222; color: #555; }
-        .modal-form textarea { width: 100%; min-height: 130px; background: #111; border: 1px solid #444; color: #fff; padding: 12px; border-radius: 8px; font: inherit; resize: vertical; outline: none; user-select: auto; }
-        .modal-form textarea:focus { border-color: var(--gold); }
         #fichaEditar { margin: 18px auto 0; width: 100%; }
+        .jug-cabecera { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+        .jug-cabecera label { margin: 0; }
+        .jug-add { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--gold); background: rgba(0,0,0,0.4); color: var(--gold); cursor: pointer; transition: 0.2s; flex-shrink: 0; }
+        .jug-add:hover { background: var(--gold); color: #111; }
+        .jug-lista { display: flex; flex-direction: column; gap: 8px; max-height: 40vh; overflow-y: auto; padding-right: 4px; }
+        .jug-fila { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+        .modal-form .jug-fila input { min-width: 0; margin: 0; }
+        .jug-id { font-family: monospace; }
+        .jug-quitar { background: none; border: 0; color: var(--text-soft); cursor: pointer; padding: 6px; }
+        .jug-quitar:hover { color: var(--red-light); }
         .form-row-doble > .ee-abrev { flex: 0 0 110px; }
 
         @media (max-width: 900px) {
@@ -281,6 +289,9 @@
             .form-row-doble > .ee-abrev { flex: 1; }
             .st-tabla input[type="number"] { width: 40px; }
             .ficha-jugadores { grid-template-columns: 1fr; }
+            /* El ID (18 números) no cabe al lado del nombre: nombre arriba, ID abajo y el botón de quitar a la derecha */
+            .jug-fila { grid-template-columns: minmax(0, 1fr) auto; gap: 6px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+            .jug-quitar { grid-column: 2; grid-row: 1 / span 2; }
             #detAcciones .modal-btn { flex-basis: auto; }
         }
     </style>
@@ -601,8 +612,12 @@
                     <div style="display: flex; flex-direction: column; gap: 8px;" id="eeKits"></div>
                 </div>
                 <div class="form-group">
-                    <label for="eeJugadores">Jugadores (uno por línea)</label>
-                    <textarea id="eeJugadores" placeholder="Pepe&#10;Juan&#10;Pedro"></textarea>
+                    <div class="jug-cabecera">
+                        <label>Jugadores</label>
+                        <button type="button" class="jug-add" onclick="agregarJugador()" aria-label="Añadir jugador" title="Añadir jugador"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                    <p class="ayuda" style="margin-bottom: 8px;">Cada jugador necesita su ID de Discord (clic derecho en su perfil → Copiar ID) y debe estar en el Discord de ToroHax.</p>
+                    <div class="jug-lista" id="eeJugadores"></div>
                 </div>
                 <p class="ayuda">Si cambias el nombre, se actualiza también en los partidos, los grupos y las llaves.</p>
                 <div class="modal-btn-row">
@@ -996,6 +1011,7 @@
             else if (accion === 'subir-replay') { replayDestino = id; $('inputReplay').value = ''; $('inputReplay').click(); }
             else if (accion === 'bombo') asignarBombo(el);
             else if (accion === 'quitar-cruce') el.closest('.cruce-fila').remove();
+            else if (accion === 'quitar-jugador') el.closest('.jug-fila').remove();
             else if (accion === 'editar-equipo') abrirEditorEquipo(id);
             else if (accion === 'borrar-equipo') borrarEquipo(id);
         }
@@ -1512,10 +1528,12 @@
 
         // ---------- Equipos (gestionadores) ----------
         const KITS = [['local', 'Local'], ['visita', 'Visita'], ['tercera', 'Tercera'], ['train', 'Train']];
+        // Igual que KITS_DEFECTO_TORNEO de bot.js: la camiseta que se usa cuando el campo queda vacío
+        const KIT_DEFECTO = { local: '0 FFFFFF CC2A2A', visita: '0 FFFFFF 2656C7', tercera: '0 000000 FFFFFF', train: '0 000000 7D7D7D' };
         let equipoEditando = null;
         let escudoNuevo = null;
 
-        $('eeKits').innerHTML = KITS.map(([k, t]) => `<div class="kit-edit"><div class="hax-avatar-preview kit-prev" id="eePrev_${k}"></div><input type="text" id="eeKit_${k}" placeholder="${t} (vacío = sin camiseta)" aria-label="Camiseta ${t}" oninput="previsualizarKits()"></div>`).join('');
+        $('eeKits').innerHTML = KITS.map(([k, t]) => `<div class="kit-edit"><div class="hax-avatar-preview kit-prev" id="eePrev_${k}"></div><input type="text" id="eeKit_${k}" placeholder="${t} (vacío = por defecto)" aria-label="Camiseta ${t}" oninput="previsualizarKits()"></div>`).join('');
 
         function abrirEquipos() {
             renderListaEquipos();
@@ -1543,11 +1561,24 @@
         function previsualizarKits() {
             const abrev = ($('eeAbrev').value.trim() || $('eeNombre').value.trim().slice(0, 3)).toUpperCase().slice(0, 3);
             KITS.forEach(([k]) => {
-                const el = $('eePrev_' + k), c = leerKit($('eeKit_' + k).value);
+                const el = $('eePrev_' + k), c = leerKit($('eeKit_' + k).value || KIT_DEFECTO[k]);
                 el.textContent = abrev;
                 if (c) dibujarAvatarHaxball('eePrev_' + k, c.colors, c.angle, c.text);
                 else { el.style.background = '#222'; el.style.color = '#555'; }
             });
+        }
+
+        // Fila de jugador: nombre + ID de Discord + quitar
+        function agregarJugador(j) {
+            const fila = document.createElement('div');
+            fila.className = 'jug-fila';
+            fila.innerHTML = `<input type="text" class="jug-nombre" maxlength="30" placeholder="Nombre" aria-label="Nombre del jugador">` +
+                `<input type="text" class="jug-id" maxlength="20" inputmode="numeric" placeholder="ID de Discord" aria-label="ID de Discord">` +
+                `<button type="button" class="jug-quitar" data-accion="quitar-jugador" aria-label="Quitar jugador"><i class="fa-solid fa-trash"></i></button>`;
+            fila.querySelector('.jug-nombre').value = j && j.nombre || '';
+            fila.querySelector('.jug-id').value = j && j.discordId || '';
+            $('eeJugadores').appendChild(fila);
+            if (!j) fila.querySelector('.jug-nombre').focus();
         }
 
         function abrirEditorEquipo(id) {
@@ -1559,8 +1590,11 @@
             $('eeNombre').value = eq ? eq.nombre : '';
             $('eeAbrev').value = eq ? eq.abrev : '';
             $('eeDiscord').value = eq && eq.discord ? eq.discord : '';
-            $('eeJugadores').value = eq ? eq.jugadores.join('\n') : '';
-            KITS.forEach(([k]) => { $('eeKit_' + k).value = eq ? kitTexto(eq.camisetas[k]) : ''; });
+            $('eeJugadores').innerHTML = '';
+            (eq ? eq.plantel || eq.jugadores.map(nombre => ({ nombre, discordId: '' })) : []).forEach(agregarJugador);
+            if (!eq) agregarJugador();
+            // Una camiseta igual a la de defecto se deja vacía (así se ve que es la de defecto)
+            KITS.forEach(([k]) => { const t = eq ? kitTexto(eq.camisetas[k]) : ''; $('eeKit_' + k).value = t.toUpperCase() === KIT_DEFECTO[k] ? '' : t; });
             $('eeEscudoPrev').innerHTML = escudoHtml(eq || { escudo: null }, 'escudo-grande');
             $('eeEscudo').value = '';
             previsualizarKits();
@@ -1600,7 +1634,8 @@
                 nombre: $('eeNombre').value,
                 abrev: $('eeAbrev').value,
                 discord: $('eeDiscord').value,
-                jugadores: $('eeJugadores').value.split('\n'),
+                jugadores: [...document.querySelectorAll('#eeJugadores .jug-fila')].map(f => ({ nombre: f.querySelector('.jug-nombre').value, discordId: f.querySelector('.jug-id').value.trim() }))
+                    .filter(j => j.nombre.trim() || j.discordId),
                 camisetas: Object.fromEntries(KITS.map(([k]) => [k, $('eeKit_' + k).value]))
             };
             if (!equipo.nombre.trim()) return ThUI.alert('⚠️ El equipo necesita un nombre.');
