@@ -72,9 +72,9 @@
 
             <div class="filter-container">
                 <div class="filtro-fila">
-                    <button class="filter-btn active" data-fase="grupo" onclick="cambiarFase('grupo')"><i class="fa-solid fa-table-list"></i> Grupos</button>
+                    <button class="filter-btn active" data-fase="grupo" onclick="cambiarFase('grupo')"><i class="fa-solid fa-table-list"></i> <span id="txtFaseGrupo">Grupos</span></button>
                     <button class="filter-btn" data-fase="todo" onclick="cambiarFase('todo')"><i class="fa-solid fa-layer-group"></i> Todo</button>
-                    <button class="filter-btn" data-fase="eliminatoria" onclick="cambiarFase('eliminatoria')"><i class="fa-solid fa-sitemap"></i> K.O.</button>
+                    <button class="filter-btn" data-fase="eliminatoria" onclick="cambiarFase('eliminatoria')"><i class="fa-solid fa-sitemap"></i> <span id="txtFaseKo">K.O.</span></button>
                 </div>
             </div>
 
@@ -166,6 +166,9 @@
                 const data = await res.json();
                 if (n !== peticion) return;
                 if (!data.success) throw new Error(data.message || 'Error');
+                // Copa separada (torneo.html): los filtros se llaman Liga y Copa
+                document.getElementById('txtFaseGrupo').textContent = data.copaSeparada ? 'Liga' : 'Grupos';
+                document.getElementById('txtFaseKo').textContent = data.copaSeparada ? 'Copa' : 'K.O.';
                 if (!data.jugadores.length) {
                     body.innerHTML = '<tr><td colspan="5" class="celda-vacia">Aún no hay estadísticas para este filtro.</td></tr>';
                     return;

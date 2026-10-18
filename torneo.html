@@ -258,7 +258,26 @@
         .jug-add { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--gold); background: rgba(0,0,0,0.4); color: var(--gold); cursor: pointer; transition: 0.2s; flex-shrink: 0; }
         .jug-add:hover { background: var(--gold); color: #111; }
         .jug-lista { display: flex; flex-direction: column; gap: 8px; max-height: 40vh; overflow-y: auto; padding-right: 4px; }
-        .jug-fila { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+        .jug-fila { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; gap: 8px; align-items: center; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+        /* Nombre e ID arriba (el ID de 18 números necesita el ancho), el rol abajo y quitar a la derecha */
+        .jug-fila .jug-rol { grid-column: 1 / 3; }
+        .jug-fila .jug-quitar { grid-column: 3; grid-row: 1 / span 2; }
+        .jug-fila select.select-torohax { min-width: 0; min-height: 42px; padding: 10px 28px 10px 10px; font-size: 0.9rem; background-position: calc(100% - 16px) 18px, calc(100% - 10px) 18px; }
+        .jug-tope { color: var(--text-muted); font-size: 0.85rem; font-weight: normal; }
+        .ficha-rol { margin-left: 6px; font-size: 0.72rem; font-weight: bold; color: #111; background: var(--gold); border-radius: 4px; padding: 1px 5px; }
+        .ficha-rol.sub { background: var(--cyan); }
+        /* Switch de formato (mismo diseño que el de ranking_torneo.html) */
+        .formato-row { display: flex; justify-content: center; }
+        .switch-modo { display: inline-flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 25px; padding: 6px 14px; color: var(--text-muted); font: inherit; font-weight: bold; cursor: pointer; }
+        .switch-modo .lbl-a { color: var(--gold); }
+        .switch-modo[aria-checked="true"] .lbl-a { color: var(--text-muted); }
+        .switch-modo[aria-checked="true"] .lbl-b { color: var(--gold); }
+        .switch-pista { position: relative; width: 46px; height: 24px; border-radius: 12px; background: #111; border: 2px solid #555; transition: 0.2s; flex-shrink: 0; }
+        .switch-bola { position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--text-soft); transition: 0.2s; }
+        .switch-modo[aria-checked="true"] .switch-pista { border-color: var(--gold); }
+        .switch-modo[aria-checked="true"] .switch-bola { left: 24px; background: var(--gold); }
+        .switch-modo:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+        .switch-modo:disabled { opacity: 0.6; cursor: wait; }
         .modal-form .jug-fila input { min-width: 0; margin: 0; }
         .jug-id { font-family: monospace; }
         .jug-quitar { background: none; border: 0; color: var(--text-soft); cursor: pointer; padding: 6px; }
@@ -290,8 +309,10 @@
             .st-tabla input[type="number"] { width: 40px; }
             .ficha-jugadores { grid-template-columns: 1fr; }
             /* El ID (18 números) no cabe al lado del nombre: nombre arriba, ID abajo y el botón de quitar a la derecha */
-            .jug-fila { grid-template-columns: minmax(0, 1fr) auto; gap: 6px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
-            .jug-quitar { grid-column: 2; grid-row: 1 / span 2; }
+            .jug-fila { grid-template-columns: minmax(0, 1fr) auto; gap: 6px; }
+            .jug-fila .jug-rol { grid-column: 1; }
+            .jug-fila .jug-quitar { grid-column: 2; grid-row: 1 / span 3; }
+            .switch-modo { font-size: 0.85rem; padding: 6px 10px; gap: 8px; }
             #detAcciones .modal-btn { flex-basis: auto; }
         }
     </style>
@@ -306,21 +327,30 @@
     <main>
         <div class="torneo-wrapper">
             <div class="main-toggle-container">
-                <button class="main-toggle-btn active" id="btnVistaGrupos" onclick="cambiarVista('grupos')"><i class="fa-solid fa-table-list"></i> Grupos</button>
-                <button class="main-toggle-btn" id="btnVistaKo" onclick="cambiarVista('ko')"><i class="fa-solid fa-sitemap"></i> Fase K.O.</button>
+                <button class="main-toggle-btn active" id="btnVistaGrupos" onclick="cambiarVista('grupos')"><i class="fa-solid fa-table-list"></i> <span id="txtVistaGrupos">Grupos</span></button>
+                <button class="main-toggle-btn" id="btnVistaKo" onclick="cambiarVista('ko')"><i class="fa-solid fa-sitemap"></i> <span id="txtVistaKo">Fase K.O.</span></button>
+            </div>
+
+            <div class="formato-row" id="gestorFormato" hidden>
+                <button type="button" class="switch-modo" id="switchCopa" role="switch" aria-checked="false" onclick="cambiarFormato()" title="Copa separada: la fase K.O. se sortea aparte y no depende de la liga">
+                    <span class="lbl-a">K.O. integrada</span>
+                    <span class="switch-pista"><span class="switch-bola"></span></span>
+                    <span class="lbl-b">Copa separada</span>
+                </button>
             </div>
 
             <div class="gestor-bar" id="gestorGrupos" hidden>
                 <button class="btn-estandar btn-secundario" onclick="abrirEquipos()"><i class="fa-solid fa-shield-halved"></i> Equipos</button>
-                <button class="btn-estandar btn-secundario" onclick="abrirSorteo()"><i class="fa-solid fa-shuffle"></i> Sortear grupos</button>
+                <button class="btn-estandar btn-secundario" onclick="abrirSorteo()"><i class="fa-solid fa-shuffle"></i> <span id="txtSortearGrupos">Sortear grupos</span></button>
                 <button class="btn-estandar btn-secundario" onclick="abrirGenerar()"><i class="fa-solid fa-calendar-days"></i> Generar fechas</button>
                 <button class="btn-estandar btn-secundario" onclick="abrirModalPartido('grupo')"><i class="fa-solid fa-plus"></i> Añadir fecha</button>
                 <button class="btn-estandar btn-secundario btn-reiniciar" onclick="abrirModal('modalReiniciar')"><i class="fa-solid fa-rotate-left"></i> Reiniciar</button>
             </div>
             <div class="gestor-bar" id="gestorKo" hidden>
                 <button class="btn-estandar btn-secundario" onclick="abrirEquipos()"><i class="fa-solid fa-shield-halved"></i> Equipos</button>
-                <button class="btn-estandar btn-secundario" onclick="abrirLlaves('ranking')"><i class="fa-solid fa-ranking-star"></i> Llaves por ranking</button>
-                <button class="btn-estandar btn-secundario" onclick="abrirLlaves('orden')"><i class="fa-solid fa-list-ol"></i> Llaves por orden</button>
+                <button class="btn-estandar btn-secundario" id="btnSortearCopa" onclick="abrirLlaves('sorteo')" hidden><i class="fa-solid fa-shuffle"></i> Sortear copa</button>
+                <button class="btn-estandar btn-secundario" id="btnLlavesRanking" onclick="abrirLlaves('ranking')"><i class="fa-solid fa-ranking-star"></i> Llaves por ranking</button>
+                <button class="btn-estandar btn-secundario" id="btnLlavesOrden" onclick="abrirLlaves('orden')"><i class="fa-solid fa-list-ol"></i> Llaves por orden</button>
                 <button class="btn-estandar btn-secundario" onclick="abrirCruces()"><i class="fa-solid fa-pen"></i> Editar cruces</button>
                 <button class="btn-estandar btn-secundario" onclick="abrirModalPartido('eliminatoria')"><i class="fa-solid fa-plus"></i> Añadir fecha</button>
                 <button class="btn-estandar btn-secundario btn-reiniciar" onclick="abrirModal('modalReiniciar')"><i class="fa-solid fa-rotate-left"></i> Reiniciar</button>
@@ -350,7 +380,7 @@
 
                     <div id="panelKo" hidden>
                         <div class="box caja-bracket">
-                            <h3><i class="fa-solid fa-sitemap"></i> Fase K.O.</h3>
+                            <h3><i class="fa-solid fa-sitemap"></i> <span id="txtTituloKo">Fase K.O.</span></h3>
                             <div class="bracket-scroll"><div class="bracket" id="bracket"></div></div>
                             <button class="btn-fs" id="btnFs" onclick="abrirBracketFs()" title="Pantalla completa" aria-label="Ver el cuadro en pantalla completa" hidden><i class="fa-solid fa-expand"></i></button>
                         </div>
@@ -613,10 +643,10 @@
                 </div>
                 <div class="form-group">
                     <div class="jug-cabecera">
-                        <label>Jugadores</label>
-                        <button type="button" class="jug-add" onclick="agregarJugador()" aria-label="Añadir jugador" title="Añadir jugador"><i class="fa-solid fa-plus"></i></button>
+                        <label>Jugadores <span class="jug-tope" id="jugTope"></span></label>
+                        <button type="button" class="jug-add" id="btnAddJugador" onclick="agregarJugador()" aria-label="Añadir jugador" title="Añadir jugador"><i class="fa-solid fa-plus"></i></button>
                     </div>
-                    <p class="ayuda" style="margin-bottom: 8px;">Cada jugador necesita su ID de Discord (clic derecho en su perfil → Copiar ID) y debe estar en el Discord de ToroHax.</p>
+                    <p class="ayuda" style="margin-bottom: 8px;">Cada jugador necesita su ID de Discord (clic derecho en su perfil → Copiar ID) y debe estar en el Discord de ToroHax. Al guardar reciben el rol de jugador, y el capitán y el subcapitán (uno de cada uno) sus roles.</p>
                     <div class="jug-lista" id="eeJugadores"></div>
                 </div>
                 <p class="ayuda">Si cambias el nombre, se actualiza también en los partidos, los grupos y las llaves.</p>
@@ -734,7 +764,19 @@
             }
         }
 
+        // Copa separada: la fase de grupos se llama "Liga" y la K.O. "Copa" (sorteada aparte, no depende de la liga)
+        const copa = () => !!(T && T.copaSeparada);
+        const nombreGrupo = n => copa() ? (T.grupos.length > 1 ? `Liga ${n}` : 'Liga') : `Grupo ${n}`;
+
         function render() {
+            $('gestorFormato').hidden = !canEdit;
+            $('switchCopa').setAttribute('aria-checked', String(copa()));
+            $('txtVistaGrupos').textContent = copa() ? 'Liga' : 'Grupos';
+            $('txtVistaKo').textContent = copa() ? 'Copa' : 'Fase K.O.';
+            $('txtTituloKo').textContent = copa() ? 'Copa' : 'Fase K.O.';
+            $('txtSortearGrupos').textContent = copa() ? 'Sortear liga' : 'Sortear grupos';
+            $('btnSortearCopa').hidden = !copa();
+            $('btnLlavesRanking').hidden = $('btnLlavesOrden').hidden = copa();
             $('gestorGrupos').hidden = !(canEdit && vista === 'grupos');
             $('gestorKo').hidden = !(canEdit && vista === 'ko');
             $('panelGrupos').hidden = vista !== 'grupos';
@@ -756,6 +798,18 @@
         }
         window.addEventListener('resize', ajustarBracket);
 
+        async function cambiarFormato() {
+            const nuevo = !copa();
+            const texto = nuevo
+                ? 'La fase de grupos pasa a llamarse "Liga" y la fase K.O. será una copa aparte, sorteada entre todos los equipos. No se borra nada: si ya hay cruces armados, vuelve a sortearlos con "Sortear copa".'
+                : 'La fase K.O. vuelve a armarse con las posiciones de los grupos ("Llaves por ranking" o "por orden"). No se borra nada.';
+            if (!(await ThUI.confirm(texto, { title: nuevo ? 'Copa separada' : 'Fase K.O. integrada', okText: 'Cambiar' }))) return;
+            $('switchCopa').disabled = true;
+            const data = await enviar('POST', '/api/torneo/ajustes', { copaSeparada: nuevo });
+            $('switchCopa').disabled = false;
+            if (data.success) { T.copaSeparada = data.copaSeparada; render(); }
+        }
+
         function cambiarVista(v) {
             vista = v;
             $('btnVistaGrupos').classList.toggle('active', v === 'grupos');
@@ -766,17 +820,17 @@
         // ---------- Grupos ----------
         function renderGrupo() {
             const g = T.grupos[grupoIdx];
-            $('tituloGrupo').textContent = g ? `Grupo ${g.nombre}` : 'Grupos';
-            $('pillGrupo').textContent = g ? `Grupo ${g.nombre}` : 'Sin grupos';
+            $('tituloGrupo').textContent = g ? nombreGrupo(g.nombre) : (copa() ? 'Liga' : 'Grupos');
+            $('pillGrupo').textContent = g ? nombreGrupo(g.nombre) : (copa() ? 'Sin liga' : 'Sin grupos');
             $('grupoPrev').disabled = grupoIdx <= 0;
             $('grupoNext').disabled = grupoIdx >= T.grupos.length - 1;
             if (!g) {
-                $('tablaGrupo').innerHTML = '<tr><td colspan="6" class="celda-vacia">Los grupos aún no se sortean.</td></tr>';
+                $('tablaGrupo').innerHTML = `<tr><td colspan="6" class="celda-vacia">${copa() ? 'La liga aún no se sortea.' : 'Los grupos aún no se sortean.'}</td></tr>`;
                 return;
             }
             $('tablaGrupo').innerHTML = g.tabla.map((f, i) => {
                 const eq = equipo(f.equipo);
-                return `<tr class="${i < 2 ? 'clasifica' : ''}">
+                return `<tr class="${i < 2 && !copa() ? 'clasifica' : ''}">
                     <td class="col-pos">${i + 1}</td>
                     <td class="col-equipo"><button type="button" class="equipo-link" data-equipo="${escapeHtml(eq.nombre)}">${escudoHtml(eq)}${nombreHtml(eq)}</button></td>
                     <td class="col-pts">${f.pts}</td><td>${f.gf}</td><td>${f.gc}</td><td>${f.dg > 0 ? '+' : ''}${f.dg}</td>
@@ -836,7 +890,7 @@
                 ? `<div class="marcador">${m.goles_eq1} - ${m.goles_eq2}${tienePenales(m) ? `<small>(${m.penales_eq1} - ${m.penales_eq2} pen.)</small>` : ''}</div>`
                 : '<div class="marcador pendiente">VS</div>';
             const meta = [
-                m.fase === 'grupo' ? (m.grupo ? `Grupo ${escapeHtml(m.grupo)}` : '') : `Llave ${(m.llave || 0) + 1}`,
+                m.fase === 'grupo' ? (m.grupo ? escapeHtml(nombreGrupo(m.grupo)) : '') : `Llave ${(m.llave || 0) + 1}`,
                 escapeHtml(fechaTexto(m)),
                 escapeHtml(horaTexto(m))
             ].filter(Boolean).map(t => `<span>${t}</span>`).join('<span class="sep">|</span>');
@@ -1011,7 +1065,7 @@
             else if (accion === 'subir-replay') { replayDestino = id; $('inputReplay').value = ''; $('inputReplay').click(); }
             else if (accion === 'bombo') asignarBombo(el);
             else if (accion === 'quitar-cruce') el.closest('.cruce-fila').remove();
-            else if (accion === 'quitar-jugador') el.closest('.jug-fila').remove();
+            else if (accion === 'quitar-jugador') { el.closest('.jug-fila').remove(); contarJugadores(); }
             else if (accion === 'editar-equipo') abrirEditorEquipo(id);
             else if (accion === 'borrar-equipo') borrarEquipo(id);
         }
@@ -1055,7 +1109,7 @@
             kits.forEach(([k]) => { const c = eq.camisetas[k]; dibujarAvatarHaxball('kit_' + k, c.colors, c.angle, c.text); });
             $('fichaTituloJug').textContent = `Jugadores (${eq.jugadores.length})`;
             $('fichaJugadores').innerHTML = eq.jugadores.length
-                ? eq.jugadores.map(j => `<li><i class="fa-solid fa-user"></i>${escapeHtml(j)}</li>`).join('')
+                ? eq.jugadores.map(j => `<li><i class="fa-solid fa-user"></i>${escapeHtml(j)}${j === eq.capitan ? '<span class="ficha-rol" title="Capitán">C</span>' : j === eq.subcapitan ? '<span class="ficha-rol sub" title="Subcapitán">SC</span>' : ''}</li>`).join('')
                 : '<li class="vacio">Sin jugadores registrados.</li>';
             $('fichaEditar').hidden = !(canEdit && eq.id);
             $('fichaEditar').dataset.id = eq.id || '';
@@ -1068,7 +1122,7 @@
             if (!m) return;
             const e1 = equipo(m.equipo1), e2 = equipo(m.equipo2), g = ganadorPartido(m);
             $('detTitulo').textContent = m.fase === 'grupo'
-                ? `${m.grupo ? 'Grupo ' + m.grupo + ' · ' : ''}Fecha ${m.jornada || 1}`
+                ? `${m.grupo ? nombreGrupo(m.grupo) + ' · ' : ''}Fecha ${m.jornada || 1}`
                 : `${nombreRonda(m.ronda || 0)} · Llave ${(m.llave || 0) + 1}`;
             const lado = (eq, n) => `<button type="button" class="det-eq${g === n ? ' gana' : ''}" data-equipo="${escapeHtml(eq.nombre)}">${escudoHtml(eq, 'escudo-grande')}<span>${escapeHtml(eq.nombre)}</span></button>`;
             $('detMarcador').innerHTML = lado(e1, 1) +
@@ -1136,7 +1190,7 @@
             const op = n => `<option value="${escapeHtml(n)}">${escapeHtml(n)}</option>`;
             let html = '<option value="">Elige un equipo</option>';
             if (faseModal === 'grupo' && T.grupos.length) {
-                html += T.grupos.map(g => `<optgroup label="Grupo ${escapeHtml(g.nombre)}">${g.equipos.map(op).join('')}</optgroup>`).join('');
+                html += T.grupos.map(g => `<optgroup label="${escapeHtml(nombreGrupo(g.nombre))}">${g.equipos.map(op).join('')}</optgroup>`).join('');
                 const sinGrupo = T.equipos.filter(e => !T.grupos.some(g => g.equipos.some(n => norm(n) === norm(e.nombre))));
                 if (sinGrupo.length) html += `<optgroup label="Sin grupo">${sinGrupo.map(e => op(e.nombre)).join('')}</optgroup>`;
             } else {
@@ -1361,7 +1415,7 @@
             await cargarTorneo();
             ThUI.open({
                 tone: 'success', title: '¡Grupos sorteados!', okText: 'Aceptar',
-                html: ThUI.rows(data.grupos.map(g => ['Grupo ' + ThUI.esc(g.nombre), g.equipos.map(ThUI.esc).join(', ')]))
+                html: ThUI.rows(data.grupos.map(g => [ThUI.esc(nombreGrupo(g.nombre)), g.equipos.map(ThUI.esc).join(', ')]))
             });
         }
 
@@ -1428,12 +1482,18 @@
         let modoLlaves = 'ranking';
 
         function abrirLlaves(modo) {
-            if (!T.grupos.length) return ThUI.alert('⚠️ Primero sortea los grupos.');
+            if (modo === 'sorteo' ? T.equipos.length < 2 : !T.grupos.length) return ThUI.alert(modo === 'sorteo' ? '⚠️ Se necesitan al menos dos equipos.' : '⚠️ Primero sortea los grupos.');
             modoLlaves = modo;
-            $('llTitulo').innerHTML = modo === 'ranking' ? '<i class="fa-solid fa-ranking-star"></i> Llaves por ranking' : '<i class="fa-solid fa-list-ol"></i> Llaves por orden';
-            $('llTexto').textContent = modo === 'ranking'
-                ? 'El mejor primero de grupo enfrenta al peor segundo, el segundo mejor primero al penúltimo segundo, y así.'
-                : 'Por orden de grupo: 1° del A contra 2° del B, 1° del B contra 2° del A, 1° del C contra 2° del D...';
+            $('llTitulo').innerHTML = {
+                ranking: '<i class="fa-solid fa-ranking-star"></i> Llaves por ranking',
+                orden: '<i class="fa-solid fa-list-ol"></i> Llaves por orden',
+                sorteo: '<i class="fa-solid fa-shuffle"></i> Sortear copa'
+            }[modo];
+            $('llTexto').textContent = {
+                ranking: 'El mejor primero de grupo enfrenta al peor segundo, el segundo mejor primero al penúltimo segundo, y así.',
+                orden: 'Por orden de grupo: 1° del A contra 2° del B, 1° del B contra 2° del A, 1° del C contra 2° del D...',
+                sorteo: `Los ${T.equipos.length} equipos se cruzan al azar. Si no completan un cuadro de 2, 4, 8 o 16, algunos pasan directo a la segunda ronda.`
+            }[modo];
             infoLlaves();
             abrirModal('modalLlaves');
         }
@@ -1441,7 +1501,8 @@
         // Cruces = uno por grupo (los dos primeros de cada grupo); rondas hasta llegar a la final
         function planLlaves() {
             const ida = document.querySelector('input[name="llModo"]:checked').value === 'idavuelta';
-            let n = T.grupos.length, rondas = 1;
+            // Sorteo: un cruce por cada dos equipos (redondeado a potencia de 2); por grupos: uno por grupo
+            let n = modoLlaves === 'sorteo' ? Math.ceil(T.equipos.length / 2) : T.grupos.length, rondas = 1;
             while (n > 1) { n = Math.ceil(n / 2); rondas++; }
             return { ida, rondas, fechas: rondas * (ida ? 2 : 1) };
         }
@@ -1568,16 +1629,27 @@
             });
         }
 
-        // Fila de jugador: nombre + ID de Discord + quitar
+        // Fila de jugador: nombre + ID de Discord + rol + quitar. Igual que MAX_JUGADORES_TORNEO de bot.js
+        const MAX_JUGADORES = 18;
+        function contarJugadores() {
+            const n = document.querySelectorAll('#eeJugadores .jug-fila').length;
+            $('jugTope').textContent = `(${n}/${MAX_JUGADORES})`;
+            $('btnAddJugador').disabled = n >= MAX_JUGADORES;
+        }
+
         function agregarJugador(j) {
+            if (document.querySelectorAll('#eeJugadores .jug-fila').length >= MAX_JUGADORES) return;
             const fila = document.createElement('div');
             fila.className = 'jug-fila';
             fila.innerHTML = `<input type="text" class="jug-nombre" maxlength="30" placeholder="Nombre" aria-label="Nombre del jugador">` +
                 `<input type="text" class="jug-id" maxlength="20" inputmode="numeric" placeholder="ID de Discord" aria-label="ID de Discord">` +
+                `<select class="select-torohax jug-rol" aria-label="Rol"><option value="">Jugador</option><option value="capitan">Capitán</option><option value="subcapitan">Subcapitán</option></select>` +
                 `<button type="button" class="jug-quitar" data-accion="quitar-jugador" aria-label="Quitar jugador"><i class="fa-solid fa-trash"></i></button>`;
             fila.querySelector('.jug-nombre').value = j && j.nombre || '';
             fila.querySelector('.jug-id').value = j && j.discordId || '';
+            fila.querySelector('.jug-rol').value = j && j.rol || '';
             $('eeJugadores').appendChild(fila);
+            contarJugadores();
             if (!j) fila.querySelector('.jug-nombre').focus();
         }
 
@@ -1593,6 +1665,7 @@
             $('eeJugadores').innerHTML = '';
             (eq ? eq.plantel || eq.jugadores.map(nombre => ({ nombre, discordId: '' })) : []).forEach(agregarJugador);
             if (!eq) agregarJugador();
+            contarJugadores();
             // Una camiseta igual a la de defecto se deja vacía (así se ve que es la de defecto)
             KITS.forEach(([k]) => { const t = eq ? kitTexto(eq.camisetas[k]) : ''; $('eeKit_' + k).value = t.toUpperCase() === KIT_DEFECTO[k] ? '' : t; });
             $('eeEscudoPrev').innerHTML = escudoHtml(eq || { escudo: null }, 'escudo-grande');
@@ -1634,11 +1707,14 @@
                 nombre: $('eeNombre').value,
                 abrev: $('eeAbrev').value,
                 discord: $('eeDiscord').value,
-                jugadores: [...document.querySelectorAll('#eeJugadores .jug-fila')].map(f => ({ nombre: f.querySelector('.jug-nombre').value, discordId: f.querySelector('.jug-id').value.trim() }))
+                jugadores: [...document.querySelectorAll('#eeJugadores .jug-fila')].map(f => ({ nombre: f.querySelector('.jug-nombre').value, discordId: f.querySelector('.jug-id').value.trim(), rol: f.querySelector('.jug-rol').value || null }))
                     .filter(j => j.nombre.trim() || j.discordId),
                 camisetas: Object.fromEntries(KITS.map(([k]) => [k, $('eeKit_' + k).value]))
             };
             if (!equipo.nombre.trim()) return ThUI.alert('⚠️ El equipo necesita un nombre.');
+            for (const [rol, titulo] of [['capitan', 'capitán'], ['subcapitan', 'subcapitán']]) {
+                if (equipo.jugadores.filter(j => j.rol === rol).length > 1) return ThUI.alert(`⚠️ Solo puede haber un ${titulo} por equipo.`);
+            }
             if (escudoNuevo) equipo.escudo = escudoNuevo;
             const data = await conBoton('eeGuardar', () => equipoEditando
                 ? enviar('PUT', `/api/torneo/equipos/${encodeURIComponent(equipoEditando)}`, { equipo })
@@ -1647,6 +1723,7 @@
             cerrarModal('modalEditEquipo');
             await cargarTorneo();
             if ($('modalEquipos').style.display === 'flex') renderListaEquipos();
+            if (data.aviso) ThUI.alert('⚠️ ' + data.aviso);
         }
 
         async function borrarEquipo(id) {
