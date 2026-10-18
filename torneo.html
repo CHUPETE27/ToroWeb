@@ -267,7 +267,29 @@
         .ficha-rol { margin-left: 6px; font-size: 0.72rem; font-weight: bold; color: #111; background: var(--gold); border-radius: 4px; padding: 1px 5px; }
         .ficha-rol.sub { background: var(--cyan); }
         /* Switch de formato (mismo diseño que el de ranking_torneo.html) */
-        .formato-row { display: flex; justify-content: center; }
+        .formato-row { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .formato-row .btn-estandar { width: auto; margin: 0; padding: 8px 16px; font-size: 0.95rem; }
+        .formato-row .btn-estandar i { color: var(--gold); margin-right: 4px; }
+        /* Salas ToroCup */
+        #modalSalas .modal-content { max-width: 820px; }
+        #modalDivisiones .modal-content { max-width: 640px; }
+        .salas-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 12px; }
+        .sala-card { background: rgba(0,0,0,0.35); border: 1px solid var(--border); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+        .sala-cab { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .sala-cab strong { color: var(--gold); font-size: 1.1rem; }
+        .sala-estado { font-size: 0.8rem; font-weight: bold; padding: 2px 10px; border-radius: 12px; background: #333; color: var(--text-soft); white-space: nowrap; }
+        .sala-estado.on { background: rgba(var(--mint-rgb, 46, 204, 113), 0.18); color: var(--mint); }
+        .sala-estado.wait { background: rgba(var(--gold-rgb), 0.15); color: var(--gold); }
+        .sala-info { display: flex; flex-direction: column; gap: 4px; font-size: 0.88rem; color: var(--text-soft); overflow-wrap: anywhere; }
+        .sala-info b { color: #fff; }
+        .sala-info code { color: var(--cyan); }
+        .sala-info a, #modalSalas .ayuda a { color: var(--cyan); }
+        .sala-copiar { background: none; border: 0; color: var(--text-soft); cursor: pointer; padding: 0 4px; }
+        .sala-copiar:hover { color: var(--gold); }
+        .sala-tipo { display: flex; gap: 16px; flex-wrap: wrap; }
+        .sala-card select.select-torohax { min-width: 0; width: 100%; }
+        .sala-acciones { display: flex; flex-direction: column; gap: 8px; }
+        .sala-acciones .modal-btn { width: 100%; margin: 0; }
         .switch-modo { display: inline-flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 25px; padding: 6px 14px; color: var(--text-muted); font: inherit; font-weight: bold; cursor: pointer; }
         .switch-modo .lbl-a { color: var(--gold); }
         .switch-modo[aria-checked="true"] .lbl-a { color: var(--text-muted); }
@@ -286,6 +308,10 @@
 
         @media (max-width: 900px) {
             .torneo-grid, .torneo-grid.modo-ko { grid-template-columns: minmax(0, 1fr); }
+        }
+
+        @media (max-width: 700px) {
+            .salas-grid { grid-template-columns: 1fr; }
         }
 
         @media (max-width: 480px) {
@@ -337,6 +363,7 @@
                     <span class="switch-pista"><span class="switch-bola"></span></span>
                     <span class="lbl-b">Copa separada</span>
                 </button>
+                <button type="button" class="btn-estandar btn-secundario" onclick="abrirSalas()"><i class="fa-solid fa-gamepad"></i> Salas ToroCup</button>
             </div>
 
             <div class="gestor-bar" id="gestorGrupos" hidden>
@@ -501,6 +528,36 @@
                     <button class="modal-btn submit" id="mpGuardar" onclick="guardarPartido()">Guardar</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Divisiones de la liga (copa separada) -->
+    <div class="modal-overlay" id="modalDivisiones">
+        <div class="modal-content">
+            <div class="close-modal" role="button" aria-label="Cerrar" onclick="cerrarModal('modalDivisiones')"><i class="fa-solid fa-xmark"></i></div>
+            <h3><i class="fa-solid fa-layer-group"></i> Divisiones</h3>
+            <div class="modal-form">
+                <div class="form-group">
+                    <label for="dvCantidad">Cantidad de divisiones</label>
+                    <input type="number" id="dvCantidad" min="1" inputmode="numeric" oninput="renderDivisiones()">
+                </div>
+                <p class="ayuda" id="dvInfo"></p>
+                <div class="sg-lista" id="dvLista"></div>
+                <div class="modal-btn-row">
+                    <button class="modal-btn cancel" onclick="cerrarModal('modalDivisiones')">Cancelar</button>
+                    <button class="modal-btn submit" id="dvGuardar" onclick="guardarDivisiones()">Guardar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Salas ToroCup (script_liga/torocup.js) -->
+    <div class="modal-overlay" id="modalSalas">
+        <div class="modal-content">
+            <div class="close-modal" role="button" aria-label="Cerrar" onclick="cerrarModal('modalSalas')"><i class="fa-solid fa-xmark"></i></div>
+            <h3><i class="fa-solid fa-gamepad"></i> Salas ToroCup</h3>
+            <p class="ayuda">Dos salas privadas para los partidos. Elige el partido y enciéndela con un token de <a href="https://www.haxball.com/headlesstoken" target="_blank" rel="noopener noreferrer">haxball.com/headlesstoken</a>. Los jugadores firman en la sala con !firmar y confirman en Discord.</p>
+            <div class="salas-grid" id="salasLista"></div>
         </div>
     </div>
 
@@ -766,7 +823,8 @@
 
         // Copa separada: la fase de grupos se llama "Liga" y la K.O. "Copa" (sorteada aparte, no depende de la liga)
         const copa = () => !!(T && T.copaSeparada);
-        const nombreGrupo = n => copa() ? (T.grupos.length > 1 ? `Liga ${n}` : 'Liga') : `Grupo ${n}`;
+        // Con copa separada los grupos son divisiones ("Primera División"...); los grupos viejos de una letra se muestran como "División A"
+        const nombreGrupo = n => copa() ? (/^[A-Z]$/.test(n) ? `División ${n}` : n) : `Grupo ${n}`;
 
         function render() {
             $('gestorFormato').hidden = !canEdit;
@@ -774,7 +832,7 @@
             $('txtVistaGrupos').textContent = copa() ? 'Liga' : 'Grupos';
             $('txtVistaKo').textContent = copa() ? 'Copa' : 'Fase K.O.';
             $('txtTituloKo').textContent = copa() ? 'Copa' : 'Fase K.O.';
-            $('txtSortearGrupos').textContent = copa() ? 'Sortear liga' : 'Sortear grupos';
+            $('txtSortearGrupos').textContent = copa() ? 'Divisiones' : 'Sortear grupos';
             $('btnSortearCopa').hidden = !copa();
             $('btnLlavesRanking').hidden = $('btnLlavesOrden').hidden = copa();
             $('gestorGrupos').hidden = !(canEdit && vista === 'grupos');
@@ -821,11 +879,11 @@
         function renderGrupo() {
             const g = T.grupos[grupoIdx];
             $('tituloGrupo').textContent = g ? nombreGrupo(g.nombre) : (copa() ? 'Liga' : 'Grupos');
-            $('pillGrupo').textContent = g ? nombreGrupo(g.nombre) : (copa() ? 'Sin liga' : 'Sin grupos');
+            $('pillGrupo').textContent = g ? nombreGrupo(g.nombre) : (copa() ? 'Sin divisiones' : 'Sin grupos');
             $('grupoPrev').disabled = grupoIdx <= 0;
             $('grupoNext').disabled = grupoIdx >= T.grupos.length - 1;
             if (!g) {
-                $('tablaGrupo').innerHTML = `<tr><td colspan="6" class="celda-vacia">${copa() ? 'La liga aún no se sortea.' : 'Los grupos aún no se sortean.'}</td></tr>`;
+                $('tablaGrupo').innerHTML = `<tr><td colspan="6" class="celda-vacia">${copa() ? 'Las divisiones aún no se arman.' : 'Los grupos aún no se sortean.'}</td></tr>`;
                 return;
             }
             $('tablaGrupo').innerHTML = g.tabla.map((f, i) => {
@@ -1064,6 +1122,8 @@
             else if (accion === 'reiniciar') reiniciar(id);
             else if (accion === 'subir-replay') { replayDestino = id; $('inputReplay').value = ''; $('inputReplay').click(); }
             else if (accion === 'bombo') asignarBombo(el);
+            else if (accion === 'division') asignarDivision(el);
+            else if (accion === 'copiar') navigator.clipboard.writeText(id).then(() => ThUI.alert('✅ Copiado.'), () => ThUI.alert(id));
             else if (accion === 'quitar-cruce') el.closest('.cruce-fila').remove();
             else if (accion === 'quitar-jugador') { el.closest('.jug-fila').remove(); contarJugadores(); }
             else if (accion === 'editar-equipo') abrirEditorEquipo(id);
@@ -1362,10 +1422,165 @@
         });
 
         // ---------- Sorteo de grupos ----------
+        // ---------- Divisiones (copa separada): el gestionador reparte los equipos; 1 = Primera División ----------
+        // Mismos nombres que nombreDivisionTorneo de bot.js
+        const ORDINALES = ['Primera', 'Segunda', 'Tercera', 'Cuarta', 'Quinta', 'Sexta', 'Séptima', 'Octava', 'Novena', 'Décima'];
+        const nombreDivision = i => ORDINALES[i] ? `${ORDINALES[i]} División` : `División ${i + 1}`;
+        let divisiones = new Map(); // nombre del equipo -> número de división
+
+        function abrirDivisiones() {
+            divisiones = new Map();
+            T.grupos.forEach((g, i) => g.equipos.forEach(n => { if (T.equipos.some(e => e.nombre === n)) divisiones.set(n, i + 1); }));
+            $('dvCantidad').max = T.equipos.length;
+            $('dvCantidad').value = Math.min(T.equipos.length, Math.max(1, T.grupos.length));
+            renderDivisiones();
+            abrirModal('modalDivisiones');
+        }
+
+        const cantidadDivisiones = () => Math.min(T.equipos.length, Math.max(1, parseInt($('dvCantidad').value) || 1));
+
+        function renderDivisiones() {
+            const n = cantidadDivisiones();
+            for (const [k, v] of divisiones) if (v > n) divisiones.delete(k);
+            $('dvLista').innerHTML = T.equipos.map(eq => {
+                const actual = divisiones.get(eq.nombre) || 0;
+                const pills = Array.from({ length: n + 1 }, (_, d) =>
+                    `<button type="button" class="bombo-pill${actual === d ? ' active' : ''}" data-accion="division" data-division="${d}" data-nombre="${escapeHtml(eq.nombre)}" title="${d ? escapeHtml(nombreDivision(d - 1)) : 'Sin división'}">${d || '–'}</button>`).join('');
+                return `<div class="sg-fila"><span class="sg-equipo">${escudoHtml(eq)} ${escapeHtml(eq.nombre)}</span><span class="sg-bombos">${pills}</span></div>`;
+            }).join('');
+            infoDivisiones();
+        }
+
+        function infoDivisiones() {
+            const n = cantidadDivisiones();
+            const cuenta = Array.from({ length: n }, (_, i) => `${i + 1}: ${[...divisiones.values()].filter(v => v === i + 1).length}`).join(' · ');
+            $('dvInfo').textContent = `1 = Primera División, 2 = Segunda, y así. Cada división necesita al menos un equipo (máximo ${T.equipos.length} divisiones). Equipos por división: ${cuenta}`;
+        }
+
+        function asignarDivision(el) {
+            const d = +el.dataset.division;
+            if (d) divisiones.set(el.dataset.nombre, d); else divisiones.delete(el.dataset.nombre);
+            el.parentElement.querySelectorAll('.bombo-pill').forEach(p => p.classList.toggle('active', p === el));
+            infoDivisiones();
+        }
+
+        async function guardarDivisiones() {
+            const n = cantidadDivisiones();
+            const lista = Array.from({ length: n }, (_, i) => T.equipos.map(e => e.nombre).filter(x => divisiones.get(x) === i + 1));
+            const vacia = lista.findIndex(d => !d.length);
+            if (vacia >= 0) return ThUI.alert(`⚠️ La ${nombreDivision(vacia)} no tiene equipos.`);
+            if (T.grupos.length && !(await ThUI.confirm('Las divisiones actuales se reemplazan. Los partidos cargados no se borran.', { title: 'Guardar divisiones', okText: 'Guardar' }))) return;
+            const data = await conBoton('dvGuardar', () => enviar('POST', '/api/torneo/divisiones', { divisiones: lista }));
+            if (!data.success) return;
+            cerrarModal('modalDivisiones');
+            grupoIdx = 0;
+            await cargarTorneo();
+        }
+
+        // ---------- Salas ToroCup (script_liga/torocup.js): se encienden y reciben el partido desde aquí ----------
+        const SALAS = [['torocup1', 'Sala 1'], ['torocup2', 'Sala 2']];
+        const ESTADO_SALA = { offline: ['Apagada', ''], starting: ['Encendiendo...', 'wait'], online: ['En línea', 'on'], stop_pending: ['Apagando...', 'wait'], error: ['Sin conexión', ''] };
+        const salasEstado = {};
+        let salasTimer = null;
+
+        function abrirSalas() {
+            if (T.equipos.length < 2) return ThUI.alert('⚠️ Se necesitan al menos dos equipos.');
+            const opciones = '<option value="">Elige un equipo</option>' + T.equipos.map(e => `<option value="${escapeHtml(e.nombre)}">${escapeHtml(e.nombre)}</option>`).join('');
+            $('salasLista').innerHTML = SALAS.map(([bot, titulo]) => `
+                <div class="sala-card" id="card_${bot}">
+                    <div class="sala-cab"><strong>${titulo}</strong><span class="sala-estado" id="est_${bot}">...</span></div>
+                    <div class="sala-info" id="info_${bot}"></div>
+                    <div class="sala-tipo">
+                        <label class="th-option"><input type="radio" name="tipo_${bot}" value="liga" checked> Liga</label>
+                        <label class="th-option"><input type="radio" name="tipo_${bot}" value="eliminatoria"> Eliminatoria</label>
+                    </div>
+                    <select class="select-torohax sl-local" aria-label="Equipo local">${opciones}</select>
+                    <select class="select-torohax sl-visita" aria-label="Equipo visitante">${opciones}</select>
+                    <div class="sala-acciones modal-form" id="acc_${bot}"></div>
+                </div>`).join('');
+            SALAS.forEach(([bot]) => { $('card_' + bot).querySelector('.sl-local').options[0].textContent = 'Local'; $('card_' + bot).querySelector('.sl-visita').options[0].textContent = 'Visita'; });
+            abrirModal('modalSalas');
+            refrescarSalas(true);
+        }
+
+        async function refrescarSalas(rellenar) {
+            clearTimeout(salasTimer);
+            await Promise.all(SALAS.map(async ([bot]) => {
+                try {
+                    const res = await fetch(`${API}/api/predio/estado?bot=${bot}&numericId=${encodeURIComponent(loggedId)}`, { headers: { 'x-token': token } });
+                    salasEstado[bot] = await res.json();
+                } catch (e) { salasEstado[bot] = { estado: 'error' }; }
+            }));
+            SALAS.forEach(([bot]) => actualizarSala(bot, rellenar));
+            // Solo se vuelve a consultar con la ventana abierta y alguna sala cambiando de estado (ahorra peticiones a Render)
+            if ($('modalSalas').style.display === 'flex' && SALAS.some(([b]) => ['starting', 'stop_pending'].includes(salasEstado[b].estado))) {
+                salasTimer = setTimeout(() => refrescarSalas(false), 4000);
+            }
+        }
+
+        function actualizarSala(bot, rellenar) {
+            const e = salasEstado[bot] || { estado: 'error' }, card = $('card_' + bot);
+            if (!card) return;
+            const [texto, clase] = ESTADO_SALA[e.estado] || ESTADO_SALA.error;
+            $('est_' + bot).textContent = texto;
+            $('est_' + bot).className = 'sala-estado ' + clase;
+            const copiar = v => `<button type="button" class="sala-copiar" data-accion="copiar" data-id="${escapeHtml(v)}" aria-label="Copiar"><i class="fa-solid fa-copy"></i></button>`;
+            const info = [];
+            if (e.partido) info.push(`<span>Partido: <b>${escapeHtml(e.partido.local)} vs ${escapeHtml(e.partido.visita)}</b> (${e.partido.tipo === 'eliminatoria' ? 'eliminatoria' : 'liga'}) · ${e.partido.firmas} firmas</span>`);
+            if (e.link) info.push(`<span>Enlace: <a href="${escapeHtml(e.link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(e.link)}</a>${copiar(e.link)}</span>`);
+            if (e.pass) info.push(`<span>Clave: <code>${escapeHtml(e.pass)}</code>${copiar(e.pass)}</span>`);
+            if (e.adminPass) info.push(`<span>Admin: <code>!admin ${escapeHtml(e.adminPass)}</code>${copiar('!admin ' + e.adminPass)}</span>`);
+            $('info_' + bot).innerHTML = info.join('');
+            if (rellenar && e.partido) {
+                card.querySelector('.sl-local').value = e.partido.local;
+                card.querySelector('.sl-visita').value = e.partido.visita;
+                card.querySelector(`input[name="tipo_${bot}"][value="${e.partido.tipo === 'eliminatoria' ? 'eliminatoria' : 'liga'}"]`).checked = true;
+            }
+            const acc = $('acc_' + bot);
+            if (e.estado === 'offline') {
+                acc.innerHTML = `<input type="text" id="tok_${bot}" placeholder="Token de headless (thr1...)" aria-label="Token de headless">` +
+                    `<button type="button" class="modal-btn submit" onclick="encenderSala('${bot}')"><i class="fa-solid fa-power-off"></i> Encender</button>`;
+            } else if (e.estado === 'online') {
+                acc.innerHTML = `<button type="button" class="modal-btn btn-gris" onclick="guardarPartidoSala('${bot}')"><i class="fa-solid fa-rotate"></i> Cambiar partido</button>` +
+                    `<button type="button" class="modal-btn cancel" onclick="apagarSala('${bot}')"><i class="fa-solid fa-power-off"></i> Apagar</button>`;
+            } else {
+                acc.innerHTML = `<button type="button" class="modal-btn btn-gris" onclick="refrescarSalas(false)"><i class="fa-solid fa-rotate"></i> Actualizar</button>`;
+            }
+        }
+
+        async function partidoSala(bot) {
+            const card = $('card_' + bot);
+            const local = card.querySelector('.sl-local').value, visita = card.querySelector('.sl-visita').value;
+            if (!local || !visita || local === visita) { ThUI.alert('⚠️ Elige dos equipos distintos.'); return false; }
+            const tipo = card.querySelector(`input[name="tipo_${bot}"]:checked`).value;
+            return (await enviar('POST', '/api/torocup/partido', { botName: bot, tipo, local, visita })).success;
+        }
+
+        async function encenderSala(bot) {
+            const tk = $('tok_' + bot).value.trim();
+            if (!tk) return ThUI.alert('⚠️ Pega un token de haxball.com/headlesstoken.');
+            if (!(await partidoSala(bot))) return;
+            const data = await enviar('POST', '/api/predio/control', { botName: bot, action: 'start', tokenHaxball: tk });
+            if (data.success) refrescarSalas(false);
+        }
+
+        async function guardarPartidoSala(bot) {
+            if (!(await partidoSala(bot))) return;
+            ThUI.alert('✅ La sala recibió el partido. Las firmas de jugadores que ya no están en estos equipos dejan de valer.');
+            refrescarSalas(false);
+        }
+
+        async function apagarSala(bot) {
+            if (!(await ThUI.confirm('La sala se cierra para todos y se pierden las firmas.', { title: 'Apagar sala', danger: true, okText: 'Apagar' }))) return;
+            const data = await enviar('POST', '/api/predio/control', { botName: bot, action: 'stop' });
+            if (data.success) refrescarSalas(false);
+        }
+
         let sorteo = new Map(); // nombre del equipo -> número de bombo
 
         function abrirSorteo() {
             if (!T.equipos.length) return ThUI.alert('⚠️ Primero añade equipos con el botón "Equipos".');
+            if (copa()) return abrirDivisiones();
             sorteo = new Map();
             T.grupos.forEach(g => g.equipos.forEach((n, i) => { if (T.equipos.some(e => e.nombre === n)) sorteo.set(n, i + 1); }));
             const grupos = T.grupos.length || Math.max(1, Math.round(T.equipos.length / 4));
@@ -1437,7 +1652,7 @@
         }
 
         function abrirGenerar() {
-            if (!T.grupos.length) return ThUI.alert('⚠️ Primero sortea los grupos.');
+            if (!T.grupos.length) return ThUI.alert(copa() ? '⚠️ Primero arma las divisiones.' : '⚠️ Primero sortea los grupos.');
             infoGenerar();
             abrirModal('modalGenerar');
         }
