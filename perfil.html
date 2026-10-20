@@ -89,14 +89,40 @@
         .btn-buy-vip { display: inline-block; background: #e1bc56; color: #111; padding: 12px 30px; border-radius: 8px; font-weight: bold; text-decoration: none; font-size: 1.1rem; transition: 0.3s; }
         .btn-buy-vip:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(255, 211, 66, 0.5); }
 
-        .vip-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; width: 100%;}
-        .form-group { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border: 1px solid #333; width: 100%;}
-        .form-group label { display: block; color: #2df2c1; margin-bottom: 8px; font-weight: bold; }
+        .form-group { background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; border: 1px solid #333; width: 100%; transition: border-color 0.3s; }
+        .form-group:focus-within { border-color: rgba(225, 188, 86, 0.6); }
+        .form-group label { display: flex; align-items: center; gap: 6px; color: #2df2c1; margin-bottom: 8px; font-weight: bold; }
         .form-control { width: 100%; background: #111; color: white; border: 1px solid #555; padding: 12px; border-radius: 5px; box-sizing: border-box; font-family: inherit; }
         .form-control:focus { border-color: #e1bc56; outline: none; }
-        input[type="color"].form-control { padding: 5px; cursor: pointer; height: 45px; }
-        
-        .save-btn { grid-column: span 2; background: #2df2c1; color: #111; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.2rem; cursor: pointer; transition: 0.3s; margin-top: 10px; width: 100%;}
+
+        /* Panel VIP: arriba la apariencia (ícono, color, vista previa); abajo mensajes a un lado y desplegables al otro */
+        .vip-dash { display: flex; flex-direction: column; gap: 20px; text-align: left; width: 100%; }
+        .vip-dash .form-group { margin-bottom: 0; }   /* el espacio lo dan los gap (styles.css le pone margen) */
+        .vip-look { display: flex; gap: 20px; align-items: stretch; }
+        .vip-icon-group { width: auto; flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; }
+        .vip-dash .vip-icon-group .vip-icon-input { width: 64px; height: 64px; padding: 0; text-align: center; font-size: 2rem; line-height: 64px; background: #111; color: white; border: 1px solid #555; border-radius: 10px; font-family: inherit; caret-color: #e1bc56; }
+        .vip-dash .vip-icon-group .vip-icon-input:focus { border-color: #e1bc56; outline: none; box-shadow: 0 0 10px rgba(225, 188, 86, 0.35); }
+        .vip-color-group { width: auto; flex: 0 1 auto; }
+        .vip-color-row { display: flex; gap: 15px; align-items: center; }
+        .vip-color-swatch { width: 96px; height: 96px; flex-shrink: 0; padding: 0; border: 2px solid #555; border-radius: 12px; background: none; cursor: pointer; transition: border-color 0.3s, box-shadow 0.3s; }
+        .vip-color-swatch:hover, .vip-color-swatch:focus { border-color: #e1bc56; box-shadow: 0 0 12px rgba(225, 188, 86, 0.35); outline: none; }
+        .vip-color-swatch::-webkit-color-swatch-wrapper { padding: 0; }
+        .vip-color-swatch::-webkit-color-swatch { border: none; border-radius: 10px; }
+        .vip-color-swatch::-moz-color-swatch { border: none; border-radius: 10px; }
+        .vip-hex { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+        .vip-dash .vip-hex .form-control { width: 140px; padding: 10px 12px; font-family: monospace; font-size: 1.05rem; text-transform: lowercase; }
+        .vip-dash .vip-hex .form-control.invalido { border-color: #e74c3c; }
+        .vip-hex small { color: #888; font-size: 0.8rem; }
+        .vip-preview { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+        .vip-preview-line { flex: 1; display: flex; align-items: center; gap: 8px; margin: 0; padding: 12px; background: #0b0b0b; border: 1px dashed #444; border-radius: 6px; font-weight: bold; word-break: break-word; }
+        .vip-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .vip-col { display: flex; flex-direction: column; gap: 15px; min-width: 0; }
+        .vip-col-title { margin: 0; color: #e1bc56; font-size: 1.05rem; border-bottom: 1px solid #333; padding-bottom: 8px; }
+        .vip-count { margin-left: auto; color: #888; font-weight: normal; font-size: 0.8rem; }
+        .vip-count.lleno { color: #e1bc56; }
+        .vip-desc { margin: 10px 0 0; color: #bdc3c7; font-size: 0.9rem; line-height: 1.4; min-height: 1.4em; }
+
+        .save-btn { background: #2df2c1; color: #111; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.2rem; cursor: pointer; transition: 0.3s; width: 100%;}
         .save-btn:hover { background: #24c29a; box-shadow: 0 0 15px rgba(45, 242, 193, 0.4); }
 
         .inventory-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; width: 100%; margin-top: 15px; }
@@ -150,8 +176,9 @@
         }
 
         @media (max-width: 768px) { 
-            .vip-form-grid { grid-template-columns: 1fr; } 
-            .save-btn { grid-column: span 1; } 
+            .vip-cols { grid-template-columns: 1fr; }
+            .vip-look { flex-wrap: wrap; }
+            .vip-preview { flex-basis: 100%; }
             .tab-btn { max-width: 100%; } 
             .charts-grid, .stats-grid, .two-cols, .three-cols { grid-template-columns: 1fr !important; }
         }
@@ -166,6 +193,12 @@
             .chart-box { padding: 15px 10px; }
             .profile-actions { position: relative; top: 0; left: 0; right: 0; margin-bottom: 15px; }
             .totales-item { min-width: 45%; }
+            .vip-look { gap: 12px; }
+            .vip-color-group { flex: 1 1 0; min-width: 0; }
+            .vip-color-row { gap: 10px; }
+            .vip-color-swatch { width: 72px; height: 72px; }
+            .vip-hex { flex: 1; }
+            .vip-dash .vip-hex .form-control { width: 100%; }
             .stat-box li {
                 gap: 10px;
                 flex-wrap: nowrap;
@@ -302,22 +335,69 @@
                 </div>
 
                 <div id="vipFormBlock" style="display: none;">
-                    <div class="vip-form-grid">
-                        <div class="form-group"><label for="vipIcon"><i class="fa-solid fa-face-smile"></i> Ícono del Chat (Emoji)</label><input type="text" id="vipIcon" class="form-control" maxlength="2" placeholder="Ej: ⭐, 🚀, 💀"></div>
-                        <div class="form-group"><label for="vipColor"><i class="fa-solid fa-palette"></i> Color</label><input type="color" id="vipColor" class="form-control"></div>
-                        <div class="form-group"><label for="vipJoin"><i class="fa-solid fa-door-open"></i> Mensaje de Entrada</label><input type="text" id="vipJoin" class="form-control" maxlength="50" placeholder="Llegó el rey de la cancha..."></div>
-                        <div class="form-group"><label for="vipExit"><i class="fa-solid fa-door-closed"></i> Mensaje de Salida</label><input type="text" id="vipExit" class="form-control" maxlength="50" placeholder="Me voy a descansar..."></div>
-                        <div class="form-group"><label for="vipGoal"><i class="fa-solid fa-futbol"></i> Grito de Gol</label><input type="text" id="vipGoal" class="form-control" maxlength="60" placeholder="¡GOLAZO SEÑORES!"></div>
-                        <div class="form-group">
-                            <label for="vipSize"><i class="fa-solid fa-expand"></i> Tamaño (Gol)</label>
-                            <select id="vipSize">
-                                <option value="small">Pequeño (Mini)</option>
-                                <option value="normal">Normal</option>
-                                <option value="big">Gigante (Big)</option>
-                                <option value="random">Aleatorio</option>
-                                <option value="crazy">Locura</option>
-                            </select>
+                    <div class="vip-dash">
+                        <!-- Apariencia: ícono, color y cómo se ve en el chat -->
+                        <div class="vip-look">
+                            <div class="form-group vip-icon-group">
+                                <label for="vipIcon"><i class="fa-solid fa-face-smile"></i> Ícono</label>
+                                <input type="text" id="vipIcon" class="vip-icon-input" placeholder="⭐" autocomplete="off" spellcheck="false" aria-label="Ícono del chat: un emoji o símbolo">
+                            </div>
+                            <div class="form-group vip-color-group">
+                                <label for="vipColorHex"><i class="fa-solid fa-palette"></i> Color</label>
+                                <div class="vip-color-row">
+                                    <input type="color" id="vipColor" class="vip-color-swatch" aria-label="Elegir color">
+                                    <div class="vip-hex">
+                                        <input type="text" id="vipColorHex" class="form-control" maxlength="7" placeholder="#ffffff" autocomplete="off" spellcheck="false">
+                                        <small>Toca el cuadro o escribe el código (#rrggbb)</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group vip-preview">
+                                <label><i class="fa-solid fa-eye"></i> Así se ve tu gol</label>
+                                <p class="vip-preview-line"><span id="vipPreviewIcon">⭐</span> <span id="vipPreviewMsg">¡GOLAZO SEÑORES!</span></p>
+                            </div>
                         </div>
+
+                        <div class="vip-cols">
+                            <!-- Mensajes -->
+                            <div class="vip-col">
+                                <h4 class="vip-col-title"><i class="fa-solid fa-comment-dots"></i> Mensajes</h4>
+                                <div class="form-group"><label for="vipJoin"><i class="fa-solid fa-door-open"></i> Entrada <small class="vip-count" data-for="vipJoin"></small></label><input type="text" id="vipJoin" class="form-control" maxlength="50" placeholder="Llegó el rey de la cancha..."></div>
+                                <div class="form-group"><label for="vipExit"><i class="fa-solid fa-door-closed"></i> Salida <small class="vip-count" data-for="vipExit"></small></label><input type="text" id="vipExit" class="form-control" maxlength="50" placeholder="Me voy a descansar..."></div>
+                                <div class="form-group"><label for="vipGoal"><i class="fa-solid fa-futbol"></i> Grito de Gol <small class="vip-count" data-for="vipGoal"></small></label><input type="text" id="vipGoal" class="form-control" maxlength="60" placeholder="¡GOLAZO SEÑORES!"></div>
+                            </div>
+
+                            <!-- Opciones al marcar -->
+                            <div class="vip-col">
+                                <h4 class="vip-col-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Al marcar gol</h4>
+                                <div class="form-group">
+                                    <label for="vipSize"><i class="fa-solid fa-expand"></i> Tamaño</label>
+                                    <select id="vipSize">
+                                        <option value="small">Pequeño (Mini)</option>
+                                        <option value="normal">Normal</option>
+                                        <option value="big">Gigante (Big)</option>
+                                        <option value="random">Aleatorio</option>
+                                        <option value="crazy">Locura</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <!-- Misma lista que CELEBRACIONES_VIP en bot.js y CELEBRACIONES en los scripts de las salas -->
+                                    <label for="vipCelebration"><i class="fa-solid fa-champagne-glasses"></i> Celebración</label>
+                                    <select id="vipCelebration">
+                                        <option value="">Ninguna</option>
+                                        <option value="apurar">Apurar</option>
+                                        <option value="orbita">Órbita</option>
+                                        <option value="gravedad">Gravedad</option>
+                                        <option value="bomba">Bomba</option>
+                                        <option value="agujero">Agujero</option>
+                                        <option value="bolas">Bolas</option>
+                                        <option value="random">Random</option>
+                                    </select>
+                                    <p class="vip-desc" id="vipCelebrationDesc"></p>
+                                </div>
+                            </div>
+                        </div>
+
                         <button class="save-btn" onclick="guardarConfiguracionVipSegura()" id="btnSaveVip"><i class="fa-solid fa-floppy-disk"></i> Guardar Cambios</button>
                     </div>
                 </div>
@@ -465,9 +545,14 @@
                 document.getElementById('vipExit').value = player.vipExitMessage || '';
                 document.getElementById('vipGoal').value = player.vipGoalMessage || '';
                 document.getElementById('vipSize').value = player.vipGoalSize || 'normal';
+                document.getElementById('vipCelebration').value = player.vipCelebration || '';
                 let hexColor = "#ffffff";
                 if (player.vipColor) hexColor = "#" + player.vipColor.toString(16).padStart(6, '0');
                 document.getElementById('vipColor').value = hexColor;
+                document.getElementById('vipColorHex').value = hexColor;
+                // los desplegables personalizados se crean antes de que llegue el perfil: muestran la opción guardada
+                ['vipSize', 'vipCelebration'].forEach(id => refrescarSelectPersonalizado(document.getElementById(id)));
+                actualizarPanelVip();
             }
 
             document.getElementById('playerName').innerText = player.name;
@@ -703,12 +788,73 @@
             }
         }
 
+        // Misma lista que CELEBRACIONES en los scripts de las salas
+        const DESCRIPCION_CELEBRACION = {
+            '': 'Sin celebración especial.',
+            apurar: 'Corres hacia la pelota y la llevas pegada al centro del campo.',
+            orbita: 'Los demás jugadores giran a tu alrededor como lunas.',
+            gravedad: 'Todos menos tú caen hacia abajo.',
+            bomba: 'La pelota explota y los que están cerca salen volando.',
+            agujero: 'La pelota se vuelve un agujero negro y se traga a todos.',
+            bolas: 'Aparecen 10 pelotas a tu alrededor.',
+            random: 'Una celebración al azar en cada gol.'
+        };
+
+        // Un solo emoji o símbolo (el servidor guarda uno): el último que se escribió, sin modificadores sueltos (FE0F, ZWJ, tono de piel)
+        function unSimbolo(texto) {
+            return Array.from((texto || '').trim()).filter(c => !/[\uFE0F\u200D]/.test(c) && !(c >= '\u{1F3FB}' && c <= '\u{1F3FF}')).pop() || '';
+        }
+
+        // Vista previa, contadores de caracteres y descripción de la celebración
+        function actualizarPanelVip() {
+            const color = document.getElementById('vipColor').value;
+            const linea = document.querySelector('.vip-preview-line');
+            linea.style.color = color;
+            document.getElementById('vipPreviewIcon').textContent = unSimbolo(document.getElementById('vipIcon').value) || '⭐';
+            document.getElementById('vipPreviewMsg').textContent = '🌟 ' + (document.getElementById('vipGoal').value.trim() || '¡GOLAZO SEÑORES!');
+            document.querySelectorAll('.vip-count').forEach(c => {
+                const input = document.getElementById(c.dataset.for);
+                c.textContent = `${input.value.length}/${input.maxLength}`;
+                c.classList.toggle('lleno', input.value.length >= input.maxLength);
+            });
+            document.getElementById('vipCelebrationDesc').textContent = DESCRIPCION_CELEBRACION[document.getElementById('vipCelebration').value] || '';
+        }
+
+        function refrescarSelectPersonalizado(select) {
+            const wrapper = select && select.nextElementSibling;
+            if (!wrapper || !wrapper.classList.contains('custom-select-wrapper')) return;
+            wrapper.querySelector('.custom-select-trigger span').textContent = select.options[select.selectedIndex].text;
+            wrapper.querySelectorAll('.custom-option').forEach((el, i) => el.classList.toggle('selected', i === select.selectedIndex));
+        }
+
+        function iniciarPanelVip() {
+            const icono = document.getElementById('vipIcon');
+            const color = document.getElementById('vipColor');
+            const hex = document.getElementById('vipColorHex');
+            icono.addEventListener('input', () => { icono.value = unSimbolo(icono.value); actualizarPanelVip(); });
+            icono.addEventListener('focus', () => icono.select());
+            color.addEventListener('input', () => { hex.value = color.value; hex.classList.remove('invalido'); actualizarPanelVip(); });
+            hex.addEventListener('input', () => {
+                let v = hex.value.trim().toLowerCase();
+                if (v && v[0] !== '#') v = '#' + v;
+                if (/^#[0-9a-f]{3}$/.test(v)) v = '#' + v[1] + v[1] + v[2] + v[2] + v[3] + v[3];
+                const valido = /^#[0-9a-f]{6}$/.test(v);
+                hex.classList.toggle('invalido', !valido);
+                if (valido) { color.value = v; actualizarPanelVip(); }
+            });
+            // si quedó a medio escribir, vuelve al color elegido
+            hex.addEventListener('blur', () => { hex.value = color.value; hex.classList.remove('invalido'); });
+            ['vipJoin', 'vipExit', 'vipGoal'].forEach(id => document.getElementById(id).addEventListener('input', actualizarPanelVip));
+            document.getElementById('vipCelebration').addEventListener('change', actualizarPanelVip);
+            actualizarPanelVip();
+        }
+
         async function guardarConfiguracionVipSegura() {
             const btn = document.getElementById('btnSaveVip');
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
             btn.disabled = true;
 
-            const icon = document.getElementById('vipIcon').value;
+            const icon = unSimbolo(document.getElementById('vipIcon').value);
             if (icon === "👑") {
                 ThUI.alert("❌ La corona 👑 es exclusiva para los admins. Elige otro emoji.");
                 btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar Cambios';
@@ -723,8 +869,9 @@
                 vipColor: document.getElementById('vipColor').value,
                 vipJoin: document.getElementById('vipJoin').value, 
                 vipExit: document.getElementById('vipExit').value,
-                vipGoal: document.getElementById('vipGoal').value, 
-                vipSize: document.getElementById('vipSize').value
+                vipGoal: document.getElementById('vipGoal').value,
+                vipSize: document.getElementById('vipSize').value,
+                vipCelebration: document.getElementById('vipCelebration').value
             };
 
             try {
@@ -863,6 +1010,7 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             crearSelectsPersonalizados();
+            iniciarPanelVip();
         });
     </script>
     <script src="aurora.js"></script>

@@ -1365,9 +1365,10 @@
             scoreElement.innerHTML = html;
         }
 
-        setInterval(cargarTodoJunto, 10000);
+        // Sondeos lentos y en pausa con la pestaña oculta: cada respuesta se paga en ancho de banda de Render
+        setInterval(() => { if (!document.hidden) cargarTodoJunto(); }, 30000);
         
-        setInterval(() => {
+        function cargarLive() {
             fetch('https://torobot-izu5.onrender.com/api/toromatch/live')
             .then(res => res.json())
             .then(data => {
@@ -1384,7 +1385,10 @@
                     document.querySelector('.live-box').style.borderColor = '#333';
                 }
             }).catch(()=>{});
-        }, 2000);
+        }
+        setInterval(() => { if (!document.hidden) cargarLive(); }, 15000);
+        cargarLive();
+        document.addEventListener('visibilitychange', () => { if (!document.hidden) { cargarTodoJunto(); cargarLive(); } });
 
         setInterval(updateCountdown, 1000);
         cargarTodoJunto();

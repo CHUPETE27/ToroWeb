@@ -455,7 +455,7 @@
 
             if (view === 'estadio') {
                 cargarEstadoPredio();
-                if (!predioInterval) predioInterval = setInterval(cargarEstadoPredio, 5000);
+                if (!predioInterval) predioInterval = setInterval(() => { if (!document.hidden) cargarEstadoPredio(); }, 5000);
             } else {
                 if (predioInterval) { clearInterval(predioInterval); predioInterval = null; }
             }

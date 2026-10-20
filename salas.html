@@ -234,7 +234,9 @@
         }
 
         cargarSalas();
-        setInterval(cargarSalas, 10000);
+        // 30 s y en pausa con la pestaña oculta (ahorra ancho de banda de Render)
+        setInterval(() => { if (!document.hidden) cargarSalas(); }, 30000);
+        document.addEventListener('visibilitychange', () => { if (!document.hidden) cargarSalas(); });
     </script>
     <script src="light.js"></script>
 </body>

@@ -258,7 +258,7 @@
         } else {
             cargarListaAdmins();
             cargarEstadoHost();
-            statusInterval = setInterval(cargarEstadoHost, 5000);
+            statusInterval = setInterval(() => { if (!document.hidden) cargarEstadoHost(); }, 5000);
         }
 
         function switchHost(botName) {
