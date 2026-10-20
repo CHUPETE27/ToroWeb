@@ -95,9 +95,8 @@
         .form-control { width: 100%; background: #111; color: white; border: 1px solid #555; padding: 12px; border-radius: 5px; box-sizing: border-box; font-family: inherit; }
         .form-control:focus { border-color: #e1bc56; outline: none; }
 
-        /* Panel VIP: arriba la apariencia (ícono, color, vista previa); abajo mensajes a un lado y desplegables al otro */
         .vip-dash { display: flex; flex-direction: column; gap: 20px; text-align: left; width: 100%; }
-        .vip-dash .form-group { margin-bottom: 0; }   /* el espacio lo dan los gap (styles.css le pone margen) */
+        .vip-dash .form-group { margin-bottom: 0; }
         .vip-look { display: flex; gap: 20px; align-items: stretch; }
         .vip-icon-group { width: auto; flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; }
         .vip-dash .vip-icon-group .vip-icon-input { width: 64px; height: 64px; padding: 0; text-align: center; font-size: 2rem; line-height: 64px; background: #111; color: white; border: 1px solid #555; border-radius: 10px; font-family: inherit; caret-color: #e1bc56; }
@@ -161,8 +160,6 @@
         
         .btn-carta:hover { background: rgba(255, 211, 66, 0.2); box-shadow: 0 0 10px rgba(255, 211, 66, 0.3); }
         .btn-guardar:hover { background: rgba(45, 242, 193, 0.2); box-shadow: 0 0 10px rgba(45, 242, 193, 0.3); }
-
-        /* Aspecto de las ventanas: styles.css (sección 9), igual que las de ThUI */
 
         .rank-info-list { list-style: none; padding: 0; margin: 20px 0; text-align: left; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 15px; border: 1px solid #333;}
         .rank-info-list li { margin-bottom: 8px; font-size: 1.05rem; display: flex; justify-content: space-between; border-bottom: 1px solid #444; padding-bottom: 5px;}
@@ -336,7 +333,6 @@
 
                 <div id="vipFormBlock" style="display: none;">
                     <div class="vip-dash">
-                        <!-- Apariencia: ícono, color y cómo se ve en el chat -->
                         <div class="vip-look">
                             <div class="form-group vip-icon-group">
                                 <label for="vipIcon"><i class="fa-solid fa-face-smile"></i> Ícono</label>
@@ -359,7 +355,6 @@
                         </div>
 
                         <div class="vip-cols">
-                            <!-- Mensajes -->
                             <div class="vip-col">
                                 <h4 class="vip-col-title"><i class="fa-solid fa-comment-dots"></i> Mensajes</h4>
                                 <div class="form-group"><label for="vipJoin"><i class="fa-solid fa-door-open"></i> Entrada <small class="vip-count" data-for="vipJoin"></small></label><input type="text" id="vipJoin" class="form-control" maxlength="50" placeholder="Llegó el rey de la cancha..."></div>
@@ -367,7 +362,6 @@
                                 <div class="form-group"><label for="vipGoal"><i class="fa-solid fa-futbol"></i> Grito de Gol <small class="vip-count" data-for="vipGoal"></small></label><input type="text" id="vipGoal" class="form-control" maxlength="60" placeholder="¡GOLAZO SEÑORES!"></div>
                             </div>
 
-                            <!-- Opciones al marcar -->
                             <div class="vip-col">
                                 <h4 class="vip-col-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Al marcar gol</h4>
                                 <div class="form-group">
@@ -381,7 +375,6 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <!-- Misma lista que CELEBRACIONES_VIP en bot.js y CELEBRACIONES en los scripts de las salas -->
                                     <label for="vipCelebration"><i class="fa-solid fa-champagne-glasses"></i> Celebración</label>
                                     <select id="vipCelebration">
                                         <option value="">Ninguna</option>
@@ -550,7 +543,6 @@
                 if (player.vipColor) hexColor = "#" + player.vipColor.toString(16).padStart(6, '0');
                 document.getElementById('vipColor').value = hexColor;
                 document.getElementById('vipColorHex').value = hexColor;
-                // los desplegables personalizados se crean antes de que llegue el perfil: muestran la opción guardada
                 ['vipSize', 'vipCelebration'].forEach(id => refrescarSelectPersonalizado(document.getElementById(id)));
                 actualizarPanelVip();
             }
@@ -788,7 +780,6 @@
             }
         }
 
-        // Misma lista que CELEBRACIONES en los scripts de las salas
         const DESCRIPCION_CELEBRACION = {
             '': 'Sin celebración especial.',
             apurar: 'Corres hacia la pelota y la llevas pegada al centro del campo.',
@@ -800,12 +791,10 @@
             random: 'Una celebración al azar en cada gol.'
         };
 
-        // Un solo emoji o símbolo (el servidor guarda uno): el último que se escribió, sin modificadores sueltos (FE0F, ZWJ, tono de piel)
         function unSimbolo(texto) {
             return Array.from((texto || '').trim()).filter(c => !/[\uFE0F\u200D]/.test(c) && !(c >= '\u{1F3FB}' && c <= '\u{1F3FF}')).pop() || '';
         }
 
-        // Vista previa, contadores de caracteres y descripción de la celebración
         function actualizarPanelVip() {
             const color = document.getElementById('vipColor').value;
             const linea = document.querySelector('.vip-preview-line');
@@ -842,7 +831,6 @@
                 hex.classList.toggle('invalido', !valido);
                 if (valido) { color.value = v; actualizarPanelVip(); }
             });
-            // si quedó a medio escribir, vuelve al color elegido
             hex.addEventListener('blur', () => { hex.value = color.value; hex.classList.remove('invalido'); });
             ['vipJoin', 'vipExit', 'vipGoal'].forEach(id => document.getElementById(id).addEventListener('input', actualizarPanelVip));
             document.getElementById('vipCelebration').addEventListener('change', actualizarPanelVip);
