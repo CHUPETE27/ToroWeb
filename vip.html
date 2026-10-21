@@ -15,7 +15,8 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .tienda-wrapper { width: min(92%, 860px); max-width: 860px; margin: 8vh auto 32px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: stretch; }
+        .tienda-wrapper { width: min(92%, 860px); max-width: 860px; margin: 8vh auto 32px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; align-items: stretch; }
+        .pago-card { width: 100%; max-width: 520px; justify-self: center; box-sizing: border-box; }
         .store-card { background: rgba(20, 20, 20, 0.8); border: 1px solid #333; border-radius: 15px; padding: 22px 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; display: flex; flex-direction: column; justify-content: space-between; transition: 0.3s; }
         .btn-volver-tienda { grid-column: 1 / -1; display: block; background: #e1bc56; color: #111; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.1rem; text-align: center; text-decoration: none; cursor: pointer; transition: 0.3s; font-family: inherit; }
         .btn-volver-tienda:hover { background: #e6bd35; box-shadow: 0 0 15px rgba(255, 211, 66, 0.4); }
@@ -26,6 +27,49 @@
         .perks-list { text-align: left; margin: 16px 0; padding: 0; list-style: none; color: #bdc3c7; line-height: 1.5; }
         .perks-list li { border-bottom: 1px solid #333; padding: 8px 0; }
         .perks-list li i { color: #2df2c1; margin-right: 10px; width: 20px; text-align: center; }
+        .beneficios-card { justify-content: flex-start; }
+        .beneficios-card .vip-icon { font-size: 3.4rem; margin: 6px 0 4px; }
+        .beneficios-card .perks-list { columns: 2; column-gap: 28px; }
+        .beneficios-card .perks-list li { break-inside: avoid; }
+
+        /* Ejemplos de los beneficios */
+        .ejemplos-titulo { color: #e1bc56; margin: 10px 0 14px; font-size: 1.1rem; letter-spacing: 0.5px; }
+        .ejemplos-tabs { margin-bottom: 18px; }
+        .ejemplo-panel[hidden] { display: none; }
+        .vip-look { display: flex; gap: 20px; align-items: stretch; text-align: left; }
+        .vip-campo { display: flex; flex-direction: column; gap: 8px; color: #bdc3c7; font-size: 0.9rem; font-weight: bold; }
+        .vip-campo i { color: #e1bc56; margin-right: 4px; }
+        .vip-icon-input { width: 64px; height: 64px; padding: 0; text-align: center; font-size: 2rem; line-height: 64px; background: #111; color: white; border: 1px solid #555; border-radius: 10px; font-family: inherit; caret-color: #e1bc56; box-sizing: border-box; }
+        .vip-icon-input:focus { border-color: #e1bc56; outline: none; box-shadow: 0 0 10px rgba(225, 188, 86, 0.35); }
+        .vip-color-row { display: flex; gap: 15px; align-items: center; }
+        .vip-color-swatch { width: 96px; height: 96px; flex-shrink: 0; padding: 0; border: 2px solid #555; border-radius: 12px; background: none; cursor: pointer; transition: border-color 0.3s, box-shadow 0.3s; }
+        .vip-color-swatch:hover, .vip-color-swatch:focus { border-color: #e1bc56; box-shadow: 0 0 12px rgba(225, 188, 86, 0.35); outline: none; }
+        .vip-color-swatch::-webkit-color-swatch-wrapper { padding: 0; }
+        .vip-color-swatch::-webkit-color-swatch { border: none; border-radius: 10px; }
+        .vip-color-swatch::-moz-color-swatch { border: none; border-radius: 10px; }
+        .vip-hex-input { width: 120px; background: #111; border: 1px solid #555; color: white; padding: 10px 12px; border-radius: 8px; font-family: monospace; font-size: 1.05rem; text-transform: lowercase; outline: none; box-sizing: border-box; }
+        .vip-hex-input:focus { border-color: #e1bc56; }
+        .vip-hex-input.invalido { border-color: #e74c3c; }
+        .vip-preview { flex: 1 1 auto; min-width: 0; }
+        .vip-preview-line { flex: 1; display: flex; align-items: center; gap: 8px; margin: 0; padding: 12px; background: #0b0b0b; border: 1px solid #444; border-radius: 6px; font-weight: bold; word-break: break-word; }
+        .ejemplo-nota { color: #7d7d7d; font-size: 0.85rem; margin: 14px 0 0; }
+
+        .carrusel { position: relative; aspect-ratio: 16 / 9; background: #0b0b0b; border: 1px solid #333; border-radius: 10px; overflow: hidden; }
+        .carrusel-media, .carrusel-media video, .carrusel-media img { width: 100%; height: 100%; }
+        .carrusel-media video, .carrusel-media img { display: block; object-fit: contain; }
+        .carrusel-vacio { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: #7d7d7d; }
+        .carrusel-vacio i { font-size: 2.4rem; color: #444; }
+        .carrusel-flecha { position: absolute; top: 50%; transform: translateY(-50%); width: 42px; height: 42px; border-radius: 50%; border: 1px solid #555; background: rgba(0,0,0,0.6); color: white; cursor: pointer; font-size: 1rem; transition: 0.2s; z-index: 1; }
+        .carrusel-flecha:hover { background: #e1bc56; color: #111; border-color: #e1bc56; }
+        .carrusel-flecha:focus-visible { outline: 2px solid #e1bc56; outline-offset: 2px; }
+        .carrusel-flecha.prev { left: 10px; }
+        .carrusel-flecha.next { right: 10px; }
+        .carrusel-titulo { color: #e1bc56; font-weight: bold; margin: 14px 0 4px; font-size: 1.05rem; }
+        .carrusel-desc { color: #bdc3c7; margin: 0; font-size: 0.92rem; min-height: 1.4em; }
+        .carrusel-puntos { display: flex; justify-content: center; gap: 8px; margin-top: 12px; }
+        .carrusel-puntos button { width: 10px; height: 10px; padding: 0; border-radius: 50%; border: none; background: #444; cursor: pointer; transition: 0.2s; }
+        .carrusel-puntos button.activo { background: #e1bc56; transform: scale(1.25); }
+        .carrusel-puntos button:focus-visible { outline: 2px solid #e1bc56; outline-offset: 2px; }
 
         .vip-status { display: none; border-radius: 8px; padding: 10px 12px; font-size: 0.9rem; margin: 0 0 18px; border: 1px solid #333; background: rgba(0,0,0,0.3); color: #bdc3c7; }
         .vip-status.show { display: block; }
@@ -68,7 +112,21 @@
         .store-btn:hover:not(:disabled) { background: #007eb5; box-shadow: 0 0 15px rgba(0, 158, 227, 0.4); }
         .store-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        @media (max-width: 768px) { .tienda-wrapper { grid-template-columns: 1fr; margin-top: 8vh; } .store-card { padding: 22px 18px; } }
+        @media (max-width: 768px) {
+            .tienda-wrapper { margin-top: 8vh; } .store-card { padding: 22px 18px; }
+            .beneficios-card .perks-list { columns: 1; }
+            .ejemplos-tabs { flex-wrap: wrap; }
+            .ejemplos-tabs label { flex: 1 1 calc(50% - 5px); box-sizing: border-box; padding: 10px 6px; font-size: 0.88rem; }
+            .vip-look { flex-wrap: wrap; }
+            .vip-preview { flex-basis: 100%; }
+        }
+        @media (max-width: 480px) {
+            .vip-look { gap: 12px; }
+            .vip-color-row { gap: 10px; }
+            .vip-color-swatch { width: 72px; height: 72px; }
+            .vip-hex-input { width: 100px; }
+            .carrusel-flecha { width: 36px; height: 36px; }
+        }
         @media (prefers-reduced-motion: reduce) { .store-card { transition: none; } }
     </style>
 </head>
@@ -84,19 +142,64 @@
 
             <a href="tienda.html" class="btn-volver-tienda"><i class="fa-solid fa-arrow-left"></i> Volver a la tienda</a>
 
-            <div class="store-card">
+            <div class="store-card beneficios-card">
                 <h2>Beneficios VIP</h2>
                 <i class="fa-solid fa-crown vip-icon"></i>
                 <ul class="perks-list">
                     <li><i class="fa-solid fa-check"></i> Rol y color exclusivo en nuestro Discord.</li>
                     <li><i class="fa-solid fa-check"></i> Ícono VIP y colores personalizados en el chat de la sala.</li>
                     <li><i class="fa-solid fa-check"></i> Mensajes de entrada, salida y de gol personalizables.</li>
+                    <li><i class="fa-solid fa-check"></i> Tamaño especial al marcar un gol.</li>
+                    <li><i class="fa-solid fa-check"></i> Celebraciones de gol: órbita, bomba, agujero negro y más.</li>
                     <li><i class="fa-solid fa-check"></i> Acceso a comandos exclusivos en la sala.</li>
                     <li><i class="fa-solid fa-check"></i> Descuento de un 30% en la tienda.</li>
                 </ul>
+
+                <h3 class="ejemplos-titulo">Míralos en acción</h3>
+                <div class="seg ejemplos-tabs" role="radiogroup" aria-label="Ejemplos de los beneficios">
+                    <input type="radio" name="ejemplo" id="ejIcono" value="icono" checked>
+                    <label for="ejIcono"><i class="fa-solid fa-palette"></i> Ícono y color</label>
+                    <input type="radio" name="ejemplo" id="ejMensajes" value="mensajes">
+                    <label for="ejMensajes"><i class="fa-solid fa-comment-dots"></i> Mensajes</label>
+                    <input type="radio" name="ejemplo" id="ejTamano" value="tamano">
+                    <label for="ejTamano"><i class="fa-solid fa-expand"></i> Tamaño en gol</label>
+                    <input type="radio" name="ejemplo" id="ejCelebraciones" value="celebraciones">
+                    <label for="ejCelebraciones"><i class="fa-solid fa-champagne-glasses"></i> Celebraciones</label>
+                </div>
+
+                <div class="ejemplo-panel" id="panelIcono">
+                    <div class="vip-look">
+                        <label class="vip-campo" for="vipIcon"><span><i class="fa-solid fa-icons"></i> Ícono</span>
+                            <input type="text" id="vipIcon" class="vip-icon-input" value="⭐" autocomplete="off" spellcheck="false" aria-label="Ícono del chat: un emoji o símbolo">
+                        </label>
+                        <div class="vip-campo">
+                            <label for="vipColorHex"><i class="fa-solid fa-palette"></i> Color</label>
+                            <div class="vip-color-row">
+                                <input type="color" id="vipColor" class="vip-color-swatch" value="#e1bc56" aria-label="Elegir color">
+                                <input type="text" id="vipColorHex" class="vip-hex-input" value="#e1bc56" maxlength="7" autocomplete="off" spellcheck="false">
+                            </div>
+                        </div>
+                        <div class="vip-campo vip-preview">
+                            <span><i class="fa-solid fa-eye"></i> Así se ve en la sala</span>
+                            <p class="vip-preview-line"><span id="vipPreviewIcon">⭐</span> <span>🌟 ¡GOLAZO SEÑORES!</span></p>
+                        </div>
+                    </div>
+                    <p class="ejemplo-nota">Prueba aquí. Con VIP lo eliges en tu perfil o en la sala.</p>
+                </div>
+
+                <div class="ejemplo-panel" id="panelCarrusel" hidden>
+                    <div class="carrusel" id="carrusel">
+                        <button type="button" class="carrusel-flecha prev" id="carruselPrev" aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
+                        <div class="carrusel-media" id="carruselMedia"></div>
+                        <button type="button" class="carrusel-flecha next" id="carruselNext" aria-label="Siguiente"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                    <p class="carrusel-titulo" id="carruselTitulo"></p>
+                    <p class="carrusel-desc" id="carruselDesc"></p>
+                    <div class="carrusel-puntos" id="carruselPuntos"></div>
+                </div>
             </div>
 
-            <div class="store-card">
+            <div class="store-card pago-card">
                 <div>
                     <h2>Comprar VIP</h2>
 
@@ -406,7 +509,123 @@
             }
         }
 
+        // ---- Ejemplos de los beneficios ----
+        // Los archivos van en vip_ejemplos/. Si uno todavía no existe, el carrusel muestra "Ejemplo próximamente".
+        const EJEMPLOS = {
+            mensajes: [
+                { titulo: 'Entrada', desc: 'Lo que ven todos cuando entras a la sala.', src: 'vip_ejemplos/mensaje_entrada.png' },
+                { titulo: 'Salida', desc: 'Tu despedida cuando te vas.', src: 'vip_ejemplos/mensaje_salida.png' },
+                { titulo: 'Gol', desc: 'Tu grito cada vez que marcas.', src: 'vip_ejemplos/mensaje_gol.png' }
+            ],
+            tamano: [
+                { titulo: 'Pequeño', desc: 'Te achicas al marcar.', src: 'vip_ejemplos/tamano_small.mp4' },
+                { titulo: 'Gigante', desc: 'Creces hasta ser enorme al marcar.', src: 'vip_ejemplos/tamano_big.mp4' },
+                { titulo: 'Aleatorio', desc: 'Un tamaño al azar en cada gol.', src: 'vip_ejemplos/tamano_random.mp4' },
+                { titulo: 'Locura', desc: 'Cambias de tamaño sin parar durante el festejo.', src: 'vip_ejemplos/tamano_crazy.mp4' }
+            ],
+            celebraciones: [
+                { titulo: 'Apurar', desc: 'Corres hacia la pelota y la llevas pegada al centro del campo.', src: 'vip_ejemplos/clip_apurar.mp4' },
+                { titulo: 'Órbita', desc: 'Los demás jugadores giran a tu alrededor como lunas.', src: 'vip_ejemplos/clip_orbita.mp4' },
+                { titulo: 'Gravedad', desc: 'Todos menos tú caen hacia abajo.', src: 'vip_ejemplos/clip_gravedad.mp4' },
+                { titulo: 'Bomba', desc: 'La pelota explota y los que están cerca salen volando.', src: 'vip_ejemplos/clip_bomba.mp4' },
+                { titulo: 'Agujero', desc: 'La pelota se vuelve un agujero negro y se traga a todos.', src: 'vip_ejemplos/clip_agujero.mp4' },
+                { titulo: 'Bolas', desc: 'Aparecen 10 pelotas a tu alrededor. Y si no te decides, Random elige una al azar en cada gol.', src: 'vip_ejemplos/clip_bolas.mp4' }
+            ]
+        };
+        const sinMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const carrusel = { lista: [], i: 0 };
+
+        function mostrarEjemplo() {
+            const media = document.getElementById('carruselMedia');
+            const s = carrusel.lista[carrusel.i];
+            const esVideo = s.src.endsWith('.mp4');
+            const el = document.createElement(esVideo ? 'video' : 'img');
+            el.addEventListener('error', () => {
+                media.innerHTML = '<div class="carrusel-vacio"><i class="fa-solid fa-' + (esVideo ? 'film' : 'image') + '"></i><span>Ejemplo próximamente</span></div>';
+            });
+            if (esVideo) {
+                Object.assign(el, { muted: true, loop: true, playsInline: true, autoplay: !sinMovimiento, controls: sinMovimiento, preload: 'auto' });
+                el.setAttribute('aria-label', 'Ejemplo: ' + s.titulo);
+            } else {
+                el.alt = 'Ejemplo: ' + s.titulo;
+            }
+            el.src = s.src;
+            media.replaceChildren(el);
+
+            document.getElementById('carruselTitulo').textContent = s.titulo;
+            document.getElementById('carruselDesc').textContent = s.desc;
+            const puntos = document.getElementById('carruselPuntos');
+            puntos.replaceChildren(...carrusel.lista.map((x, k) => {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = k === carrusel.i ? 'activo' : '';
+                b.setAttribute('aria-label', x.titulo);
+                b.onclick = () => { carrusel.i = k; mostrarEjemplo(); };
+                return b;
+            }));
+        }
+
+        function moverEjemplo(paso) {
+            const n = carrusel.lista.length;
+            carrusel.i = (carrusel.i + paso + n) % n;
+            mostrarEjemplo();
+        }
+
+        function cambiarEjemplo() {
+            const tipo = document.querySelector('input[name="ejemplo"]:checked').value;
+            document.getElementById('panelIcono').hidden = tipo !== 'icono';
+            document.getElementById('panelCarrusel').hidden = tipo === 'icono';
+            if (tipo === 'icono') { document.getElementById('carruselMedia').replaceChildren(); return; }   // detiene el video
+            carrusel.lista = EJEMPLOS[tipo];
+            carrusel.i = 0;
+            mostrarEjemplo();
+        }
+
+        // Ícono y color de prueba: misma lógica que el panel VIP de perfil.html, pero no guarda nada
+        function unSimbolo(texto) {
+            return Array.from((texto || '').trim()).filter(c => !/[️‍]/.test(c) && !(c >= '\u{1F3FB}' && c <= '\u{1F3FF}')).pop() || '';
+        }
+
+        function iniciarEjemplos() {
+            const icono = document.getElementById('vipIcon');
+            const color = document.getElementById('vipColor');
+            const hex = document.getElementById('vipColorHex');
+            const linea = document.querySelector('.vip-preview-line');
+            const pintar = () => {
+                linea.style.color = color.value;
+                document.getElementById('vipPreviewIcon').textContent = unSimbolo(icono.value) || '⭐';
+            };
+            icono.addEventListener('input', () => { icono.value = unSimbolo(icono.value); pintar(); });
+            icono.addEventListener('focus', () => icono.select());
+            color.addEventListener('input', () => { hex.value = color.value; hex.classList.remove('invalido'); pintar(); });
+            hex.addEventListener('input', () => {
+                let v = hex.value.trim().toLowerCase();
+                if (v && v[0] !== '#') v = '#' + v;
+                if (/^#[0-9a-f]{3}$/.test(v)) v = '#' + v[1] + v[1] + v[2] + v[2] + v[3] + v[3];
+                const valido = /^#[0-9a-f]{6}$/.test(v);
+                hex.classList.toggle('invalido', !valido);
+                if (valido) { color.value = v; pintar(); }
+            });
+            hex.addEventListener('blur', () => { hex.value = color.value; hex.classList.remove('invalido'); });
+            pintar();
+
+            document.querySelectorAll('input[name="ejemplo"]').forEach(r => r.addEventListener('change', cambiarEjemplo));
+            document.getElementById('carruselPrev').onclick = () => moverEjemplo(-1);
+            document.getElementById('carruselNext').onclick = () => moverEjemplo(1);
+            let toqueX = null;   // deslizar con el dedo en el celular
+            const caja = document.getElementById('carrusel');
+            caja.addEventListener('touchstart', e => { toqueX = e.touches[0].clientX; }, { passive: true });
+            caja.addEventListener('touchend', e => {
+                if (toqueX === null) return;
+                const dx = e.changedTouches[0].clientX - toqueX;
+                toqueX = null;
+                if (Math.abs(dx) > 40) moverEjemplo(dx < 0 ? 1 : -1);
+            });
+        }
+
         window.addEventListener('pageshow', e => { if (e.persisted) liberarBoton(); });
+
+        iniciarEjemplos();
 
         refrescar();
         cargarEstadoPropio();
