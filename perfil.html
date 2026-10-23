@@ -375,6 +375,7 @@
                                         <option value="inflar">Inflar</option>
                                         <option value="desinflar">Desinflar</option>
                                     </select>
+                                    <p class="vip-desc" id="vipSizeDesc"></p>
                                 </div>
                                 <div class="form-group">
                                     <label for="vipCelebration"><i class="fa-solid fa-champagne-glasses"></i> Celebración</label>
@@ -801,6 +802,18 @@
             random: 'Una celebración al azar en cada gol.'
         };
 
+        const DESCRIPCION_SIZE = {
+            '': 'Sin tamaño especial.',
+            normal: 'Mantienes tu tamaño normal.',
+            small: 'Te vuelves diminuto.',
+            big: 'Te vuelves gigante.',
+            inlfar: 'Te inflas como un globo.',
+            desinflar: 'Te achicas constantemente.',
+            bolas: 'Aparecen 10 pelotas a tu alrededor.',
+            random: 'Un tamaño al azar en cada gol.',
+            crazy: 'Cambias de tamaño al azar constantemente.',
+        };
+
         function unSimbolo(texto) {
             return Array.from((texto || '').trim()).filter(c => !/[\uFE0F\u200D]/.test(c) && !(c >= '\u{1F3FB}' && c <= '\u{1F3FF}')).pop() || '';
         }
@@ -816,6 +829,7 @@
                 c.textContent = `${input.value.length}/${input.maxLength}`;
                 c.classList.toggle('lleno', input.value.length >= input.maxLength);
             });
+            document.getElementById('vipSizeDesc').textContent = DESCRIPCION_SIZE[document.getElementById('vipSize').value] || '';
             document.getElementById('vipCelebrationDesc').textContent = DESCRIPCION_CELEBRACION[document.getElementById('vipCelebration').value] || '';
         }
 
