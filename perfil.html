@@ -372,6 +372,8 @@
                                         <option value="big">Gigante (Big)</option>
                                         <option value="random">Aleatorio</option>
                                         <option value="crazy">Locura</option>
+                                        <option value="inflar">Inflar</option>
+                                        <option value="desinflar">Desinflar</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -384,6 +386,10 @@
                                         <option value="bomba">Bomba</option>
                                         <option value="agujero">Agujero</option>
                                         <option value="bolas">Bolas</option>
+                                        <option value="explota">Explota</option>
+                                        <option value="cuncuna">Cuncuna</option>
+                                        <option value="disco">Disco</option>
+                                        <option value="agonico">Agónico</option>
                                         <option value="random">Random</option>
                                     </select>
                                     <p class="vip-desc" id="vipCelebrationDesc"></p>
@@ -530,7 +536,13 @@
             const headerLogo = document.querySelector('.logo-container img');
             if (headerLogo) { headerLogo.src = urlAvatar; headerLogo.style.borderRadius = '50%'; headerLogo.style.border = '2px solid #e1bc56'; headerLogo.style.objectFit = 'cover'; }
 
-            if (player.isVip) {
+            document.getElementById('playerName').innerText = player.name;
+            document.getElementById('playerID').innerText = `#${player.numericId}`;
+
+            renderizarInventario(player);
+            renderizarStats();
+
+            if (player.isVip) try {
                 document.getElementById('vipUpsellBlock').style.display = 'none';
                 document.getElementById('vipFormBlock').style.display = 'block';
                 document.getElementById('vipIcon').value = player.vipIcon || '⭐';
@@ -545,13 +557,7 @@
                 document.getElementById('vipColorHex').value = hexColor;
                 ['vipSize', 'vipCelebration'].forEach(id => refrescarSelectPersonalizado(document.getElementById(id)));
                 actualizarPanelVip();
-            }
-
-            document.getElementById('playerName').innerText = player.name;
-            document.getElementById('playerID').innerText = `#${player.numericId}`;
-
-            renderizarInventario(player);
-            renderizarStats(); 
+            } catch (e) { console.error('Panel VIP:', e); }
         })
         .catch(err => {
             document.getElementById('loading').innerText = "❌ Hubo un error al contactar al servidor.";
@@ -788,6 +794,10 @@
             bomba: 'La pelota explota y los que están cerca salen volando.',
             agujero: 'La pelota se vuelve un agujero negro y se traga a todos.',
             bolas: 'Aparecen 10 pelotas a tu alrededor.',
+            explota: 'La pelota se divide en 15 pelotas pequeñas.',
+            cuncuna: 'Eres 3 veces más rápido y tus compañeros te siguen en fila.',
+            disco: 'Los demás jugadores se teletransportan entre sus lugares.',
+            agonico: 'Corres al córner, tus compañeros te siguen y entran 5 suplentes.',
             random: 'Una celebración al azar en cada gol.'
         };
 
@@ -812,6 +822,7 @@
         function refrescarSelectPersonalizado(select) {
             const wrapper = select && select.nextElementSibling;
             if (!wrapper || !wrapper.classList.contains('custom-select-wrapper')) return;
+            if (select.selectedIndex < 0) select.selectedIndex = 0;
             wrapper.querySelector('.custom-select-trigger span').textContent = select.options[select.selectedIndex].text;
             wrapper.querySelectorAll('.custom-option').forEach((el, i) => el.classList.toggle('selected', i === select.selectedIndex));
         }

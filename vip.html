@@ -32,7 +32,6 @@
         .beneficios-card .perks-list { columns: 2; column-gap: 28px; }
         .beneficios-card .perks-list li { break-inside: avoid; }
 
-        /* Ejemplos de los beneficios */
         .ejemplos-titulo { color: #e1bc56; margin: 10px 0 14px; font-size: 1.1rem; letter-spacing: 0.5px; }
         .ejemplos-tabs { margin-bottom: 18px; }
         .ejemplo-panel[hidden] { display: none; }
@@ -380,7 +379,6 @@
             refrescar();
         }
 
-        // Aceptación expresa de los Términos (incluye la renuncia al retracto) antes de ir a pagar
         function terminosAceptados() {
             const check = document.getElementById('termsCheck');
             if (check.checked) return true;
@@ -509,8 +507,6 @@
             }
         }
 
-        // ---- Ejemplos de los beneficios ----
-        // Los archivos van en vip_ejemplos/. Si uno todavía no existe, el carrusel muestra "Ejemplo próximamente".
         const EJEMPLOS = {
             mensajes: [
                 { titulo: 'Entrada', desc: 'Lo que ven todos cuando entras a la sala.', src: 'vip_ejemplos/mensaje_entrada.png' },
@@ -521,7 +517,9 @@
                 { titulo: 'Pequeño', desc: 'Te achicas al marcar.', src: 'vip_ejemplos/tamano_small.mp4' },
                 { titulo: 'Gigante', desc: 'Creces hasta ser enorme al marcar.', src: 'vip_ejemplos/tamano_big.mp4' },
                 { titulo: 'Aleatorio', desc: 'Un tamaño al azar en cada gol.', src: 'vip_ejemplos/tamano_random.mp4' },
-                { titulo: 'Locura', desc: 'Cambias de tamaño sin parar durante el festejo.', src: 'vip_ejemplos/tamano_crazy.mp4' }
+                { titulo: 'Locura', desc: 'Cambias de tamaño sin parar durante el festejo.', src: 'vip_ejemplos/tamano_crazy.mp4' },
+                { titulo: 'Inflar', desc: 'Creces de a poco durante el festejo.', src: 'vip_ejemplos/tamano_inflar.mp4' },
+                { titulo: 'Desinflar', desc: 'Te achicas de a poco durante el festejo.', src: 'vip_ejemplos/tamano_desinflar.mp4' }
             ],
             celebraciones: [
                 { titulo: 'Apurar', desc: 'Corres hacia la pelota y la llevas pegada al centro del campo.', src: 'vip_ejemplos/clip_apurar.mp4' },
@@ -529,7 +527,11 @@
                 { titulo: 'Gravedad', desc: 'Todos menos tú caen hacia abajo.', src: 'vip_ejemplos/clip_gravedad.mp4' },
                 { titulo: 'Bomba', desc: 'La pelota explota y los que están cerca salen volando.', src: 'vip_ejemplos/clip_bomba.mp4' },
                 { titulo: 'Agujero', desc: 'La pelota se vuelve un agujero negro y se traga a todos.', src: 'vip_ejemplos/clip_agujero.mp4' },
-                { titulo: 'Bolas', desc: 'Aparecen 10 pelotas a tu alrededor.', src: 'vip_ejemplos/clip_bolas.mp4' }
+                { titulo: 'Bolas', desc: 'Aparecen 10 pelotas a tu alrededor.', src: 'vip_ejemplos/clip_bolas.mp4' },
+                { titulo: 'Explota', desc: 'La pelota se divide en 15 pelotas pequeñas.', src: 'vip_ejemplos/clip_explota.mp4' },
+                { titulo: 'Cuncuna', desc: 'Eres 3 veces más rápido y tus compañeros te siguen en fila.', src: 'vip_ejemplos/clip_cuncuna.mp4' },
+                { titulo: 'Disco', desc: 'Los demás jugadores se teletransportan entre sus lugares.', src: 'vip_ejemplos/clip_disco.mp4' },
+                { titulo: 'Agónico', desc: 'Corres al córner, tus compañeros te siguen y entran 5 suplentes.', src: 'vip_ejemplos/clip_agonico.mp4' }
             ]
         };
         const sinMovimiento = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -575,13 +577,12 @@
             const tipo = document.querySelector('input[name="ejemplo"]:checked').value;
             document.getElementById('panelIcono').hidden = tipo !== 'icono';
             document.getElementById('panelCarrusel').hidden = tipo === 'icono';
-            if (tipo === 'icono') { document.getElementById('carruselMedia').replaceChildren(); return; }   // detiene el video
+            if (tipo === 'icono') { document.getElementById('carruselMedia').replaceChildren(); return; }
             carrusel.lista = EJEMPLOS[tipo];
             carrusel.i = 0;
             mostrarEjemplo();
         }
 
-        // Ícono y color de prueba: misma lógica que el panel VIP de perfil.html, pero no guarda nada
         function unSimbolo(texto) {
             return Array.from((texto || '').trim()).filter(c => !/[️‍]/.test(c) && !(c >= '\u{1F3FB}' && c <= '\u{1F3FF}')).pop() || '';
         }
@@ -612,7 +613,7 @@
             document.querySelectorAll('input[name="ejemplo"]').forEach(r => r.addEventListener('change', cambiarEjemplo));
             document.getElementById('carruselPrev').onclick = () => moverEjemplo(-1);
             document.getElementById('carruselNext').onclick = () => moverEjemplo(1);
-            let toqueX = null;   // deslizar con el dedo en el celular
+            let toqueX = null;
             const caja = document.getElementById('carrusel');
             caja.addEventListener('touchstart', e => { toqueX = e.touches[0].clientX; }, { passive: true });
             caja.addEventListener('touchend', e => {
