@@ -461,7 +461,8 @@
             morado:        0x8B45BA, azul_morado:   0x374B99, celeste_opaco: 0x95DBDB
         };
 
-        const KIT_COLORS = [
+        // Respaldo: la lista real vive en Render (/api/kit-colors, KIT_COLORS de bot.js) y la carga cargarKitColors()
+        let KIT_COLORS = [
             { name: "U. Católica", home: { colors: [COLORS.blanco, COLORS.azul, COLORS.blanco], text: COLORS.rojo, angle: 90 }, away: { colors: [COLORS.azul, COLORS.rojo, COLORS.rojo], text: COLORS.blanco, angle: 90 } },
             { name: "U. De Chile", home: { colors: [0x132A61, COLORS.azul, COLORS.azul], text: COLORS.rojo, angle: 70 }, away: { colors: [COLORS.azul, COLORS.blanco, COLORS.blanco], text: COLORS.rojo, angle: 50 } },
             { name: "Colo-Colo", home: { colors: [COLORS.blanco, COLORS.blanco, COLORS.negro], text: COLORS.negro, angle: 90 }, away: { colors: [0x191919, 0x121212, COLORS.negro], text: COLORS.rojo, angle: 60 } },
@@ -483,7 +484,7 @@
             { name: "Ñublense", home: { colors: [0xE3221B, COLORS.rojo, 0xAD2424], text: COLORS.blanco, angle: 60 }, away: { colors: [0x191919, 0x121212, COLORS.negro], text: COLORS.blanco, angle: 60 } },
             { name: "Huachipato", home: { colors: [COLORS.negro, COLORS.azul, COLORS.negro], text: COLORS.blanco, angle: 0 }, away: { colors: [COLORS.blanco, 0xF2F2F2, 0xE8E8E8], text: COLORS.azul, angle: 60 } },
             { name: "Cobresal", home: { colors: [COLORS.blanco, COLORS.naranja, COLORS.blanco], text: COLORS.negro, angle: 0 }, away: { colors: [0x229E77, 0x1B7D5E, 0x229E77], text: COLORS.naranja, angle: 0 } },
-            { name: "Rangers", home: { colors: [COLORS.negro, COLORS.rojo, COLORS.negro], text: COLORS.blanco, angle: 90 }, away: { colors: [COLORS.blanco, 0xF2F2F2, 0xE8E8E8], text: COLORS.rojo, angle: 0 } },
+            { name: "Rangers", home: { colors: [COLORS.negro, COLORS.rojo, COLORS.negro], text: COLORS.blanco, angle: 90 }, away: { colors: [COLORS.blanco, 0xF2F2F2, 0xE8E8E8], text: COLORS.rojo, angle: 60 } },
             { name: "U. De Concepción", home: { colors: [COLORS.amarillo, COLORS.amarillo, COLORS.azul], text: COLORS.azul, angle: 90 }, away: { colors: [COLORS.blanco, 0xF2F2F2, 0xE8E8E8], text: COLORS.amarillo, angle: 60 } },
             { name: "D. Copiapó", home: { colors: [COLORS.rojo, COLORS.blanco, COLORS.blanco], text: COLORS.rojo, angle: 90 }, away: { colors: [COLORS.granate, COLORS.rojo, COLORS.granate], text: COLORS.blanco, angle: 0 } },
             { name: "D. Recoleta", home: { colors: [COLORS.blanco, 0xFFDCDB, COLORS.blanco], text: COLORS.azul_oscuro, angle: 0 }, away: { colors: [COLORS.blanco, COLORS.azul_oscuro, COLORS.azul_oscuro], text: COLORS.rojo, angle: 90 } },
@@ -509,6 +510,28 @@
             temp: { general: 999, goles: 999, asistencias: 999, defensas: 999, arqueros: 999 }
         };
 
+        // Camisetas: se guardan en localStorage y solo se piden a Render si no están o si tienen más de 7 días
+        // (y entonces con ?v=, que responde sin la lista si no cambió). Si Render falla queda la lista de respaldo.
+        const KITS_CACHE = 'toroHaxKits';
+        const esKit = k => k && Array.isArray(k.colors) && k.colors.length >= 1 && k.colors.every(c => Number.isFinite(c)) && Number.isFinite(k.text) && Number.isFinite(k.angle);
+        const listaKitsValida = l => Array.isArray(l) && l.some(t => t && t.name === "ToroHax") && l.every(t => t && typeof t.name === "string" && esKit(t.home) && esKit(t.away));
+
+        async function cargarKitColors() {
+            let cache = null;
+            try { cache = JSON.parse(localStorage.getItem(KITS_CACHE)); } catch (e) {}
+            const hayCache = !!(cache && listaKitsValida(cache.kits));
+            if (hayCache) KIT_COLORS = cache.kits;
+            if (hayCache && Date.now() - (cache.fecha || 0) < 7 * 24 * 3600 * 1000) return;
+            try {
+                const res = await fetch(`https://torobot-izu5.onrender.com/api/kit-colors${hayCache ? `?v=${encodeURIComponent(cache.version)}` : ''}`);
+                const data = await res.json();
+                if (hayCache && data.sinCambios) cache.fecha = Date.now();
+                else if (listaKitsValida(data.kits)) { KIT_COLORS = data.kits; cache = { version: data.version, kits: data.kits, fecha: Date.now() }; }
+                else return;
+                try { localStorage.setItem(KITS_CACHE, JSON.stringify(cache)); } catch (e) {}
+            } catch (e) {}
+        }
+
         window.onload = async () => {
             const loggedId = localStorage.getItem('toroHaxLoggedId');
             if (!loggedId) {
@@ -517,10 +540,12 @@
                 return;
             }
 
+            const kitsListos = cargarKitColors();   // en paralelo con el perfil; nunca falla
             fetch(`https://torobot-izu5.onrender.com/get-player/${loggedId}`)
             .then(res => res.json())
-            .then(data => {
+            .then(async data => {
                 if(data.name) {
+                    await kitsListos;
                     playerData = data;
                     document.getElementById('mainContent').style.display = 'flex';
                     

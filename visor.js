@@ -272,7 +272,7 @@ const VisorCore = (function () {
         }
 
         function makeEpoch(f0, gs, room) {
-            const ep = { f0, stadium: gs ? gs.stadium : null, discCount: 0, discRadius: [], discColor: [], players: [], teamColors: snapshotTeamColors(room) };
+            const ep = { f0, stadium: gs ? gs.stadium : null, timeLimit: gs ? gs.timeLimit : 0, discCount: 0, discRadius: [], discColor: [], players: [], teamColors: snapshotTeamColors(room) };
             if (!gs) return ep;
             const discs = gs.physicsState.discs;
             ep.discCount = discs.length;
@@ -442,6 +442,49 @@ const VisorCore = (function () {
         return messages;
     }
 
+    // Añadido y tanda de penales del marcador, por cuadro, leídos de los anuncios: los mismos que lee el programa
+    // (leerAnuncio en torohax-client/preload.js). El reloj que retrocede (partido nuevo, 2T, alargue) borra el añadido.
+    const RE_ADICION = /Se añaden (?:(\d+) minutos?)?(?: y )?(?:(\d+) segundos?)? de adición/;
+    const RE_INICIO_TANDA = /NOS VAMOS A LOS PENALES/;
+    const RE_FIN_TANDA = /FIN DE LA TANDA|VICTORIA EN PENALES/;
+    const TANDA_ESPERA = 600 * FPS, TANDA_FINAL = 15 * FPS;
+
+    function scoreboardEvents(messages, elapsed, KR, inicioEn) {
+        const items = messages.filter(m => m.type === 'event');
+        for (let f = 1; f < elapsed.length; f++) if (elapsed[f] < elapsed[f - 1]) items.push({ f, atras: true });
+        items.sort((a, b) => a.f - b.f || (b.atras ? 1 : 0) - (a.atras ? 1 : 0));
+        const out = [];
+        let extra = null, tanda = null, caduca = 0;
+        const anotar = f => out.push({ f, extra, tanda: tanda ? JSON.parse(JSON.stringify(KR.vistaTanda(tanda))) : null });
+        for (const m of items) {
+            if (tanda && m.f >= caduca) { tanda = null; anotar(caduca); }
+            if (m.atras) {
+                if (extra !== null) { extra = null; anotar(m.f); }
+                continue;
+            }
+            const a = RE_ADICION.exec(m.text);
+            if (a) {
+                extra = (Number(a[1]) || 0) * 60 + (Number(a[2]) || 0);
+            } else if (RE_INICIO_TANDA.test(m.text)) {
+                tanda = KR.nuevaTanda();
+                tanda.inicio = inicioEn(m.f);
+                caduca = m.f + TANDA_ESPERA;
+            } else if (RE_FIN_TANDA.test(m.text)) {
+                if (!tanda) continue;
+                tanda.fin = true;
+                caduca = m.f + TANDA_FINAL;
+            } else {
+                const t = tanda || KR.nuevaTanda();
+                if (!KR.anotarPenal(t, m.text)) continue;
+                tanda = t;
+                if (!t.fin) caduca = m.f + TANDA_ESPERA;
+            }
+            anotar(m.f);
+        }
+        if (tanda) { tanda = null; anotar(caduca); }
+        return out;
+    }
+
     function uidMap(messages) {
         const map = new Map();
         for (const m of messages) if (m.type === 'chat' && m.uid) map.set(m.name, m.uid);
@@ -452,7 +495,7 @@ const VisorCore = (function () {
         FPS, MAX_REPLAY_BYTES, DEFAULT_TEAM_COLORS, CLIP_SECONDS,
         formatTime, formatSeconds, parseClipTime, formatClipTime, planClip, colorToCss, isTransparentColor, shadeColor, fieldExtent,
         parseAnnouncement, extractTeamNames, filterMessages, buildChatText, lastIndexAtOrBefore, describeGoal,
-        looksLikeReplay, scanReplay, buildMessages, uidMap, recordedFrame
+        looksLikeReplay, scanReplay, buildMessages, uidMap, recordedFrame, scoreboardEvents
     };
 })();
 
@@ -649,8 +692,10 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
                 .filter(e => { const k = e.t + e.f; if (seenSfx.has(k)) return false; seenSfx.add(k); return true; })   // un bloque de anuncios en el mismo cuadro suena una vez
                 .sort((a, b) => a.f - b.f);
             S.title = C.extractTeamNames(messages) ? `${S.teamNames.red} vs ${S.teamNames.blue}` : name;
+            S.hasTeamNames = !!C.extractTeamNames(messages);
             S.fileName = name;
-            S.lastScore = { red: 0, blue: 0 };
+            S.lastScore = { red: 0, blue: 0, elapsed: 0, epoch: null };
+            S.scoreEvents = C.scoreboardEvents(messages, S.rec.elapsed, KR, scoreboardStart);
             S.lastChatIndex = -2;
             S.camera = { x: 0, y: 0 };
             S.query = '';
@@ -671,8 +716,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         show($('vz-viewer'), true);
         $('vz-title').textContent = S.title;
         $('vz-title').title = S.fileName || S.title;
-        $('vz-name-red').textContent = S.teamNames.red;
-        $('vz-name-blue').textContent = S.teamNames.blue;
 
         const seek = $('vz-seek');
         seek.max = S.maxFrame;
@@ -1119,12 +1162,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         $('vz-time-cur').textContent = C.formatTime(f);
 
         const d = C.recordedFrame(S.rec, f);
-        if (d.epoch.stadium) {
-            S.lastScore = { red: d.red, blue: d.blue };
-            $('vz-clock').textContent = C.formatSeconds(d.elapsed);
-        }
-        $('vz-score-red').textContent = S.lastScore.red;
-        $('vz-score-blue').textContent = S.lastScore.blue;
+        if (d.epoch.stadium) S.lastScore = { red: d.red, blue: d.blue, elapsed: d.elapsed, epoch: d.epoch };
+        scoreboard().pintar(scoreboardData(f, S.lastScore));
 
         const idx = C.lastIndexAtOrBefore(S.shown || [], f);
         if (idx !== S.lastChatIndex) {
@@ -1140,6 +1179,67 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
                 }
             }
         }
+    }
+
+    /* ---------- Marcador del programa de escritorio (kit-render.js y equipos.js, se copian con npm run marcador-web) ---------- */
+    const KR = window.ToroKitRender;
+
+    function scoreboard() {
+        if (S.marcador) return S.marcador;
+        const estilo = document.createElement('style');
+        estilo.textContent = KR.MARCADOR_CSS;
+        document.head.appendChild(estilo);
+        S.marcador = KR.crearMarcador(document, 'logo_torohax.png');
+        $('vz-scorebox').appendChild(S.marcador.el);
+        return S.marcador;
+    }
+
+    // Colores y ángulo de la camiseta; los de HaxBall por defecto dejan el respaldo naranja/azul, igual que en el programa.
+    // El equipo sale de sus colores, que siguen al equipo si cambian de lado; si no se reconoce, del nombre que dio la sala.
+    function scoreboardTeams(ep) {
+        if (!ep) return [{ codigo: 'RED', firma: null, escudo: null }, { codigo: 'BLU', firma: null, escudo: null }];
+        if (ep.marcador) return ep.marcador;
+        const hex = c => c.toString(16).padStart(6, '0').toUpperCase();
+        const firmas = [1, 2].map(id => {
+            const tc = ep.teamColors[id];
+            const porDefecto = !tc || !tc.inner.length || (tc.inner.length === 1 && tc.inner[0] === C.DEFAULT_TEAM_COLORS[id]);
+            return porDefecto ? null : { sd: tc.angle, texto: hex(tc.text || 0), colores: tc.inner.map(hex) };
+        });
+        const nombres = KR.equiposDeFirmas(window.TORO_EQUIPOS || [], firmas);
+        const respaldo = [S.teamNames.red, S.teamNames.blue];
+        return (ep.marcador = firmas.map((firma, i) => {
+            const nombre = nombres[i] || (S.hasTeamNames ? respaldo[i] : null);
+            return { codigo: nombre ? KR.codigoDe(nombre) : (i ? 'BLU' : 'RED'), firma, escudo: null };
+        }));
+    }
+
+    // Equipos y goles al anunciarse la tanda: ToroMatch cambia los colores en cada penal
+    function scoreboardStart(f) {
+        let i = S.rec.epochOf[f];
+        while (i > 0 && !S.rec.epochs[i].stadium) i--;
+        const ep = S.rec.epochs[i];
+        for (; f > 0 && S.rec.epochs[S.rec.epochOf[f]] !== ep; f--);
+        const eq = scoreboardTeams(ep);
+        return { rojo: eq[0], azul: eq[1], goles: [S.rec.red[f], S.rec.blue[f]] };
+    }
+
+    function scoreboardData(f, s) {
+        const i = C.lastIndexAtOrBefore(S.scoreEvents, f);
+        const ev = i >= 0 ? S.scoreEvents[i] : { extra: null, tanda: null };
+        const seg = Math.floor(s.elapsed), lim = s.epoch ? s.epoch.timeLimit * 60 : 0;
+        const pad = n => String(n).padStart(2, '0');
+        const eq = scoreboardTeams(s.epoch);
+        return {
+            variante: 'larga',
+            rojo: ev.tanda ? ev.tanda.rojo : eq[0],
+            azul: ev.tanda ? ev.tanda.azul : eq[1],
+            goles: ev.tanda ? ev.tanda.goles : [s.red, s.blue],
+            mm: pad(Math.floor(seg / 60)),
+            ss: pad(seg % 60),
+            extra: ev.tanda ? null : (lim && seg > lim ? 'inf' : ev.extra),
+            alerta: !!lim && seg < lim && seg > lim - 30,
+            tanda: ev.tanda && ev.tanda.filas
+        };
     }
 
     const FS_SLOTS = [['vz-scorebox', 'vz-fs-top'], ['vz-controls', 'vz-fs-bottom']];
@@ -1494,43 +1594,93 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         g.closePath();
     }
 
-    function fitText(g, text, maxWidth) {
-        let t = String(text);
-        if (g.measureText(t).width <= maxWidth) return t;
-        while (t.length > 1 && g.measureText(t + '…').width > maxWidth) t = t.slice(0, -1);
-        return t + '…';
+    function drawClipShield(g, x, y, s, eq, respaldo) {
+        const firma = eq.firma || { sd: 0, colores: [respaldo] };
+        g.save();
+        g.translate(x, y);
+        g.scale(s / 64, s / 64);
+        g.clip(new Path2D(KR.SILUETA_ESCUDO));
+        g.translate(32, 32);
+        g.rotate((Number(firma.sd) || 0) * Math.PI / 128);
+        const ancho = 80 / firma.colores.length;
+        firma.colores.forEach((c, i) => { g.fillStyle = '#' + c; g.fillRect(-40 + i * ancho, -40, ancho + 0.3, 80); });
+        g.restore();
     }
 
-    // Marcador compacto arriba al centro, para que el clip se entienda solo (equipos, goles y reloj del partido).
+    // El marcador del visor, dibujado arriba al centro del clip con las mismas medidas (MARCADOR_CSS): un clip no puede llevar HTML.
     function drawClipHud(g, w, h, f) {
         const d = C.recordedFrame(S.rec, f);
-        const bh = Math.round(h * 0.075), fs = Math.round(bh * 0.5), pad = Math.round(bh * 0.45), gap = Math.round(bh * 0.3);
-        const sans = `700 ${fs}px Arial, sans-serif`, mono = `700 ${fs}px "Courier New", monospace`;
+        const s = d.epoch.stadium ? { red: d.red, blue: d.blue, elapsed: d.elapsed, epoch: d.epoch } : S.lastScore;
+        const M = scoreboardData(f, s), u = h / 900;
+        const fuente = t => `${t * u}px Anton, Impact, "Arial Narrow", sans-serif`;
+        const px = t => t * u;
         g.save();
-        g.font = sans;
-        const red = fitText(g, S.teamNames.red, w * 0.22), blue = fitText(g, S.teamNames.blue, w * 0.22);
-        const side = Math.max(g.measureText(red).width, g.measureText(blue).width);
-        const scoreW = g.measureText('00').width;
-        const clock = C.formatSeconds(d.elapsed);
-        g.font = mono;
-        const clockW = Math.max(g.measureText(clock).width, g.measureText('00:00').width);
-        const total = pad + side + gap + scoreW + gap + clockW + gap + scoreW + gap + side + pad;
-        const x0 = Math.round((w - total) / 2), y0 = Math.round(h * 0.03), cy = y0 + bh / 2 + 1;
-
-        g.fillStyle = 'rgba(0, 0, 0, 0.78)';
-        roundedRect(g, x0, y0, total, bh, bh * 0.35);
-        g.fill();
         g.textBaseline = 'middle';
-        let x = x0 + pad;
-        g.font = sans; g.textAlign = 'right'; g.fillStyle = '#ff8a75'; g.fillText(red, x + side, cy);
-        x += side + gap;
-        g.textAlign = 'center'; g.fillStyle = '#ffffff'; g.fillText(String(d.red), x + scoreW / 2, cy);
-        x += scoreW + gap;
-        g.font = mono; g.fillStyle = '#2df2c1'; g.fillText(clock, x + clockW / 2, cy);
-        x += clockW + gap;
-        g.font = sans; g.fillStyle = '#ffffff'; g.fillText(String(d.blue), x + scoreW / 2, cy);
-        x += scoreW + gap;
-        g.textAlign = 'left'; g.fillStyle = '#7fb1ff'; g.fillText(blue, x, cy);
+        g.font = fuente(28);
+        const codR = g.measureText(M.rojo.codigo).width, codA = g.measureText(M.azul.codigo).width;
+        g.font = fuente(32);
+        const numR = Math.max(px(26), g.measureText(String(M.goles[0])).width), numA = Math.max(px(26), g.measureText(String(M.goles[1])).width);
+        g.font = fuente(26);
+        const sep = g.measureText('-').width;
+        const total = px(14) * 2 + px(44) * 2 + codR + codA + numR + numA + sep + px(10) * 6 + px(8) * 2;
+        const logo = S.marcador && S.marcador.el.querySelector('.toro-mc-logo');
+        const conLogo = logo && logo.complete && logo.naturalWidth > 0;
+        const x0 = Math.round((w - total + (conLogo ? px(68) : 0)) / 2), y0 = Math.round(h * 0.03), cajaH = px(56), cy = y0 + cajaH / 2;
+        const centroX = x0 + total / 2;
+
+        if (conLogo) {
+            g.save();
+            g.beginPath();
+            g.arc(x0 - px(39), y0 + px(29), px(29), 0, Math.PI * 2);
+            g.clip();
+            g.drawImage(logo, x0 - px(68), y0, px(58), px(58));
+            g.restore();
+        }
+        const bajo = (ancho, alto) => { g.fillStyle = '#2A555D'; roundedRect(g, centroX - ancho / 2, y0 + cajaH - px(12), ancho, alto + px(12), px(11)); g.fill(); };
+        if (M.tanda) {
+            bajo(total, px(5) * 3 + px(26) * 2 + px(8));
+            [[M.rojo, M.tanda[0], 'FF8725'], [M.azul, M.tanda[1], '2380D6']].forEach(([eq, fila, respaldo], i) => {
+                const fy = y0 + cajaH + px(5) + i * px(31) + px(13), xi = x0 + px(14);
+                drawClipShield(g, xi, fy - px(13), px(26), eq, respaldo);
+                g.font = fuente(20); g.fillStyle = '#fff'; g.textAlign = 'left';
+                g.fillText(eq.codigo, xi + px(36), fy);
+                g.textAlign = 'right';
+                g.fillText(`(${fila.goles})`, x0 + total - px(14), fy);
+                const px0 = centroX - px(47);
+                fila.puntos.forEach((p, j) => {
+                    g.fillStyle = p === 'v' ? '#1CC63C' : p === 'r' ? '#D61818' : '#fff';
+                    g.beginPath(); g.arc(px0 + j * px(21) + px(8.5), fy, px(8.5), 0, Math.PI * 2); g.fill();
+                });
+            });
+        } else {
+            const hora = `${M.mm}:${M.ss}`;
+            const extra = M.extra === 'inf' ? '+\u221E' : M.extra !== null ? `+${Math.floor(M.extra / 60)}:${String(M.extra % 60).padStart(2, '0')}` : '';
+            g.font = fuente(24);
+            const anchoHora = g.measureText(hora).width, anchoExtra = extra ? g.measureText(extra).width + px(10) : 0;
+            bajo(anchoHora + anchoExtra + px(32), px(32));
+            const ty = y0 + cajaH + px(15);
+            let tx = centroX - (anchoHora + anchoExtra) / 2;
+            g.textAlign = 'left';
+            g.fillStyle = M.alerta ? '#FF8725' : '#fff';
+            g.fillText(hora, tx, ty);
+            if (extra) { g.fillStyle = '#E6C183'; g.fillText(extra, tx + anchoHora + px(10), ty); }
+        }
+        g.fillStyle = 'rgba(50, 103, 113, 0.97)';
+        roundedRect(g, x0, y0, total, cajaH, px(12));
+        g.fill();
+        let x = x0 + px(14);
+        drawClipShield(g, x, y0 + px(6), px(44), M.rojo, 'FF8725');
+        x += px(54);
+        g.fillStyle = '#fff'; g.textAlign = 'left'; g.font = fuente(28); g.fillText(M.rojo.codigo, x, cy);
+        x += codR + px(18);
+        g.textAlign = 'center'; g.font = fuente(32); g.fillText(String(M.goles[0]), x + numR / 2, cy);
+        x += numR + px(10);
+        g.font = fuente(26); g.fillText('-', x + sep / 2, cy);
+        x += sep + px(10);
+        g.font = fuente(32); g.fillText(String(M.goles[1]), x + numA / 2, cy);
+        x += numA + px(18);
+        g.textAlign = 'left'; g.font = fuente(28); g.fillText(M.azul.codigo, x, cy);
+        drawClipShield(g, x + codA + px(10), y0 + px(6), px(44), M.azul, '2380D6');
         g.restore();
     }
 

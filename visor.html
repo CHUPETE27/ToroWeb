@@ -14,6 +14,7 @@
     <link rel="icon" type="image/png" href="logo_torohax.png">
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&display=swap">
 
     <style>
         * { box-sizing: border-box; }
@@ -61,14 +62,9 @@
         .vz-left, .vz-right { min-width: 0; display: flex; flex-direction: column; gap: 15px; }
         .vz-right.box { padding: 15px; }
 
-        .vz-score { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 12px; padding: 12px 18px; text-align: center; }
-        .vz-team { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; }
-        .vz-team-name { font-weight: bold; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .vz-team.red .vz-team-name { color: #ff8a75; }
-        .vz-team.blue .vz-team-name { color: #7fb1ff; }
-        .vz-score .score-text { line-height: 1; }
-        .vz-mid { display: flex; align-items: center; gap: 14px; }
-        .vz-clock { font-family: monospace; font-size: 1.15rem; color: var(--mint); background: rgba(0, 0, 0, 0.5); border: 1px solid #444; border-radius: 8px; padding: 4px 10px; }
+        /* El marcador es el del programa de escritorio (kit-render.js) */
+        .vz-score { display: flex; justify-content: center; }
+        .vz-score .toro-mc { position: static; padding: 0; }
 
         .vz-stage { position: relative; width: 100%; aspect-ratio: 16 / 9; max-height: 80vh; max-height: 80dvh; background: #0a2a2e; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
         .vz-stage-inner { position: absolute; inset: 0; }
@@ -90,10 +86,6 @@
         .vz-stage.vz-fs .vz-fs-exit { display: inline-flex; }
         .vz-fs-top, .vz-fs-bottom, .vz-fs-exit { position: absolute; z-index: 5; transition: opacity 0.25s; }
         .vz-fs-top { top: 0; left: 0; right: 0; padding: 8px 64px 18px; background: linear-gradient(rgba(0, 0, 0, 0.7), transparent); pointer-events: none; }
-        .vz-fs-top .vz-score { pointer-events: auto; max-width: 520px; margin: 0 auto; padding: 4px 14px; gap: 10px; background: rgba(0, 0, 0, 0.45); border-color: rgba(255, 255, 255, 0.12); box-shadow: none; }
-        .vz-fs-top .vz-score .score-text { font-size: 1.9rem; }
-        .vz-fs-top .vz-team-name { font-size: 0.8rem; letter-spacing: 0; }
-        .vz-fs-top .vz-clock { font-size: 1rem; padding: 2px 8px; }
         .vz-fs-bottom { left: 0; right: 0; bottom: 0; padding: 22px 10px max(8px, env(safe-area-inset-bottom)); background: linear-gradient(transparent, rgba(0, 0, 0, 0.82)); }
         .vz-fs-bottom .vz-controls { padding: 4px; background: transparent; border: none; box-shadow: none; gap: 6px; }
         .vz-fs-bottom .vz-btnrow .btn-cmd:not(.vz-play), .vz-fs-bottom .vz-btnrow .custom-select-trigger { background: rgba(0, 0, 0, 0.55); }
@@ -102,7 +94,6 @@
         .vz-fs-exit { top: 8px; right: 8px; min-width: 44px; min-height: 44px; justify-content: center; align-items: center; background: rgba(0, 0, 0, 0.55); }
         .vz-stage.vz-fs.vz-ui-hidden .vz-fs-top, .vz-stage.vz-fs.vz-ui-hidden .vz-fs-bottom, .vz-stage.vz-fs.vz-ui-hidden .vz-fs-exit { opacity: 0; pointer-events: none; }
         .vz-stage.vz-fs.vz-ui-hidden #vz-canvas { cursor: none; }
-        .vz-stage.vz-fs.vz-ui-hidden .vz-fs-top .vz-score { pointer-events: none; }
 
         @media (orientation: portrait) and (pointer: coarse) {
             .vz-stage.vz-fs .vz-stage-inner { inset: auto; top: 0; left: 0; width: 100vh; width: 100dvh; height: 100vw; transform-origin: 0 0; transform: translateX(100vw) rotate(90deg); }
@@ -229,9 +220,7 @@
             .vz-drop { padding: 32px 14px; }
             .vz-loading { padding: 28px 16px; }
             .vz-spinner { font-size: 2.8rem; }
-            .vz-score { padding: 10px 10px; gap: 6px; }
-            .vz-team-name { font-size: 0.8rem; letter-spacing: 0; }
-            .vz-clock { font-size: 1rem; padding: 3px 8px; }
+            .vz-score .toro-mc { zoom: 0.68; }
             .vz-mid { gap: 8px; }
             .vz-controls { padding: 12px; }
             .vz-btnrow { gap: 6px; }
@@ -296,11 +285,7 @@
 
                 <div class="vz-grid">
                     <div class="vz-left">
-                        <div class="box vz-score" id="vz-scorebox">
-                            <div class="vz-team red"><span class="vz-team-name" id="vz-name-red">Rojo</span><span class="score-text" id="vz-score-red">0</span></div>
-                            <div class="vz-mid"><span class="vz-clock" id="vz-clock" title="Tiempo de partido">0:00</span></div>
-                            <div class="vz-team blue"><span class="vz-team-name" id="vz-name-blue">Azul</span><span class="score-text" id="vz-score-blue">0</span></div>
-                        </div>
+                        <div class="vz-score" id="vz-scorebox"></div>
 
                         <div class="vz-stage" id="vz-stage">
                             <div class="vz-stage-inner" id="vz-stage-inner">
@@ -440,6 +425,8 @@
     <script src="vendor/haxball/pako.min.js"></script>
     <script src="vendor/haxball/json5.min.js"></script>
     <script src="vendor/haxball/node-haxball.api.js"></script>
-    <script src="visor.js?v=2"></script>
+    <script src="kit-render.js?v=1"></script>
+    <script src="equipos.js?v=1"></script>
+    <script src="visor.js?v=3"></script>
 </body>
 </html>
