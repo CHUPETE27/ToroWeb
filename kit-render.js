@@ -785,6 +785,18 @@
     }
 
     // Devuelve true si el texto era parte de la tanda. Cada anuncio trae dos líneas seguidas, una por equipo.
+    // Una tanda puede acabar sin su anuncio (la sala se reinicia, el partido se suspende) o seguir de inmediato otro partido.
+    // retrocedio: el reloj del juego volvió atrás. En la pública la tanda corre en un solo juego; en express cada penal es
+    // un juego nuevo, que nunca llega a TANDA_RELOJ_MAX segundos: si llega, ya es otro partido.
+    const TANDA_RELOJ_MAX = 120;
+    function tandaSigue(t, retrocedio, segundos) {
+        if (retrocedio) {
+            t.reinicio = true;
+            if (t.fin || (t.vistos && !t.express)) return false;
+        }
+        return !(t.reinicio && segundos > TANDA_RELOJ_MAX);
+    }
+
     function anotarPenal(t, texto) {
         const tx = String(texto).trim();
         if (/^📊 Tanda actual:/u.test(tx)) { // !anular de la sala: se borra el último penal
@@ -800,6 +812,7 @@
         if (m) linea = { etiqueta: m[1], goles: Number(m[3]), puntos: aPuntos(m[2]) };
         else if ((m = RE_PENAL_EXPRESS.exec(tx))) linea = { etiqueta: m[1], base: aPuntos(m[3]), extra: m[4] ? PUNTO[m[4]] : '' };
         if (!linea) { t.pendiente = null; return false; }
+        t.vistos = true;
         if (!t.pendiente) { t.pendiente = linea; return true; }
         const par = [t.pendiente, linea];
         t.pendiente = null;
@@ -819,7 +832,7 @@
     }
 
     raiz.ToroKitRender = {
-        claveEscudo, SILUETA_ESCUDO, codigoDe, equiposDeFirmas, MARCADOR_CSS, crearMarcador, fijarPosicion, fijarApariencia, nuevaTanda, anotarPenal, vistaTanda,
+        claveEscudo, SILUETA_ESCUDO, codigoDe, equiposDeFirmas, MARCADOR_CSS, crearMarcador, fijarPosicion, fijarApariencia, nuevaTanda, anotarPenal, vistaTanda, tandaSigue, TANDA_RELOJ_MAX,
         FUENTES, URL_FUENTES, FUENTE_GOOGLE, FORMAS, CON_GROSOR, PATRONES, ESTILOS_DEGRADADO, MAX_PUNTOS, MAX_COLORES_DEGRADADO, SALAS,
         hex, anguloInterno, gradosDeInterno, coincideFirma, firmasDeEquipo, coincideKit, aVector, sanear,
         base, capas, texto, textoHaxball, renderizar, lienzo, lienzoCapas, cargarImagenes, cargarFuenteGoogle

@@ -452,14 +452,18 @@ const VisorCore = (function () {
     function scoreboardEvents(messages, elapsed, KR, inicioEn) {
         const items = messages.filter(m => m.type === 'event');
         for (let f = 1; f < elapsed.length; f++) if (elapsed[f] < elapsed[f - 1]) items.push({ f, atras: true });
-        items.sort((a, b) => a.f - b.f || (b.atras ? 1 : 0) - (a.atras ? 1 : 0));
         const out = [];
         let extra = null, tanda = null, caduca = 0;
         const anotar = f => out.push({ f, extra, tanda: tanda ? JSON.parse(JSON.stringify(KR.vistaTanda(tanda))) : null });
+        for (let f = 1; f < elapsed.length; f++) if (elapsed[f] > KR.TANDA_RELOJ_MAX && elapsed[f - 1] <= KR.TANDA_RELOJ_MAX) items.push({ f, reloj: true });
+        items.sort((a, b) => a.f - b.f || (b.atras ? 1 : 0) - (a.atras ? 1 : 0));
         for (const m of items) {
             if (tanda && m.f >= caduca) { tanda = null; anotar(caduca); }
-            if (m.atras) {
-                if (extra !== null) { extra = null; anotar(m.f); }
+            if (m.atras || m.reloj) {
+                const antes = extra, habia = tanda;
+                if (m.atras) extra = null;
+                if (tanda && !KR.tandaSigue(tanda, !!m.atras, elapsed[m.f])) tanda = null;
+                if (extra !== antes || tanda !== habia) anotar(m.f);
                 continue;
             }
             const a = RE_ADICION.exec(m.text);
@@ -716,6 +720,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         show($('vz-viewer'), true);
         $('vz-title').textContent = S.title;
         $('vz-title').title = S.fileName || S.title;
+        $('vz-name-red').textContent = S.teamNames.red;
+        $('vz-name-blue').textContent = S.teamNames.blue;
+        scoreboard(); // antes del primer clip: su logo y su fuente ya deben estar cargados
 
         const seek = $('vz-seek');
         seek.max = S.maxFrame;
@@ -1162,8 +1169,13 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         $('vz-time-cur').textContent = C.formatTime(f);
 
         const d = C.recordedFrame(S.rec, f);
-        if (d.epoch.stadium) S.lastScore = { red: d.red, blue: d.blue, elapsed: d.elapsed, epoch: d.epoch };
-        scoreboard().pintar(scoreboardData(f, S.lastScore));
+        if (d.epoch.stadium) {
+            S.lastScore = { red: d.red, blue: d.blue, elapsed: d.elapsed, epoch: d.epoch };
+            $('vz-clock').textContent = C.formatSeconds(d.elapsed);
+        }
+        $('vz-score-red').textContent = S.lastScore.red;
+        $('vz-score-blue').textContent = S.lastScore.blue;
+        if (S.fs) scoreboard().pintar(scoreboardData(f, S.lastScore));
 
         const idx = C.lastIndexAtOrBefore(S.shown || [], f);
         if (idx !== S.lastChatIndex) {
@@ -1181,7 +1193,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         }
     }
 
-    /* ---------- Marcador del programa de escritorio (kit-render.js y equipos.js, se copian con npm run marcador-web) ---------- */
+    /* ---------- Marcador del programa de escritorio, en pantalla completa y en los clips (kit-render.js y equipos.js, se copian con npm run marcador-web) ---------- */
     const KR = window.ToroKitRender;
 
     function scoreboard() {
@@ -1190,7 +1202,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         estilo.textContent = KR.MARCADOR_CSS;
         document.head.appendChild(estilo);
         S.marcador = KR.crearMarcador(document, 'logo_torohax.png');
-        $('vz-scorebox').appendChild(S.marcador.el);
+        $('vz-fs-top').appendChild(S.marcador.el);
+        document.fonts.load('32px Anton').catch(() => {});
         return S.marcador;
     }
 
@@ -1242,7 +1255,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         };
     }
 
-    const FS_SLOTS = [['vz-scorebox', 'vz-fs-top'], ['vz-controls', 'vz-fs-bottom']];
+    const FS_SLOTS = [['vz-controls', 'vz-fs-bottom']];
     const UI_IDLE_MS = 3200;
 
     function nativeFullscreenElement() { return document.fullscreenElement || document.webkitFullscreenElement || null; }
