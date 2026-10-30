@@ -84,22 +84,22 @@
         .vz-flash.blue { color: #7fb1ff; }
 
         html.vz-lock, html.vz-lock body { overflow: hidden; }
-        html.vz-lock .menu-toggle { display: none; }
+        html.vz-lock .menu-toggle, html.vz-lock .logo-container { display: none; }
         .vz-stage.vz-fs { position: fixed; inset: 0; z-index: 100000; width: 100vw; height: 100vh; height: 100dvh; max-height: none; aspect-ratio: auto; border: none; border-radius: 0; background: #06201f; }
-        .vz-fs-top, .vz-fs-bottom, .vz-fs-exit { display: none; }
-        .vz-stage.vz-fs .vz-fs-top, .vz-stage.vz-fs .vz-fs-bottom { display: block; }
+        .vz-fs-marcador, .vz-fs-bottom, .vz-fs-exit { display: none; }
+        .vz-stage.vz-fs .vz-fs-marcador, .vz-stage.vz-fs .vz-fs-bottom { display: block; }
         .vz-stage.vz-fs .vz-fs-exit { display: inline-flex; }
-        .vz-fs-top, .vz-fs-bottom, .vz-fs-exit { position: absolute; z-index: 5; transition: opacity 0.25s; }
-        .vz-fs-top { top: 0; left: 0; right: 0; padding: 8px 64px 18px; background: linear-gradient(rgba(0, 0, 0, 0.7), transparent); pointer-events: none; }
-        /* En pantalla completa, el marcador del programa de escritorio (kit-render.js) */
-        .vz-fs-top .toro-mc { position: static; width: max-content; margin: 0 auto; padding: 0; }
+        .vz-fs-bottom, .vz-fs-exit { position: absolute; z-index: 5; transition: opacity 0.25s; }
+        /* En pantalla completa, el marcador del programa de escritorio (kit-render.js): siempre visible, no se va con los controles */
+        .vz-fs-marcador { position: absolute; z-index: 4; top: 8px; left: 0; right: 0; pointer-events: none; }
+        .vz-fs-marcador .toro-mc { position: static; width: max-content; margin: 0 auto; padding: 0; }
         .vz-fs-bottom { left: 0; right: 0; bottom: 0; padding: 22px 10px max(8px, env(safe-area-inset-bottom)); background: linear-gradient(transparent, rgba(0, 0, 0, 0.82)); }
         .vz-fs-bottom .vz-controls { padding: 4px; background: transparent; border: none; box-shadow: none; gap: 6px; }
         .vz-fs-bottom .vz-btnrow .btn-cmd:not(.vz-play), .vz-fs-bottom .vz-btnrow .custom-select-trigger { background: rgba(0, 0, 0, 0.55); }
         .vz-fs-bottom #vz-sound { background: rgba(0, 0, 0, 0.55); }
         .vz-fs-bottom .vz-btnrow .vz-toggle.on, .vz-fs-bottom #vz-sound.on { background: rgba(var(--cyan-rgb), 0.25); }
         .vz-fs-exit { top: 8px; right: 8px; min-width: 44px; min-height: 44px; justify-content: center; align-items: center; background: rgba(0, 0, 0, 0.55); }
-        .vz-stage.vz-fs.vz-ui-hidden .vz-fs-top, .vz-stage.vz-fs.vz-ui-hidden .vz-fs-bottom, .vz-stage.vz-fs.vz-ui-hidden .vz-fs-exit { opacity: 0; pointer-events: none; }
+        .vz-stage.vz-fs.vz-ui-hidden .vz-fs-bottom, .vz-stage.vz-fs.vz-ui-hidden .vz-fs-exit { opacity: 0; pointer-events: none; }
         .vz-stage.vz-fs.vz-ui-hidden #vz-canvas { cursor: none; }
 
         @media (orientation: portrait) and (pointer: coarse) {
@@ -230,7 +230,7 @@
             .vz-score { padding: 10px 10px; gap: 6px; }
             .vz-team-name { font-size: 0.8rem; letter-spacing: 0; }
             .vz-clock { font-size: 1rem; padding: 3px 8px; }
-            .vz-fs-top .toro-mc { zoom: 0.68; }
+            .vz-fs-marcador .toro-mc { zoom: 0.68; }
             .vz-mid { gap: 8px; }
             .vz-controls { padding: 12px; }
             .vz-btnrow { gap: 6px; }
@@ -305,7 +305,7 @@
                             <div class="vz-stage-inner" id="vz-stage-inner">
                                 <canvas id="vz-canvas" aria-label="Reproducción de la repetición"></canvas>
                                 <div id="vz-flash" class="vz-flash" aria-live="polite"></div>
-                                <div class="vz-fs-top" id="vz-fs-top"></div>
+                                <div class="vz-fs-marcador" id="vz-fs-marcador"></div>
                                 <div class="vz-fs-bottom" id="vz-fs-bottom"></div>
                                 <button type="button" id="vz-fs-exit" class="btn-cmd vz-fs-exit" aria-label="Salir de pantalla completa" title="Salir de pantalla completa (Esc)"><i class="fa-solid fa-compress"></i></button>
                             </div>
@@ -441,6 +441,6 @@
     <script src="vendor/haxball/node-haxball.api.js"></script>
     <script src="kit-render.js?v=1"></script>
     <script src="equipos.js?v=1"></script>
-    <script src="visor.js?v=4"></script>
+    <script src="visor.js?v=5"></script>
 </body>
 </html>

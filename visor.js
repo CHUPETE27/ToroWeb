@@ -919,6 +919,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         const f = Math.min(Math.floor(cursor), rec.frames - 1), frac = cursor - f;
         const ep = rec.epochs[rec.epochOf[f]];
 
+        if (g === ctx) S.ballOnCanvas = null;
         if (!ep.stadium) {
             g.fillStyle = '#0a2a2e'; g.fillRect(0, 0, w, h);
             g.fillStyle = '#7d7d7d'; g.font = `${Math.round(h * 0.05)}px sans-serif`;
@@ -964,6 +965,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         } else { cam.x = 0; cam.y = 0; cam.f = null; }
 
         g.setTransform(zoom, 0, 0, zoom, w / 2 - cx * zoom, h / 2 - cy * zoom);
+        if (g === ctx && n > 0) S.ballOnCanvas = { x: w / 2 + (cur.x[0] - cx) * zoom, y: h / 2 + (cur.y[0] - cy) * zoom };
         drawBackground(g, st, w, h);
         drawSegments(g, st);
 
@@ -1175,7 +1177,10 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         }
         $('vz-score-red').textContent = S.lastScore.red;
         $('vz-score-blue').textContent = S.lastScore.blue;
-        if (S.fs) scoreboard().pintar(scoreboardData(f, S.lastScore));
+        if (S.fs) {
+            scoreboard().pintar(scoreboardData(f, S.lastScore));
+            scoreboardBall();
+        }
 
         const idx = C.lastIndexAtOrBefore(S.shown || [], f);
         if (idx !== S.lastChatIndex) {
@@ -1202,9 +1207,24 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         estilo.textContent = KR.MARCADOR_CSS;
         document.head.appendChild(estilo);
         S.marcador = KR.crearMarcador(document, 'logo_torohax.png');
-        $('vz-fs-top').appendChild(S.marcador.el);
+        $('vz-fs-marcador').appendChild(S.marcador.el);
         document.fonts.load('32px Anton').catch(() => {});
         return S.marcador;
+    }
+
+    // Transparente con la pelota a menos de 60 px, igual que en el programa (revisarBola en torohax-client/preload.js).
+    // La matriz cubre el celular en vertical, donde la pantalla completa va girada.
+    function scoreboardBall() {
+        const b = S.ballOnCanvas, el = S.marcador.el;
+        let cerca = false;
+        if (b) {
+            const c = $('vz-canvas'), k = c.clientWidth / (c.width || 1);
+            const st = $('vz-stage').getBoundingClientRect();
+            const p = new DOMMatrix(getComputedStyle($('vz-stage-inner')).transform).transformPoint({ x: b.x * k, y: b.y * k });
+            const x = st.left + p.x, y = st.top + p.y, m = el.getBoundingClientRect();
+            cerca = Math.hypot(Math.max(m.left - x, 0, x - m.right), Math.max(m.top - y, 0, y - m.bottom)) < 60;
+        }
+        el.classList.toggle('tapado', cerca);
     }
 
     // Colores y ángulo de la camiseta; los de HaxBall por defecto dejan el respaldo naranja/azul, igual que en el programa.
