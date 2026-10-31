@@ -489,6 +489,26 @@ const VisorCore = (function () {
         return out;
     }
 
+    // Cuadros en que se prenden las bengalas del programa, con la misma regla que preload.js (revisarBengalas): al empezar
+    // cada tiempo y al quedar un minuto. Sin límite de HaxBall (Real Futsal) vale el anuncio de la adición. No en la tanda.
+    function flareFrames(rec, messages, scoreEvents) {
+        const out = [], elapsed = rec.elapsed;
+        let final = false;
+        for (let f = 0; f < elapsed.length; f++) {
+            if (f === 0 || elapsed[f] < elapsed[f - 1]) {
+                final = false;
+                if (elapsed[f] <= 3) out.push(f);
+            }
+            const ep = rec.epochs[rec.epochOf[f]], lim = ep ? ep.timeLimit * 60 : 0;
+            if (!final && lim > 60 && elapsed[f] >= lim - 60 && elapsed[f] < lim) { final = true; out.push(f); }
+        }
+        for (const m of messages) if (m.type === 'event' && RE_ADICION.test(m.text)) out.push(m.f);
+        return out.filter(f => {
+            const i = lastIndexAtOrBefore(scoreEvents, f);
+            return i < 0 || !scoreEvents[i].tanda;
+        });
+    }
+
     function uidMap(messages) {
         const map = new Map();
         for (const m of messages) if (m.type === 'chat' && m.uid) map.set(m.name, m.uid);
@@ -499,7 +519,7 @@ const VisorCore = (function () {
         FPS, MAX_REPLAY_BYTES, DEFAULT_TEAM_COLORS, CLIP_SECONDS,
         formatTime, formatSeconds, parseClipTime, formatClipTime, planClip, colorToCss, isTransparentColor, shadeColor, fieldExtent,
         parseAnnouncement, extractTeamNames, filterMessages, buildChatText, lastIndexAtOrBefore, describeGoal,
-        looksLikeReplay, scanReplay, buildMessages, uidMap, recordedFrame, scoreboardEvents
+        looksLikeReplay, scanReplay, buildMessages, uidMap, recordedFrame, scoreboardEvents, flareFrames
     };
 })();
 
@@ -700,6 +720,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
             S.fileName = name;
             S.lastScore = { red: 0, blue: 0, elapsed: 0, epoch: null };
             S.scoreEvents = C.scoreboardEvents(messages, S.rec.elapsed, KR, scoreboardStart);
+            S.sfx = S.sfx.concat(C.flareFrames(S.rec, messages, S.scoreEvents).map(f => ({ f: Math.max(1, f), t: 'bengala' }))).sort((a, b) => a.f - b.f);
             S.lastChatIndex = -2;
             S.camera = { x: 0, y: 0 };
             S.query = '';
@@ -769,6 +790,15 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
     function stopPlayer() {
         cancelAnimationFrame(S.rafId);
         S.playing = false;
+        avisarPrograma(false);
+    }
+
+    // Dentro del programa de escritorio (web-preload.js) el ambiente y las bengalas los toca su carcasa, según sus Ajustes.
+    // En un navegador nadie escucha este evento.
+    function avisarPrograma(sonando, bengalas) {
+        if (sonando === S.programaSonando && !bengalas) return;
+        S.programaSonando = sonando;
+        window.dispatchEvent(new CustomEvent('torohax:visor', { detail: JSON.stringify({ sonando, bengalas: !!bengalas }) }));
     }
 
     function currentFrame() { return Math.floor(S.cursor); }
@@ -1148,11 +1178,17 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
             const prev = S.cursor;
             S.cursor = Math.min(S.maxFrame, S.cursor + dt * FRAMES_PER_MS * S.speed);
             for (const g of S.goals) { if (g.f > prev && g.f <= S.cursor) { flashGoal(g.teamId); break; } }
+            avisarPrograma(S.cursor < S.maxFrame && !S.muted);
             if (!S.muted) {
                 // máximo 3 por cuadro: a 8x se juntan muchas patadas
-                for (let i = C.lastIndexAtOrBefore(S.sfx, prev) + 1, n = 0; i < S.sfx.length && S.sfx[i].f <= S.cursor && n < 3; i++, n++) Sfx.play(S.sfx[i].t);
+                for (let i = C.lastIndexAtOrBefore(S.sfx, prev) + 1, n = 0; i < S.sfx.length && S.sfx[i].f <= S.cursor && n < 3; i++, n++) {
+                    if (S.sfx[i].t === 'bengala') avisarPrograma(S.programaSonando, true);
+                    else Sfx.play(S.sfx[i].t);
+                }
             }
             if (S.cursor >= S.maxFrame) { S.playing = false; syncPlayButton(); if (S.fs) showUi(); }
+        } else {
+            avisarPrograma(false);
         }
 
         if (S.rec.phase) Sfx.crowd(S.muted ? -1 : S.playing ? crowdTarget(Math.min(currentFrame(), S.rec.frames - 1)) : 0, dt);
