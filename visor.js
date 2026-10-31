@@ -1619,102 +1619,11 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         });
     }
 
-    function roundedRect(g, x, y, w, h, r) {
-        g.beginPath();
-        g.moveTo(x + r, y);
-        g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
-        g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r);
-        g.closePath();
-    }
-
-    function drawClipShield(g, x, y, s, eq, respaldo) {
-        const firma = eq.firma || { sd: 0, colores: [respaldo] };
-        g.save();
-        g.translate(x, y);
-        g.scale(s / 64, s / 64);
-        g.clip(new Path2D(KR.SILUETA_ESCUDO));
-        g.translate(32, 32);
-        g.rotate((Number(firma.sd) || 0) * Math.PI / 128);
-        const ancho = 80 / firma.colores.length;
-        firma.colores.forEach((c, i) => { g.fillStyle = '#' + c; g.fillRect(-40 + i * ancho, -40, ancho + 0.3, 80); });
-        g.restore();
-    }
-
-    // El marcador del visor, dibujado arriba al centro del clip con las mismas medidas (MARCADOR_CSS): un clip no puede llevar HTML.
+    // El marcador del visor, dibujado arriba al centro del clip (KR.dibujarMarcadorLienzo): un clip no puede llevar HTML.
     function drawClipHud(g, w, h, f) {
         const d = C.recordedFrame(S.rec, f);
         const s = d.epoch.stadium ? { red: d.red, blue: d.blue, elapsed: d.elapsed, epoch: d.epoch } : S.lastScore;
-        const M = scoreboardData(f, s), u = h / 900;
-        const fuente = t => `${t * u}px Anton, Impact, "Arial Narrow", sans-serif`;
-        const px = t => t * u;
-        g.save();
-        g.textBaseline = 'middle';
-        g.font = fuente(28);
-        const codR = g.measureText(M.rojo.codigo).width, codA = g.measureText(M.azul.codigo).width;
-        g.font = fuente(32);
-        const numR = Math.max(px(26), g.measureText(String(M.goles[0])).width), numA = Math.max(px(26), g.measureText(String(M.goles[1])).width);
-        g.font = fuente(26);
-        const sep = g.measureText('-').width;
-        const total = px(14) * 2 + px(44) * 2 + codR + codA + numR + numA + sep + px(10) * 6 + px(8) * 2;
-        const logo = S.marcador && S.marcador.el.querySelector('.toro-mc-logo');
-        const conLogo = logo && logo.complete && logo.naturalWidth > 0;
-        const x0 = Math.round((w - total + (conLogo ? px(68) : 0)) / 2), y0 = Math.round(h * 0.03), cajaH = px(56), cy = y0 + cajaH / 2;
-        const centroX = x0 + total / 2;
-
-        if (conLogo) {
-            g.save();
-            g.beginPath();
-            g.arc(x0 - px(39), y0 + px(29), px(29), 0, Math.PI * 2);
-            g.clip();
-            g.drawImage(logo, x0 - px(68), y0, px(58), px(58));
-            g.restore();
-        }
-        const bajo = (ancho, alto) => { g.fillStyle = '#2A555D'; roundedRect(g, centroX - ancho / 2, y0 + cajaH - px(12), ancho, alto + px(12), px(11)); g.fill(); };
-        if (M.tanda) {
-            bajo(total, px(5) * 3 + px(26) * 2 + px(8));
-            [[M.rojo, M.tanda[0], 'FF8725'], [M.azul, M.tanda[1], '2380D6']].forEach(([eq, fila, respaldo], i) => {
-                const fy = y0 + cajaH + px(5) + i * px(31) + px(13), xi = x0 + px(14);
-                drawClipShield(g, xi, fy - px(13), px(26), eq, respaldo);
-                g.font = fuente(20); g.fillStyle = '#fff'; g.textAlign = 'left';
-                g.fillText(eq.codigo, xi + px(36), fy);
-                g.textAlign = 'right';
-                g.fillText(`(${fila.goles})`, x0 + total - px(14), fy);
-                const px0 = centroX - px(47);
-                fila.puntos.forEach((p, j) => {
-                    g.fillStyle = p === 'v' ? '#1CC63C' : p === 'r' ? '#D61818' : '#fff';
-                    g.beginPath(); g.arc(px0 + j * px(21) + px(8.5), fy, px(8.5), 0, Math.PI * 2); g.fill();
-                });
-            });
-        } else {
-            const hora = `${M.mm}:${M.ss}`;
-            const extra = M.extra === 'inf' ? '+\u221E' : M.extra !== null ? `+${Math.floor(M.extra / 60)}:${String(M.extra % 60).padStart(2, '0')}` : '';
-            g.font = fuente(24);
-            const anchoHora = g.measureText(hora).width, anchoExtra = extra ? g.measureText(extra).width + px(10) : 0;
-            bajo(anchoHora + anchoExtra + px(32), px(32));
-            const ty = y0 + cajaH + px(15);
-            let tx = centroX - (anchoHora + anchoExtra) / 2;
-            g.textAlign = 'left';
-            g.fillStyle = M.alerta ? '#FF8725' : '#fff';
-            g.fillText(hora, tx, ty);
-            if (extra) { g.fillStyle = '#E6C183'; g.fillText(extra, tx + anchoHora + px(10), ty); }
-        }
-        g.fillStyle = 'rgba(50, 103, 113, 0.97)';
-        roundedRect(g, x0, y0, total, cajaH, px(12));
-        g.fill();
-        let x = x0 + px(14);
-        drawClipShield(g, x, y0 + px(6), px(44), M.rojo, 'FF8725');
-        x += px(54);
-        g.fillStyle = '#fff'; g.textAlign = 'left'; g.font = fuente(28); g.fillText(M.rojo.codigo, x, cy);
-        x += codR + px(18);
-        g.textAlign = 'center'; g.font = fuente(32); g.fillText(String(M.goles[0]), x + numR / 2, cy);
-        x += numR + px(10);
-        g.font = fuente(26); g.fillText('-', x + sep / 2, cy);
-        x += sep + px(10);
-        g.font = fuente(32); g.fillText(String(M.goles[1]), x + numA / 2, cy);
-        x += numA + px(18);
-        g.textAlign = 'left'; g.font = fuente(28); g.fillText(M.azul.codigo, x, cy);
-        drawClipShield(g, x + codA + px(10), y0 + px(6), px(44), M.azul, '2380D6');
-        g.restore();
+        KR.dibujarMarcadorLienzo(g, w, h, scoreboardData(f, s), S.marcador && S.marcador.el.querySelector('.toro-mc-logo'));
     }
 
     // Audio del clip: los mismos sonidos que el visor, en el cuadro exacto de cada evento, más el público.

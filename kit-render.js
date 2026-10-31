@@ -354,6 +354,7 @@
             } else {
                 ctx.translate(32 + num(c.x, 0), 32 + num(c.y, 0));
                 ctx.rotate(rad(c.rot));
+                if (c.espejoX || c.espejoY) ctx.scale(c.espejoX ? -1 : 1, c.espejoY ? -1 : 1);
                 const e = num(c.escala, 1);
                 if (c.tipo === 'figura') figura(ctx, c, e);
                 else if (c.tipo === 'imagen') { ctx.scale(e, e); imagen(ctx, c, imagenes && imagenes.get(c.src)); }
@@ -468,7 +469,7 @@
         const nm = (v, min, max, def) => { const n = (typeof v === 'number' || typeof v === 'string') && v !== '' ? Number(v) : NaN; return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : def; };
         const color = (v, def) => { const c = typeof v === 'string' ? v.replace(/^#/, '') : ''; return /^[0-9A-F]{6}$/i.test(c) ? c.toUpperCase() : def; };
         const opcion = (v, opciones) => opciones.includes(v) ? v : opciones[0];
-        const pos = c => ({ x: nm(c.x, -48, 48, 0), y: nm(c.y, -48, 48, 0), escala: nm(c.escala, 0.1, 4, 1), rot: nm(c.rot, -360, 360, 0), opacidad: nm(c.opacidad, 0, 1, 1) });
+        const pos = c => ({ x: nm(c.x, -48, 48, 0), y: nm(c.y, -48, 48, 0), escala: nm(c.escala, 0.1, 4, 1), rot: nm(c.rot, -360, 360, 0), opacidad: nm(c.opacidad, 0, 1, 1), espejoX: c.espejoX === true, espejoY: c.espejoY === true });
         const imagenOk = s => typeof s === 'string' && s.length <= 350000 &&
             IMG_PREFIJOS.some(p => s.startsWith(p)) && /^[A-Za-z0-9+/=]+$/.test(s.slice(s.indexOf(',') + 1));
         const relleno = c => {
@@ -666,6 +667,112 @@
     // datos = { variante: 'larga'|'vertical', rojo: { codigo, firma, escudo }, azul: {...}, goles: [r, a], mm, ss, extra, alerta, tanda }
     // extra: null, segundos de adición o 'inf' (overtime de HaxBall)
     // tanda: null o [fila rojo, fila azul] con { goles, puntos: ['v'|'r'|'b' × 5] }: reemplaza al reloj
+    function rectRedondo(g, x, y, w, h, r) {
+        g.beginPath();
+        g.moveTo(x + r, y);
+        g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
+        g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r);
+        g.closePath();
+    }
+
+    const fotosEscudo = new Map(); // data URL -> imagen (se decodifica una vez)
+    function escudoEnLienzo(g, x, y, s, eq, respaldo) {
+        if (eq.escudo) {
+            let foto = fotosEscudo.get(eq.escudo);
+            if (!foto) { foto = new Image(); foto.src = eq.escudo; fotosEscudo.set(eq.escudo, foto); }
+            if (foto.complete && foto.naturalWidth) {
+                const k = s / Math.max(foto.naturalWidth, foto.naturalHeight), w = foto.naturalWidth * k, h = foto.naturalHeight * k;
+                g.drawImage(foto, x + (s - w) / 2, y + (s - h) / 2, w, h);
+                return;
+            }
+        }
+        const firma = eq.firma || { sd: 0, colores: [respaldo] };
+        g.save();
+        g.translate(x, y);
+        g.scale(s / 64, s / 64);
+        g.clip(new Path2D(SILUETA_ESCUDO));
+        g.translate(32, 32);
+        g.rotate((Number(firma.sd) || 0) * Math.PI / 128);
+        const ancho = 80 / firma.colores.length;
+        firma.colores.forEach((c, i) => { g.fillStyle = '#' + c; g.fillRect(-40 + i * ancho, -40, ancho + 0.3, 80); });
+        g.restore();
+    }
+
+    // El marcador para un video, arriba al centro y con las medidas de MARCADOR_CSS: un clip no puede llevar HTML.
+    // M = lo mismo que recibe pintar() de crearMarcador. Lo usan los clips del visor y los del programa.
+    function dibujarMarcadorLienzo(g, w, h, M, logo) {
+        const u = h / 900;
+        const fuente = t => `${t * u}px Anton, Impact, "Arial Narrow", sans-serif`;
+        const px = t => t * u;
+        g.save();
+        g.textBaseline = 'middle';
+        g.font = fuente(28);
+        const codR = g.measureText(M.rojo.codigo).width, codA = g.measureText(M.azul.codigo).width;
+        g.font = fuente(32);
+        const numR = Math.max(px(26), g.measureText(String(M.goles[0])).width), numA = Math.max(px(26), g.measureText(String(M.goles[1])).width);
+        g.font = fuente(26);
+        const sep = g.measureText('-').width;
+        const total = px(14) * 2 + px(44) * 2 + codR + codA + numR + numA + sep + px(10) * 6 + px(8) * 2;
+        const conLogo = logo && logo.complete && logo.naturalWidth > 0;
+        const x0 = Math.round((w - total + (conLogo ? px(68) : 0)) / 2), y0 = Math.round(h * 0.03), cajaH = px(56), cy = y0 + cajaH / 2;
+        const centroX = x0 + total / 2;
+
+        if (conLogo) {
+            g.save();
+            g.beginPath();
+            g.arc(x0 - px(39), y0 + px(29), px(29), 0, Math.PI * 2);
+            g.clip();
+            g.drawImage(logo, x0 - px(68), y0, px(58), px(58));
+            g.restore();
+        }
+        const bajo = (ancho, alto) => { g.fillStyle = '#2A555D'; rectRedondo(g, centroX - ancho / 2, y0 + cajaH - px(12), ancho, alto + px(12), px(11)); g.fill(); };
+        if (M.tanda) {
+            bajo(total, px(5) * 3 + px(26) * 2 + px(8));
+            [[M.rojo, M.tanda[0], 'FF8725'], [M.azul, M.tanda[1], '2380D6']].forEach(([eq, fila, respaldo], i) => {
+                const fy = y0 + cajaH + px(5) + i * px(31) + px(13), xi = x0 + px(14);
+                escudoEnLienzo(g, xi, fy - px(13), px(26), eq, respaldo);
+                g.font = fuente(20); g.fillStyle = '#fff'; g.textAlign = 'left';
+                g.fillText(eq.codigo, xi + px(36), fy);
+                g.textAlign = 'right';
+                g.fillText(`(${fila.goles})`, x0 + total - px(14), fy);
+                const px0 = centroX - px(47);
+                fila.puntos.forEach((p, j) => {
+                    g.fillStyle = p === 'v' ? '#1CC63C' : p === 'r' ? '#D61818' : '#fff';
+                    g.beginPath(); g.arc(px0 + j * px(21) + px(8.5), fy, px(8.5), 0, Math.PI * 2); g.fill();
+                });
+            });
+        } else {
+            const hora = `${M.mm}:${M.ss}`;
+            const extra = M.extra === 'inf' ? '+\u221E' : M.extra !== null ? `+${Math.floor(M.extra / 60)}:${String(M.extra % 60).padStart(2, '0')}` : '';
+            g.font = fuente(24);
+            const anchoHora = g.measureText(hora).width, anchoExtra = extra ? g.measureText(extra).width + px(10) : 0;
+            bajo(anchoHora + anchoExtra + px(32), px(32));
+            const ty = y0 + cajaH + px(15);
+            let tx = centroX - (anchoHora + anchoExtra) / 2;
+            g.textAlign = 'left';
+            g.fillStyle = M.alerta ? '#FF8725' : '#fff';
+            g.fillText(hora, tx, ty);
+            if (extra) { g.fillStyle = '#E6C183'; g.fillText(extra, tx + anchoHora + px(10), ty); }
+        }
+        g.fillStyle = 'rgba(50, 103, 113, 0.97)';
+        rectRedondo(g, x0, y0, total, cajaH, px(12));
+        g.fill();
+        let x = x0 + px(14);
+        escudoEnLienzo(g, x, y0 + px(6), px(44), M.rojo, 'FF8725');
+        x += px(54);
+        g.fillStyle = '#fff'; g.textAlign = 'left'; g.font = fuente(28); g.fillText(M.rojo.codigo, x, cy);
+        x += codR + px(18);
+        g.textAlign = 'center'; g.font = fuente(32); g.fillText(String(M.goles[0]), x + numR / 2, cy);
+        x += numR + px(10);
+        g.font = fuente(26); g.fillText('-', x + sep / 2, cy);
+        x += sep + px(10);
+        g.font = fuente(32); g.fillText(String(M.goles[1]), x + numA / 2, cy);
+        x += numA + px(18);
+        g.textAlign = 'left'; g.font = fuente(28); g.fillText(M.azul.codigo, x, cy);
+        escudoEnLienzo(g, x + codA + px(10), y0 + px(6), px(44), M.azul, '2380D6');
+        g.restore();
+    }
+
     function crearMarcador(doc, logo) {
         const el = doc.createElement('div');
         el.className = 'toro-mc larga';
@@ -832,7 +939,7 @@
     }
 
     raiz.ToroKitRender = {
-        claveEscudo, SILUETA_ESCUDO, codigoDe, equiposDeFirmas, MARCADOR_CSS, crearMarcador, fijarPosicion, fijarApariencia, nuevaTanda, anotarPenal, vistaTanda, tandaSigue, TANDA_RELOJ_MAX,
+        claveEscudo, SILUETA_ESCUDO, codigoDe, equiposDeFirmas, MARCADOR_CSS, crearMarcador, dibujarMarcadorLienzo, fijarPosicion, fijarApariencia, nuevaTanda, anotarPenal, vistaTanda, tandaSigue, TANDA_RELOJ_MAX,
         FUENTES, URL_FUENTES, FUENTE_GOOGLE, FORMAS, CON_GROSOR, PATRONES, ESTILOS_DEGRADADO, MAX_PUNTOS, MAX_COLORES_DEGRADADO, SALAS,
         hex, anguloInterno, gradosDeInterno, coincideFirma, firmasDeEquipo, coincideKit, aVector, sanear,
         base, capas, texto, textoHaxball, renderizar, lienzo, lienzoCapas, cargarImagenes, cargarFuenteGoogle
