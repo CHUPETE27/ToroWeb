@@ -364,9 +364,26 @@
         ctx.restore();
     }
 
+    // Un emoji se ve siempre igual, como lo dibuja HaxBall: no le aplican la fuente, el tamaño, la posición, el borde ni el brillo del diseño
+    // Para buscar salas: "juegan" encuentra "ᴊᴜᴇɢᴀɴ". Sin mayúsculas, tildes ni letras decorativas.
+    const VERSALITAS = { ᴀ: 'a', ʙ: 'b', ᴄ: 'c', ᴅ: 'd', ᴇ: 'e', ꜰ: 'f', ɢ: 'g', ʜ: 'h', ɪ: 'i', ᴊ: 'j', ᴋ: 'k', ʟ: 'l', ᴍ: 'm', ɴ: 'n', ᴏ: 'o', ᴘ: 'p', ǫ: 'q', ʀ: 'r', ꜱ: 's', ᴛ: 't', ᴜ: 'u', ᴠ: 'v', ᴡ: 'w', ʏ: 'y', ᴢ: 'z' };
+    const buscable = texto => String(texto).replace(/[ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘǫʀꜱᴛᴜᴠᴡʏᴢ]/g, c => VERSALITAS[c]).normalize('NFKD').replace(/\p{M}/gu, '').toLowerCase().trim();
+
+    // Código de sala de un enlace de HaxBall (play?c=CODIGO, &p=1 si tiene clave) o del código solo. null si no lo es.
+    function codigoDeEnlace(texto) {
+        const t = String(texto).trim();
+        if (/^[\w-]{6,40}$/.test(t)) return { c: t, p: false };
+        const m = /^(?:https?:\/\/)?(?:www\.)?haxball\.com\/play\/?\?(\S+)$/i.exec(t);
+        const q = m && new URLSearchParams(m[1]), c = q && q.get('c');
+        return c && /^[\w-]{6,40}$/.test(c) ? { c, p: q.has('p') } : null;
+    }
+
+    const esEmoji = avatar => /\p{Extended_Pictographic}|\p{Regional_Indicator}|\u20E3/u.test(avatar);
+
     // Texto del avatar. escalaSombra: el blur no sigue la transformación del contexto.
     function texto(ctx, t, avatar, escalaSombra) {
         if (!t || avatar == null || avatar === '') return;
+        if (esEmoji(avatar)) { textoHaxball(ctx, t.color, avatar); return; }
         const fg = FUENTE_GOOGLE.test(t.fuenteGoogle || '') ? t.fuenteGoogle : '';
         const f = fg ? { css: `'${fg}',sans-serif`, peso: '400', ajuste: 1 } : (FUENTES[t.fuente] || FUENTES.clasica);
         const px = Math.max(4, Math.round(num(t.tamano, 24) * f.ajuste));
@@ -428,7 +445,7 @@
     // Solo las capas (sin franjas ni texto) en un lienzo de 64×64: es lo que cachea el motor
     function lienzoCapas(kit, imagenes) {
         const c = lienzo(64, 64);
-        capas(c.getContext('2d'), kit, imagenes);
+        capas(c.getContext('2d', { willReadFrequently: true }), kit, imagenes); // sin GPU: leerla desde otro lienzo sin GPU trabaría el juego
         return c;
     }
 
@@ -942,6 +959,6 @@
         claveEscudo, SILUETA_ESCUDO, codigoDe, equiposDeFirmas, MARCADOR_CSS, crearMarcador, dibujarMarcadorLienzo, fijarPosicion, fijarApariencia, nuevaTanda, anotarPenal, vistaTanda, tandaSigue, TANDA_RELOJ_MAX,
         FUENTES, URL_FUENTES, FUENTE_GOOGLE, FORMAS, CON_GROSOR, PATRONES, ESTILOS_DEGRADADO, MAX_PUNTOS, MAX_COLORES_DEGRADADO, SALAS,
         hex, anguloInterno, gradosDeInterno, coincideFirma, firmasDeEquipo, coincideKit, aVector, sanear,
-        base, capas, texto, textoHaxball, renderizar, lienzo, lienzoCapas, cargarImagenes, cargarFuenteGoogle
+        base, capas, buscable, codigoDeEnlace, esEmoji, texto, textoHaxball, renderizar, lienzo, lienzoCapas, cargarImagenes, cargarFuenteGoogle
     };
 })(typeof window !== 'undefined' ? window : globalThis);
