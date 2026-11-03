@@ -297,7 +297,12 @@
                         </div>
                     </div>
 
-                    <div class="charts-grid two-cols">
+                    <div class="charts-grid three-cols">
+                        <div class="chart-box">
+                            <h3><i class="fa-solid fa-crosshairs"></i> Tiros</h3>
+                            <p>Efectividad: <strong id="golesTirosPct" style="color: #2df2c1;">0%</strong> | Al arco: <strong id="golesArcoPct" style="color: #2df2c1;">0%</strong></p>
+                            <img id="chartTiros" src="" alt="Gráfico de Tiros">
+                        </div>
                         <div class="chart-box">
                             <h3><i class="fa-solid fa-bullseye"></i> Penales Lanzados</h3>
                             <p>Efectividad en Penales</p>
@@ -307,14 +312,6 @@
                             <h3><i class="fa-solid fa-hands"></i> Penales Recibidos</h3>
                             <p>Efectividad Atajando Penales</p>
                             <img id="chartPenalesAtajados" src="" alt="Gráfico Penales Atajados">
-                        </div>
-                    </div>
-
-                    <div class="charts-grid" style="max-width: 800px; margin: 0 auto 30px;">
-                        <div class="chart-box">
-                            <h3><i class="fa-solid fa-crosshairs"></i> Definición</h3>
-                            <p>Goles/tiros: <strong id="golesTirosPct" style="color: #2df2c1;">0%</strong> | Goles/tiros al arco: <strong id="golesArcoPct" style="color: #2df2c1;">0%</strong></p>
-                            <img id="chartTiros" src="" alt="Gráfico de Tiros">
                         </div>
                     </div>
                 </div>
@@ -768,8 +765,8 @@
                 document.getElementById('golesTirosPct').innerText = (tirosTotales > 0 ? ((goles / tirosTotales) * 100).toFixed(1) : 0) + "%";
                 document.getElementById('golesArcoPct').innerText = (tirosArco > 0 ? ((goles / tirosArco) * 100).toFixed(1) : 0) + "%";
                 // yAxes stacked sin xAxes stacked: las barras de un mismo renglón se superponen en lugar de sumarse
-                const chartTirosData = { type: 'horizontalBar', data: { labels: ['Tiros totales', 'Tiros al arco'], datasets: [{ label: 'Goles', data: [goles, goles], backgroundColor: '#2df2c1', borderColor: '#111', borderWidth: 2 }, { label: 'Tiros', data: [tirosTotales, tirosArco], backgroundColor: '#4a4a4a', borderColor: '#111', borderWidth: 2 }] }, options: { legend: { position: 'bottom', labels: { fontColor: '#fff' } }, scales: { xAxes: [{ ticks: { min: 0, suggestedMax: Math.ceil(Math.max(tirosTotales, goles, 1) * 1.15), fontColor: '#fff' }, gridLines: { color: 'rgba(255, 255, 255, 0.1)' } }], yAxes: [{ stacked: true, ticks: { fontColor: '#fff', fontSize: 13, fontStyle: 'bold' }, gridLines: { display: false } }] }, plugins: { datalabels: { color: '#fff', font: { weight: 'bold', size: 14 }, anchor: 'end', align: 'end', formatter: "function(value) { return value; }" } } } };
-                document.getElementById('chartTiros').src = `https://quickchart.io/chart?w=600&h=220&c=${encodeURIComponent(JSON.stringify(chartTirosData))}&bkg=transparent`;
+                const chartTirosData = { type: 'horizontalBar', data: { labels: ['Totales', 'Al arco'], datasets: [{ label: 'Goles', data: [goles, goles], backgroundColor: '#2df2c1', borderColor: '#111', borderWidth: 2 }, { label: 'Tiros', data: [tirosTotales, tirosArco], backgroundColor: '#cc2a2a', borderColor: '#111', borderWidth: 2, datalabels: { anchor: 'end', align: 'start' } }] }, options: { legend: { position: 'bottom', labels: { fontColor: '#fff' } }, scales: { xAxes: [{ ticks: { min: 0, max: tirosTotales > 0 ? tirosTotales : 1, fontColor: '#fff' }, gridLines: { color: 'rgba(255, 255, 255, 0.1)' } }], yAxes: [{ stacked: true, ticks: { fontColor: '#fff', fontSize: 13, fontStyle: 'bold' }, gridLines: { display: false } }] }, plugins: { datalabels: { color: '#111', font: { weight: 'bold', size: 14 }, align: 'center', formatter: "function(value) { return value; }" } } } };
+                document.getElementById('chartTiros').src = `https://quickchart.io/chart?w=300&h=250&c=${encodeURIComponent(JSON.stringify(chartTirosData))}&bkg=transparent`;
 
                 const penalesFallados = penalesLanzados - golesPenal;
                 const chartPenLanzadosData = { type: 'doughnut', data: { labels: ['Convertidos', 'Fallados'], datasets: [{ data: [golesPenal, penalesFallados > 0 ? penalesFallados : 0], backgroundColor: ['#2df2c1', '#cc2a2a'], borderColor: '#111', borderWidth: 3 }] }, options: { legend: { position: 'bottom', labels: { fontColor: '#fff' } }, plugins: { datalabels: { color: '#111', font: { weight: 'bold' }, display: "function(context) { return context.dataset.data[context.dataIndex] > 0; }" } } } };
