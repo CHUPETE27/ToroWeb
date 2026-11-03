@@ -334,6 +334,14 @@
                         <img id="m_chartPenalesAtajados" src="" alt="Gráfico Penales Atajados">
                     </div>
                 </div>
+
+                <div class="modal-charts-grid" style="max-width: 800px; margin: 20px auto 0;">
+                    <div class="chart-box-inner">
+                        <h4><i class="fa-solid fa-crosshairs"></i> Definición</h4>
+                        <p>Goles/tiros: <strong id="m_golesTirosPct" style="color: #2df2c1;">0%</strong> | Goles/tiros al arco: <strong id="m_golesArcoPct" style="color: #2df2c1;">0%</strong></p>
+                        <img id="m_chartTiros" src="" alt="Gráfico de Tiros">
+                    </div>
+                </div>
             </div>
             
             <div id="m_noChartsMsg" style="text-align: center; color: #ccc; margin-bottom: 20px;"></div>
@@ -701,6 +709,10 @@
                 const precisionPases = pasesTotales > 0 ? ((pasesC / pasesTotales) * 100).toFixed(1) : 0;
                 const promPasesC = part > 0 ? (pasesC / part).toFixed(1) : 0;
 
+                const tirosArco = isTemporada ? (p.temp_tiros_arco || 0) : (p.tiros_arco || 0);
+                const tirosErrados = isTemporada ? (p.temp_tiros_errados || 0) : (p.tiros_errados || 0);
+                const tirosTotales = tirosArco + tirosErrados;
+
                 document.getElementById('m_barTotales').innerHTML = `
                     <div class="totales-item"><span><i class="fa-solid fa-calendar-check"></i> Partidos</span><strong>${part}</strong></div>
                     <div class="totales-item"><span><i class="fa-solid fa-check-circle"></i> Victorias</span><strong>${ganados}</strong></div>
@@ -712,6 +724,7 @@
                 document.getElementById('m_listEstadisticas').innerHTML = `
                     <li><span><i class="fa-solid fa-star"></i> Puntos:</span> <strong>${puntaje}</strong></li>
                     <li><span><i class="fa-solid fa-futbol"></i> Goles Totales:</span> <strong>${goles}</strong></li>
+                    <li><span><i class="fa-solid fa-crosshairs"></i> Tiros Totales:</span> <strong>${tirosTotales}</strong></li>
                     <li><span><i class="fa-solid fa-handshake"></i> Asistencias:</span> <strong>${asist}</strong></li>
                     <li><span><i class="fa-solid fa-right-left"></i> Pases Completos:</span> <strong>${pasesC}</strong></li>
                     <li><span><i class="fa-solid fa-shield-halved"></i> Recuperaciones:</span> <strong>${recup}</strong></li>
@@ -736,11 +749,12 @@
                     <li><span><i class="fa-solid fa-futbol"></i> Goles:</span> <strong>${promGoles} g/p</strong></li>
                     <li><span><i class="fa-solid fa-handshake"></i> Asistencias:</span> <strong>${promAsist} a/p</strong></li>
                     <li><span><i class="fa-solid fa-right-left"></i> Pases:</span> <strong>${pasesC} ✅ / ${pasesP} ❌</strong></li>
+                    <li><span><i class="fa-solid fa-crosshairs"></i> Tiros:</span> <strong>${tirosArco} ✅ / ${tirosErrados} ❌</strong></li>
                     <li><span><i class="fa-solid fa-shield-halved"></i> Recuperaciones:</span> <strong>${promDefensas} r/p</strong></li>
                 `;
 
                 if (part > 0) {
-                    generarGraficos(promGoles, promAsist, promAtajadas, promDefensas, promPuntos, ganados, perdidos, mvps, pasesC, pasesP, pasesTotales, precisionPases, golesPenal, penalesLanzados, penalesAtajados, penalesRecibidos);
+                    generarGraficos(promGoles, promAsist, promAtajadas, promDefensas, promPuntos, ganados, perdidos, mvps, pasesC, pasesP, pasesTotales, precisionPases, golesPenal, penalesLanzados, penalesAtajados, penalesRecibidos, goles, tirosArco, tirosTotales);
                 } else {
                     document.getElementById('m_charts').style.display = 'none';
                     document.getElementById('m_noChartsMsg').style.display = 'block';
@@ -752,13 +766,20 @@
             }
         }
 
-        function generarGraficos(promGoles, promAsist, promAtajadas, promDefensas, promPuntos, ganados, perdidos, mvps, pasesC, pasesP, pasesTotales, precisionPases, golesPenal, penalesLanzados, penalesAtajados, penalesRecibidos) {
+        function generarGraficos(promGoles, promAsist, promAtajadas, promDefensas, promPuntos, ganados, perdidos, mvps, pasesC, pasesP, pasesTotales, precisionPases, golesPenal, penalesLanzados, penalesAtajados, penalesRecibidos, goles, tirosArco, tirosTotales) {
             document.getElementById('m_charts').style.display = 'block';
             document.getElementById('m_noChartsMsg').style.display = 'none';
             document.getElementById('m_passPct').innerText = precisionPases + "%";
 
             const chartPasesData = { type: 'horizontalBar', data: { labels: ['Completados', 'Perdidos'], datasets: [{ data: [pasesC, pasesP], backgroundColor: ['#2df2c1', '#cc2a2a'], borderColor: '#111', borderWidth: 2 }] }, options: { legend: { display: false }, scales: { xAxes: [{ ticks: { min: 0, max: pasesTotales > 0 ? pasesTotales : 1, fontColor: '#fff' }, gridLines: { color: 'rgba(255, 255, 255, 0.1)' } }], yAxes: [{ ticks: { fontColor: '#fff', fontSize: 13, fontStyle: 'bold' }, gridLines: { display: false } }] }, plugins: { datalabels: { color: '#111', font: { weight: 'bold', size: 14 }, align: 'center', formatter: "function(value) { return value; }" } } } };
             document.getElementById('m_chartPases').src = `https://quickchart.io/chart?w=300&h=250&c=${encodeURIComponent(JSON.stringify(chartPasesData))}&bkg=transparent`;
+
+            // Misma copia en perfil.html: cámbialas juntas
+            document.getElementById('m_golesTirosPct').innerText = (tirosTotales > 0 ? ((goles / tirosTotales) * 100).toFixed(1) : 0) + "%";
+            document.getElementById('m_golesArcoPct').innerText = (tirosArco > 0 ? ((goles / tirosArco) * 100).toFixed(1) : 0) + "%";
+            // yAxes stacked sin xAxes stacked: las barras de un mismo renglón se superponen en lugar de sumarse
+            const chartTirosData = { type: 'horizontalBar', data: { labels: ['Tiros totales', 'Tiros al arco'], datasets: [{ label: 'Goles', data: [goles, goles], backgroundColor: '#2df2c1', borderColor: '#111', borderWidth: 2 }, { label: 'Tiros', data: [tirosTotales, tirosArco], backgroundColor: '#4a4a4a', borderColor: '#111', borderWidth: 2 }] }, options: { legend: { position: 'bottom', labels: { fontColor: '#fff' } }, scales: { xAxes: [{ ticks: { min: 0, suggestedMax: Math.ceil(Math.max(tirosTotales, goles, 1) * 1.15), fontColor: '#fff' }, gridLines: { color: 'rgba(255, 255, 255, 0.1)' } }], yAxes: [{ stacked: true, ticks: { fontColor: '#fff', fontSize: 13, fontStyle: 'bold' }, gridLines: { display: false } }] }, plugins: { datalabels: { color: '#fff', font: { weight: 'bold', size: 14 }, anchor: 'end', align: 'end', formatter: "function(value) { return value; }" } } } };
+            document.getElementById('m_chartTiros').src = `https://quickchart.io/chart?w=600&h=220&c=${encodeURIComponent(JSON.stringify(chartTirosData))}&bkg=transparent`;
 
             const chartDoughnutData = { type: 'doughnut', data: { labels: ['Victorias', 'Derrotas', 'MVPs'], datasets: [{ data: [ganados, perdidos, mvps], backgroundColor: ['#10af10', '#8b1515', '#D3A778'], borderColor: '#111', borderWidth: 3 }] }, options: { legend: { position: 'bottom', labels: { fontColor: '#fff' } }, plugins: { datalabels: { color: '#fff', font: { weight: 'bold' } } } } };
             document.getElementById('m_chartDoughnut').src = `https://quickchart.io/chart?w=300&h=250&c=${encodeURIComponent(JSON.stringify(chartDoughnutData))}&bkg=transparent`;
