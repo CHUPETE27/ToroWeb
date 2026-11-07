@@ -121,6 +121,22 @@
         .vip-count.lleno { color: #e1bc56; }
         .vip-desc { margin: 10px 0 0; color: #bdc3c7; font-size: 0.9rem; line-height: 1.4; min-height: 1.4em; }
 
+        .vip-solo-programa { margin-left: 6px; color: #888; font-weight: normal; font-size: 0.8rem; }
+        .vip-cancion-tramo { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; }
+        .vip-cancion-tramo[hidden] { display: none; }
+        .vip-cancion-video { flex: 0 1 356px; min-width: 0; }
+        .vip-cancion-video iframe { display: block; width: 100%; height: 200px; border: 1px solid #444; border-radius: 8px; }
+        .vip-cancion-elegir { flex: 1 1 220px; display: flex; flex-direction: column; gap: 10px; }
+        .vip-cancion-elegir b { color: #e1bc56; font-family: monospace; }
+        .vip-cancion-elegir .btn-action { align-self: flex-start; background: transparent; font-family: inherit; }
+        /* Mismo deslizador que el visor (.vz-range de visor.html) */
+        .vip-range { -webkit-appearance: none; appearance: none; width: 100%; height: 34px; margin: 0; background: transparent; cursor: pointer; }
+        .vip-range::-webkit-slider-runnable-track { height: 6px; background: #3a3a3a; border-radius: 3px; }
+        .vip-range::-moz-range-track { height: 6px; background: #3a3a3a; border-radius: 3px; }
+        .vip-range::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: var(--gold); border: 2px solid #111; margin-top: -7px; box-shadow: 0 0 8px rgba(var(--gold-rgb), 0.6); }
+        .vip-range::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: var(--gold); border: 2px solid #111; box-shadow: 0 0 8px rgba(var(--gold-rgb), 0.6); }
+        .vip-range:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; border-radius: 4px; }
+
         .save-btn { background: #2df2c1; color: #111; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.2rem; cursor: pointer; transition: 0.3s; width: 100%;}
         .save-btn:hover { background: #24c29a; box-shadow: 0 0 15px rgba(45, 242, 193, 0.4); }
 
@@ -403,6 +419,23 @@
                             </div>
                         </div>
 
+                        <div class="vip-col">
+                            <h4 class="vip-col-title"><i class="fa-solid fa-music"></i> Canción de gol <small class="vip-solo-programa">solo en el programa de escritorio</small></h4>
+                            <div class="form-group">
+                                <label for="vipCancion"><i class="fa-brands fa-youtube"></i> Enlace de YouTube</label>
+                                <input type="text" id="vipCancion" class="form-control" maxlength="300" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off" spellcheck="false">
+                            </div>
+                            <div class="vip-cancion-tramo" id="vipCancionTramo" hidden>
+                                <div class="vip-cancion-video"><div id="vipCancionVideo"></div></div>
+                                <div class="vip-cancion-elegir">
+                                    <label for="vipCancionInicio"><i class="fa-solid fa-scissors"></i> Suena de <b id="vipCancionDesde">0:00</b> a <b id="vipCancionHasta">0:05</b></label>
+                                    <input type="range" id="vipCancionInicio" class="vip-range" min="0" max="5" step="1" value="0" aria-label="Segundo desde el que suena la canción">
+                                    <button type="button" class="btn-action btn-guardar" id="vipCancionProbar"><i class="fa-solid fa-play"></i> Escuchar los 5 s</button>
+                                </div>
+                            </div>
+                            <p class="vip-desc">Suena en el programa de todos los de la sala cuando marcas (3,5 s y se apaga) y completa si terminas como MVP. Cada jugador puede desactivarla en su programa. Déjalo vacío para quitarla.</p>
+                        </div>
+
                         <button class="save-btn" onclick="guardarConfiguracionVipSegura()" id="btnSaveVip"><i class="fa-solid fa-floppy-disk"></i> Guardar Cambios</button>
                     </div>
                 </div>
@@ -562,6 +595,8 @@
                 document.getElementById('vipColor').value = hexColor;
                 document.getElementById('vipColorHex').value = hexColor;
                 ['vipSize', 'vipCelebration'].forEach(id => refrescarSelectPersonalizado(document.getElementById(id)));
+                document.getElementById('vipCancion').value = player.vipCancionVideo ? 'https://www.youtube.com/watch?v=' + player.vipCancionVideo : '';
+                mostrarCancion(player.vipCancionInicio || 0);
                 actualizarPanelVip();
             } catch (e) { console.error('Panel VIP:', e); }
         })
@@ -876,7 +911,94 @@
             hex.addEventListener('blur', () => { hex.value = color.value; hex.classList.remove('invalido'); });
             ['vipJoin', 'vipExit', 'vipGoal'].forEach(id => document.getElementById(id).addEventListener('input', actualizarPanelVip));
             document.getElementById('vipCelebration').addEventListener('change', actualizarPanelVip);
+            let esperaEnlace = null;
+            document.getElementById('vipCancion').addEventListener('input', e => {
+                clearTimeout(esperaEnlace);
+                esperaEnlace = setTimeout(() => mostrarCancion(inicioDeEnlace(e.target.value)), 400);
+            });
+            document.getElementById('vipCancionInicio').addEventListener('input', actualizarTramo);
+            document.getElementById('vipCancionProbar').addEventListener('click', probarCancion);
             actualizarPanelVip();
+        }
+
+        /* ---------- Canción de gol VIP (suena en el programa de escritorio; aquí solo se elige y se escucha) ---------- */
+        // Id de un video de YouTube desde su enlace o el id solo. Misma regla que idYoutube de bot.js: cambiarlas juntas.
+        function idYoutube(texto) {
+            const s = String(texto || '').trim().slice(0, 300);
+            if (/^[A-Za-z0-9_-]{11}$/.test(s)) return s;
+            let u;
+            try { u = new URL(s); } catch (e) { return null; }
+            if (!/(^|\.)(youtube\.com|youtu\.be|youtube-nocookie\.com)$/.test(u.hostname)) return null;
+            const id = u.hostname.endsWith('youtu.be') ? u.pathname.slice(1) : (u.searchParams.get('v') || (u.pathname.match(/^\/(?:shorts|embed|live|v)\/([^/?#]+)/) || [])[1]);
+            return /^[A-Za-z0-9_-]{11}$/.test(id || '') ? id : null;
+        }
+        // Segundo que trae el enlace (?t=42, ?t=42s, ?t=1m30s): de ahí parte el tramo
+        function inicioDeEnlace(texto) {
+            try {
+                const m = (new URL(String(texto).trim()).searchParams.get('t') || '').match(/^(?:(\d+)m)?(\d+)s?$/);
+                return m ? Number(m[1] || 0) * 60 + Number(m[2]) : 0;
+            } catch (e) { return 0; }
+        }
+        const mmss = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+        const cancionVip = { player: null, video: null, api: null, prueba: null };
+
+        function actualizarTramo() {
+            const s = Number(document.getElementById('vipCancionInicio').value) || 0;
+            document.getElementById('vipCancionDesde').textContent = mmss(s);
+            document.getElementById('vipCancionHasta').textContent = mmss(s + 5);
+        }
+
+        function cargarApiYoutube() {
+            if (!cancionVip.api) cancionVip.api = new Promise(listo => {
+                window.onYouTubeIframeAPIReady = listo;
+                const s = document.createElement('script');
+                s.src = 'https://www.youtube.com/iframe_api';
+                document.head.appendChild(s);
+            });
+            return cancionVip.api;
+        }
+
+        // El deslizador llega hasta 5 s antes del final, cuando YouTube dice cuánto dura
+        function ajustarDuracion() {
+            const d = Math.floor((cancionVip.player && cancionVip.player.getDuration && cancionVip.player.getDuration()) || 0);
+            if (d <= 5) return;
+            document.getElementById('vipCancionInicio').max = d - 5;
+            actualizarTramo();
+        }
+
+        async function mostrarCancion(inicio) {
+            const video = idYoutube(document.getElementById('vipCancion').value);
+            document.getElementById('vipCancionTramo').hidden = !video;
+            if (!video || video === cancionVip.video) return;
+            cancionVip.video = video;
+            const rango = document.getElementById('vipCancionInicio');
+            rango.max = Math.max(5, inicio || 0); // hasta saber la duración
+            rango.value = inicio || 0;
+            actualizarTramo();
+            await cargarApiYoutube();
+            if (cancionVip.video !== video) return;
+            if (cancionVip.player) { cancionVip.player.cueVideoById(video); return; }
+            cancionVip.player = new YT.Player('vipCancionVideo', {
+                videoId: video, playerVars: { rel: 0, playsinline: 1 },
+                events: { onReady: ajustarDuracion, onStateChange: e => { if (e.data === YT.PlayerState.CUED || e.data === YT.PlayerState.PLAYING) ajustarDuracion(); } }
+            });
+        }
+
+        // Como en el programa al marcar: 3,5 s normal y 1,5 s apagándose. Cuenta desde que el video suena (no mientras carga).
+        function probarCancion() {
+            const p = cancionVip.player;
+            if (!p || !p.seekTo) return;
+            clearInterval(cancionVip.prueba);
+            const inicio = Number(document.getElementById('vipCancionInicio').value) || 0, tope = performance.now() + 15000;
+            p.unMute();
+            p.setVolume(100);
+            p.seekTo(inicio, true);
+            p.playVideo();
+            cancionVip.prueba = setInterval(() => {
+                const t = (p.getCurrentTime() || 0) - inicio;
+                if (t >= 5 || performance.now() > tope) { clearInterval(cancionVip.prueba); p.pauseVideo(); p.setVolume(100); return; }
+                p.setVolume(t < 3.5 ? 100 : Math.max(0, Math.round(100 * (5 - t) / 1.5)));
+            }, 50);
         }
 
         async function guardarConfiguracionVipSegura() {
@@ -892,8 +1014,16 @@
                 return;
             }
 
+            const enlaceCancion = document.getElementById('vipCancion').value.trim();
+            if (enlaceCancion && !idYoutube(enlaceCancion)) {
+                ThUI.alert("❌ El enlace de la canción de gol no es de un video de YouTube.");
+                btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> Guardar Cambios';
+                btn.disabled = false;
+                return;
+            }
+
             const payload = {
-                numericId: loggedId, 
+                numericId: loggedId,
                 token: token, 
                 vipIcon: icon, 
                 vipColor: document.getElementById('vipColor').value,
@@ -901,7 +1031,9 @@
                 vipExit: document.getElementById('vipExit').value,
                 vipGoal: document.getElementById('vipGoal').value,
                 vipSize: document.getElementById('vipSize').value,
-                vipCelebration: document.getElementById('vipCelebration').value
+                vipCelebration: document.getElementById('vipCelebration').value,
+                vipCancion: enlaceCancion,
+                vipCancionInicio: Number(document.getElementById('vipCancionInicio').value) || 0
             };
 
             try {

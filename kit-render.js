@@ -24,6 +24,8 @@
 
     // Cualquier familia de Google Fonts por su nombre (va a una URL y a CSS: solo letras, números y espacios)
     const FUENTE_GOOGLE = /^[A-Za-z0-9][A-Za-z0-9 ]{0,39}$/;
+    // Fuente de un equipo: fuentes/<equipo>.(woff2|woff|ttf|otf) del programa, por su clave (claveEscudo del nombre del archivo)
+    const CLAVE_FUENTE = /^[a-z0-9]{1,40}$/;
 
     const FORMAS = {
         rectangulo: 'Rectángulo', franja_diagonal: 'Franja diagonal', franja: 'Franja', cruz: 'Cruz', estrella: 'Estrella',
@@ -34,13 +36,15 @@
     const PATRONES = {
         lineas_v: 'Líneas verticales', lineas_h: 'Líneas horizontales', diagonales: 'Diagonales', cuadros: 'Cuadros',
         rombos: 'Rombos', panal: 'Panal', lunares: 'Lunares', degradado: 'Degradado multicolor',
-        degradado_radial: 'Degradado radial (2 colores)', degradado_lineal: 'Degradado lineal (2 colores)'
+        degradado_radial: 'Degradado radial (2 colores)', degradado_lineal: 'Degradado lineal (2 colores)', particulas: 'Partículas'
     };
     const ESTILOS_DEGRADADO = { lineal: 'Lineal', radial: 'Radial', conico: 'Cónico' };
     const MAX_PUNTOS = 32, MAX_COLORES_DEGRADADO = 6;
     const SALAS = { jt_principal: 'Juegan Todos', real_futsal_1: 'Real Futsal', toromatch: 'ToroMatch', predio: 'Predio', torocup: 'ToroCup' };
 
-    const hex = c => '#' + (/^[0-9a-f]{6}$/i.test(c || '') ? c : 'FFFFFF');
+    // RRGGBB o RRGGBBAA (con transparencia: capas y texto; la firma de la sala va siempre sin ella)
+    const COLOR = /^[0-9a-f]{6}([0-9a-f]{2})?$/i;
+    const hex = c => '#' + (COLOR.test(c || '') ? c : 'FFFFFF');
     const rad = g => (Number(g) || 0) * Math.PI / 180;
     const num = (v, def) => Number.isFinite(Number(v)) ? Number(v) : def;
 
@@ -238,14 +242,14 @@
         ctx.closePath();
     }
 
-    const mezcla = (a, b) => '#' + [0, 2, 4].map(i => Math.round((parseInt(a.substr(i, 2), 16) + parseInt(b.substr(i, 2), 16)) / 2).toString(16).padStart(2, '0')).join('');
+    const mezcla = (a, b) => '#' + [0, 2, 4, 6].map(i => Math.round((parseInt(a.substr(i, 2) || 'FF', 16) + parseInt(b.substr(i, 2) || 'FF', 16)) / 2).toString(16).padStart(2, '0')).join('');
 
     // Paradas de un degradado de varios colores: cada color es una franja del mismo ancho y el cambio entre
     // franjas ocupa "intensidad" de ese ancho (1 = mezcla suave de centro a centro, 0 = cambio de golpe).
     // cerrar (cónico): el último color también se mezcla con el primero donde se juntan.
     function paradas(g, colores, intensidad, cerrar) {
         const n = colores.length;
-        const c = colores.map(x => (/^[0-9a-f]{6}$/i.test(x || '') ? x : 'FFFFFF'));
+        const c = colores.map(x => (COLOR.test(x || '') ? x : 'FFFFFF'));
         if (n < 2) { g.addColorStop(0, hex(c[0])); g.addColorStop(1, hex(c[0])); return; }
         const s = Math.max(0, Math.min(1, num(intensidad, 1))), paso = 1 / n, m = s * paso / 2;
         const borde = cerrar && m > 0 ? mezcla(c[n - 1], c[0]) : null;
@@ -326,7 +330,83 @@
                 ctx.fillStyle = g; ctx.fillRect(-L, -L, 2 * L, 2 * L);
                 break;
             }
+            case 'particulas': particulas(ctx, c, s, n, c1, c2); break;
         }
+    }
+
+    // Número al azar repetible (mulberry32): las mismas partículas en el Taller, en el juego y en cada equipo
+    function azar(a, b, c) {
+        let t = (Math.imul(a, 73856093) ^ Math.imul(b, 19349663) ^ Math.imul(c, 83492791)) >>> 0;
+        return () => {
+            t = (t + 0x6D2B79F5) >>> 0;
+            let r = Math.imul(t ^ (t >>> 15), 1 | t);
+            r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r;
+            return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+        };
+    }
+
+    // Una partícula por celda de la grilla (como mucho): una piedra de contorno, tamaño, giro, color y lugar al azar según la semilla.
+    // Depende de la celda y no del orden de dibujo: un relleno más grande muestra las mismas en el mismo lugar.
+    // Las piedras se calculan una vez (un trazo por color) y se reutilizan: el Taller redibuja la vista y las miniaturas en
+    // cada cambio, y calcularlas cada vez trababa la vista con varias capas de partículas. Dibujarlas = dos rellenos.
+    function particulas(ctx, c, s, n, c1, c2) {
+        const [a, b] = piedras(num(c.semilla, 1) | 0, Math.max(0, Math.min(1, num(c.densidad, 0.6))), s, n);
+        ctx.fillStyle = c1;
+        rellenar(ctx, a);
+        ctx.fillStyle = c2;
+        rellenar(ctx, b);
+    }
+
+    const cachePiedras = new Map();
+    function piedras(semilla, densidad, s, n) {
+        const clave = semilla + '|' + densidad + '|' + s + '|' + n;
+        let p = cachePiedras.get(clave);
+        if (p) return p;
+        p = [nuevoTrazo(), nuevoTrazo()];
+        for (let i = -n; i <= n; i++) for (let j = -n; j <= n; j++) {
+            const r = azar(semilla, i, j);
+            if (r() > densidad) continue;
+            const x = (i + r()) * s, y = (j + r()) * s, t = s * (0.08 + 0.36 * r() * r());
+            const giro = r() * Math.PI * 2, alto = 0.55 + 0.45 * r(); // alargada o redonda
+            piedra(r() < 0.5 ? p[0] : p[1], r, t, x, y, Math.cos(giro), Math.sin(giro), alto);
+        }
+        if (cachePiedras.size >= 64) cachePiedras.delete(cachePiedras.keys().next().value); // la más vieja
+        cachePiedras.set(clave, p);
+        return p;
+    }
+
+    // Sin Path2D (pruebas en Node) se anota el trazo y se repite sobre el lienzo
+    const nuevoTrazo = () => (typeof Path2D !== 'undefined' ? new Path2D() : Object.assign([], {
+        moveTo(...a) { this.push(['moveTo', a]); },
+        lineTo(...a) { this.push(['lineTo', a]); },
+        quadraticCurveTo(...a) { this.push(['quadraticCurveTo', a]); },
+        closePath() { this.push(['closePath', []]); }
+    }));
+    function rellenar(ctx, trazo) {
+        if (!Array.isArray(trazo)) return ctx.fill(trazo);
+        ctx.beginPath();
+        trazo.forEach(([f, a]) => ctx[f](...a));
+        ctx.fill();
+    }
+
+    // Piedra: de 5 a 9 puntos a distancia y ángulo al azar, cada esquina suave o en punta (ninguna sale igual a otra).
+    // Va con su lugar (x, y), giro (cos, sin) y alto ya aplicados, porque comparte el trazo con las demás.
+    function piedra(trazo, r, t, x, y, cos, sin, alto) {
+        const k = 5 + ((r() * 5) | 0), suave = r(), p = [];
+        for (let i = 0; i < k; i++) {
+            const a = (i + 0.15 + 0.7 * r()) / k * Math.PI * 2, d = t * (0.55 + 0.45 * r());
+            const u = Math.cos(a) * d, v = Math.sin(a) * d * alto;
+            p.push([x + u * cos - v * sin, y + u * sin + v * cos]);
+        }
+        const medio = (u, v) => [(u[0] + v[0]) / 2, (u[1] + v[1]) / 2];
+        const ini = medio(p[k - 1], p[0]);
+        trazo.moveTo(ini[0], ini[1]);
+        for (let i = 0; i < k; i++) {
+            const q = p[i], m = medio(q, p[(i + 1) % k]);
+            if (r() < suave) trazo.quadraticCurveTo(q[0], q[1], m[0], m[1]);
+            else { trazo.lineTo(q[0], q[1]); trazo.lineTo(m[0], m[1]); }
+        }
+        trazo.closePath();
     }
 
     function imagen(ctx, c, img) {
@@ -385,7 +465,10 @@
         if (!t || avatar == null || avatar === '') return;
         if (esEmoji(avatar)) { textoHaxball(ctx, t.color, avatar); return; }
         const fg = FUENTE_GOOGLE.test(t.fuenteGoogle || '') ? t.fuenteGoogle : '';
-        const f = fg ? { css: `'${fg}',sans-serif`, peso: '400', ajuste: 1 } : (FUENTES[t.fuente] || FUENTES.clasica);
+        const base = fg ? { css: `'${fg}',sans-serif`, peso: '400', ajuste: 1 } : (FUENTES[t.fuente] || FUENTES.clasica);
+        // La del equipo manda; la otra queda de respaldo (un programa o el visor sin ese archivo la usan)
+        const fa = CLAVE_FUENTE.test(t.fuenteArchivo || '') ? t.fuenteArchivo : '';
+        const f = fa ? { css: `'TH ${fa}',${base.css}`, peso: base.peso, ajuste: 1 } : base;
         const px = Math.max(4, Math.round(num(t.tamano, 24) * f.ajuste));
         ctx.save();
         ctx.font = `${f.peso} ${px}px ${f.css}`;
@@ -478,6 +561,27 @@
         return p;
     }
 
+    // Carga la fuente de un equipo como 'TH <clave>'. origen: su URL (carcasa) o sus bytes (motor). nueva = reemplaza la
+    // que ya estaba cargada (el Taller la acaba de cambiar). Resuelve la fuente lista o null.
+    const fuentesArchivo = new Map();
+    function cargarFuenteArchivo(doc, clave, origen, nueva) {
+        if (!CLAVE_FUENTE.test(clave || '')) return Promise.resolve(null);
+        if (nueva && fuentesArchivo.has(clave)) {
+            fuentesArchivo.get(clave).then(vieja => { if (vieja) doc.fonts.delete(vieja); });
+            fuentesArchivo.delete(clave);
+        }
+        if (!fuentesArchivo.has(clave)) {
+            let p;
+            try {
+                // Rango de pesos: con "bold" no se inventa una negrita encima de la fuente del equipo
+                const cara = new doc.defaultView.FontFace('TH ' + clave, typeof origen === 'string' ? `url("${encodeURI(origen)}")` : origen, { weight: '100 900' });
+                p = cara.load().then(c => { doc.fonts.add(c); return c; });
+            } catch (e) { p = Promise.reject(e); }
+            fuentesArchivo.set(clave, p.catch(() => { fuentesArchivo.delete(clave); return null; }));
+        }
+        return fuentesArchivo.get(clave);
+    }
+
     // Reconstruye cada kit campo a campo con los límites del formato (CLAUDE.md 4.6). main.js lo aplica al
     // leer y al escribir kits.json: lo que va en el instalador nunca trae campos sueltos ni valores fuera de rango.
     const IMG_PREFIJOS = ['data:image/png;base64,', 'data:image/webp;base64,', 'data:image/jpeg;base64,'];
@@ -485,19 +589,25 @@
         const str = (v, n) => String(v ?? '').slice(0, n);
         const nm = (v, min, max, def) => { const n = (typeof v === 'number' || typeof v === 'string') && v !== '' ? Number(v) : NaN; return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : def; };
         const color = (v, def) => { const c = typeof v === 'string' ? v.replace(/^#/, '') : ''; return /^[0-9A-F]{6}$/i.test(c) ? c.toUpperCase() : def; };
+        // Capas y texto aceptan transparencia (RRGGBBAA); AA = FF se guarda sin ella
+        const colorA = (v, def) => { const c = typeof v === 'string' ? v.replace(/^#/, '') : ''; return COLOR.test(c) ? c.toUpperCase().replace(/^(.{6})FF$/, '$1') : def; };
         const opcion = (v, opciones) => opciones.includes(v) ? v : opciones[0];
         const pos = c => ({ x: nm(c.x, -48, 48, 0), y: nm(c.y, -48, 48, 0), escala: nm(c.escala, 0.1, 4, 1), rot: nm(c.rot, -360, 360, 0), opacidad: nm(c.opacidad, 0, 1, 1), espejoX: c.espejoX === true, espejoY: c.espejoY === true });
         const imagenOk = s => typeof s === 'string' && s.length <= 350000 &&
             IMG_PREFIJOS.some(p => s.startsWith(p)) && /^[A-Za-z0-9+/=]+$/.test(s.slice(s.indexOf(',') + 1));
         const relleno = c => {
             if (!c || typeof c !== 'object' || !PATRONES[c.patron]) return null;
-            const r = { patron: c.patron, color: color(c.color, 'FFFFFF'), color2: color(c.color2, 'FFFFFF'),
+            const r = { patron: c.patron, color: colorA(c.color, 'FFFFFF'), color2: colorA(c.color2, 'FFFFFF'),
                         opacidad: nm(c.opacidad, 0, 1, 1), escala: nm(c.escala, 0.25, 4, 1), rot: nm(c.rot, -360, 360, 0) };
             if (c.patron === 'degradado') {
-                const cols = (Array.isArray(c.colores) ? c.colores : []).map(x => color(x, null)).filter(Boolean).slice(0, MAX_COLORES_DEGRADADO);
+                const cols = (Array.isArray(c.colores) ? c.colores : []).map(x => colorA(x, null)).filter(Boolean).slice(0, MAX_COLORES_DEGRADADO);
                 r.colores = cols.length >= 2 ? cols : [r.color, r.color2];
                 r.estilo = opcion(c.estilo, Object.keys(ESTILOS_DEGRADADO));
                 r.intensidad = nm(c.intensidad, 0, 1, 1);
+            }
+            if (c.patron === 'particulas') {
+                r.semilla = Math.round(nm(c.semilla, 0, 999999, 1));
+                r.densidad = nm(c.densidad, 0.05, 1, 0.6);
             }
             return r;
         };
@@ -505,9 +615,9 @@
         const capa = c => {
             if (!c || typeof c !== 'object') return null;
             if (c.tipo === 'figura' && FORMAS[c.forma]) {
-                const f = { tipo: 'figura', forma: c.forma, ...pos(c), color: color(c.color, 'FFFFFF'),
+                const f = { tipo: 'figura', forma: c.forma, ...pos(c), color: colorA(c.color, 'FFFFFF'),
                             ancho: nm(c.ancho, 0.1, 4, 1), alto: nm(c.alto, 0.1, 4, 1), grosor: nm(c.grosor, 0.2, 4, 1),
-                            borde: nm(c.borde, 0, 8, 0), colorBorde: color(c.colorBorde, '000000'), radio: nm(c.radio, 0, 32, 0),
+                            borde: nm(c.borde, 0, 8, 0), colorBorde: colorA(c.colorBorde, '000000'), radio: nm(c.radio, 0, 32, 0),
                             relleno: relleno(c.relleno) };
                 if (c.forma === 'vector') {
                     f.puntos = (Array.isArray(c.puntos) ? c.puntos : []).map(punto).filter(Boolean).slice(0, MAX_PUNTOS);
@@ -522,9 +632,10 @@
         const textoK = t => (!t || typeof t !== 'object') ? null : {
             fuente: opcion(t.fuente, Object.keys(FUENTES)),
             fuenteGoogle: typeof t.fuenteGoogle === 'string' && FUENTE_GOOGLE.test(t.fuenteGoogle.trim()) ? t.fuenteGoogle.trim() : '',
-            color: color(t.color, 'FFFFFF'), tamano: nm(t.tamano, 10, 52, 24),
-            y: nm(t.y, -20, 20, 0), borde: nm(t.borde, 0, 8, 0), colorBorde: color(t.colorBorde, '000000'),
-            glow: nm(t.glow, 0, 24, 0), colorGlow: color(t.colorGlow, 'FFFFFF')
+            fuenteArchivo: typeof t.fuenteArchivo === 'string' && CLAVE_FUENTE.test(t.fuenteArchivo) ? t.fuenteArchivo : '',
+            color: colorA(t.color, 'FFFFFF'), tamano: nm(t.tamano, 10, 52, 24),
+            y: nm(t.y, -20, 20, 0), borde: nm(t.borde, 0, 8, 0), colorBorde: colorA(t.colorBorde, '000000'),
+            glow: nm(t.glow, 0, 24, 0), colorGlow: colorA(t.colorGlow, 'FFFFFF')
         };
 
         const ids = new Set();
@@ -563,7 +674,13 @@
         'Coquimbo Unido': 'COQ', 'Curicó Unido': 'CUR', 'Inter de Milán': 'INT', 'Manchester City': 'MCI', 'Manchester United': 'MUN', 'Real Madrid': 'RMA',
         'River Plate': 'RIV', 'San Felipe': 'USF', 'San Luis': 'SLU', 'San Marcos de Arica': 'SMA', 'Atletico de Madrid': 'ATM', 'AC Milan': 'ACM', 'PSG': 'PSG'
     };
-    function codigoDe(nombre) {
+    // Manda la abreviatura del backend (abr de KIT_COLORS, en equipos.js); sin ella, CODIGOS y la regla de siempre.
+    // grupos: los de equipos.js (el motor los recibe en cfg; la carcasa y el visor tienen TORO_EQUIPOS).
+    function codigoDe(nombre, grupos) {
+        for (const g of grupos || raiz.TORO_EQUIPOS || []) {
+            const e = g && Array.isArray(g.equipos) && g.equipos.find(x => x.nombre === nombre && x.abr);
+            if (e) return e.abr;
+        }
         if (CODIGOS[nombre]) return CODIGOS[nombre];
         const palabras = nombre.split(/\s+/).filter(p => !/^(de|la|del)$/i.test(p));
         return (palabras.length > 1 ? palabras.map(p => p[0]).join('') : nombre.replace(/[^\p{L}]/gu, '').slice(0, 3)).toUpperCase();
@@ -587,6 +704,18 @@
             for (const g of donde) nombresEn(g, f).forEach(n => nombres.add(n));
             return nombres.size === 1 ? [...nombres][0] : null;
         });
+    }
+
+    // Ranking del partido (programa, tecla Tab): jugadores de /api/sala-jugadores con st (el partido les vale) y en un equipo.
+    // Orden: puntos > goles > asistencias > atajadas > tiros > % de pases > % de tiros al arco > numericId más bajo.
+    // pases y punteria: 0..100, o null sin intentos (se ordena como 0).
+    function ordenRanking(jugadores) {
+        const pct = (a, b) => (a + b > 0 ? Math.round(a * 100 / (a + b)) : null);
+        return (Array.isArray(jugadores) ? jugadores : [])
+            .filter(j => j && j.st && (j.team === 1 || j.team === 2))
+            .map(j => Object.assign({}, j, { tiros: j.st.ta + j.st.te, pases: pct(j.st.pc, j.st.pp), punteria: pct(j.st.ta, j.st.te) }))
+            .sort((x, y) => (y.st.p - x.st.p) || (y.st.g - x.st.g) || (y.st.a - x.st.a) || (y.st.at - x.st.at) || (y.tiros - x.tiros) ||
+                ((y.pases || 0) - (x.pases || 0)) || ((y.punteria || 0) - (x.punteria || 0)) || ((x.numericId || Infinity) - (y.numericId || Infinity)));
     }
 
     // escudos/<archivo>.png vale para el equipo aunque cambien mayúsculas, tildes, espacios o puntos
@@ -955,10 +1084,153 @@
         return true;
     }
 
+    // Listas desplegables con el diseño de la web (pagina/styles.css, "Menú desplegable personalizado"): cualquier <select>
+    // del documento abre esta lista en vez de la del sistema. El <select> sigue siendo el dueño del valor y de cómo se ve
+    // cerrado; la lista se arma al abrir, así que nunca queda desfasada. La usan la carcasa (Ajustes, Taller) y HaxBall.
+    const DESPLEGABLE_CSS = `
+select.toro-abierto { border-color: #42D3C4 !important; box-shadow: 0 0 10px rgba(66, 211, 196, 0.2) !important; }
+select.toro-abierto:not(.toro-arriba) { border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; }
+select.toro-abierto.toro-arriba { border-top-left-radius: 0 !important; border-top-right-radius: 0 !important; }
+.toro-desplegable { position: fixed; z-index: 2147483000; box-sizing: border-box; max-width: min(460px, 92vw); overflow: hidden auto; padding: 4px 0;
+    background: #011412; border: 1px solid #FFD342; border-top: none; border-radius: 0 0 8px 8px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+    color: #ddd; text-align: left; user-select: none; animation: toro-desplegar 0.2s ease; }
+.toro-desplegable.arriba { border-top: 1px solid #FFD342; border-bottom: none; border-radius: 8px 8px 0 0; animation-name: toro-desplegar-arriba; }
+@keyframes toro-desplegar { from { opacity: 0; transform: translateY(-8px); } }
+@keyframes toro-desplegar-arriba { from { opacity: 0; transform: translateY(10px); } }
+.toro-desplegable .opcion { padding: 0.7em 1em; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; transition: background-color 0.15s ease, color 0.15s ease; }
+.toro-desplegable .opcion.marcada { background-color: rgba(255, 211, 66, 0.1); color: #fff; }
+.toro-desplegable .opcion.elegida { background: #12b99d; color: #fff; font-weight: 700; }
+.toro-desplegable .opcion.elegida.marcada { background: #16c9aa; }
+.toro-desplegable .opcion.apagada { color: #666; cursor: default; }
+.toro-desplegable .grupo { padding: 0.6em 1em 0.3em; color: #FFD342; font-size: 0.8em; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }`;
+    const conDesplegables = new WeakSet();
+    function desplegables(doc) {
+        const win = doc.defaultView;
+        if (!win || conDesplegables.has(doc)) return;
+        conDesplegables.add(doc);
+        let sel = null, lista = null, marca = -1, buscar = '', tBuscar = 0;
+        const sirve = s => s && s.tagName === 'SELECT' && !s.multiple && !(s.size > 1) && !s.disabled;
+        const cerrar = () => {
+            if (!sel) return;
+            sel.classList.remove('toro-abierto', 'toro-arriba');
+            lista.remove();
+            sel = lista = null;
+            buscar = '';
+        };
+        const marcar = (i, mostrar) => {
+            marca = i;
+            lista.querySelectorAll('.opcion').forEach(o => {
+                const esta = +o.dataset.i === i;
+                o.classList.toggle('marcada', esta);
+                if (esta && mostrar) o.scrollIntoView({ block: 'nearest' });
+            });
+        };
+        const elegir = i => {
+            const s = sel, o = s.options[i];
+            cerrar();
+            if (!s.isConnected) return;
+            s.focus();
+            if (!o || o.disabled || i === s.selectedIndex) return;
+            s.selectedIndex = i;
+            s.dispatchEvent(new win.Event('input', { bubbles: true }));
+            s.dispatchEvent(new win.Event('change', { bubbles: true }));
+        };
+        const abrir = s => {
+            if (!doc.getElementById('toro-desplegables')) {
+                const estilo = doc.createElement('style');
+                estilo.id = 'toro-desplegables';
+                estilo.textContent = DESPLEGABLE_CSS;
+                (doc.head || doc.documentElement).appendChild(estilo);
+            }
+            sel = s;
+            lista = doc.createElement('div');
+            lista.className = 'toro-desplegable';
+            lista.setAttribute('role', 'listbox');
+            const agregar = o => {
+                if (o.tagName !== 'OPTION' || o.hidden) return;
+                const d = doc.createElement('div');
+                d.className = 'opcion' + (o.index === s.selectedIndex ? ' elegida' : '') + (o.disabled ? ' apagada' : '');
+                d.setAttribute('role', 'option');
+                d.dataset.i = o.index;
+                d.textContent = o.text;
+                lista.appendChild(d);
+            };
+            for (const h of s.children) {
+                if (h.tagName !== 'OPTGROUP') { agregar(h); continue; }
+                if (h.hidden) continue;
+                const g = doc.createElement('div');
+                g.className = 'grupo';
+                g.textContent = h.label;
+                lista.appendChild(g);
+                for (const o of h.children) agregar(o);
+            }
+            const r = s.getBoundingClientRect(), cs = win.getComputedStyle(s);
+            lista.style.fontFamily = cs.fontFamily;
+            lista.style.fontSize = cs.fontSize;
+            lista.style.minWidth = r.width + 'px';
+            doc.body.appendChild(lista);
+            const abajo = win.innerHeight - r.bottom, arriba = abajo < Math.min(lista.scrollHeight, 250) && r.top > abajo;
+            lista.style.maxHeight = Math.max(90, Math.min(250, (arriba ? r.top : abajo) - 8)) + 'px';
+            lista.style.left = Math.max(4, Math.min(r.left, win.innerWidth - lista.offsetWidth - 4)) + 'px';
+            if (arriba) lista.style.bottom = (win.innerHeight - r.top) + 'px';
+            else lista.style.top = r.bottom + 'px';
+            lista.classList.toggle('arriba', arriba);
+            s.classList.add('toro-abierto');
+            s.classList.toggle('toro-arriba', arriba);
+            lista.addEventListener('mousedown', e => e.preventDefault()); // el foco se queda en el <select>
+            lista.addEventListener('mousemove', e => { const o = e.target.closest('.opcion'); if (o && +o.dataset.i !== marca) marcar(+o.dataset.i, false); });
+            lista.addEventListener('click', e => { const o = e.target.closest('.opcion'); if (o && !o.classList.contains('apagada')) elegir(+o.dataset.i); });
+            marcar(s.selectedIndex, true);
+        };
+        win.addEventListener('mousedown', e => {
+            if (lista && lista.contains(e.target)) return;
+            const s = e.target.closest ? e.target.closest('select') : null, era = sel;
+            cerrar();
+            if (e.button !== 0 || !sirve(s)) return;
+            e.preventDefault(); // sin la lista del sistema
+            s.focus();
+            if (s !== era) abrir(s);
+        }, true);
+        win.addEventListener('keydown', e => {
+            if (!sel) {
+                if (sirve(e.target) && (e.key === ' ' || e.key === 'Enter' || e.key === 'F4' || (e.altKey && /^Arrow(Down|Up)$/.test(e.key)))) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    abrir(e.target);
+                }
+                return;
+            }
+            const ops = sel.options, paso = (desde, d) => {
+                let i = desde + d;
+                while (i >= 0 && i < ops.length && (ops[i].disabled || ops[i].hidden)) i += d;
+                if (i >= 0 && i < ops.length) marcar(i, true);
+            };
+            if (e.key === 'ArrowDown') paso(marca, 1);
+            else if (e.key === 'ArrowUp') paso(marca, -1);
+            else if (e.key === 'Home') paso(-1, 1);
+            else if (e.key === 'End') paso(ops.length, -1);
+            else if (e.key === 'Enter' || (e.key === ' ' && !buscar)) elegir(marca);
+            else if (e.key === 'Escape') { const s = sel; cerrar(); s.focus(); }
+            else if (e.key === 'Tab') { cerrar(); return; }
+            else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) { // escribir busca, como en la lista del sistema
+                clearTimeout(tBuscar);
+                tBuscar = setTimeout(() => { buscar = ''; }, 700);
+                buscar += e.key.toLowerCase();
+                const i = Array.prototype.findIndex.call(ops, o => !o.disabled && !o.hidden && o.text.trim().toLowerCase().startsWith(buscar));
+                if (i >= 0) marcar(i, true);
+            } else return;
+            e.preventDefault();
+            e.stopPropagation();
+        }, true);
+        win.addEventListener('scroll', e => { if (lista && !lista.contains(e.target)) cerrar(); }, true);
+        win.addEventListener('resize', cerrar);
+        win.addEventListener('blur', cerrar);
+    }
+
     raiz.ToroKitRender = {
-        claveEscudo, SILUETA_ESCUDO, codigoDe, equiposDeFirmas, MARCADOR_CSS, crearMarcador, dibujarMarcadorLienzo, fijarPosicion, fijarApariencia, nuevaTanda, anotarPenal, vistaTanda, tandaSigue, TANDA_RELOJ_MAX,
-        FUENTES, URL_FUENTES, FUENTE_GOOGLE, FORMAS, CON_GROSOR, PATRONES, ESTILOS_DEGRADADO, MAX_PUNTOS, MAX_COLORES_DEGRADADO, SALAS,
+        claveEscudo, SILUETA_ESCUDO, codigoDe, equiposDeFirmas, ordenRanking, pintarEscudo, MARCADOR_CSS, crearMarcador, dibujarMarcadorLienzo, fijarPosicion, fijarApariencia, nuevaTanda, anotarPenal, vistaTanda, tandaSigue, TANDA_RELOJ_MAX,
+        FUENTES, URL_FUENTES, FUENTE_GOOGLE, CLAVE_FUENTE, FORMAS, CON_GROSOR, PATRONES, ESTILOS_DEGRADADO, MAX_PUNTOS, MAX_COLORES_DEGRADADO, SALAS,
         hex, anguloInterno, gradosDeInterno, coincideFirma, firmasDeEquipo, coincideKit, aVector, sanear,
-        base, capas, buscable, codigoDeEnlace, esEmoji, texto, textoHaxball, renderizar, lienzo, lienzoCapas, cargarImagenes, cargarFuenteGoogle
+        base, capas, buscable, codigoDeEnlace, esEmoji, texto, textoHaxball, renderizar, lienzo, lienzoCapas, cargarImagenes, cargarFuenteGoogle, cargarFuenteArchivo, desplegables
     };
 })(typeof window !== 'undefined' ? window : globalThis);
