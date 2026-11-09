@@ -420,7 +420,7 @@
                         </div>
 
                         <div class="vip-col">
-                            <h4 class="vip-col-title"><i class="fa-solid fa-music"></i> Canción de gol <small class="vip-solo-programa">solo en el programa de escritorio</small></h4>
+                            <h4 class="vip-col-title"><i class="fa-solid fa-music"></i> Próximamente </h4>
                             <div class="form-group">
                                 <label for="vipCancion"><i class="fa-brands fa-youtube"></i> Enlace de YouTube</label>
                                 <input type="text" id="vipCancion" class="form-control" maxlength="300" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off" spellcheck="false">
@@ -433,7 +433,6 @@
                                     <button type="button" class="btn-action btn-guardar" id="vipCancionProbar"><i class="fa-solid fa-play"></i> Escuchar los 5 s</button>
                                 </div>
                             </div>
-                            <p class="vip-desc">Suena en el programa de todos los de la sala cuando marcas (3,5 s y se apaga) y completa si terminas como MVP. Cada jugador puede desactivarla en su programa. Déjalo vacío para quitarla.</p>
                         </div>
 
                         <button class="save-btn" onclick="guardarConfiguracionVipSegura()" id="btnSaveVip"><i class="fa-solid fa-floppy-disk"></i> Guardar Cambios</button>
@@ -984,20 +983,20 @@
             });
         }
 
-        // Como en el programa al marcar: 3,5 s normal y 1,5 s apagándose. Cuenta desde que el video suena (no mientras carga).
+        // Como en el programa al marcar (FUNDIDOS_CANCION de main.js): 0,3 s subiendo y 1,5 s apagándose. Cuenta desde que el video suena (no mientras carga).
         function probarCancion() {
             const p = cancionVip.player;
             if (!p || !p.seekTo) return;
             clearInterval(cancionVip.prueba);
             const inicio = Number(document.getElementById('vipCancionInicio').value) || 0, tope = performance.now() + 15000;
             p.unMute();
-            p.setVolume(100);
+            p.setVolume(0);
             p.seekTo(inicio, true);
             p.playVideo();
             cancionVip.prueba = setInterval(() => {
                 const t = (p.getCurrentTime() || 0) - inicio;
                 if (t >= 5 || performance.now() > tope) { clearInterval(cancionVip.prueba); p.pauseVideo(); p.setVolume(100); return; }
-                p.setVolume(t < 3.5 ? 100 : Math.max(0, Math.round(100 * (5 - t) / 1.5)));
+                p.setVolume(Math.max(0, Math.round(100 * Math.min(1, t / 0.3, (5 - t) / 1.5))));
             }, 50);
         }
 
