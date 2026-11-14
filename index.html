@@ -56,6 +56,28 @@
         .card p { color: #bdc3c7; font-size: 1rem; margin: 0; position: relative; z-index: 2;}
         .social-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; width: 100%; }
 
+        .btn-cliente {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 25px;
+            padding: 10px 30px 10px 12px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #21ded2, #0ab4dc);
+            color: #fff;
+            font-size: 1.7rem;
+            font-weight: bold;
+            text-decoration: none;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .btn-cliente img { width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0; }
+        .btn-cliente:hover { transform: translateY(-4px); box-shadow: 0 6px 20px rgba(33, 222, 210, 0.5); }
+        .btn-cliente:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
         .card.match-day {
             border-color: #2df2c1;
             background: rgba(15, 35, 30, 0.8);
@@ -165,7 +187,12 @@
             </div>
 
         </div>
-        
+
+        <!-- data-solo-admin: sidebar.js lo muestra solo a admins (por ahora) -->
+        <a href="descargar.html" class="btn-cliente" data-solo-admin style="display: none;">
+            <img src="logo_torohax.png" alt="" width="48" height="48"> Cliente oficial
+        </a>
+
         <div class="social-links">
             <a href="https://discord.gg/3kHXFtzXfn" target="_blank" rel="noopener noreferrer" class="social-btn discord">
                 <i class="fa-brands fa-discord"></i> Discord

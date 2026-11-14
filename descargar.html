@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-TNG2QC64');</script>
+    <!-- End Google Tag Manager -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Descargar el programa - ToroHax</title>
+    <meta name="description" content="Descarga el programa de ToroHax para Windows, macOS y Linux: HaxBall con estadio, camisetas de los equipos, marcador, clips y chat de voz.">
+    <link rel="icon" type="image/png" href="logo_torohax.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TNG2QC64"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <header></header>
+
+    <main class="descarga-wrapper">
+        <section class="box descarga-panel descarga-hero" aria-labelledby="descarga-titulo">
+            <h1 id="descarga-titulo">Descargar cliente</h1>
+
+            <p class="legal-note descarga-aviso" id="aviso-movil" hidden>
+                <i class="fa-solid fa-mobile-screen" aria-hidden="true"></i>
+                El programa es para computador (Windows, macOS o Linux): no funciona en celulares ni tablets. Abre esta página en tu computador para instalarlo; los enlaces siguen aquí abajo.
+            </p>
+
+            <ul class="descarga-grid">
+                <li><a data-os="win" class="btn-estandar btn-secundario" href="https://torobot-izu5.onrender.com/api/client/download/win"><i class="fa-brands fa-windows" aria-hidden="true"></i> Windows</a></li>
+                <li><a data-os="linux" class="btn-estandar btn-secundario" href="https://torobot-izu5.onrender.com/api/client/download/linux"><i class="fa-brands fa-linux" aria-hidden="true"></i> Linux (AppImage)</a></li>
+                <li><a data-os="mac" class="btn-estandar btn-secundario" href="https://torobot-izu5.onrender.com/api/client/download/mac"><i class="fa-brands fa-apple" aria-hidden="true"></i> macOS</a></li>
+                <li><a data-os="deb" class="btn-estandar btn-secundario" href="https://torobot-izu5.onrender.com/api/client/download/linux?tipo=deb"><i class="fa-brands fa-ubuntu" aria-hidden="true"></i> Linux (Ubuntu)</a></li>
+            </ul>
+        </section>
+
+        <section class="box descarga-panel" aria-labelledby="novedades-titulo">
+            <h2 id="novedades-titulo">Novedades</h2>
+            <p class="descarga-version" id="version-info" role="status">Buscando la última versión…</p>
+            <div class="descarga-changelog" id="changelog" role="region" tabindex="0" aria-label="Novedades de la última versión" hidden></div>
+        </section>
+
+        <section class="box descarga-panel" aria-labelledby="ayuda-titulo">
+            <h2 id="ayuda-titulo">Al instalar y abrir</h2>
+            <ul class="descarga-ayuda">
+                <li>
+                    <i class="fa-brands fa-windows" aria-hidden="true"></i>
+                    <div><strong>Windows:</strong> si aparece «Windows protegió tu PC» (SmartScreen), pulsa <strong>Más información</strong> y luego <strong>Ejecutar de todas formas</strong>. El aviso sale porque el instalador no tiene firma digital.</div>
+                </li>
+                <li>
+                    <i class="fa-brands fa-apple" aria-hidden="true"></i>
+                    <div><strong>macOS:</strong> si dice que no puede comprobar la app, haz <strong>clic derecho</strong> (o Control + clic) sobre ella y elige <strong>Abrir</strong>. En macOS 15 o más nuevo, si no te deja, ve a <strong>Ajustes del Sistema → Privacidad y seguridad</strong> y pulsa <strong>Abrir igualmente</strong>.</div>
+                </li>
+                <li>
+                    <i class="fa-brands fa-linux" aria-hidden="true"></i>
+                    <div><strong>Linux:</strong> dale permiso de ejecución al AppImage (en sus propiedades o con <code>chmod +x</code>). El .deb se instala con doble clic o con <code>sudo apt install ./archivo.deb</code>.</div>
+                </li>
+                <li>
+                    <i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i>
+                    <div><strong>Al abrirlo</strong>, el programa te pide iniciar sesión con tu cuenta de ToroHax: tu ID y la confirmación por Discord, igual que en la <a href="login.html">web</a>. Si aún no tienes ID, entra a una sala desde el navegador y escribe <code>!registro</code> en el chat.</div>
+                </li>
+            </ul>
+        </section>
+    </main>
+
+    <footer>
+        <nav class="footer-links" aria-label="Enlaces legales">
+            <a href="terminos.html">Términos y Condiciones</a>
+            <a href="privacidad.html">Política de Privacidad</a>
+            <a href="mailto:torohaxball27@gmail.com">Contacto</a>
+        </nav>
+        <p>© 2026 ToroHax. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="torohax-ui.js"></script>
+    <script src="header.js"></script>
+    <script src="sidebar.js"></script>
+
+    <script>
+        const API_DESCARGA = 'https://torobot-izu5.onrender.com';
+
+        function detectarSistema(plataforma, ua, toques, movilUad) {
+            const texto = String(plataforma || ua || '').toLowerCase();
+            const ipad = /mac/.test(texto) && toques > 1;
+            if (movilUad || ipad || /android|iphone|ipad|ipod|mobile|tablet/.test(texto)) return { os: null, movil: true };
+            if (/windows|win32|win64/.test(texto)) return { os: 'win', movil: false };
+            if (/mac/.test(texto)) return { os: 'mac', movil: false };
+            if (/cros|chrome os/.test(texto)) return { os: null, movil: false };
+            if (/linux|x11/.test(texto)) return { os: 'linux', movil: false };
+            return { os: null, movil: false };
+        }
+
+        function aplicarSistema() {
+            const uad = navigator.userAgentData;
+            const { os, movil } = detectarSistema(uad && uad.platform, navigator.userAgent, navigator.maxTouchPoints || 0, !!(uad && uad.mobile));
+            document.getElementById('aviso-movil').hidden = !movil;
+            const btn = os && document.querySelector('.descarga-grid [data-os="' + os + '"]');
+            if (btn) {
+                btn.classList.replace('btn-secundario', 'btn-abrir');
+                btn.title = 'Recomendado para tu sistema';
+            }
+        }
+
+        function cargarVersion() {
+            const info = document.getElementById('version-info');
+            const cambios = document.getElementById('changelog');
+            const sinVersion = () => {
+                info.textContent = 'La versión no está disponible por ahora. Puedes descargar igual con los botones de arriba.';
+                cambios.hidden = true;
+            };
+            const opciones = window.AbortSignal && AbortSignal.timeout ? { signal: AbortSignal.timeout(20000) } : {};
+            fetch(API_DESCARGA + '/api/client/version', opciones)
+                .then(res => res.json())
+                .then(data => {
+                    const version = data && data.success === true && typeof data.latestVersion === 'string' ? data.latestVersion.trim().replace(/^v/i, '') : '';
+                    if (!version) return sinVersion();
+                    let texto = 'Versión ' + version.slice(0, 40);
+                    const fecha = typeof data.publicada === 'string' && data.publicada ? new Date(data.publicada) : null;
+                    if (fecha && !isNaN(fecha)) texto += ' · publicada el ' + fecha.toLocaleDateString('es-CL', { day: 'numeric', month: 'long', year: 'numeric' });
+                    info.textContent = texto;
+                    const notas = typeof data.changelog === 'string' ? data.changelog.trim() : '';
+                    cambios.textContent = notas ? notas.slice(0, 20000) : 'Esta versión no trae notas.';
+                    cambios.hidden = false;
+                })
+                .catch(sinVersion);
+        }
+
+        aplicarSistema();
+        cargarVersion();
+    </script>
+    <script src="light.js"></script>
+</body>
+</html>
