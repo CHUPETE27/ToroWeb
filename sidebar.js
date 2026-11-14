@@ -30,7 +30,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 <a href="#" onclick="checkLogin('amigos.html')"><i class="fa-solid fa-user-group fa-fw"></i> Amigos</a>
                 <a href="visor.html"><i class="fa-solid fa-clapperboard"></i> Repeticiones</a>
                 <a href="#" onclick="checkLogin('tienda.html')"><i class="fa-solid fa-cart-shopping fa-fw"></i> Tienda</a>
-                <a href="descargar.html" data-solo-admin style="display: none;"><i class="fa-solid fa-download fa-fw"></i> Descargar</a>
                 <a href="index.html"><i class="fa-solid fa-house fa-fw"></i> Menú principal</a>
                 
                 <a href="#" id="sidebar-admin-btn" onclick="checkLogin('admin.html')" style="display: none; color: #e1bc56; border-top: 1px dashed #333; margin-top: 10px; padding-top: 15px;">
