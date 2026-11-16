@@ -30,14 +30,20 @@
     const FORMAS = {
         rectangulo: 'Rectángulo', franja_diagonal: 'Franja diagonal', franja: 'Franja', cruz: 'Cruz', estrella: 'Estrella',
         anillo: 'Anillo', mitad: 'Mitad', escudo: 'Escudo', chevron: 'Chevrón', circulo: 'Círculo', rombo: 'Rombo',
-        vector: 'Vector (puntos moldeables)'
+        texto: 'Texto', vector: 'Vector (puntos moldeables)'
     };
+    const MAX_CONTENIDO = 24; // letras de una capa de texto (figura o patrón)
     const CON_GROSOR = ['franja_diagonal', 'franja', 'cruz', 'anillo', 'chevron', 'estrella'];
     const PATRONES = {
-        lineas_v: 'Líneas verticales', lineas_h: 'Líneas horizontales', diagonales: 'Diagonales', cuadros: 'Cuadros',
-        rombos: 'Rombos', panal: 'Panal', lunares: 'Lunares', degradado: 'Degradado multicolor',
-        degradado_radial: 'Degradado radial (2 colores)', degradado_lineal: 'Degradado lineal (2 colores)', particulas: 'Partículas'
+        lineas_v: 'Líneas verticales', lineas_h: 'Líneas horizontales', diagonales: 'Diagonales', chevrones: 'Chevrones',
+        ondas: 'Líneas curvas (ondas)', circulos: 'Círculos concéntricos', rayos: 'Rayos de sol', cuadros: 'Cuadros',
+        rombos: 'Rombos', triangulos: 'Triángulos', hexagonos: 'Hexágonos (3 tonos)', panal: 'Panal', cubos: 'Cubos 3D',
+        escamas: 'Escamas', lunares: 'Lunares', estrellas: 'Estrellas', texto: 'Texto repetido', degradado: 'Degradado multicolor',
+        degradado_radial: 'Degradado radial (2 colores)', degradado_lineal: 'Degradado lineal (2 colores)', particulas: 'Partículas',
+        grietas: 'Suelo agrietado (desierto)', militar: 'Camuflaje militar'
     };
+    const CON_SEMILLA = ['particulas', 'grietas', 'militar']; // dibujos al azar: guardan su semilla
+    const CON_COLORES = ['degradado', 'militar']; // llevan la lista colores (2 a MAX_COLORES_DEGRADADO)
     const ESTILOS_DEGRADADO = { lineal: 'Lineal', radial: 'Radial', conico: 'Cónico' };
     const MAX_PUNTOS = 32, MAX_COLORES_DEGRADADO = 6;
     const SALAS = { jt_principal: 'Juegan Todos', real_futsal_1: 'Real Futsal', toromatch: 'ToroMatch', predio: 'Predio', torocup: 'ToroCup' };
@@ -99,11 +105,12 @@
         ctx.restore();
     }
 
-    function trazarEstrella(ctx, puntas, rExt, rInt) {
+    function trazarEstrella(ctx, puntas, rExt, rInt, cx = 0, cy = 0) {
         for (let i = 0; i < puntas * 2; i++) {
             const r = i % 2 ? rInt : rExt;
             const a = -Math.PI / 2 + i * Math.PI / puntas;
-            ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+            if (i) ctx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+            else ctx.moveTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r); // varias estrellas en un mismo trazo
         }
         ctx.closePath();
     }
@@ -209,7 +216,24 @@
         }
     }
 
+    // Texto escrito como figura: centrado en la capa, 16 px a escala 1; ancho y alto lo estiran. Borde en px de textura, como el número.
+    function textoFigura(ctx, c, e) {
+        const txt = String(c.contenido || '');
+        if (!txt) return;
+        const f = fuenteDe(c), sx = e * num(c.ancho, 1), sy = e * num(c.alto, 1);
+        ctx.scale(sx, sy);
+        ctx.font = `${f.peso} ${Math.round(16 * f.ajuste)}px ${f.css}`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.lineJoin = 'round';
+        const borde = num(c.borde, 0);
+        if (borde > 0) { ctx.lineWidth = borde / Math.sqrt(sx * sy); ctx.strokeStyle = hex(c.colorBorde); ctx.strokeText(txt, 0, 0); }
+        ctx.fillStyle = hex(c.color);
+        ctx.fillText(txt, 0, 0);
+    }
+
     function figura(ctx, c, e) {
+        if (c.forma === 'texto') { textoFigura(ctx, c, e); return; }
         const g = num(c.grosor, 1);
         trazarFigura(ctx, c, e);
         const borde = num(c.borde, 0);
@@ -331,8 +355,123 @@
                 break;
             }
             case 'particulas': particulas(ctx, c, s, n, c1, c2); break;
+            case 'grietas': grietas(ctx, c, s, L, c1, c2); break;
+            case 'militar': militar(ctx, c, s, L); break;
+            case 'chevrones': { // franjas en V, una sobre otra
+                const p = s * 1.5, a = s * 1.5, h = s, t = s * 0.6; // separación, medio ancho y alto de la V, grosor
+                const k0 = -Math.ceil(L / a) - 1, k1 = -k0;
+                ctx.beginPath();
+                for (let y = -(Math.ceil(L / p) + 2) * p; y <= L; y += p) {
+                    const pts = [];
+                    for (let k = k0; k <= k1; k++) pts.push([k * a, y + (k & 1 ? h : 0)]);
+                    for (let k = k1; k >= k0; k--) pts.push([k * a, y + t + (k & 1 ? h : 0)]);
+                    poligono(ctx, pts);
+                }
+                ctx.fill();
+                break;
+            }
+            case 'ondas': { // líneas curvas paralelas
+                const p = s * 1.25, A = s * 0.4, w = Math.PI * 2 / (s * 4), paso = s / 4;
+                ctx.strokeStyle = c1; ctx.lineWidth = s * 0.4;
+                ctx.beginPath();
+                for (let y = -(Math.ceil(L / p) + 1) * p; y <= L + p; y += p) {
+                    ctx.moveTo(-L, y + A * Math.sin(-L * w));
+                    for (let x = -L + paso; x < L + paso; x += paso) ctx.lineTo(x, y + A * Math.sin(x * w));
+                }
+                ctx.stroke();
+                break;
+            }
+            case 'circulos': // anillos alrededor del centro del patrón
+                ctx.strokeStyle = c1; ctx.lineWidth = s * 0.4;
+                ctx.beginPath();
+                for (let r = s; r < L * 1.5; r += s) { ctx.moveTo(r, 0); ctx.arc(0, 0, r, 0, Math.PI * 2); }
+                ctx.stroke();
+                break;
+            case 'rayos': { // la escala cambia cuántos rayos hay
+                const k = 2 * Math.max(3, Math.round(8 / num(c.escala, 1))), R = L * 1.5;
+                ctx.beginPath();
+                for (let i = 0; i < k; i += 2) { ctx.moveTo(0, 0); ctx.arc(0, 0, R, i * Math.PI * 2 / k, (i + 1) * Math.PI * 2 / k); ctx.closePath(); }
+                ctx.fill();
+                break;
+            }
+            case 'triangulos': { // hacia arriba en color y hacia abajo en el secundario
+                const a = s * 1.5, h = a * Math.sqrt(3) / 2, filas = Math.ceil(L / h) + 1, cols = Math.ceil(2 * L / a) + 2;
+                ctx.fillStyle = c2; ctx.fillRect(-L, -L, 2 * L, 2 * L);
+                ctx.fillStyle = c1;
+                ctx.beginPath();
+                for (let j = -filas; j <= filas; j++)
+                    for (let k = -cols; k <= cols; k++)
+                        if (!((k + j) & 1)) poligono(ctx, [[k * a / 2, (j + 1) * h], [(k + 2) * a / 2, (j + 1) * h], [(k + 1) * a / 2, j * h]]);
+                ctx.fill();
+                break;
+            }
+            case 'hexagonos': { // color, secundario y su mezcla: nunca dos iguales juntos
+                const r = s * 0.75, dx = r * 1.5, dy = r * Math.sqrt(3);
+                ctx.fillStyle = mezcla(c1.slice(1), c2.slice(1)); ctx.fillRect(-L, -L, 2 * L, 2 * L);
+                [c1, c2].forEach((col, tono) => {
+                    ctx.fillStyle = col;
+                    ctx.beginPath();
+                    for (let i = -Math.ceil(L / dx) - 1; i * dx <= L + dx; i++)
+                        for (let j = -Math.ceil(L / dy) - 1; j * dy <= L + dy; j++)
+                            if (tonoHexagono(i, j) === tono) hexagono(ctx, i * dx, j * dy + (i & 1 ? dy / 2 : 0), r);
+                    ctx.fill();
+                });
+                break;
+            }
+            case 'cubos': { // cara de arriba en color, izquierda en el secundario y derecha en su mezcla
+                const r = s * 0.9, w = r * Math.sqrt(3) / 2, dy = r * 1.5;
+                ctx.fillStyle = mezcla(c1.slice(1), c2.slice(1)); ctx.fillRect(-L, -L, 2 * L, 2 * L);
+                const caras = [[c1, (x, y) => [[x, y - r], [x + w, y - r / 2], [x, y], [x - w, y - r / 2]]],
+                               [c2, (x, y) => [[x, y], [x, y + r], [x - w, y + r / 2], [x - w, y - r / 2]]]];
+                for (const [col, cara] of caras) {
+                    ctx.fillStyle = col;
+                    ctx.beginPath();
+                    for (let j = -Math.ceil(L / dy) - 1; j * dy <= L + dy; j++)
+                        for (let i = -Math.ceil(L / (2 * w)) - 1; i * 2 * w <= L + 2 * w; i++) poligono(ctx, cara(i * 2 * w + (j & 1 ? w : 0), j * dy));
+                    ctx.fill();
+                }
+                break;
+            }
+            case 'escamas': { // en color, con el contorno en el secundario
+                const r = s * 0.75;
+                ctx.fillRect(-L, -L, 2 * L, 2 * L);
+                ctx.strokeStyle = c2; ctx.lineWidth = Math.max(0.6, s * 0.1);
+                ctx.beginPath();
+                for (let j = -Math.ceil(L / r) - 1; j * r <= L + r; j++)
+                    for (let i = -Math.ceil(L / (2 * r)) - 1; i * 2 * r <= L + 2 * r; i++) {
+                        const x = i * 2 * r + (j & 1 ? r : 0), y = j * r;
+                        ctx.moveTo(x + r, y);
+                        ctx.arc(x, y, r, 0, Math.PI); // mitad de abajo
+                    }
+                ctx.stroke();
+                break;
+            }
+            case 'texto': { // lo escrito, repetido en filas corridas como ladrillos
+                const txt = String(c.contenido || '');
+                if (!txt) break;
+                const f = fuenteDe(c), alto = s * 1.1, p = alto * 1.4;
+                ctx.font = `${f.peso} ${Math.round(alto * f.ajuste * 10) / 10}px ${f.css}`;
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                const w = Math.max(alto, ctx.measureText(txt + ' ').width || alto * 0.6 * (txt.length + 1));
+                for (let j = -Math.ceil(L / p) - 1; j * p <= L + p; j++)
+                    for (let x = -Math.ceil(L / w) * w - (j & 1 ? w / 2 : 0); x <= L; x += w) ctx.fillText(txt, x, j * p);
+                break;
+            }
+            case 'estrellas': {
+                const p = s * 1.25, R = p * 0.36;
+                ctx.beginPath();
+                for (let j = -Math.ceil(L / p) - 1; j * p <= L + p; j++)
+                    for (let i = -Math.ceil(L / p) - 1; i * p <= L + p; i++) trazarEstrella(ctx, 5, R, R * 0.45, i * p + (j & 1 ? p / 2 : 0), j * p);
+                ctx.fill();
+                break;
+            }
         }
     }
+
+    // Hexágono (i, j) de una grilla con las columnas impares corridas media fila: en coordenadas axiales (q, r),
+    // q - r mod 3 cambia con cada vecino, así que tres tonos alcanzan para que dos vecinos nunca se repitan.
+    const tonoHexagono = (i, j) => (((i - (j - (i - (i & 1)) / 2)) % 3) + 3) % 3;
 
     // Número al azar repetible (mulberry32): las mismas partículas en el Taller, en el juego y en cada equipo
     function azar(a, b, c) {
@@ -382,16 +521,17 @@
         quadraticCurveTo(...a) { this.push(['quadraticCurveTo', a]); },
         closePath() { this.push(['closePath', []]); }
     }));
-    function rellenar(ctx, trazo) {
-        if (!Array.isArray(trazo)) return ctx.fill(trazo);
+    function rellenar(ctx, trazo, regla = 'nonzero') {
+        if (!Array.isArray(trazo)) return ctx.fill(trazo, regla);
         ctx.beginPath();
         trazo.forEach(([f, a]) => ctx[f](...a));
-        ctx.fill();
+        ctx.fill(regla);
     }
 
     // Piedra: de 5 a 9 puntos a distancia y ángulo al azar, cada esquina suave o en punta (ninguna sale igual a otra).
     // Va con su lugar (x, y), giro (cos, sin) y alto ya aplicados, porque comparte el trazo con las demás.
-    function piedra(trazo, r, t, x, y, cos, sin, alto) {
+    // suaveSiempre (camuflaje): todas las esquinas curvas, sin cambiar el azar de las partículas ya guardadas.
+    function piedra(trazo, r, t, x, y, cos, sin, alto, suaveSiempre) {
         const k = 5 + ((r() * 5) | 0), suave = r(), p = [];
         for (let i = 0; i < k; i++) {
             const a = (i + 0.15 + 0.7 * r()) / k * Math.PI * 2, d = t * (0.55 + 0.45 * r());
@@ -403,10 +543,125 @@
         trazo.moveTo(ini[0], ini[1]);
         for (let i = 0; i < k; i++) {
             const q = p[i], m = medio(q, p[(i + 1) % k]);
-            if (r() < suave) trazo.quadraticCurveTo(q[0], q[1], m[0], m[1]);
+            if (suaveSiempre || r() < suave) trazo.quadraticCurveTo(q[0], q[1], m[0], m[1]);
             else { trazo.lineTo(q[0], q[1]); trazo.lineTo(m[0], m[1]); }
         }
         trazo.closePath();
+    }
+
+    // Camuflaje militar: el primer color de fondo y, encima, una tanda de manchas por cada color siguiente (más chicas cada
+    // tanda, para que se vean todos). Cada mancha son 2 a 4 lóbulos curvos en fila. Como las partículas, depende de la semilla
+    // y de la celda y se calcula una vez; el trazo se arma como texto SVG (como placasSuelo) y se crea de una vez.
+    function militar(ctx, c, s, L) {
+        const cols = Array.isArray(c.colores) && c.colores.length >= 2 ? c.colores : [c.color, c.color2];
+        const t = s * 2.2;
+        ctx.fillStyle = hex(cols[0]);
+        ctx.fillRect(-L, -L, 2 * L, 2 * L);
+        manchasMilitar(num(c.semilla, 1) | 0, t, Math.ceil(L / t) + 1, cols.length - 1).forEach((trazo, k) => {
+            ctx.fillStyle = hex(cols[k + 1]);
+            rellenar(ctx, trazo);
+        });
+    }
+
+    const f2 = v => Math.round(v * 100) / 100;
+    const trazoSvg = () => ({
+        d: '',
+        moveTo(x, y) { this.d += 'M' + f2(x) + ' ' + f2(y); },
+        lineTo(x, y) { this.d += 'L' + f2(x) + ' ' + f2(y); },
+        quadraticCurveTo(a, b, x, y) { this.d += 'Q' + f2(a) + ' ' + f2(b) + ' ' + f2(x) + ' ' + f2(y); },
+        closePath() { this.d += 'Z'; }
+    });
+    const cacheMilitar = new Map();
+    function manchasMilitar(semilla, t, m, n) {
+        const clave = semilla + '|' + t + '|' + m + '|' + n;
+        let p = cacheMilitar.get(clave);
+        if (p) return p;
+        p = [];
+        for (let k = 0; k < n; k++) {
+            const trazo = trazoSvg(), tam = t * Math.max(0.2, 0.42 - 0.05 * k);
+            for (let i = -m; i <= m; i++) for (let j = -m; j <= m; j++) {
+                const r = azar(semilla + k * 104729, i, j);
+                if (r() > 0.6) continue;
+                const x = (i + r()) * t, y = (j + r()) * t, giro = r() * Math.PI, lobulos = 2 + ((r() * 3) | 0);
+                const cos = Math.cos(giro), sin = Math.sin(giro);
+                for (let l = 0; l < lobulos; l++) {
+                    const a = (l - (lobulos - 1) / 2) * tam * 0.9, b = (r() - 0.5) * tam * 0.6, g = r() * Math.PI * 2; // a lo largo y de costado
+                    piedra(trazo, r, tam * (0.7 + 0.4 * r()), x + a * cos - b * sin, y + a * sin + b * cos, Math.cos(g), Math.sin(g), 0.6 + 0.4 * r(), true);
+                }
+            }
+            p.push(typeof Path2D !== 'undefined' ? new Path2D(trazo.d) : trazo.d); // sin Path2D (pruebas en Node) queda el texto
+        }
+        if (cacheMilitar.size >= 64) cacheMilitar.delete(cacheMilitar.keys().next().value); // la más vieja
+        cacheMilitar.set(clave, p);
+        return p;
+    }
+
+    // Suelo agrietado (barro seco): placas de un diagrama de Voronoi con un punto al azar por celda. Cada placa se achica un
+    // poco distinto (el ancho de su grieta) y redondea sus esquinas. Como las partículas, depende de la semilla y de la celda
+    // y se calcula una vez. color = el suelo, color2 = las grietas (cada uno con su propia translucidez).
+    function grietas(ctx, c, s, L, c1, c2) {
+        const t = s * 1.5, [placas, huecos] = placasSuelo(num(c.semilla, 1) | 0, t, Math.ceil(L / t) + 2);
+        ctx.fillStyle = c2;
+        rellenar(ctx, huecos, 'evenodd');
+        ctx.fillStyle = c1;
+        rellenar(ctx, placas);
+    }
+
+    const VECINOS = [];
+    for (let d = 1; d <= 2; d++) for (let di = -2; di <= 2; di++) for (let dj = -2; dj <= 2; dj++) if (Math.max(Math.abs(di), Math.abs(dj)) === d) VECINOS.push([di, dj]);
+    const cacheSuelo = new Map();
+    function placasSuelo(semilla, t, m) {
+        const clave = semilla + '|' + t + '|' + m;
+        let p = cacheSuelo.get(clave);
+        if (p) return p;
+        // El trazo se arma como texto SVG y se crea de una vez: miles de llamadas a Path2D tardaban ~1 s en un relleno chico
+        let d = '';
+        // El punto y el hueco de cada celda, una sola vez (cada placa mira a sus 24 vecinos)
+        const a = m + 2, fila = 2 * a + 1, sitios = new Float64Array(fila * fila * 3), k = (i, j) => ((i + a) * fila + j + a) * 3;
+        for (let i = -a; i <= a; i++) for (let j = -a; j <= a; j++) {
+            const r = azar(semilla, i, j), q = k(i, j);
+            sitios[q] = (i + 0.1 + 0.8 * r()) * t; sitios[q + 1] = (j + 0.1 + 0.8 * r()) * t; sitios[q + 2] = t * (0.04 + 0.07 * r());
+        }
+        for (let i = -m; i <= m; i++) for (let j = -m; j <= m; j++) {
+            const q = k(i, j), x = sitios[q], y = sitios[q + 1], hueco = sitios[q + 2];
+            let pol = [[(i - 2) * t, (j - 2) * t], [(i + 3) * t, (j - 2) * t], [(i + 3) * t, (j + 3) * t], [(i - 2) * t, (j + 3) * t]];
+            // Su celda: lo que queda más cerca de su punto que de los 24 vecinos (primero los 8 de al lado), corrida "hueco" hacia adentro
+            for (const [di, dj] of VECINOS) {
+                const v = k(i + di, j + dj), qx = sitios[v], qy = sitios[v + 1], d = Math.hypot(qx - x, qy - y), ux = (qx - x) / d, uy = (qy - y) / d;
+                pol = recortar(pol, ux, uy, ((x + qx) * ux + (y + qy) * uy) / 2 - hueco);
+                if (pol.length < 3) break;
+            }
+            if (pol.length > 2) d += placa(pol);
+        }
+        const lado = (m - 1) * t, cuadro = `M${-lado} ${-lado}H${lado}V${lado}H${-lado}Z`;
+        // Las placas, y el cuadrado con las placas como agujeros (las grietas). Sin Path2D (pruebas en Node) queda el texto.
+        p = typeof Path2D !== 'undefined' ? [new Path2D(d), new Path2D(cuadro + d)] : [d, cuadro + d];
+        if (cacheSuelo.size >= 64) cacheSuelo.delete(cacheSuelo.keys().next().value); // la más vieja
+        cacheSuelo.set(clave, p);
+        return p;
+    }
+
+    // Lo que queda de un polígono convexo del lado x·ux + y·uy <= lim
+    function recortar(pol, ux, uy, lim) {
+        if (pol.every(a => a[0] * ux + a[1] * uy <= lim)) return pol; // ese vecino no la toca (la mayoría de los lejanos)
+        const res = [];
+        for (let k = 0; k < pol.length; k++) {
+            const a = pol[k], b = pol[(k + 1) % pol.length];
+            const da = a[0] * ux + a[1] * uy - lim, db = b[0] * ux + b[1] * uy - lim;
+            if (da <= 0) res.push(a);
+            if ((da <= 0) !== (db <= 0)) { const f = da / (da - db); res.push([a[0] + (b[0] - a[0]) * f, a[1] + (b[1] - a[1]) * f]); }
+        }
+        return res;
+    }
+
+    function placa(pol) { // esquinas redondeadas: cada una curva desde el 30 % de sus dos lados
+        const n = pol.length, f = v => +v.toFixed(2), en = (a, b) => f(a[0] + (b[0] - a[0]) * 0.3) + ' ' + f(a[1] + (b[1] - a[1]) * 0.3);
+        let d = '';
+        for (let k = 0; k < n; k++) {
+            const q = pol[k];
+            d += (k ? 'L' : 'M') + en(q, pol[(k + n - 1) % n]) + 'Q' + f(q[0]) + ' ' + f(q[1]) + ' ' + en(q, pol[(k + 1) % n]);
+        }
+        return d + 'Z';
     }
 
     function imagen(ctx, c, img) {
@@ -460,15 +715,27 @@
 
     const esEmoji = avatar => /\p{Extended_Pictographic}|\p{Regional_Indicator}|\u20E3/u.test(avatar);
 
+    // Fuente del n\u00FAmero o de una capa de texto: la del equipo manda; la de Google o la de la lista quedan de respaldo
+    // (un programa o el visor sin ese archivo las usan)
+    function fuenteDe(t) {
+        const fg = FUENTE_GOOGLE.test(t.fuenteGoogle || '') ? t.fuenteGoogle : '';
+        const base = fg ? { css: `'${fg}',sans-serif`, peso: '400', ajuste: 1 } : (FUENTES[t.fuente] || FUENTES.clasica);
+        const fa = CLAVE_FUENTE.test(t.fuenteArchivo || '') ? t.fuenteArchivo : '';
+        return fa ? { css: `'TH ${fa}',${base.css}`, peso: base.peso, ajuste: 1 } : base;
+    }
+
+    // Lo que lleva fuente en un dise\u00F1o: el n\u00FAmero y las capas de texto (figura, patr\u00F3n o relleno). El motor carga sus fuentes.
+    function letrasDe(kit) {
+        const capas = (kit && Array.isArray(kit.capas) ? kit.capas : []).flatMap(c => [c, c && c.relleno])
+            .filter(c => c && (c.forma === 'texto' || c.patron === 'texto'));
+        return kit && kit.texto ? [kit.texto, ...capas] : capas;
+    }
+
     // Texto del avatar. escalaSombra: el blur no sigue la transformación del contexto.
     function texto(ctx, t, avatar, escalaSombra) {
         if (!t || avatar == null || avatar === '') return;
         if (esEmoji(avatar)) { textoHaxball(ctx, t.color, avatar); return; }
-        const fg = FUENTE_GOOGLE.test(t.fuenteGoogle || '') ? t.fuenteGoogle : '';
-        const base = fg ? { css: `'${fg}',sans-serif`, peso: '400', ajuste: 1 } : (FUENTES[t.fuente] || FUENTES.clasica);
-        // La del equipo manda; la otra queda de respaldo (un programa o el visor sin ese archivo la usan)
-        const fa = CLAVE_FUENTE.test(t.fuenteArchivo || '') ? t.fuenteArchivo : '';
-        const f = fa ? { css: `'TH ${fa}',${base.css}`, peso: base.peso, ajuste: 1 } : base;
+        const f = fuenteDe(t);
         const px = Math.max(4, Math.round(num(t.tamano, 24) * f.ajuste));
         ctx.save();
         ctx.font = `${f.peso} ${px}px ${f.css}`;
@@ -595,20 +862,28 @@
         const pos = c => ({ x: nm(c.x, -48, 48, 0), y: nm(c.y, -48, 48, 0), escala: nm(c.escala, 0.1, 4, 1), rot: nm(c.rot, -360, 360, 0), opacidad: nm(c.opacidad, 0, 1, 1), espejoX: c.espejoX === true, espejoY: c.espejoY === true });
         const imagenOk = s => typeof s === 'string' && s.length <= 350000 &&
             IMG_PREFIJOS.some(p => s.startsWith(p)) && /^[A-Za-z0-9+/=]+$/.test(s.slice(s.indexOf(',') + 1));
+        const fuenteK = t => ({
+            fuente: opcion(t.fuente, Object.keys(FUENTES)),
+            fuenteGoogle: typeof t.fuenteGoogle === 'string' && FUENTE_GOOGLE.test(t.fuenteGoogle.trim()) ? t.fuenteGoogle.trim() : '',
+            fuenteArchivo: typeof t.fuenteArchivo === 'string' && CLAVE_FUENTE.test(t.fuenteArchivo) ? t.fuenteArchivo : ''
+        });
+        // Capa de texto: lo escrito (sin caracteres de control, hasta MAX_CONTENIDO letras) y su fuente
+        const letra = c => Object.assign({ contenido: Array.from(str(c.contenido, 200).replace(/[\u0000-\u001f\u007f]/g, '')).slice(0, MAX_CONTENIDO).join('') }, fuenteK(c));
         const relleno = c => {
             if (!c || typeof c !== 'object' || !PATRONES[c.patron]) return null;
             const r = { patron: c.patron, color: colorA(c.color, 'FFFFFF'), color2: colorA(c.color2, 'FFFFFF'),
                         opacidad: nm(c.opacidad, 0, 1, 1), escala: nm(c.escala, 0.25, 4, 1), rot: nm(c.rot, -360, 360, 0) };
-            if (c.patron === 'degradado') {
+            if (CON_COLORES.includes(c.patron)) {
                 const cols = (Array.isArray(c.colores) ? c.colores : []).map(x => colorA(x, null)).filter(Boolean).slice(0, MAX_COLORES_DEGRADADO);
                 r.colores = cols.length >= 2 ? cols : [r.color, r.color2];
+            }
+            if (c.patron === 'degradado') {
                 r.estilo = opcion(c.estilo, Object.keys(ESTILOS_DEGRADADO));
                 r.intensidad = nm(c.intensidad, 0, 1, 1);
             }
-            if (c.patron === 'particulas') {
-                r.semilla = Math.round(nm(c.semilla, 0, 999999, 1));
-                r.densidad = nm(c.densidad, 0.05, 1, 0.6);
-            }
+            if (CON_SEMILLA.includes(c.patron)) r.semilla = Math.round(nm(c.semilla, 0, 999999, 1));
+            if (c.patron === 'particulas') r.densidad = nm(c.densidad, 0.05, 1, 0.6);
+            if (c.patron === 'texto') Object.assign(r, letra(c));
             return r;
         };
         const punto = q => (q && typeof q === 'object') ? { x: nm(q.x, -64, 64, 0), y: nm(q.y, -64, 64, 0), curva: nm(q.curva, 0, 1, 0), radio: nm(q.radio, 0, 16, 0) } : null;
@@ -623,6 +898,7 @@
                     f.puntos = (Array.isArray(c.puntos) ? c.puntos : []).map(punto).filter(Boolean).slice(0, MAX_PUNTOS);
                     if (f.puntos.length < 3) return null;
                 }
+                if (c.forma === 'texto') Object.assign(f, letra(c), { relleno: null }); // el texto no lleva relleno
                 return f;
             }
             if (c.tipo === 'patron') { const r = relleno(c); return r && Object.assign({ tipo: 'patron' }, r); }
@@ -630,9 +906,7 @@
             return null;
         };
         const textoK = t => (!t || typeof t !== 'object') ? null : {
-            fuente: opcion(t.fuente, Object.keys(FUENTES)),
-            fuenteGoogle: typeof t.fuenteGoogle === 'string' && FUENTE_GOOGLE.test(t.fuenteGoogle.trim()) ? t.fuenteGoogle.trim() : '',
-            fuenteArchivo: typeof t.fuenteArchivo === 'string' && CLAVE_FUENTE.test(t.fuenteArchivo) ? t.fuenteArchivo : '',
+            ...fuenteK(t),
             color: colorA(t.color, 'FFFFFF'), tamano: nm(t.tamano, 10, 52, 24),
             y: nm(t.y, -20, 20, 0), borde: nm(t.borde, 0, 8, 0), colorBorde: colorA(t.colorBorde, '000000'),
             glow: nm(t.glow, 0, 24, 0), colorGlow: colorA(t.colorGlow, 'FFFFFF')
@@ -704,6 +978,46 @@
             for (const g of donde) nombresEn(g, f).forEach(n => nombres.add(n));
             return nombres.size === 1 ? [...nombres][0] : null;
         });
+    }
+
+    // Clima de un partido (programa): cada programa sortea el suyo. Normal 75 % (soleado 70 %, nublado 30 %), lluvia 24 % con
+    // intensidad 1..100 (desde 90, un 10 % es tormenta) y nieve 1 %. preload.js lo dibuja; la carcasa pone su sonido.
+    function sortearClima(azar = Math.random) {
+        const r = azar();
+        if (r < 0.75) return { tipo: azar() < 0.7 ? 'soleado' : 'nublado', intensidad: 0 };
+        if (r >= 0.99) return { tipo: 'nieve', intensidad: 0 };
+        const intensidad = 1 + Math.min(99, Math.floor(azar() * 100));
+        return { tipo: intensidad >= 90 && azar() < 0.1 ? 'tormenta' : 'lluvia', intensidad };
+    }
+
+    // Carpeta de sonidos/clima/ que le toca a un clima, o null si no suena
+    function sonidoClima(c) {
+        if (!c || (c.tipo !== 'lluvia' && c.tipo !== 'tormenta')) return null;
+        if (c.tipo === 'tormenta') return 'tormenta';
+        return c.intensidad >= 90 ? 'lluvia-potente' : c.intensidad >= 60 ? 'lluvia-fuerte' : c.intensidad >= 30 ? 'lluvia-normal' : 'lluvia-leve';
+    }
+
+    // Impacto de un gol para su sonido (programa): 'bajo' (sin sonido), 'alto' o 'medio'. goles: el marcador ya con el gol;
+    // eq: quien anotó (0 rojo, 1 azul); segundos y limite del reloj (limite 0 = sin dato); limiteGoles: el de HaxBall
+    // (0 = sin límite); oro: alargue de HaxBall (gol de oro).
+    // Bajo: el que anota queda 3 o más abajo, o se pone 6 o más arriba (manda sobre alto: un 7-0 que cierra el partido no es dramático).
+    // Alto: gol de oro, el gol que llega al límite (matchpoint) o queda 0, 1 o 2 arriba con el 85 % del tiempo jugado.
+    function impactoGol({ goles, eq, segundos = 0, limite = 0, limiteGoles = 0, oro = false }) {
+        const dif = goles[eq] - goles[1 - eq];
+        if (dif <= -3 || dif >= 6) return 'bajo';
+        if (oro || (limiteGoles > 0 && goles[eq] >= limiteGoles) || (dif >= 0 && dif <= 2 && limite > 0 && segundos >= limite * 0.85)) return 'alto';
+        return 'medio';
+    }
+
+    // Fecha de la valla de ToroMatch del estadio (programa): customDate de GET /api/toromatch/data ("08/11/2026 21:00", hora de
+    // Chile). '¡HOY!' si es hoy en Chile (la regla del "¡HOY!" de index.html), 'DD/MM' si es más adelante, '' sin fecha o ya pasada.
+    function textoToroMatch(customDate, ahora = Date.now()) {
+        const m = typeof customDate === 'string' && customDate.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+        if (!m) return '';
+        const p = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: 'America/Santiago', year: 'numeric', month: '2-digit', day: '2-digit' })
+            .formatToParts(ahora).map(x => [x.type, x.value]));
+        const dd = m[1].padStart(2, '0'), mm = m[2].padStart(2, '0'), fecha = `${m[3]}-${mm}-${dd}`, hoy = `${p.year}-${p.month}-${p.day}`;
+        return fecha === hoy ? '¡HOY!' : fecha > hoy ? `${dd}/${mm}` : '';
     }
 
     // Ranking del partido (programa, tecla Tab): jugadores de /api/sala-jugadores con st (el partido les vale) y en un equipo.
@@ -1228,9 +1542,9 @@ select.toro-abierto.toro-arriba { border-top-left-radius: 0 !important; border-t
     }
 
     raiz.ToroKitRender = {
-        claveEscudo, SILUETA_ESCUDO, codigoDe, equiposDeFirmas, ordenRanking, pintarEscudo, MARCADOR_CSS, crearMarcador, dibujarMarcadorLienzo, fijarPosicion, fijarApariencia, nuevaTanda, anotarPenal, vistaTanda, tandaSigue, TANDA_RELOJ_MAX,
-        FUENTES, URL_FUENTES, FUENTE_GOOGLE, CLAVE_FUENTE, FORMAS, CON_GROSOR, PATRONES, ESTILOS_DEGRADADO, MAX_PUNTOS, MAX_COLORES_DEGRADADO, SALAS,
+        claveEscudo, SILUETA_ESCUDO, codigoDe, equiposDeFirmas, ordenRanking, sortearClima, sonidoClima, impactoGol, textoToroMatch, pintarEscudo, MARCADOR_CSS, crearMarcador, dibujarMarcadorLienzo, fijarPosicion, fijarApariencia, nuevaTanda, anotarPenal, vistaTanda, tandaSigue, TANDA_RELOJ_MAX,
+        FUENTES, URL_FUENTES, FUENTE_GOOGLE, CLAVE_FUENTE, FORMAS, CON_GROSOR, PATRONES, CON_SEMILLA, MAX_CONTENIDO, ESTILOS_DEGRADADO, MAX_PUNTOS, MAX_COLORES_DEGRADADO, SALAS,
         hex, anguloInterno, gradosDeInterno, coincideFirma, firmasDeEquipo, coincideKit, aVector, sanear,
-        base, capas, buscable, codigoDeEnlace, esEmoji, texto, textoHaxball, renderizar, lienzo, lienzoCapas, cargarImagenes, cargarFuenteGoogle, cargarFuenteArchivo, desplegables
+        base, capas, buscable, codigoDeEnlace, esEmoji, letrasDe, texto, textoHaxball, renderizar, lienzo, lienzoCapas, cargarImagenes, cargarFuenteGoogle, cargarFuenteArchivo, desplegables
     };
 })(typeof window !== 'undefined' ? window : globalThis);

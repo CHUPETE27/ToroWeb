@@ -75,9 +75,11 @@ document.addEventListener("DOMContentLoaded", function() {
             if (data && data.isAdmin === true) {
                 const adminBtn = document.getElementById('sidebar-admin-btn');
                 if (adminBtn) adminBtn.style.display = 'block';
-                // Cliente de escritorio: por ahora solo admins (después VIP y luego todos)
-                document.querySelectorAll('[data-solo-admin]').forEach(el => { el.style.display = ''; });
             }
+            // Cliente de escritorio: por ahora solo VIP y admins (después todos). data-sin-vip = aviso para el resto
+            const vip = !!(data && (data.isAdmin === true || data.isVip === true));
+            document.querySelectorAll('[data-solo-vip]').forEach(el => { el.style.display = vip ? '' : 'none'; });
+            document.querySelectorAll('[data-sin-vip]').forEach(el => { el.hidden = vip; });
             if (data && parseInt(data.numericId) === 1) {
                 const ownerBtn = document.getElementById('sidebar-owner-btn');
                 if (ownerBtn) ownerBtn.style.display = 'block';
