@@ -41,6 +41,8 @@
 
         .btn-info-rank { background: transparent; color: #5dc8e8; border: none; font-size: 1.2rem; cursor: pointer; transition: 0.3s; padding: 0; display: inline-flex; align-items: center; justify-content: center;}
         .btn-info-rank:hover { color: #e1bc56; transform: scale(1.1); }
+        .profile-header p.auth-fila { margin-top: -8px; font-size: 0.95rem; flex-wrap: wrap; }
+        .auth-valor { color: #ddd; background: rgba(0, 0, 0, 0.4); border: 1px solid #333; border-radius: 6px; padding: 2px 8px; font-size: 0.85rem; overflow-wrap: anywhere; max-width: 100%; }
 
         .rank-progress-container { width: 100%; max-width: 500px; margin: 0 auto; background: rgba(0, 0, 0, 0.4); padding: 15px; border-radius: 10px; border: 1px solid #333; }
         .rank-progress-info { display: flex; justify-content: space-between; color: #bdc3c7; font-size: 0.9rem; margin-bottom: 8px; font-weight: bold; }
@@ -250,6 +252,12 @@
                 <p>
                     ID: <strong id="playerID">#0</strong> | <span id="rangoLabelText">Rango</span>: <strong id="playerRank">...</strong>
                     <button class="btn-info-rank" onclick="abrirModalInfoRangos()" title="Ver info de rangos"><i class="fa-solid fa-circle-info"></i></button>
+                </p>
+                <!-- El auth de tu cuenta: oculto al entrar y fuera de la imagen de "Guardar" -->
+                <p class="auth-fila" data-html2canvas-ignore="true">
+                    Auth: <code id="playerAuth" class="auth-valor">••••••••••••••••</code>
+                    <button class="btn-info-rank" id="btnVerAuth" type="button" onclick="alternarAuth()" title="Mostrar auth" aria-label="Mostrar auth" aria-pressed="false"><i class="fa-solid fa-eye"></i></button>
+                    <button class="btn-info-rank" id="btnCopiarAuth" type="button" onclick="copiarAuth(this)" title="Copiar auth" aria-label="Copiar auth"><i class="fa-regular fa-copy"></i></button>
                 </p>
 
                 <div class="rank-progress-container" id="rankContainer">
@@ -603,6 +611,44 @@
             document.getElementById('loading').innerText = "❌ Hubo un error al contactar al servidor.";
             console.error(err);
         });
+
+        // Auth de la cuenta: el servidor lo da solo con conAuth, cuando se pulsa mostrar o copiar (no va en la carga del perfil)
+        let authCuenta = null, authVisible = false;
+        const falloAuth = m => Object.assign(new Error(m), { propio: true });
+        async function traerAuth() {
+            if (authCuenta) return authCuenta;
+            const res = await fetch('https://torobot-izu5.onrender.com/api/perfil/privado', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ numericId: loggedId, token: token, conAuth: true })
+            });
+            const data = await res.json();
+            if (!data.success) throw falloAuth('Tu sesión caducó: vuelve a iniciar sesión.');
+            if (!('auth' in data)) throw falloAuth('Esta opción todavía no está disponible. Inténtalo más tarde.');
+            if (typeof data.auth !== 'string' || !data.auth) throw falloAuth('Tu cuenta aún no tiene un auth guardado.');
+            return (authCuenta = data.auth);
+        }
+        function errorAuth(e) {
+            ThUI.alert(e && e.propio ? e.message : 'No se pudo completar. Revisa tu conexión e inténtalo de nuevo.', { tone: 'warn', title: 'Auth' });
+        }
+        async function alternarAuth() {
+            try { if (!authVisible) await traerAuth(); } catch (e) { errorAuth(e); return; }
+            authVisible = !authVisible;
+            const btn = document.getElementById('btnVerAuth');
+            document.getElementById('playerAuth').textContent = authVisible ? authCuenta : '••••••••••••••••';
+            btn.querySelector('i').className = authVisible ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+            btn.title = authVisible ? 'Ocultar auth' : 'Mostrar auth';
+            btn.setAttribute('aria-label', btn.title);
+            btn.setAttribute('aria-pressed', String(authVisible));
+        }
+        async function copiarAuth(btn) {
+            try {
+                await navigator.clipboard.writeText(await traerAuth());
+                const icon = btn.querySelector('i');
+                icon.className = 'fa-solid fa-check';
+                setTimeout(() => { icon.className = 'fa-regular fa-copy'; }, 2000);
+            } catch (e) { errorAuth(e); }
+        }
 
         function renderizarInventario(p) {
             const html = `

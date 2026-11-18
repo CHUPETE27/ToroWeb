@@ -189,8 +189,10 @@
                     ? `<div class="status-online"><i class="fa-solid fa-circle"></i> Jugando en: ${escapeHtml(f.currentRoom)}</div>`
                     : `<div class="status-offline"><i class="fa-regular fa-circle"></i> Desconectado</div>`;
                 
-                const btnHtml = isOnline 
-                    ? `<a href="salas.html" class="btn-action btn-join"><i class="fa-solid fa-right-to-bracket"></i> Unirse</a>`
+                // ?sala=: en el programa de escritorio entra directo a la sala del amigo (en el navegador se ignora)
+                const salaAmigo = /^[a-z0-9_]{1,40}$/.test(f.currentRoomId || '') ? `?sala=${f.currentRoomId}` : '';
+                const btnHtml = isOnline
+                    ? `<a href="salas.html${salaAmigo}" class="btn-action btn-join"><i class="fa-solid fa-right-to-bracket"></i> Unirse</a>`
                     : ``;
 
                 const vipBadge = f.isVip ? `<span style="color:#e1bc56;" title="VIP">${escapeHtml(f.vipIcon || '⭐')}</span>` : '';

@@ -1314,11 +1314,32 @@
         el.style.setProperty('--toro-op', String((a && a.opacidad) || 1));
     }
 
+    // Grupos de equipos.js que tienen a los dos equipos del partido (la lista de la sala que los puso); sin ninguno, todos.
+    // Así la abreviatura es la de esa sala: ToroMatch tiene las suyas (EQUIPOS_DATABASE de express_*.js).
+    function gruposDelPartido(grupos, nombres) {
+        const con = grupos.filter(g => nombres.every(n => !n || g.equipos.some(e => e.nombre === n)));
+        return con.length ? con : grupos;
+    }
+
+    // Lado (0 rojo, 1 azul) del equipo de una línea de la tanda, comparando su etiqueta con la abreviatura y el nombre que
+    // tenía el marcador antes de la tanda; -1 si no se sabe (no coincide o coincide con los dos)
+    function ladoDe(etiqueta, ini) {
+        const e = buscable(etiqueta), nombres = ini.nombres || [];
+        const es = (eq, nombre) => !!e && (buscable(eq.codigo || '') === e || (!!nombre && buscable(nombre) === e));
+        const r = es(ini.rojo, nombres[0]), a = es(ini.azul, nombres[1]);
+        return r === a ? -1 : r ? 0 : 1;
+    }
+
     // [fila rojo, fila azul] y los equipos del marcador durante la tanda. Pública: primero rojo. Express: primero local,
-    // que después del 2T y del alargue juega de azul, salvo que su abreviatura diga otra cosa.
+    // que después del 2T y del alargue juega de azul. Si la etiqueta de una línea dice de qué lado es, manda eso.
     function vistaTanda(tanda) {
         const ini = tanda.inicio, f = tanda.filas;
-        const invertir = tanda.express && !(ini && f[0].etiqueta === ini.rojo.codigo);
+        let invertir = tanda.express;
+        if (ini) {
+            const l0 = ladoDe(f[0].etiqueta, ini), l1 = ladoDe(f[1].etiqueta, ini);
+            if (l0 >= 0 && l0 !== l1) invertir = l0 === 1;
+            else if (l1 >= 0 && l0 < 0) invertir = l1 === 0;
+        }
         const filas = invertir ? [f[1], f[0]] : f;
         const corto = e => (e.length <= 4 ? e.toUpperCase() : codigoDe(e));
         return {
@@ -1329,15 +1350,33 @@
         };
     }
 
+    /* ---------- Adición: se lee del anuncio de la sala ---------- */
+    // Real Futsal y express_RealFutsal.js (sin límite en HaxBall): "Se añaden 1 minuto y 30 segundos de adición". Vale
+    // también otra forma de decirlo, por si otra sala lo anuncia distinto: se añade/agrega/suma, "de descuento", "tiempo
+    // añadido", 2 min, 30 seg, 2', +1:30. Tiene que nombrar la adición y un tiempo con su unidad: "30% de descuento",
+    // "silenciado 5 minutos" o "Tiempo Extra" (el alargue) no lo son. Devuelve los segundos, o null.
+    const RE_ADICION_DICE = /adici[oó]n|\bde descuento|tiempo (?:a[ñn]adido|agregado|adicional)|minutos? adicionales|\bse (?:a[ñn]ade|agrega|suma|adiciona)n?\b/i;
+    function leerAdicion(texto) {
+        const t = String(texto);
+        if (!RE_ADICION_DICE.test(t) || /%|ficha/i.test(t)) return null;
+        const reloj = /(\d{1,2}):([0-5]\d)(?!\d)/.exec(t);
+        if (reloj) return Number(reloj[1]) * 60 + Number(reloj[2]);
+        const min = /(\d{1,2})\s*(?:minutos?|mins?\b|['’′])/i.exec(t), seg = /(\d{1,3})\s*(?:segundos?|segs?\b|s\b|["”″])/i.exec(t);
+        return min || seg ? (min ? Number(min[1]) * 60 : 0) + (seg ? Number(seg[1]) : 0) : null;
+    }
+
     /* ---------- Tanda de penales: se lee de los anuncios de las salas ---------- */
     // Pública (ToroRealFutsal2026.js): "Equipo | 🟢🔴⚪⚪⚪ | [1]", ya con la ventana de los últimos 5.
     // Express (express_*.js): "🐂 ABR: 1 | 🟢🔴⚪⚪⚪ | (🟢)": siempre los 5 primeros más el penal de la ronda actual,
-    // así que el historial desde el sexto se arma aquí. Si cambias esos textos, actualiza estas expresiones.
-    const PUNTO = { '🟢': 'v', '🔴': 'r', '⚪': 'b' };
-    const CINCO = '(?:(?:🟢|🔴|⚪)\\uFE0F?){5}';
-    const RE_PENAL_PUBLICA = new RegExp(`^(.+?) \\| (${CINCO}) \\| \\[(\\d+)\\]$`, 'u');
-    const RE_PENAL_EXPRESS = new RegExp(`^(?:\\S+ )?(.+?): (\\d+) \\| (${CINCO}) \\|(?: \\((🟢|🔴|⚪)\\uFE0F?\\))?$`, 'u');
-    const aPuntos = t => [...t.matchAll(/🟢|🔴|⚪/gu)].map(m => PUNTO[m[0]]);
+    // así que el historial desde el sexto se arma aquí. El logo es opcional y la abreviatura puede traer espacios ("UC ").
+    // Se toleran espacios de más o de menos y ✅ ❌ ⬜ en vez de 🟢 🔴 ⚪, por si otra sala lo escribe distinto.
+    // Si cambias esos textos, actualiza estas expresiones.
+    const PUNTO = { '🟢': 'v', '✅': 'v', '🔴': 'r', '❌': 'r', '⚪': 'b', '⬜': 'b' };
+    const UN_PUNTO = '(?:🟢|✅|🔴|❌|⚪|⬜)\\uFE0F?';
+    const CINCO = `(?:${UN_PUNTO}\\s*){5}`;
+    const RE_PENAL_PUBLICA = new RegExp(`^(.+?)\\s*\\|\\s*(${CINCO})\\|\\s*\\[\\s*(\\d+)\\s*\\]$`, 'u');
+    const RE_PENAL_EXPRESS = new RegExp(`^(?:[^\\s\\p{L}]+\\s+)?(.+?)\\s*:\\s*(\\d+)\\s*\\|\\s*(${CINCO})\\|(?:\\s*\\(\\s*(${UN_PUNTO})\\s*\\))?$`, 'u');
+    const aPuntos = t => [...t.matchAll(/🟢|✅|🔴|❌|⚪|⬜/gu)].map(m => PUNTO[m[0]]);
     const filaVacia = () => ({ etiqueta: '', goles: 0, puntos: ['b', 'b', 'b', 'b', 'b'] });
 
     const nuevaTanda = () => ({ express: false, pendiente: null, hist: [[], []], previo: ['', ''], ultima: -1, filas: [filaVacia(), filaVacia()] });
@@ -1356,6 +1395,10 @@
     // retrocedio: el reloj del juego volvió atrás. En la pública la tanda corre en un solo juego; en express cada penal es
     // un juego nuevo, que nunca llega a TANDA_RELOJ_MAX segundos: si llega, ya es otro partido.
     const TANDA_RELOJ_MAX = 120;
+    // Empieza y termina (el programa y el visor). RF: "¡HAY EMPATE Y NOS VAMOS A LOS PENALES!", "¡FIN DE LA TANDA! ¡EL
+    // GANADOR ES …!"; express: "⚖️ ¡NOS VAMOS A LOS PENALES!", "🏆 ¡… SE LLEVA LA VICTORIA EN PENALES!"
+    const RE_INICIO_TANDA = /NOS VAMOS A (?:LOS )?PENALES/i;
+    const RE_FIN_TANDA = /FIN DE LA TANDA|VICTORIA EN (?:LOS )?PENALES/i;
     function tandaSigue(t, retrocedio, segundos) {
         if (retrocedio) {
             t.reinicio = true;
@@ -1376,8 +1419,8 @@
             return true;
         }
         let linea = null, m = RE_PENAL_PUBLICA.exec(tx);
-        if (m) linea = { etiqueta: m[1], goles: Number(m[3]), puntos: aPuntos(m[2]) };
-        else if ((m = RE_PENAL_EXPRESS.exec(tx))) linea = { etiqueta: m[1], base: aPuntos(m[3]), extra: m[4] ? PUNTO[m[4]] : '' };
+        if (m) linea = { etiqueta: m[1].trim(), goles: Number(m[3]), puntos: aPuntos(m[2]) };
+        else if ((m = RE_PENAL_EXPRESS.exec(tx))) linea = { etiqueta: m[1].trim(), base: aPuntos(m[3]), extra: m[4] ? aPuntos(m[4])[0] : '' };
         if (!linea) { t.pendiente = null; return false; }
         t.vistos = true;
         if (!t.pendiente) { t.pendiente = linea; return true; }
@@ -1542,7 +1585,7 @@ select.toro-abierto.toro-arriba { border-top-left-radius: 0 !important; border-t
     }
 
     raiz.ToroKitRender = {
-        claveEscudo, SILUETA_ESCUDO, codigoDe, equiposDeFirmas, ordenRanking, sortearClima, sonidoClima, impactoGol, textoToroMatch, pintarEscudo, MARCADOR_CSS, crearMarcador, dibujarMarcadorLienzo, fijarPosicion, fijarApariencia, nuevaTanda, anotarPenal, vistaTanda, tandaSigue, TANDA_RELOJ_MAX,
+        claveEscudo, SILUETA_ESCUDO, codigoDe, equiposDeFirmas, gruposDelPartido, leerAdicion, ordenRanking, sortearClima, sonidoClima, impactoGol, textoToroMatch, pintarEscudo, MARCADOR_CSS, crearMarcador, dibujarMarcadorLienzo, fijarPosicion, fijarApariencia, nuevaTanda, anotarPenal, vistaTanda, tandaSigue, TANDA_RELOJ_MAX, RE_INICIO_TANDA, RE_FIN_TANDA,
         FUENTES, URL_FUENTES, FUENTE_GOOGLE, CLAVE_FUENTE, FORMAS, CON_GROSOR, PATRONES, CON_SEMILLA, MAX_CONTENIDO, ESTILOS_DEGRADADO, MAX_PUNTOS, MAX_COLORES_DEGRADADO, SALAS,
         hex, anguloInterno, gradosDeInterno, coincideFirma, firmasDeEquipo, coincideKit, aVector, sanear,
         base, capas, buscable, codigoDeEnlace, esEmoji, letrasDe, texto, textoHaxball, renderizar, lienzo, lienzoCapas, cargarImagenes, cargarFuenteGoogle, cargarFuenteArchivo, desplegables

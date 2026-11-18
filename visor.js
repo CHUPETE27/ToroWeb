@@ -443,14 +443,19 @@ const VisorCore = (function () {
     }
 
     // Añadido y tanda de penales del marcador, por cuadro, leídos de los anuncios: los mismos que lee el programa
-    // (leerAnuncio en torohax-client/preload.js). El reloj que retrocede (partido nuevo, 2T, alargue) borra el añadido.
+    // (leerAnuncio en torohax-client/motor.js, con KR.leerAdicion, KR.RE_INICIO_TANDA y KR.RE_FIN_TANDA de kit-render.js).
+    // El reloj que retrocede (partido nuevo, 2T, alargue) borra el añadido. Con un kit-render.js viejo, los textos de antes.
     const RE_ADICION = /Se añaden (?:(\d+) minutos?)?(?: y )?(?:(\d+) segundos?)? de adición/;
-    const RE_INICIO_TANDA = /NOS VAMOS A LOS PENALES/;
-    const RE_FIN_TANDA = /FIN DE LA TANDA|VICTORIA EN PENALES/;
+    function adicionDe(KR, texto) {
+        if (KR && KR.leerAdicion) return KR.leerAdicion(texto);
+        const a = RE_ADICION.exec(texto);
+        return a ? (Number(a[1]) || 0) * 60 + (Number(a[2]) || 0) : null;
+    }
     const TANDA_ESPERA = 600 * FPS, TANDA_FINAL = 15 * FPS;
 
     function scoreboardEvents(messages, elapsed, KR, inicioEn) {
         const items = messages.filter(m => m.type === 'event');
+        const RE_INICIO_TANDA = KR.RE_INICIO_TANDA || /NOS VAMOS A LOS PENALES/, RE_FIN_TANDA = KR.RE_FIN_TANDA || /FIN DE LA TANDA|VICTORIA EN PENALES/;
         for (let f = 1; f < elapsed.length; f++) if (elapsed[f] < elapsed[f - 1]) items.push({ f, atras: true });
         const out = [];
         let extra = null, tanda = null, caduca = 0;
@@ -466,9 +471,9 @@ const VisorCore = (function () {
                 if (extra !== antes || tanda !== habia) anotar(m.f);
                 continue;
             }
-            const a = RE_ADICION.exec(m.text);
-            if (a) {
-                extra = (Number(a[1]) || 0) * 60 + (Number(a[2]) || 0);
+            const a = adicionDe(KR, m.text);
+            if (a !== null) {
+                extra = a;
             } else if (RE_INICIO_TANDA.test(m.text)) {
                 tanda = KR.nuevaTanda();
                 tanda.inicio = inicioEn(m.f);
@@ -491,7 +496,7 @@ const VisorCore = (function () {
 
     // Cuadros en que se prenden las bengalas del programa, con la misma regla que preload.js (revisarBengalas): al empezar
     // cada tiempo y al quedar un minuto. Sin límite de HaxBall (Real Futsal) vale el anuncio de la adición. No en la tanda.
-    function flareFrames(rec, messages, scoreEvents) {
+    function flareFrames(rec, messages, scoreEvents, KR) {
         const out = [], elapsed = rec.elapsed;
         let final = false;
         for (let f = 0; f < elapsed.length; f++) {
@@ -502,7 +507,7 @@ const VisorCore = (function () {
             const ep = rec.epochs[rec.epochOf[f]], lim = ep ? ep.timeLimit * 60 : 0;
             if (!final && lim > 60 && elapsed[f] >= lim - 60 && elapsed[f] < lim) { final = true; out.push(f); }
         }
-        for (const m of messages) if (m.type === 'event' && RE_ADICION.test(m.text)) out.push(m.f);
+        for (const m of messages) if (m.type === 'event' && adicionDe(KR, m.text) !== null) out.push(m.f);
         return out.filter(f => {
             const i = lastIndexAtOrBefore(scoreEvents, f);
             return i < 0 || !scoreEvents[i].tanda;
@@ -720,7 +725,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
             S.fileName = name;
             S.lastScore = { red: 0, blue: 0, elapsed: 0, epoch: null };
             S.scoreEvents = C.scoreboardEvents(messages, S.rec.elapsed, KR, scoreboardStart);
-            S.sfx = S.sfx.concat(C.flareFrames(S.rec, messages, S.scoreEvents).map(f => ({ f: Math.max(1, f), t: 'bengala' }))).sort((a, b) => a.f - b.f);
+            S.sfx = S.sfx.concat(C.flareFrames(S.rec, messages, S.scoreEvents, KR).map(f => ({ f: Math.max(1, f), t: 'bengala' }))).sort((a, b) => a.f - b.f);
             S.lastChatIndex = -2;
             S.camera = { x: 0, y: 0 };
             S.query = '';
@@ -1276,9 +1281,11 @@ if (typeof module !== 'undefined' && module.exports) module.exports = VisorCore;
         });
         const nombres = KR.equiposDeFirmas(window.TORO_EQUIPOS || [], firmas);
         const respaldo = [S.teamNames.red, S.teamNames.blue];
+        // Abreviatura de la lista que tiene a los dos equipos (ToroMatch tiene las suyas); con un kit-render.js viejo, todas
+        const grupos = KR.gruposDelPartido ? KR.gruposDelPartido(window.TORO_EQUIPOS || [], nombres) : undefined;
         return (ep.marcador = firmas.map((firma, i) => {
             const nombre = nombres[i] || (S.hasTeamNames ? respaldo[i] : null);
-            return { codigo: nombre ? KR.codigoDe(nombre) : (i ? 'BLU' : 'RED'), firma, escudo: null };
+            return { codigo: nombre ? KR.codigoDe(nombre, grupos) : (i ? 'BLU' : 'RED'), firma, escudo: null };
         }));
     }
 
