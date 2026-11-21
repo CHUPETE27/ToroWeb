@@ -63,6 +63,11 @@
         
         .roster-container { max-height: 250px; overflow-y: auto; padding-right: 5px; }
 
+        /* Suspendidos: formulario de organizador debajo de la lista */
+        .suspender-form { display: none; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+        .suspender-form .editor-input { flex: 1; min-width: 0; padding: 8px 10px; font-size: 0.9rem; text-align: left; }
+        .suspender-form .btn-estandar { display: flex; width: auto; margin: 0; padding: 8px 14px; font-size: 0.9rem; white-space: nowrap; }
+
         /* Aspecto de las ventanas: styles.css (sección 9), igual que las de ThUI */
         .modal-content { max-width: 550px; text-align: center; }
         .modal-content > p { margin: 0 0 20px; }
@@ -226,6 +231,17 @@
                     <div class="roster-container">
                         <ul id="listaParches"><li><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</li></ul>
                     </div>
+                </div>
+
+                <div class="box list-box">
+                    <h3 style="color: var(--red-light);"><i class="fa-solid fa-rectangle-xmark"></i> Suspendidos</h3>
+                    <div class="roster-container">
+                        <ul id="listaSuspendidos"><li><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</li></ul>
+                    </div>
+                    <form id="formSuspender" class="suspender-form" onsubmit="event.preventDefault(); agregarSuspendido();">
+                        <input type="number" id="suspenderId" class="editor-input" min="1" placeholder="ID de ToroHax" aria-label="ID de ToroHax del jugador a suspender" required>
+                        <button type="submit" class="btn-estandar btn-cancelar"><i class="fa-solid fa-rectangle-xmark"></i> Suspender</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -775,6 +791,17 @@
                         ulParches.innerHTML = '<li style="color:#7d7d7d; justify-content:center;">No hay parches en espera.</li>';
                     }
 
+                    const ulSuspendidos = document.getElementById('listaSuspendidos');
+                    document.getElementById('formSuspender').style.display = isManager ? 'flex' : 'none';
+                    const suspendidos = dataGeneral.suspendidos || [];
+                    ulSuspendidos.innerHTML = suspendidos.length ? suspendidos.map((jug, i) => `
+                        <li>
+                            <span style="flex-grow:1; display:flex; align-items:center; word-break: break-word;"><strong>${i+1}.</strong> <span style="margin-left:5px;">${escapeHtml(jug.name)}</span> <span style="color:#7d7d7d; font-size:0.8rem; margin:0 5px;">(#${escapeHtml(jug.numericId)})</span> - <span style="color:#5dc8e8; margin-left:5px;">${escapeHtml(jug.discordName)}</span></span>
+                            ${isManager ? `<div style="flex-shrink:0; display:flex; gap:5px; align-items:center;">
+                                <button class="assign-btn" style="background:transparent; color:#2df2c1; border-color:#2df2c1; font-size: 0.9rem; padding: 4px 8px;" onclick="quitarSuspension('${escapeHtml(jug.discordId)}', this)" title="Quitar suspensión" aria-label="Quitar suspensión"><i class="fa-solid fa-user-check"></i></button>
+                            </div>` : ''}
+                        </li>`).join('') : '<li style="color:#7d7d7d; justify-content:center;">No hay jugadores suspendidos.</li>';
+
                     document.getElementById('proximos-lista').innerHTML = `
                         <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 15px; padding: 30px 15px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-top: 15px;">
                             <div style="font-size: 1.5rem; color: #e1bc56; font-weight: bold; text-align: center;">
@@ -788,6 +815,7 @@
                 } else {
                     document.getElementById('listaInscritos').innerHTML = '<li style="color:#cc2a2a; justify-content:center;">Error al cargar.</li>';
                     document.getElementById('listaParches').innerHTML = '<li style="color:#cc2a2a; justify-content:center;">Error al cargar.</li>';
+                    document.getElementById('listaSuspendidos').innerHTML = '<li style="color:#cc2a2a; justify-content:center;">Error al cargar.</li>';
                 }
 
                 const btnInscribir = document.getElementById('btnInscribir');
@@ -809,6 +837,10 @@
                         btnInscribir.innerHTML = '<i class="fa-solid fa-xmark"></i> Cancelar Inscripción';
                         btnInscribir.className = "btn-estandar btn-cancelar";
                         btnInscribir.onclick = abrirModalCancelacion;
+                    } else if (dataEstado.suspendido) {
+                        btnInscribir.style.display = 'none';
+                        msg.innerText = "Estás suspendido por no presentarte a un ToroMatch. Pide a un organizador que quite tu suspensión.";
+                        msg.style.color = 'var(--red-light)';
                     } else {
                         msg.innerText = `ToroMatch #${dataEstado.matchNumber} abierto. Asegura tu cupo.`;
                         msg.style.color = '#bdc3c7';
@@ -1024,6 +1056,37 @@
                 } catch(e) {
                     ThUI.alert("Error de conexión al expulsar al jugador.");
                 }
+            });
+        }
+
+        async function cambiarSuspension(datos) {
+            try {
+                const res = await fetch('https://torobot-izu5.onrender.com/api/toromatch/suspension', {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ managerNumericId: loggedId, token: token, ...datos })
+                });
+                const data = await res.json().catch(() => ({ success: false, message: "El servidor aún no tiene esta opción." }));
+                if (!data.success) ThUI.alert(data.message || "No se pudo cambiar la suspensión.");
+                return !!data.success;
+            } catch (e) {
+                ThUI.alert("Error de conexión al cambiar la suspensión.");
+                return false;
+            }
+        }
+
+        async function quitarSuspension(targetDiscordId, btnElement) {
+            btnElement.disabled = true;
+            btnElement.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+            if (await cambiarSuspension({ accion: 'quitar', targetDiscordId })) cargarTodoJunto();
+            else { btnElement.disabled = false; btnElement.innerHTML = '<i class="fa-solid fa-user-check"></i>'; }
+        }
+
+        function agregarSuspendido() {
+            const input = document.getElementById('suspenderId');
+            const id = input.value.trim();
+            if (!id) return;
+            confirmarAccionSegura(`¿Suspender a la ID #${id}? No podrá inscribirse al ToroMatch y, si estaba inscrito, pierde su cupo.`, async () => {
+                if (await cambiarSuspension({ accion: 'agregar', targetNumericId: id })) { input.value = ''; cargarTodoJunto(); }
             });
         }
 
