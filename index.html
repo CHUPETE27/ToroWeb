@@ -56,46 +56,40 @@
         .card p { color: #bdc3c7; font-size: 1rem; margin: 0; position: relative; z-index: 2;}
         .social-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; width: 100%; }
 
-        .btn-cliente {
+        /* Postúlate y Cliente oficial: mismo tamaño, lado a lado si caben; si no, uno bajo el otro */
+        .acciones-inicio { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; width: 100%; margin-bottom: 25px; }
+        .btn-cliente, .btn-postular {
+            position: relative;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 12px;
+            flex: 0 1 330px;
             max-width: 100%;
             box-sizing: border-box;
-            margin-bottom: 25px;
             padding: 10px 30px 10px 12px;
             border-radius: 999px;
-            background: linear-gradient(135deg, #21ded2, #0ab4dc);
-            color: #fff;
             font-size: 1.7rem;
             font-weight: bold;
             text-decoration: none;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .btn-cliente {
+            background: linear-gradient(135deg, #21ded2, #0ab4dc);
+            color: #fff;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
         }
         .btn-cliente img { width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0; }
         .btn-cliente:hover { transform: translateY(-4px); box-shadow: 0 6px 20px rgba(33, 222, 210, 0.5); }
         .btn-cliente:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 
         .btn-postular {
-            position: relative;
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            max-width: 100%;
-            box-sizing: border-box;
-            margin-bottom: 25px;
-            padding: 14px 34px;
-            border-radius: 999px;
             background: linear-gradient(135deg, #ffdf73, #e1bc56);
             color: #111;
-            font-size: 1.5rem;
-            font-weight: bold;
-            text-decoration: none;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
+        /* El ícono ocupa lo mismo que el logo del cliente (48 px), así los dos botones miden igual */
+        .btn-postular > i { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0; background: rgba(0, 0, 0, 0.12); font-size: 1.3rem; }
         .btn-postular:hover { transform: translateY(-4px); box-shadow: 0 6px 20px rgba(225, 188, 86, 0.5); }
         .btn-postular:focus-visible { outline: 2px solid #21ded2; outline-offset: 3px; }
         .badge-abiertas {
@@ -222,15 +216,17 @@
 
         </div>
 
-        <a href="postular.html" class="btn-postular">
-            <i class="fa-solid fa-user-plus" aria-hidden="true"></i> ¡Postúlate!
-            <span class="badge-abiertas" id="badgeAbiertas" hidden>Abiertas</span>
-        </a>
+        <div class="acciones-inicio">
+            <a href="postular.html" class="btn-postular">
+                <i class="fa-solid fa-user-plus" aria-hidden="true"></i> ¡Postúlate!
+                <span class="badge-abiertas" id="badgeAbiertas" hidden>Abiertas</span>
+            </a>
 
-        <!-- Visible para todos; sin sesión lleva al login (checkLogin de sidebar.js) -->
-        <a href="descargar.html" class="btn-cliente" onclick="event.preventDefault(); checkLogin('descargar.html')">
-            <img src="logo_torohax.png" alt="" width="48" height="48"> Cliente oficial
-        </a>
+            <!-- Visible para todos; sin sesión lleva al login (checkLogin de sidebar.js) -->
+            <a href="descargar.html" class="btn-cliente" onclick="event.preventDefault(); checkLogin('descargar.html')">
+                <img src="logo_torohax.png" alt="" width="48" height="48"> Cliente oficial
+            </a>
+        </div>
 
         <div class="social-links">
             <a href="https://discord.gg/3kHXFtzXfn" target="_blank" rel="noopener noreferrer" class="social-btn discord">

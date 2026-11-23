@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", function() {
                     <i class="fa-solid fa-shield-halved fa-fw"></i> Panel Admin
                 </a>
 
-                <a href="#" id="sidebar-postulaciones-btn" onclick="checkLogin('postulaciones.html')" style="display: none; color: #e1bc56; margin-top: 5px;">
+                <a href="#" id="sidebar-postulaciones-btn" onclick="checkLogin('postulaciones.html')" style="display: none; color: #ff8c1a; margin-top: 5px;">
                     <i class="fa-solid fa-clipboard-list fa-fw"></i> Postulaciones
                 </a>
 

@@ -19,12 +19,6 @@
     </script>
     <style>
         * { box-sizing: border-box; }
-        .periodo-estado { text-align: center; margin: 0 0 16px; font-weight: bold; }
-        .periodo-tipos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 15px; }
-        .periodo-interruptor { display: flex; justify-content: center; margin-bottom: 16px; font-size: 1.05rem; color: #fff; }
-        #btnGuardarPeriodo { margin: 5px auto 0; }
-        .periodo-fechas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-        @media (max-width: 600px) { .periodo-tipos, .periodo-fechas { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -50,29 +44,49 @@
             <a href="index.html" class="btn-estandar btn-abrir"><i class="fa-solid fa-house" aria-hidden="true"></i> Volver al inicio</a>
         </div>
 
-        <div class="box" id="secPeriodo" hidden>
-            <h3>Periodo de postulaciones</h3>
-            <p class="periodo-estado" id="periodoEstado"></p>
-            <label class="th-option periodo-interruptor"><input type="checkbox" id="pAbierta"> Postulaciones abiertas</label>
-            <div class="periodo-tipos" id="pTipos"></div>
-            <div class="periodo-fechas">
-                <div class="form-group">
-                    <label for="pInicio">Inicio</label>
-                    <input type="datetime-local" id="pInicio">
-                </div>
-                <div class="form-group">
-                    <label for="pFin">Fin</label>
-                    <input type="datetime-local" id="pFin">
-                </div>
+        <div class="box post-panel" id="secPeriodo" hidden>
+            <div class="post-panel-cab">
+                <h3><i class="fa-solid fa-calendar-days" aria-hidden="true"></i> Periodo de postulaciones</h3>
+                <span class="post-estado post-periodo-estado" id="periodoEstado"></span>
             </div>
-            <button type="button" class="btn-estandar btn-abrir" id="btnGuardarPeriodo"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Guardar</button>
+            <div class="post-ajustes">
+                <section class="post-ajuste">
+                    <h4><i class="fa-solid fa-power-off" aria-hidden="true"></i> Estado</h4>
+                    <p class="post-ajuste-ayuda">Abre o cierra el formulario de postulación.</p>
+                    <label class="th-option"><input type="checkbox" id="pAbierta"> Postulaciones abiertas</label>
+                </section>
+                <section class="post-ajuste">
+                    <h4><i class="fa-solid fa-user-tag" aria-hidden="true"></i> Roles</h4>
+                    <p class="post-ajuste-ayuda">Solo se puede postular a los roles marcados.</p>
+                    <div class="post-roles" id="pTipos"></div>
+                </section>
+                <section class="post-ajuste ancho">
+                    <h4><i class="fa-solid fa-clock" aria-hidden="true"></i> Fechas</h4>
+                    <p class="post-ajuste-ayuda">Se reciben postulaciones solo entre estas dos fechas.</p>
+                    <div class="post-fechas">
+                        <div class="form-group">
+                            <label for="pInicio">Inicio</label>
+                            <input type="datetime-local" id="pInicio">
+                        </div>
+                        <div class="form-group">
+                            <label for="pFin">Fin</label>
+                            <input type="datetime-local" id="pFin">
+                        </div>
+                    </div>
+                </section>
+            </div>
+            <div class="post-panel-pie">
+                <button type="button" class="btn-estandar btn-abrir" id="btnGuardarPeriodo"><i class="fa-solid fa-floppy-disk" aria-hidden="true"></i> Guardar periodo</button>
+            </div>
         </div>
 
-        <div class="box" id="secLista" hidden>
-            <h3>Postulantes</h3>
+        <div class="box post-panel" id="secLista" hidden>
+            <div class="post-panel-cab">
+                <h3><i class="fa-solid fa-users" aria-hidden="true"></i> Postulantes</h3>
+            </div>
             <div class="post-filtros">
                 <div class="form-group">
-                    <label for="fEstado">Estado</label>
+                    <label for="fEstado"><i class="fa-solid fa-filter" aria-hidden="true"></i> Estado</label>
                     <select id="fEstado">
                         <option value="pendiente">Pendientes</option>
                         <option value="aceptada">Aceptadas</option>
@@ -81,7 +95,7 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="fTipo">Rol</label>
+                    <label for="fTipo"><i class="fa-solid fa-user-tag" aria-hidden="true"></i> Rol</label>
                     <select id="fTipo"><option value="">Todos</option></select>
                 </div>
             </div>
@@ -92,42 +106,49 @@
     <div class="modal-overlay post-modal" id="modalDetalle">
         <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="dNick">
             <i class="fa-solid fa-xmark close-modal" id="cerrarDetalle" role="button" tabindex="0" aria-label="Cerrar"></i>
-            <h3 id="dNick"></h3>
-            <div class="post-datos">
+            <div class="post-detalle-cab">
+                <h3 id="dNick"></h3>
                 <span class="post-estado" id="dEstado"></span>
-                <span>ID: <strong id="dId"></strong></span>
-                <span><i class="fa-brands fa-discord" aria-hidden="true"></i> <strong id="dDiscord"></strong></span>
-                <span>Rol: <strong id="dTipo"></strong></span>
-                <span>Edad: <strong id="dEdad"></strong></span>
-                <span>Enviada: <strong id="dFecha"></strong></span>
-            </div>
-            <div class="post-bloque">
-                <h4>Motivo</h4>
-                <p class="post-texto" id="dMotivo"></p>
-            </div>
-            <div class="post-bloque">
-                <h4>Experiencia</h4>
-                <p class="post-texto" id="dExperiencia"></p>
+                <span class="post-detalle-fecha"><i class="fa-regular fa-calendar" aria-hidden="true"></i> Enviada el <strong id="dFecha"></strong></span>
             </div>
 
-            <hr class="post-separador">
-            <div class="post-bloque">
-                <h4>Votos <span class="post-votos" id="dConteo"></span></h4>
+            <section class="post-seccion">
+                <h4><i class="fa-solid fa-id-card" aria-hidden="true"></i> Postulante</h4>
+                <div class="post-ficha">
+                    <div class="post-dato"><span>ID</span><strong id="dId"></strong></div>
+                    <div class="post-dato"><span><i class="fa-brands fa-discord" aria-hidden="true"></i> Discord</span><strong id="dDiscord"></strong></div>
+                    <div class="post-dato"><span>Rol</span><strong id="dTipo"></strong></div>
+                    <div class="post-dato"><span>Edad</span><strong id="dEdad"></strong></div>                </div>
+            </section>
+
+            <section class="post-seccion">
+                <h4><i class="fa-solid fa-file-lines" aria-hidden="true"></i> Postulación</h4>
+                <div class="post-bloque">
+                    <h5>Motivo</h5>
+                    <p class="post-texto" id="dMotivo"></p>
+                </div>
+                <div class="post-bloque">
+                    <h5>Experiencia</h5>
+                    <p class="post-texto" id="dExperiencia"></p>
+                </div>
+            </section>
+
+            <section class="post-seccion">
+                <h4><i class="fa-solid fa-check-to-slot" aria-hidden="true"></i> Votos de los admins <span class="post-votos" id="dConteo"></span></h4>
                 <div class="post-votar" id="dVotar">
                     <button type="button" class="favor" data-valor="1"><i class="fa-solid fa-thumbs-up" aria-hidden="true"></i> A favor</button>
                     <button type="button" class="contra" data-valor="-1"><i class="fa-solid fa-thumbs-down" aria-hidden="true"></i> En contra</button>
                 </div>
                 <ul class="post-votantes" id="dVotantes"></ul>
-            </div>
+            </section>
 
-            <div class="post-bloque" id="dResuelta" hidden>
-                <hr class="post-separador">
-                <h4>Resolución</h4>
+            <section class="post-seccion" id="dResuelta" hidden>
+                <h4><i class="fa-solid fa-gavel" aria-hidden="true"></i> Resolución</h4>
                 <p class="post-texto" id="dResueltaTexto"></p>
-            </div>
+            </section>
 
-            <div id="dResolver" hidden>
-                <hr class="post-separador">
+            <section class="post-seccion" id="dResolver" hidden>
+                <h4><i class="fa-solid fa-gavel" aria-hidden="true"></i> Resolver</h4>
                 <div class="form-group">
                     <label for="dMensaje">Mensaje para el postulante (opcional)</label>
                     <textarea id="dMensaje" maxlength="500" rows="3"></textarea>
@@ -137,11 +158,10 @@
                     <button type="button" class="btn-estandar btn-primary" id="btnAceptar" style="background: var(--mint);"><i class="fa-solid fa-check" aria-hidden="true"></i> Aceptar</button>
                     <button type="button" class="btn-estandar btn-danger" id="btnRechazar"><i class="fa-solid fa-xmark" aria-hidden="true"></i> Rechazar</button>
                 </div>
-            </div>
+            </section>
 
-            <hr class="post-separador">
-            <div class="post-bloque">
-                <h4>Comentarios</h4>
+            <section class="post-seccion">
+                <h4><i class="fa-solid fa-comments" aria-hidden="true"></i> Comentarios</h4>
                 <ul class="post-hilo" id="dHilo"></ul>
                 <form id="formComentario" hidden>
                     <div class="form-group">
@@ -151,7 +171,7 @@
                     </div>
                     <button type="submit" class="btn-estandar btn-primary" id="btnComentar"><i class="fa-solid fa-comment" aria-hidden="true"></i> Comentar</button>
                 </form>
-            </div>
+            </section>
         </div>
     </div>
 
@@ -172,6 +192,8 @@
         const aIso = v => v ? new Date(v).toISOString() : null;
         let rol = 'usuario', tipos = {}, detalle = null;
 
+        const avisar = (tone, texto) => ThUI.alert(texto, { tone });
+        const icono = clase => { const i = document.createElement('i'); i.className = 'fa-solid ' + clase; i.setAttribute('aria-hidden', 'true'); return i; };
         const mostrar = (...ids) => ['secCargando', 'secBloqueado', 'secPeriodo', 'secLista'].forEach(s => { document.getElementById(s).hidden = !ids.includes(s); });
         const esLider = () => NIVEL[rol] >= NIVEL.admin_lider;
 
@@ -194,12 +216,14 @@
 
         // ----- Periodo (Admin Líder y Owner) -----
         function pintarPeriodo(c) {
-            const ahora = Date.now();
+            // [color de .post-estado, ícono, texto]
+            const [tono, clase, texto] = c.activa ? ['aceptada', 'fa-circle-check', `Activas hasta el ${fecha(c.fechaFin)}`]
+                : c.abierta && c.fechaInicio && new Date(c.fechaInicio) > Date.now() ? ['pendiente', 'fa-clock', `Programadas: abren el ${fecha(c.fechaInicio)}`]
+                : c.abierta ? ['pendiente', 'fa-triangle-exclamation', 'Abiertas, pero la fecha de fin ya pasó']
+                : ['rechazada', 'fa-circle-xmark', 'Cerradas'];
             const estado = document.getElementById('periodoEstado');
-            if (c.activa) { estado.textContent = `🟢 Activas hasta el ${fecha(c.fechaFin)}`; estado.style.color = 'var(--mint)'; }
-            else if (c.abierta && c.fechaInicio && new Date(c.fechaInicio) > ahora) { estado.textContent = `🟡 Programadas: abren el ${fecha(c.fechaInicio)}`; estado.style.color = 'var(--gold)'; }
-            else if (c.abierta) { estado.textContent = '🟠 Abiertas, pero la fecha de fin ya pasó'; estado.style.color = 'var(--gold)'; }
-            else { estado.textContent = '🔴 Cerradas'; estado.style.color = 'var(--red-light)'; }
+            estado.className = 'post-estado post-periodo-estado ' + tono;
+            estado.replaceChildren(icono(clase), texto);
             document.getElementById('pAbierta').checked = !!c.abierta;
             document.querySelectorAll('#pTipos input').forEach(i => { i.checked = (c.tiposAbiertos || []).includes(i.value); });
             document.getElementById('pInicio').value = aLocal(c.fechaInicio);
@@ -216,9 +240,9 @@
                     fechaInicio: aIso(document.getElementById('pInicio').value),
                     fechaFin: aIso(document.getElementById('pFin').value)
                 });
-                if (d.success) { pintarPeriodo(d.config); ThUI.alert('✅ Periodo guardado.'); }
-                else ThUI.alert('❌ ' + (d.message || 'No se pudo guardar.'));
-            } catch (e) { ThUI.alert('❌ No se pudo conectar con el servidor.'); }
+                if (d.success) { pintarPeriodo(d.config); avisar('success', 'Periodo guardado.'); }
+                else avisar('error', (d.message || 'No se pudo guardar.'));
+            } catch (e) { avisar('error', 'No se pudo conectar con el servidor.'); }
             btn.disabled = false;
         });
 
@@ -265,6 +289,69 @@
         document.getElementById('fEstado').addEventListener('change', cargarLista);
         document.getElementById('fTipo').addEventListener('change', cargarLista);
 
+        // Lista desplegable con el diseño de la web (styles.css, 8.2; mismo armado que admin.html), también con teclado.
+        // El <select> sigue siendo el dueño del valor y avisa con 'change'
+        function construirSelect(select) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'custom-select-wrapper';
+            const trigger = document.createElement('div');
+            trigger.className = 'custom-select-trigger';
+            trigger.tabIndex = 0;
+            trigger.setAttribute('role', 'combobox');
+            trigger.setAttribute('aria-haspopup', 'listbox');
+            trigger.setAttribute('aria-expanded', 'false');
+            const etiqueta = document.querySelector(`label[for="${select.id}"]`);
+            if (etiqueta) trigger.setAttribute('aria-label', etiqueta.textContent.trim());
+            trigger.append(document.createElement('span'), icono('fa-chevron-down'));
+            const lista = document.createElement('div');
+            lista.className = 'custom-select-options';
+            lista.setAttribute('role', 'listbox');
+            const abrir = si => {
+                cerrarSelects(wrapper);
+                if (si) {
+                    const r = wrapper.getBoundingClientRect(), abajo = innerHeight - r.bottom;
+                    wrapper.classList.toggle('open-up', abajo < Math.min(lista.scrollHeight, 250) && r.top > abajo);
+                }
+                wrapper.classList.toggle('open', si);
+                trigger.setAttribute('aria-expanded', String(si));
+            };
+            const pintar = () => {
+                trigger.firstChild.textContent = select.options[select.selectedIndex]?.text || '';
+                lista.replaceChildren(...[...select.options].map((o, i) => {
+                    const d = document.createElement('div');
+                    d.className = 'custom-option' + (i === select.selectedIndex ? ' selected' : '');
+                    d.setAttribute('role', 'option');
+                    d.setAttribute('aria-selected', String(i === select.selectedIndex));
+                    d.textContent = o.text;
+                    d.addEventListener('click', () => { elegir(i); abrir(false); trigger.focus(); });
+                    return d;
+                }));
+            };
+            const elegir = i => {
+                if (i < 0 || i >= select.options.length || i === select.selectedIndex) return;
+                select.selectedIndex = i;
+                pintar();
+                select.dispatchEvent(new Event('change'));
+            };
+            trigger.addEventListener('click', e => { e.stopPropagation(); abrir(!wrapper.classList.contains('open')); });
+            trigger.addEventListener('keydown', e => {
+                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrir(!wrapper.classList.contains('open')); }
+                else if (e.key === 'Escape') abrir(false);
+                else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); elegir(select.selectedIndex + (e.key === 'ArrowDown' ? 1 : -1)); }
+            });
+            pintar();
+            wrapper.append(trigger, lista);
+            select.before(wrapper);   // styles.css esconde el <select> que queda justo después
+        }
+        function cerrarSelects(menos) {
+            document.querySelectorAll('.custom-select-wrapper.open').forEach(w => {
+                if (w === menos) return;
+                w.classList.remove('open', 'open-up');
+                w.firstChild.setAttribute('aria-expanded', 'false');
+            });
+        }
+        document.addEventListener('click', () => cerrarSelects());
+
         // ----- Detalle -----
         function pintarHilo(ul, comentarios) {
             ul.replaceChildren();
@@ -298,7 +385,7 @@
             for (const v of p.votos || []) {
                 const li = document.createElement('li');
                 li.className = (v.valor === 1 ? 'favor' : 'contra') + (v.adminId === parseInt(loggedId) ? ' mio' : '');
-                li.textContent = `${v.valor === 1 ? '👍' : '👎'} ${v.nick}${v.adminId === parseInt(loggedId) ? ' (tú)' : ''}`;
+                li.append(icono(v.valor === 1 ? 'fa-thumbs-up' : 'fa-thumbs-down'), ` ${v.nick}${v.adminId === parseInt(loggedId) ? ' (tú)' : ''}`);
                 ul.appendChild(li);
             }
         }
@@ -334,11 +421,11 @@
             const modal = document.getElementById('modalDetalle');
             try {
                 const d = await api('/' + encodeURIComponent(id));
-                if (!d.success) return ThUI.alert('❌ ' + (d.message || 'No se pudo abrir la postulación.'));
+                if (!d.success) return avisar('error', (d.message || 'No se pudo abrir la postulación.'));
                 pintarDetalle(d.postulacion);
                 modal.style.display = 'flex';
                 modal.querySelector('.modal-content').scrollTop = 0;
-            } catch (e) { ThUI.alert('❌ No se pudo conectar con el servidor.'); }
+            } catch (e) { avisar('error', 'No se pudo conectar con el servidor.'); }
         }
         function cerrarDetalle() { document.getElementById('modalDetalle').style.display = 'none'; detalle = null; }
         document.getElementById('cerrarDetalle').addEventListener('click', cerrarDetalle);
@@ -352,11 +439,11 @@
             document.querySelectorAll('#dVotar button').forEach(x => { x.disabled = true; });
             try {
                 const d = await api(`/${encodeURIComponent(detalle.id)}/voto`, 'POST', { valor });
-                if (!d.success) ThUI.alert('❌ ' + (d.message || 'No se pudo votar.'));
+                if (!d.success) avisar('error', (d.message || 'No se pudo votar.'));
                 const r = await api('/' + encodeURIComponent(detalle.id));   // la lista de votantes actualizada
                 if (r.success) pintarDetalle(r.postulacion);
                 cargarLista();
-            } catch (e) { ThUI.alert('❌ No se pudo conectar con el servidor.'); pintarVotos(detalle); }
+            } catch (e) { avisar('error', 'No se pudo conectar con el servidor.'); pintarVotos(detalle); }
         }));
 
         async function resolver(estado) {
@@ -365,12 +452,12 @@
             if (!await ThUI.confirm(texto + ' Se le avisará al postulante y no se puede deshacer.', { title: estado === 'aceptada' ? 'Aceptar postulación' : 'Rechazar postulación', okText: estado === 'aceptada' ? 'Aceptar' : 'Rechazar', danger: estado === 'rechazada' })) return;
             try {
                 const d = await api(`/${encodeURIComponent(detalle.id)}/resolver`, 'POST', { estado, mensajeOpcional: document.getElementById('dMensaje').value.trim() });
-                if (!d.success) return ThUI.alert('❌ ' + (d.message || 'No se pudo resolver.'));
+                if (!d.success) return avisar('error', (d.message || 'No se pudo resolver.'));
                 const r = await api('/' + encodeURIComponent(detalle.id));
                 if (r.success) pintarDetalle(r.postulacion);
                 cargarLista();
-                ThUI.alert(estado === 'aceptada' ? '✅ Postulación aceptada.' : '✅ Postulación rechazada.');
-            } catch (e) { ThUI.alert('❌ No se pudo conectar con el servidor.'); }
+                avisar('success', estado === 'aceptada' ? 'Postulación aceptada.' : 'Postulación rechazada.');
+            } catch (e) { avisar('error', 'No se pudo conectar con el servidor.'); }
         }
         document.getElementById('btnAceptar').addEventListener('click', () => resolver('aceptada'));
         document.getElementById('btnRechazar').addEventListener('click', () => resolver('rechazada'));
@@ -384,9 +471,9 @@
             btn.disabled = true;
             try {
                 const d = await api(`/${encodeURIComponent(detalle.id)}/comentarios`, 'POST', { texto });
-                if (!d.success) ThUI.alert('❌ ' + (d.message || 'No se pudo comentar.'));
+                if (!d.success) avisar('error', (d.message || 'No se pudo comentar.'));
                 else { campo.value = ''; campo.dispatchEvent(new Event('input')); detalle.comentarios = d.comentarios; pintarHilo(document.getElementById('dHilo'), d.comentarios); }
-            } catch (e) { ThUI.alert('❌ No se pudo conectar con el servidor.'); }
+            } catch (e) { avisar('error', 'No se pudo conectar con el servidor.'); }
             btn.disabled = false;
         });
 
@@ -412,6 +499,7 @@
                     l.append(i, ' ' + nombre);
                     caja.appendChild(l);
                 }
+                document.querySelectorAll('.post-filtros select').forEach(construirSelect);
                 if (esLider()) { pintarPeriodo(e); mostrar('secPeriodo', 'secLista'); }
                 else mostrar('secLista');
                 await cargarLista();

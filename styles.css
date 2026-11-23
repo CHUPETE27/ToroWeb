@@ -3338,6 +3338,37 @@ html .terms-check.invalid input { border-color: var(--red-light); }
 .post-modal .modal-content > h3 { overflow-wrap: anywhere; padding-right: 30px; }
 .post-separador { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
 
+/* --- Panel de postulaciones.html: cada caja y cada sección agrupan una función --- */
+.post-panel-cab { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+.post-panel-cab h3 { display: flex; align-items: center; gap: 10px; margin: 0; padding: 0; border: none; text-align: left; }
+.post-periodo-estado { white-space: normal; text-transform: none; letter-spacing: 0; font-size: 0.88rem; }
+
+.post-ajustes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.post-ajuste { min-width: 0; padding: 14px 16px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 10px; }
+.post-ajuste.ancho { grid-column: 1 / -1; }
+.post-ajuste h4, .post-seccion h4 { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; color: var(--cyan); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px; }
+.post-ajuste-ayuda { margin: 0 0 12px; color: var(--text-muted); font-size: 0.85rem; line-height: 1.4; }
+.post-roles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.post-fechas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.post-fechas .form-group { margin: 0; }
+.post-panel-pie { display: flex; justify-content: flex-end; margin-top: 18px; }
+.post-panel-pie .btn-estandar { width: auto; margin: 0; }
+.post-filtros label i { color: var(--gold); margin-right: 4px; }
+
+/* Ficha del detalle */
+.post-detalle-cab { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding-right: 30px; }
+.post-detalle-cab h3 { margin: 0; overflow-wrap: anywhere; }
+.post-detalle-fecha { width: 100%; color: var(--text-muted); font-size: 0.85rem; }
+.post-detalle-fecha strong { color: var(--text-soft); }
+.post-seccion { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--border); }
+.post-seccion h4 { margin-bottom: 12px; }
+.post-seccion h4 .post-votos { margin-left: auto; }
+.post-seccion h5 { margin: 0 0 6px; color: var(--text-soft); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.5px; }
+.post-ficha { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.post-dato { min-width: 0; padding: 8px 12px; background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border); border-radius: 8px; }
+.post-dato span { display: block; margin-bottom: 2px; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+.post-dato strong { color: #fff; overflow-wrap: anywhere; }
+
 /* --- Aviso de aceptado o rechazado (header.js) --- */
 .post-aviso-overlay {
     position: fixed;
@@ -3447,5 +3478,7 @@ html .terms-check.invalid input { border-color: var(--red-light); }
     .post-wrapper { margin-top: 8vh; }
     .post-wrapper > .box { padding: 20px 16px; }
     .post-titulo { font-size: 1.6rem; }
-    .post-fila3, .post-filtros { grid-template-columns: 1fr; }
+    .post-fila3, .post-filtros, .post-ajustes, .post-roles, .post-fechas { grid-template-columns: 1fr; }
+    .post-panel-pie .btn-estandar { width: 100%; }
+    .post-ficha { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
