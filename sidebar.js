@@ -30,10 +30,15 @@ document.addEventListener("DOMContentLoaded", function() {
                 <a href="#" onclick="checkLogin('amigos.html')"><i class="fa-solid fa-user-group fa-fw"></i> Amigos</a>
                 <a href="visor.html"><i class="fa-solid fa-clapperboard"></i> Repeticiones</a>
                 <a href="#" onclick="checkLogin('tienda.html')"><i class="fa-solid fa-cart-shopping fa-fw"></i> Tienda</a>
+                <a href="#" onclick="checkLogin('postular.html')"><i class="fa-solid fa-user-plus fa-fw"></i> Postúlate</a>
                 <a href="index.html"><i class="fa-solid fa-house fa-fw"></i> Menú principal</a>
                 
                 <a href="#" id="sidebar-admin-btn" onclick="checkLogin('admin.html')" style="display: none; color: #e1bc56; border-top: 1px dashed #333; margin-top: 10px; padding-top: 15px;">
                     <i class="fa-solid fa-shield-halved fa-fw"></i> Panel Admin
+                </a>
+
+                <a href="#" id="sidebar-postulaciones-btn" onclick="checkLogin('postulaciones.html')" style="display: none; color: #e1bc56; margin-top: 5px;">
+                    <i class="fa-solid fa-clipboard-list fa-fw"></i> Postulaciones
                 </a>
 
                 <a href="#" id="sidebar-owner-btn" onclick="checkLogin('owner.html')" style="display: none; color: #1fc9b2; margin-top: 5px;">
@@ -75,11 +80,9 @@ document.addEventListener("DOMContentLoaded", function() {
             if (data && data.isAdmin === true) {
                 const adminBtn = document.getElementById('sidebar-admin-btn');
                 if (adminBtn) adminBtn.style.display = 'block';
+                const postBtn = document.getElementById('sidebar-postulaciones-btn');
+                if (postBtn) postBtn.style.display = 'block';
             }
-            // Cliente de escritorio: por ahora solo VIP y admins (después todos). data-sin-vip = aviso para el resto
-            const vip = !!(data && (data.isAdmin === true || data.isVip === true));
-            document.querySelectorAll('[data-solo-vip]').forEach(el => { el.style.display = vip ? '' : 'none'; });
-            document.querySelectorAll('[data-sin-vip]').forEach(el => { el.hidden = vip; });
             if (data && parseInt(data.numericId) === 1) {
                 const ownerBtn = document.getElementById('sidebar-owner-btn');
                 if (ownerBtn) ownerBtn.style.display = 'block';

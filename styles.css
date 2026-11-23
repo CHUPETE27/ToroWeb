@@ -3114,3 +3114,338 @@ html .terms-check.invalid input { border-color: var(--red-light); }
     .descarga-panel h1 { font-size: 1.5rem; }
     .descarga-grid { grid-template-columns: 1fr; gap: 12px; }
 }
+
+
+/* =========================================
+   18. POSTULACIONES (postular.html, postulaciones.html, owner.html y el aviso de header.js)
+   - Paneles: .box (sección 7); campos: .form-group (sección 8); botones: .btn-estandar y .modal-btn (sección 5)
+   ========================================= */
+.post-wrapper {
+    flex: none;
+    width: 92%;
+    max-width: 860px;
+    margin: 10vh auto 50px;
+    padding: 0;
+    gap: 22px;
+}
+
+.post-wrapper > .box { width: 100%; box-sizing: border-box; }
+
+.post-titulo {
+    color: var(--gold);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 2rem;
+    margin: 0;
+    text-align: center;
+}
+
+.post-centro { text-align: center; color: var(--text-soft); line-height: 1.6; }
+.post-centro > i { font-size: 2.6rem; color: var(--gold); margin-bottom: 10px; }
+.post-centro .btn-estandar { margin: 18px auto 0; }
+
+.form-group textarea {
+    width: 100%;
+    box-sizing: border-box;
+    resize: vertical;
+    min-height: 110px;
+    background: #1a1a1a;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 12px 15px;
+    border-radius: 8px;
+    outline: none;
+    font: inherit;
+    font-size: 1rem;
+    line-height: 1.5;
+    transition: 0.2s;
+    user-select: auto;
+}
+
+.form-group input[type="datetime-local"] {
+    width: 100%;
+    box-sizing: border-box;
+    background: #1a1a1a;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 11px 15px;
+    border-radius: 8px;
+    outline: none;
+    font: inherit;
+}
+
+.form-group input[type="text"]:focus,
+.form-group input[type="number"]:focus,
+.form-group input[type="datetime-local"]:focus,
+.form-group textarea:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 8px rgba(var(--gold-rgb), 0.2);
+}
+
+.post-wrapper .form-group input[type="text"],
+.post-wrapper .form-group input[type="number"] { box-sizing: border-box; }
+.form-group input[readonly] { color: var(--text-soft); background: #111; cursor: default; }
+
+.post-contador { text-align: right; font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+.post-contador.lleno { color: var(--gold); }
+
+.post-fila3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+
+.post-nota {
+    margin: 0 0 15px;
+    padding: 12px 14px;
+    border-left: 3px solid var(--gold);
+    background: rgba(var(--gold-rgb), 0.08);
+    border-radius: 6px;
+    color: var(--text-soft);
+    font-size: 0.92rem;
+    line-height: 1.5;
+}
+
+/* Estado de una postulación */
+.post-estado {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+    font-size: 0.82rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.post-estado.pendiente { color: var(--gold); background: rgba(var(--gold-rgb), 0.1); }
+.post-estado.aceptada  { color: var(--mint); background: rgba(var(--mint-rgb), 0.1); }
+.post-estado.rechazada { color: var(--red-light); background: rgba(var(--red-rgb), 0.12); }
+
+.post-datos {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    align-items: center;
+    color: var(--text-soft);
+    font-size: 0.92rem;
+    margin-bottom: 18px;
+}
+
+.post-datos strong { color: #fff; overflow-wrap: anywhere; }
+
+.post-bloque { margin: 0 0 16px; }
+.post-bloque h4 { margin: 0 0 6px; color: var(--cyan); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Texto que escribió el usuario: con sus saltos de línea y sin desbordar */
+.post-texto {
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    color: #e8e8e8;
+    line-height: 1.55;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    user-select: text;
+}
+
+/* Hilo de comentarios */
+.post-hilo { list-style: none; margin: 0 0 14px; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.post-hilo .vacio { color: var(--text-muted); font-style: italic; text-align: center; padding: 10px; }
+
+.post-comentario {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold);
+    border-radius: 8px;
+    padding: 10px 12px;
+}
+
+.post-comentario.postulante { border-left-color: var(--cyan); }
+.post-comentario.owner { border-left-color: var(--mint); }
+
+.post-comentario-cab { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; margin-bottom: 4px; font-size: 0.85rem; color: var(--text-muted); }
+.post-comentario-cab strong { color: #fff; font-size: 0.95rem; overflow-wrap: anywhere; }
+.post-comentario-rol { color: var(--gold); font-weight: bold; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
+.post-comentario p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; color: #e8e8e8; line-height: 1.5; user-select: text; }
+
+.post-acciones { display: flex; flex-wrap: wrap; gap: 10px; }
+.post-acciones .btn-estandar { flex: 1 1 180px; width: auto; margin: 0; }
+
+/* --- Lista de postulaciones (postulaciones.html) --- */
+.post-filtros { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 15px; }
+.post-filtros .form-group { margin: 0; }
+
+.post-lista { list-style: none; margin: 0; padding: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+
+.post-fila {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 0.8fr) minmax(0, 1.6fr) minmax(0, 1.3fr) minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+    padding: 12px 14px;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-soft);
+    font: inherit;
+    font-size: 0.92rem;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.post-lista li:last-child .post-fila { border-bottom: none; }
+.post-fila:hover, .post-fila:focus-visible { background: rgba(var(--gold-rgb), 0.08); outline: none; }
+.post-fila.cabecera { cursor: default; background: rgba(0, 0, 0, 0.4); color: var(--gold); font-weight: bold; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+.post-fila > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.post-fila .nick { color: #fff; font-weight: bold; }
+.post-fila .post-estado { justify-self: start; }
+.post-votos { font-weight: bold; white-space: nowrap; }
+.post-votos .mas { color: var(--mint); }
+.post-votos .menos { color: var(--red-light); }
+.post-lista .vacio { padding: 20px; text-align: center; color: var(--text-muted); }
+
+/* Votos del detalle */
+.post-votar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+.post-votar button {
+    flex: 1 1 140px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 2px solid #555;
+    background: rgba(0, 0, 0, 0.4);
+    color: var(--text-soft);
+    font: inherit;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.post-votar button:hover:not(:disabled) { color: #fff; border-color: var(--text-soft); }
+.post-votar button.favor.activo { border-color: var(--mint); color: #111; background: var(--mint); }
+.post-votar button.contra.activo { border-color: var(--red-light); color: #fff; background: var(--red); }
+.post-votar button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.post-votantes { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.post-votantes li { padding: 3px 10px; border-radius: 999px; border: 1px solid var(--border); font-size: 0.82rem; color: var(--text-soft); max-width: 100%; overflow-wrap: anywhere; }
+.post-votantes li.favor { border-color: rgba(var(--mint-rgb), 0.5); }
+.post-votantes li.contra { border-color: rgba(var(--red-rgb), 0.7); }
+.post-votantes li.mio { color: #111; background: var(--gold); border-color: var(--gold); font-weight: bold; }
+
+.post-modal .modal-content { max-width: 680px; text-align: left; }
+.post-modal .modal-content > h3 { overflow-wrap: anywhere; padding-right: 30px; }
+.post-separador { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+
+/* --- Aviso de aceptado o rechazado (header.js) --- */
+.post-aviso-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 20001;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-sizing: border-box;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.25s ease-out;
+}
+
+.post-aviso {
+    --tono: var(--mint);
+    --tono-rgb: var(--mint-rgb);
+    position: relative;
+    width: 100%;
+    max-width: 460px;
+    max-height: 90vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    box-sizing: border-box;
+    padding: 34px 28px 26px;
+    text-align: center;
+    color: #fff;
+    background: radial-gradient(circle at 50% 0%, rgba(var(--tono-rgb), 0.18), transparent 60%), var(--bg-deep);
+    border: 2px solid var(--tono);
+    border-radius: 18px;
+    box-shadow: 0 0 40px rgba(var(--tono-rgb), 0.25), 0 10px 40px rgba(0, 0, 0, 0.8);
+    animation: thDialogPop 0.3s ease-out;
+}
+
+.post-aviso.rechazada { --tono: var(--cyan); --tono-rgb: var(--cyan-rgb); }
+
+.post-aviso-icono {
+    position: relative;
+    width: 84px;
+    height: 84px;
+    margin: 0 auto 16px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 2.4rem;
+    color: var(--tono);
+    background: rgba(var(--tono-rgb), 0.12);
+    border: 2px solid var(--tono);
+}
+
+.post-aviso.aceptada .post-aviso-icono { color: var(--gold); border-color: var(--gold); background: rgba(var(--gold-rgb), 0.12); box-shadow: 0 0 25px rgba(var(--gold-rgb), 0.4); }
+.post-aviso h3 { position: relative; margin: 0 0 10px; font-size: 1.6rem; color: var(--gold); }
+.post-aviso p { position: relative; margin: 0 0 12px; color: var(--text-soft); line-height: 1.55; }
+.post-aviso p strong { color: #fff; }
+
+.post-aviso-mensaje {
+    position: relative;
+    margin: 0 0 14px;
+    padding: 12px 14px;
+    border-left: 3px solid var(--tono);
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: 6px;
+    text-align: left;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    color: #e8e8e8;
+}
+
+.post-aviso .modal-btn { position: relative; width: 100%; margin-top: 6px; }
+.post-aviso.rechazada .modal-btn { background: var(--cyan); }
+
+/* Papel picado del aceptado */
+.post-aviso-confeti {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 220px;
+    pointer-events: none;
+    background-image:
+        radial-gradient(circle, var(--gold) 3px, transparent 4px),
+        radial-gradient(circle, var(--mint) 3px, transparent 4px),
+        radial-gradient(circle, var(--red-light) 2px, transparent 3px),
+        radial-gradient(circle, var(--cyan) 3px, transparent 4px);
+    background-size: 70px 60px, 90px 80px, 60px 70px, 110px 90px;
+    background-position: 10px 0, 40px 20px, 25px 35px, 60px 10px;
+    opacity: 0.7;
+    animation: postConfeti 3.5s linear infinite;
+}
+
+@keyframes postConfeti {
+    from { transform: translateY(-40px); opacity: 0.8; }
+    to   { transform: translateY(60px); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .post-aviso, .post-aviso-confeti { animation: none; }
+}
+
+@media (max-width: 700px) {
+    .post-fila.cabecera { display: none; }
+    .post-fila { grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; }
+    .post-fila > span { white-space: normal; overflow-wrap: anywhere; }
+    .post-fila .id, .post-fila .dc, .post-fila .tipo { font-size: 0.82rem; color: var(--text-muted); }
+}
+
+@media (max-width: 600px) {
+    .post-wrapper { margin-top: 8vh; }
+    .post-wrapper > .box { padding: 20px 16px; }
+    .post-titulo { font-size: 1.6rem; }
+    .post-fila3, .post-filtros { grid-template-columns: 1fr; }
+}

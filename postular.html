@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-TNG2QC64');</script>
+    <!-- End Google Tag Manager -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Postúlate - ToroHax</title>
+    <link rel="icon" type="image/png" href="logo_torohax.png">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { box-sizing: border-box; }
+    </style>
+</head>
+<body>
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TNG2QC64"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    <header></header>
+
+    <!-- Estilos: styles.css, sección 18. Todo lo que escribe un usuario se pone con textContent -->
+    <main class="post-wrapper">
+        <h1 class="post-titulo"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> Postúlate</h1>
+
+        <div class="box post-centro" id="secCargando">
+            <i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i>
+            <p>Cargando...</p>
+        </div>
+
+        <div class="box post-centro" id="secSinSesion" hidden>
+            <i class="fa-solid fa-lock" aria-hidden="true"></i>
+            <h3>Inicia sesión para postular</h3>
+            <p>Necesitas entrar con tu cuenta de ToroHax para enviar o revisar tu postulación.</p>
+            <a href="login.html" class="btn-estandar btn-abrir"><i class="fa-solid fa-right-to-bracket" aria-hidden="true"></i> Iniciar sesión</a>
+        </div>
+
+        <div class="box post-centro" id="secCerrado" hidden>
+            <i class="fa-regular fa-calendar-xmark" aria-hidden="true"></i>
+            <h3>No hay postulaciones abiertas</h3>
+            <p id="textoCerrado">En este momento no hay un periodo de postulaciones activo. Atento a los anuncios en Discord.</p>
+        </div>
+
+        <div class="box" id="secFormulario" hidden>
+            <h3>Formulario de postulación</h3>
+            <p class="post-nota" id="notaPeriodo"></p>
+            <p class="post-nota" id="avisoDiscord" hidden>Para postular necesitas tener tu Discord vinculado a tu cuenta de ToroHax (usa <strong>!registro</strong> en una sala).</p>
+            <form id="formPostular" novalidate>
+                <div class="form-group">
+                    <label for="tipo">Rol al que postulas</label>
+                    <select id="tipo" required></select>
+                </div>
+                <div class="post-fila3">
+                    <div class="form-group">
+                        <label for="fNick">Nick</label>
+                        <input type="text" id="fNick" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="fId">ID</label>
+                        <input type="text" id="fId" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label for="fDiscord">Discord</label>
+                        <input type="text" id="fDiscord" readonly>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="edad">Edad</label>
+                    <input type="number" id="edad" min="13" max="99" step="1" inputmode="numeric" required>
+                </div>
+                <div class="form-group">
+                    <label for="motivo">¿Por qué quieres este rol?</label>
+                    <textarea id="motivo" maxlength="1500" rows="5" required></textarea>
+                    <div class="post-contador" data-de="motivo" aria-live="polite"></div>
+                </div>
+                <div class="form-group">
+                    <label for="experiencia">Tu experiencia (en ToroHax, otras comunidades, moderación, etc.)</label>
+                    <textarea id="experiencia" maxlength="1500" rows="5" required></textarea>
+                    <div class="post-contador" data-de="experiencia" aria-live="polite"></div>
+                </div>
+                <button type="submit" class="btn-estandar btn-abrir" id="btnEnviar" style="margin: 0 auto;"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Enviar postulación</button>
+            </form>
+        </div>
+
+        <div class="box" id="secMia" hidden>
+            <h3>Mi postulación</h3>
+            <div class="post-datos">
+                <span class="post-estado" id="miEstado"></span>
+                <span>Rol: <strong id="miTipo"></strong></span>
+                <span>Enviada: <strong id="miFecha"></strong></span>
+            </div>
+            <div class="post-bloque" id="miMensajeBloque" hidden>
+                <h4>Mensaje del staff</h4>
+                <p class="post-texto" id="miMensaje"></p>
+            </div>
+            <div class="post-bloque">
+                <h4>Motivo</h4>
+                <p class="post-texto" id="miMotivo"></p>
+            </div>
+            <div class="post-bloque">
+                <h4>Experiencia</h4>
+                <p class="post-texto" id="miExperiencia"></p>
+            </div>
+            <hr class="post-separador">
+            <div class="post-bloque">
+                <h4>Comentarios</h4>
+                <ul class="post-hilo" id="miHilo"></ul>
+                <form id="formComentario" hidden>
+                    <div class="form-group">
+                        <label for="comentario">Responder al staff</label>
+                        <textarea id="comentario" maxlength="500" rows="3" required></textarea>
+                        <div class="post-contador" data-de="comentario" aria-live="polite"></div>
+                    </div>
+                    <button type="submit" class="btn-estandar btn-primary" id="btnComentar"><i class="fa-solid fa-reply" aria-hidden="true"></i> Responder</button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script src="torohax-ui.js"></script>
+    <script src="header.js"></script>
+    <script src="sidebar.js"></script>
+    <script>
+        const API = 'https://torobot-izu5.onrender.com/api/postulaciones';
+        const loggedId = localStorage.getItem('toroHaxLoggedId');
+        const token = localStorage.getItem('toroHaxToken');
+        const ROL_AUTOR = { admin_lider: 'Admin Líder', owner: 'Owner', postulante: 'Postulante' };
+        const ESTADO = { pendiente: 'Pendiente', aceptada: 'Aceptada', rechazada: 'Rechazada' };
+        const fecha = f => f ? new Date(f).toLocaleString('es-CL', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
+        let miPostulacion = null;
+
+        function mostrar(...ids) {
+            for (const s of ['secCargando', 'secSinSesion', 'secCerrado', 'secFormulario', 'secMia'])
+                document.getElementById(s).hidden = !ids.includes(s);
+        }
+
+        // Contador de caracteres de cada textarea
+        document.querySelectorAll('.post-contador').forEach(c => {
+            const t = document.getElementById(c.dataset.de);
+            const pintar = () => { c.textContent = `${t.value.length} / ${t.maxLength}`; c.classList.toggle('lleno', t.value.length >= t.maxLength); };
+            t.addEventListener('input', pintar);
+            pintar();
+        });
+
+        function pintarHilo(ul, comentarios) {
+            ul.replaceChildren();
+            if (!comentarios.length) {
+                const li = document.createElement('li');
+                li.className = 'vacio';
+                li.textContent = 'Todavía no hay comentarios.';
+                return ul.appendChild(li);
+            }
+            for (const c of comentarios) {
+                const li = document.createElement('li');
+                li.className = 'post-comentario ' + c.rolAutor;
+                const cab = document.createElement('div');
+                cab.className = 'post-comentario-cab';
+                const nick = document.createElement('strong');
+                nick.textContent = c.autorNick;
+                const rol = document.createElement('span');
+                rol.className = 'post-comentario-rol';
+                rol.textContent = ROL_AUTOR[c.rolAutor] || '';
+                const cuando = document.createElement('span');
+                cuando.textContent = fecha(c.fecha);
+                cab.append(nick, rol, cuando);
+                const p = document.createElement('p');
+                p.textContent = c.texto;
+                li.append(cab, p);
+                ul.appendChild(li);
+            }
+        }
+
+        function pintarMia(p) {
+            miPostulacion = p;
+            const estado = document.getElementById('miEstado');
+            estado.className = 'post-estado ' + p.estado;
+            estado.textContent = ESTADO[p.estado] || p.estado;
+            document.getElementById('miTipo').textContent = p.tipoNombre;
+            document.getElementById('miFecha').textContent = fecha(p.fechaCreacion);
+            document.getElementById('miMotivo').textContent = p.motivo;
+            document.getElementById('miExperiencia').textContent = p.experiencia;
+            document.getElementById('miMensajeBloque').hidden = !p.mensaje;
+            document.getElementById('miMensaje').textContent = p.mensaje || '';
+            pintarHilo(document.getElementById('miHilo'), p.comentarios || []);
+            document.getElementById('formComentario').hidden = p.estado !== 'pendiente';
+        }
+
+        function pintarFormulario(e) {
+            const select = document.getElementById('tipo');
+            select.replaceChildren();
+            for (const t of e.tiposAbiertos) {
+                const o = document.createElement('option');
+                o.value = t;
+                o.textContent = e.tipos[t] || t;
+                select.appendChild(o);
+            }
+            document.getElementById('fNick').value = e.yo.nick || '';
+            document.getElementById('fId').value = '#' + e.yo.numericId;
+            document.getElementById('fDiscord').value = e.yo.discordId ? (e.yo.discordUser || 'Vinculado') : 'Sin vincular';
+            document.getElementById('avisoDiscord').hidden = !!e.yo.discordId;
+            document.getElementById('btnEnviar').disabled = !e.yo.discordId;
+            document.getElementById('notaPeriodo').textContent = `Postulaciones abiertas hasta el ${fecha(e.fechaFin)}. Solo puedes enviar una postulación por periodo, así que revísala bien antes de enviarla.`;
+        }
+
+        async function cargar() {
+            if (!loggedId || !token) return mostrar('secSinSesion');
+            try {
+                const r = await fetch(`${API}/estado?numericId=${encodeURIComponent(loggedId)}&token=${encodeURIComponent(token)}`);
+                const e = await r.json();
+                if (!e.success) throw new Error(e.message);
+                if (e.sesionInvalida || !e.yo) return mostrar('secSinSesion');
+                if (e.miPostulacion) pintarMia(e.miPostulacion);
+                if (e.activa && !e.yaPostulo) {
+                    pintarFormulario(e);
+                    // Una postulación de un periodo anterior se sigue viendo debajo del formulario
+                    return e.miPostulacion ? mostrar('secFormulario', 'secMia') : mostrar('secFormulario');
+                }
+                if (e.miPostulacion) return mostrar('secMia');
+                if (e.abierta && e.fechaInicio && new Date(e.fechaInicio) > new Date())
+                    document.getElementById('textoCerrado').textContent = `Las postulaciones abren el ${fecha(e.fechaInicio)}. ¡Prepárate!`;
+                mostrar('secCerrado');
+            } catch (err) {
+                document.getElementById('textoCerrado').textContent = 'No se pudo conectar con el servidor. Inténtalo de nuevo en unos minutos.';
+                mostrar('secCerrado');
+            }
+        }
+
+        document.getElementById('formPostular').addEventListener('submit', async ev => {
+            ev.preventDefault();
+            const edad = Number(document.getElementById('edad').value);
+            const motivo = document.getElementById('motivo').value.trim();
+            const experiencia = document.getElementById('experiencia').value.trim();
+            if (!Number.isInteger(edad) || edad < 13 || edad > 99) return ThUI.alert('⚠️ Escribe tu edad: un número entre 13 y 99.');
+            if (!motivo || !experiencia) return ThUI.alert('⚠️ Completa el motivo y tu experiencia.');
+            const tipo = document.getElementById('tipo').value;
+            const nombreTipo = document.getElementById('tipo').selectedOptions[0]?.textContent || tipo;
+            if (!await ThUI.confirm(`¿Enviar tu postulación a ${nombreTipo}? Solo puedes enviar una por periodo.`, { title: 'Enviar postulación', okText: 'Enviar' })) return;
+
+            const btn = document.getElementById('btnEnviar');
+            btn.disabled = true;
+            try {
+                const r = await fetch(API, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ numericId: loggedId, token, tipo, edad, motivo, experiencia })
+                });
+                const d = await r.json();
+                if (!d.success) { btn.disabled = false; return ThUI.alert('❌ ' + (d.message || 'No se pudo enviar.')); }
+                await ThUI.alert('✅ ¡Postulación enviada! El staff la revisará y te avisaremos aquí con el resultado.');
+                pintarMia(d.postulacion);
+                mostrar('secMia');
+            } catch (err) {
+                btn.disabled = false;
+                ThUI.alert('❌ No se pudo conectar con el servidor.');
+            }
+        });
+
+        document.getElementById('formComentario').addEventListener('submit', async ev => {
+            ev.preventDefault();
+            const campo = document.getElementById('comentario');
+            const texto = campo.value.trim();
+            if (!texto || !miPostulacion) return;
+            const btn = document.getElementById('btnComentar');
+            btn.disabled = true;
+            try {
+                const r = await fetch(`${API}/${encodeURIComponent(miPostulacion.id)}/comentarios`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ numericId: loggedId, token, texto })
+                });
+                const d = await r.json();
+                if (!d.success) ThUI.alert('❌ ' + (d.message || 'No se pudo enviar el comentario.'));
+                else {
+                    campo.value = '';
+                    campo.dispatchEvent(new Event('input'));
+                    pintarHilo(document.getElementById('miHilo'), d.comentarios);
+                }
+            } catch (err) {
+                ThUI.alert('❌ No se pudo conectar con el servidor.');
+            }
+            btn.disabled = false;
+        });
+
+        cargar();
+    </script>
+    <script src="scanner.js"></script>
+</body>
+</html>

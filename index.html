@@ -78,6 +78,40 @@
         .btn-cliente:hover { transform: translateY(-4px); box-shadow: 0 6px 20px rgba(33, 222, 210, 0.5); }
         .btn-cliente:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
 
+        .btn-postular {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 25px;
+            padding: 14px 34px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #ffdf73, #e1bc56);
+            color: #111;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-decoration: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .btn-postular:hover { transform: translateY(-4px); box-shadow: 0 6px 20px rgba(225, 188, 86, 0.5); }
+        .btn-postular:focus-visible { outline: 2px solid #21ded2; outline-offset: 3px; }
+        .badge-abiertas {
+            position: absolute;
+            top: -12px;
+            right: -10px;
+            background: #2df2c1;
+            color: #111;
+            font-size: 0.8rem;
+            padding: 4px 12px;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(45, 242, 193, 0.5);
+            transform: rotate(8deg);
+        }
+        .badge-abiertas[hidden] { display: none; }
+
         .card.match-day {
             border-color: #2df2c1;
             background: rgba(15, 35, 30, 0.8);
@@ -188,8 +222,13 @@
 
         </div>
 
-        <!-- data-solo-vip: sidebar.js lo muestra solo a VIP y admins (por ahora) -->
-        <a href="descargar.html" class="btn-cliente" data-solo-vip style="display: none;">
+        <a href="postular.html" class="btn-postular">
+            <i class="fa-solid fa-user-plus" aria-hidden="true"></i> ¡Postúlate!
+            <span class="badge-abiertas" id="badgeAbiertas" hidden>Abiertas</span>
+        </a>
+
+        <!-- Visible para todos; sin sesión lleva al login (checkLogin de sidebar.js) -->
+        <a href="descargar.html" class="btn-cliente" onclick="event.preventDefault(); checkLogin('descargar.html')">
             <img src="logo_torohax.png" alt="" width="48" height="48"> Cliente oficial
         </a>
 
@@ -252,6 +291,11 @@
                 }
             })
             .catch(e => console.log("ToroMatch info no disponible", e));
+
+            fetch('https://torobot-izu5.onrender.com/api/postulaciones/estado')
+            .then(res => res.json())
+            .then(data => { if (data.success && data.activa) document.getElementById('badgeAbiertas').hidden = false; })
+            .catch(() => null);
         });
     </script>
     <script src="rain.js"></script>

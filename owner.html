@@ -108,6 +108,10 @@
         .modal-btn.cancel:hover:not(:disabled),
         .th-dialog-actions .modal-btn.th-cancel:hover { border-color: #bdc3c7; color: #fff; filter: none; }
 
+        .owner-tabs { width: 100%; max-width: 640px; margin: 0 auto; }
+        .aceptada-info { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+        .aceptada-info strong { overflow-wrap: anywhere; }
+
         @media (max-width: 900px) {
             .owner-grid { grid-template-columns: 1fr; }
         }
@@ -141,7 +145,18 @@
                 <p>Gestión de infraestructura y cúpula de Administradores.</p>
             </div>
 
-            <div class="owner-grid">
+            <!-- Pestañas: el panel de siempre y las postulaciones aceptadas (GET /api/postulaciones/aceptadas, solo el Owner) -->
+            <div class="host-tabs owner-tabs" role="tablist">
+                <div class="h-tab active" id="tabVistaMando" role="tab" tabindex="0" onclick="switchVista('mando')"><i class="fa-solid fa-server"></i> Centro de mando</div>
+                <div class="h-tab" id="tabVistaAceptadas" role="tab" tabindex="0" onclick="switchVista('aceptadas')"><i class="fa-solid fa-user-check"></i> Postulaciones Aceptadas</div>
+            </div>
+
+            <div class="box" id="vistaAceptadas" style="display: none;">
+                <h3><i class="fa-solid fa-user-check"></i> Postulaciones Aceptadas</h3>
+                <ul id="aceptadasUlList" class="player-list-room"></ul>
+            </div>
+
+            <div class="owner-grid" id="vistaMando">
                 <div class="box host-box">
                     <h3><i class="fa-solid fa-server"></i> Control de Salas Públicas</h3>
                     
@@ -525,6 +540,50 @@
                         abrirPlayerDetailsOwner(modalCurrentPlayerId); 
                     } else showCustomAlert("Error", data.message);
                 } catch(e) { showCustomAlert("Error de Red", "Fallo al conectar."); }
+            }
+        }
+
+        let aceptadasCargadas = false;
+        function switchVista(vista) {
+            document.getElementById('tabVistaMando').classList.toggle('active', vista === 'mando');
+            document.getElementById('tabVistaAceptadas').classList.toggle('active', vista === 'aceptadas');
+            document.getElementById('vistaMando').style.display = vista === 'mando' ? '' : 'none';
+            document.getElementById('vistaAceptadas').style.display = vista === 'aceptadas' ? '' : 'none';
+            if (vista === 'aceptadas' && !aceptadasCargadas) cargarAceptadas();
+        }
+        document.querySelectorAll('.owner-tabs .h-tab').forEach(t => t.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); t.click(); } }));
+
+        async function cargarAceptadas() {
+            const ul = document.getElementById('aceptadasUlList');
+            ul.innerHTML = '<li style="justify-content: center; color:#7d7d7d;"><i class="fa-solid fa-spinner fa-spin"></i> Cargando...</li>';
+            try {
+                const res = await fetch(`https://torobot-izu5.onrender.com/api/postulaciones/aceptadas?numericId=${encodeURIComponent(loggedId)}&token=${encodeURIComponent(token)}`);
+                const data = await res.json();
+                if (!data.success) {
+                    ul.innerHTML = `<li style="justify-content: center; color:#cc2a2a;">${escapeHtml(data.message || 'No se pudo cargar.')}</li>`;
+                    return;
+                }
+                aceptadasCargadas = true;
+                if (!data.aceptadas.length) {
+                    ul.innerHTML = '<li style="justify-content: center; color:#7d7d7d;">Todavía no hay postulaciones aceptadas.</li>';
+                    return;
+                }
+                const fecha = f => f ? new Date(f).toLocaleString('es-CL', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
+                ul.innerHTML = data.aceptadas.map(a => `
+                    <li>
+                        <div class="aceptada-info">
+                            <span style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                <span class="id-badge">#${Number(a.numericId)}</span>
+                                <strong style="color:white; font-size: 1.1rem;">${escapeHtml(a.nick)}</strong>
+                            </span>
+                            <span class="discord-tag"><i class="fa-brands fa-discord"></i> ${escapeHtml(a.discordUser || '—')}</span>
+                            <span style="color:#bdc3c7;">Rol: <strong style="color:#2df2c1;">${escapeHtml(a.tipoNombre)}</strong> · ${escapeHtml(fecha(a.fechaResolucion))}</span>
+                            <span class="discord-tag">Aprobó: ${escapeHtml(a.resueltoPor ? a.resueltoPor.nick : '—')}</span>
+                        </div>
+                        <a class="btn-boss" style="cursor: pointer; text-decoration: none; text-align: center;" href="postulaciones.html?id=${encodeURIComponent(a.id)}"><i class="fa-solid fa-file-lines"></i> Ver ficha</a>
+                    </li>`).join('');
+            } catch (e) {
+                ul.innerHTML = '<li style="justify-content: center; color:#cc2a2a;">Error de conexión con el servidor.</li>';
             }
         }
 
