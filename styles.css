@@ -3189,8 +3189,6 @@ html .terms-check.invalid input { border-color: var(--red-light); }
 .post-contador { text-align: right; font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
 .post-contador.lleno { color: var(--gold); }
 
-.post-fila3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-
 .post-nota {
     margin: 0 0 15px;
     padding: 12px 14px;
@@ -3221,20 +3219,7 @@ html .terms-check.invalid input { border-color: var(--red-light); }
 .post-estado.aceptada  { color: var(--mint); background: rgba(var(--mint-rgb), 0.1); }
 .post-estado.rechazada { color: var(--red-light); background: rgba(var(--red-rgb), 0.12); }
 
-.post-datos {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 18px;
-    align-items: center;
-    color: var(--text-soft);
-    font-size: 0.92rem;
-    margin-bottom: 18px;
-}
-
-.post-datos strong { color: #fff; overflow-wrap: anywhere; }
-
 .post-bloque { margin: 0 0 16px; }
-.post-bloque h4 { margin: 0 0 6px; color: var(--cyan); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px; }
 
 /* Texto que escribió el usuario: con sus saltos de línea y sin desbordar */
 .post-texto {
@@ -3269,6 +3254,29 @@ html .terms-check.invalid input { border-color: var(--red-light); }
 .post-comentario-cab strong { color: #fff; font-size: 0.95rem; overflow-wrap: anywhere; }
 .post-comentario-rol { color: var(--gold); font-weight: bold; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
 .post-comentario p { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; color: #e8e8e8; line-height: 1.5; user-select: text; }
+
+/* Respuesta del postulante: debajo del comentario del staff que responde (una por comentario) */
+.post-respuestas { list-style: none; margin: 10px 0 0; padding: 0 0 0 14px; border-left: 2px solid rgba(var(--cyan-rgb), 0.35); }
+.post-responder {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--cyan);
+    background: transparent;
+    color: var(--cyan);
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.post-responder:hover, .post-responder:focus-visible { background: rgba(var(--cyan-rgb), 0.12); outline: none; }
+.post-responder[hidden] { display: none; }
+.post-comentario form { margin-top: 12px; }
+.post-comentario form .form-group { margin-bottom: 10px; }
 
 .post-acciones { display: flex; flex-wrap: wrap; gap: 10px; }
 .post-acciones .btn-estandar { flex: 1 1 180px; width: auto; margin: 0; }
@@ -3336,9 +3344,10 @@ html .terms-check.invalid input { border-color: var(--red-light); }
 
 .post-modal .modal-content { max-width: 680px; text-align: left; }
 .post-modal .modal-content > h3 { overflow-wrap: anywhere; padding-right: 30px; }
-.post-separador { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
 
-/* --- Panel de postulaciones.html: cada caja y cada sección agrupan una función --- */
+/* --- Paneles de postulaciones.html y postular.html: cada caja y cada sección agrupan una función --- */
+/* Sin overflow: hidden (el de .box), o la lista desplegable sale cortada */
+.post-panel { overflow: visible; }
 .post-panel-cab { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 16px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
 .post-panel-cab h3 { display: flex; align-items: center; gap: 10px; margin: 0; padding: 0; border: none; text-align: left; }
 .post-periodo-estado { white-space: normal; text-transform: none; letter-spacing: 0; font-size: 0.88rem; }
@@ -3348,9 +3357,12 @@ html .terms-check.invalid input { border-color: var(--red-light); }
 .post-ajuste.ancho { grid-column: 1 / -1; }
 .post-ajuste h4, .post-seccion h4 { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; color: var(--cyan); font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.5px; }
 .post-ajuste-ayuda { margin: 0 0 12px; color: var(--text-muted); font-size: 0.85rem; line-height: 1.4; }
+.post-ajuste label.post-ajuste-ayuda { display: block; font-weight: normal; font-size: 0.85rem; color: var(--text-muted); }
+.post-ajustes > .form-group { margin: 0; }
+.post-ajuste .post-contador { margin-bottom: -4px; }
 .post-roles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
-.post-fechas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-.post-fechas .form-group { margin: 0; }
+.post-dos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.post-dos .form-group { margin: 0; }
 .post-panel-pie { display: flex; justify-content: flex-end; margin-top: 18px; }
 .post-panel-pie .btn-estandar { width: auto; margin: 0; }
 .post-filtros label i { color: var(--gold); margin-right: 4px; }
@@ -3364,7 +3376,7 @@ html .terms-check.invalid input { border-color: var(--red-light); }
 .post-seccion h4 { margin-bottom: 12px; }
 .post-seccion h4 .post-votos { margin-left: auto; }
 .post-seccion h5 { margin: 0 0 6px; color: var(--text-soft); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.5px; }
-.post-ficha { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.post-ficha { display: grid; grid-template-columns: repeat(var(--cols, 4), minmax(0, 1fr)); gap: 8px; }   /* --cols: cuántas tarjetas por fila */
 .post-dato { min-width: 0; padding: 8px 12px; background: rgba(0, 0, 0, 0.35); border: 1px solid var(--border); border-radius: 8px; }
 .post-dato span { display: block; margin-bottom: 2px; color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
 .post-dato strong { color: #fff; overflow-wrap: anywhere; }
@@ -3478,7 +3490,7 @@ html .terms-check.invalid input { border-color: var(--red-light); }
     .post-wrapper { margin-top: 8vh; }
     .post-wrapper > .box { padding: 20px 16px; }
     .post-titulo { font-size: 1.6rem; }
-    .post-fila3, .post-filtros, .post-ajustes, .post-roles, .post-fechas { grid-template-columns: 1fr; }
+    .post-filtros, .post-ajustes, .post-roles, .post-dos { grid-template-columns: 1fr; }
     .post-panel-pie .btn-estandar { width: 100%; }
     .post-ficha { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

@@ -63,7 +63,7 @@
                 <section class="post-ajuste ancho">
                     <h4><i class="fa-solid fa-clock" aria-hidden="true"></i> Fechas</h4>
                     <p class="post-ajuste-ayuda">Se reciben postulaciones solo entre estas dos fechas.</p>
-                    <div class="post-fechas">
+                    <div class="post-dos">
                         <div class="form-group">
                             <label for="pInicio">Inicio</label>
                             <input type="datetime-local" id="pInicio">
@@ -185,6 +185,7 @@
         const sesion = `numericId=${encodeURIComponent(loggedId)}&token=${encodeURIComponent(token)}`;
         const ROL_AUTOR = { admin_lider: 'Admin Líder', owner: 'Owner', postulante: 'Postulante' };
         const ESTADO = { pendiente: 'Pendiente', aceptada: 'Aceptada', rechazada: 'Rechazada' };
+        const ESTADO_ICONO = { pendiente: 'fa-clock', aceptada: 'fa-circle-check', rechazada: 'fa-circle-xmark' };
         const NIVEL = { usuario: 0, admin: 1, admin_lider: 2, owner: 3 };
         const fecha = f => f ? new Date(f).toLocaleString('es-CL', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
         // datetime-local trabaja en hora local sin zona; el servidor guarda ISO
@@ -289,84 +290,34 @@
         document.getElementById('fEstado').addEventListener('change', cargarLista);
         document.getElementById('fTipo').addEventListener('change', cargarLista);
 
-        // Lista desplegable con el diseño de la web (styles.css, 8.2; mismo armado que admin.html), también con teclado.
-        // El <select> sigue siendo el dueño del valor y avisa con 'change'
-        function construirSelect(select) {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'custom-select-wrapper';
-            const trigger = document.createElement('div');
-            trigger.className = 'custom-select-trigger';
-            trigger.tabIndex = 0;
-            trigger.setAttribute('role', 'combobox');
-            trigger.setAttribute('aria-haspopup', 'listbox');
-            trigger.setAttribute('aria-expanded', 'false');
-            const etiqueta = document.querySelector(`label[for="${select.id}"]`);
-            if (etiqueta) trigger.setAttribute('aria-label', etiqueta.textContent.trim());
-            trigger.append(document.createElement('span'), icono('fa-chevron-down'));
-            const lista = document.createElement('div');
-            lista.className = 'custom-select-options';
-            lista.setAttribute('role', 'listbox');
-            const abrir = si => {
-                cerrarSelects(wrapper);
-                if (si) {
-                    const r = wrapper.getBoundingClientRect(), abajo = innerHeight - r.bottom;
-                    wrapper.classList.toggle('open-up', abajo < Math.min(lista.scrollHeight, 250) && r.top > abajo);
-                }
-                wrapper.classList.toggle('open', si);
-                trigger.setAttribute('aria-expanded', String(si));
-            };
-            const pintar = () => {
-                trigger.firstChild.textContent = select.options[select.selectedIndex]?.text || '';
-                lista.replaceChildren(...[...select.options].map((o, i) => {
-                    const d = document.createElement('div');
-                    d.className = 'custom-option' + (i === select.selectedIndex ? ' selected' : '');
-                    d.setAttribute('role', 'option');
-                    d.setAttribute('aria-selected', String(i === select.selectedIndex));
-                    d.textContent = o.text;
-                    d.addEventListener('click', () => { elegir(i); abrir(false); trigger.focus(); });
-                    return d;
-                }));
-            };
-            const elegir = i => {
-                if (i < 0 || i >= select.options.length || i === select.selectedIndex) return;
-                select.selectedIndex = i;
-                pintar();
-                select.dispatchEvent(new Event('change'));
-            };
-            trigger.addEventListener('click', e => { e.stopPropagation(); abrir(!wrapper.classList.contains('open')); });
-            trigger.addEventListener('keydown', e => {
-                if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrir(!wrapper.classList.contains('open')); }
-                else if (e.key === 'Escape') abrir(false);
-                else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); elegir(select.selectedIndex + (e.key === 'ArrowDown' ? 1 : -1)); }
-            });
-            pintar();
-            wrapper.append(trigger, lista);
-            select.before(wrapper);   // styles.css esconde el <select> que queda justo después
-        }
-        function cerrarSelects(menos) {
-            document.querySelectorAll('.custom-select-wrapper.open').forEach(w => {
-                if (w === menos) return;
-                w.classList.remove('open', 'open-up');
-                w.firstChild.setAttribute('aria-expanded', 'false');
-            });
-        }
-        document.addEventListener('click', () => cerrarSelects());
-
         // ----- Detalle -----
+        // Hilo: la respuesta del postulante (respondeA = id del comentario) va debajo del comentario que responde. Igual en postular.html
+        function comentario(c) {
+            const li = document.createElement('li');
+            li.className = 'post-comentario ' + c.rolAutor;
+            const cab = document.createElement('div');
+            cab.className = 'post-comentario-cab';
+            const nick = document.createElement('strong');
+            nick.textContent = c.autorNick;
+            cab.append(nick, celda('post-comentario-rol', ROL_AUTOR[c.rolAutor] || ''), celda('', fecha(c.fecha)));
+            const p = document.createElement('p');
+            p.textContent = c.texto;
+            li.append(cab, p);
+            return li;
+        }
         function pintarHilo(ul, comentarios) {
             ul.replaceChildren();
             if (!comentarios.length) return ul.appendChild(filaVacia('Todavía no hay comentarios.'));
+            const respuestas = new Map(comentarios.filter(c => c.respondeA != null).map(c => [c.respondeA, c]));
             for (const c of comentarios) {
-                const li = document.createElement('li');
-                li.className = 'post-comentario ' + c.rolAutor;
-                const cab = document.createElement('div');
-                cab.className = 'post-comentario-cab';
-                const nick = document.createElement('strong');
-                nick.textContent = c.autorNick;
-                cab.append(nick, celda('post-comentario-rol', ROL_AUTOR[c.rolAutor] || ''), celda('', fecha(c.fecha)));
-                const p = document.createElement('p');
-                p.textContent = c.texto;
-                li.append(cab, p);
+                if (c.respondeA != null && comentarios[c.respondeA]) continue;
+                const li = comentario(c);
+                if (respuestas.has(c.id)) {
+                    const sub = document.createElement('ul');
+                    sub.className = 'post-respuestas';
+                    sub.appendChild(comentario(respuestas.get(c.id)));
+                    li.appendChild(sub);
+                }
                 ul.appendChild(li);
             }
         }
@@ -395,7 +346,7 @@
             document.getElementById('dNick').textContent = p.nick;
             const estado = document.getElementById('dEstado');
             estado.className = 'post-estado ' + p.estado;
-            estado.textContent = ESTADO[p.estado] || p.estado;
+            estado.replaceChildren(icono(ESTADO_ICONO[p.estado] || 'fa-clock'), ESTADO[p.estado] || p.estado);
             document.getElementById('dId').textContent = '#' + p.numericId;
             document.getElementById('dDiscord').textContent = p.discordUser || p.discordId || '—';
             document.getElementById('dTipo').textContent = p.tipoNombre;
@@ -410,7 +361,7 @@
                 ? `${ESTADO[p.estado]} por ${p.resueltoPor ? p.resueltoPor.nick : '—'} el ${fecha(p.fechaResolucion)}.` + (p.mensaje ? `\nMensaje: ${p.mensaje}` : '')
                 : '';
             const propia = p.numericId === parseInt(loggedId);
-            document.getElementById('dResolver').hidden = resuelta || !esLider() || propia;
+            document.getElementById('dResolver').hidden = resuelta || rol !== 'owner' || propia;   // aceptar o rechazar: solo el Owner
             document.getElementById('dMensaje').value = '';
             document.getElementById('dMensaje').dispatchEvent(new Event('input'));
             pintarHilo(document.getElementById('dHilo'), p.comentarios || []);
@@ -499,7 +450,7 @@
                     l.append(i, ' ' + nombre);
                     caja.appendChild(l);
                 }
-                document.querySelectorAll('.post-filtros select').forEach(construirSelect);
+                document.querySelectorAll('.post-filtros select').forEach(ThUI.select);
                 if (esLider()) { pintarPeriodo(e); mostrar('secPeriodo', 'secLista'); }
                 else mostrar('secLista');
                 await cargarLista();

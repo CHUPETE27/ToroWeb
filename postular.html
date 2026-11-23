@@ -47,79 +47,96 @@
             <p id="textoCerrado">En este momento no hay un periodo de postulaciones activo. Atento a los anuncios en Discord.</p>
         </div>
 
-        <div class="box" id="secFormulario" hidden>
-            <h3>Formulario de postulación</h3>
-            <p class="post-nota" id="notaPeriodo"></p>
-            <p class="post-nota" id="avisoDiscord" hidden>Para postular necesitas tener tu Discord vinculado a tu cuenta de ToroHax (usa <strong>!registro</strong> en una sala).</p>
+        <div class="box post-panel" id="secFormulario" hidden>
+            <div class="post-panel-cab">
+                <h3><i class="fa-solid fa-file-signature" aria-hidden="true"></i> Formulario de postulación</h3>
+                <span class="post-estado post-periodo-estado aceptada" id="periodoEstado"></span>
+            </div>
+            <p class="post-nota" id="avisoDiscord" hidden><i class="fa-brands fa-discord" aria-hidden="true"></i> Para postular necesitas tener tu Discord vinculado a tu cuenta de ToroHax (usa <strong>!registro</strong> en una sala).</p>
             <form id="formPostular" novalidate>
-                <div class="form-group">
-                    <label for="tipo">Rol al que postulas</label>
-                    <select id="tipo" required></select>
+                <div class="post-ajustes">
+                    <section class="post-ajuste ancho">
+                        <h4><i class="fa-solid fa-id-card" aria-hidden="true"></i> Tus datos</h4>
+                        <p class="post-ajuste-ayuda">Salen de tu cuenta de ToroHax y van junto a tu postulación.</p>
+                        <div class="post-ficha" style="--cols: 3;">
+                            <div class="post-dato"><span>Nick</span><strong id="fNick"></strong></div>
+                            <div class="post-dato"><span>ID</span><strong id="fId"></strong></div>
+                            <div class="post-dato"><span><i class="fa-brands fa-discord" aria-hidden="true"></i> Discord</span><strong id="fDiscord"></strong></div>
+                        </div>
+                    </section>
+                    <section class="post-ajuste form-group">
+                        <h4><i class="fa-solid fa-user-tag" aria-hidden="true"></i> Rol</h4>
+                        <label class="post-ajuste-ayuda" for="tipo">El rol al que postulas.</label>
+                        <select id="tipo" required></select>
+                    </section>
+                    <section class="post-ajuste form-group">
+                        <h4><i class="fa-solid fa-cake-candles" aria-hidden="true"></i> Edad</h4>
+                        <label class="post-ajuste-ayuda" for="edad">Tu edad, entre 13 y 99 años.</label>
+                        <input type="number" id="edad" min="13" max="99" step="1" inputmode="numeric" required>
+                    </section>
+                    <section class="post-ajuste ancho form-group">
+                        <h4><i class="fa-solid fa-bullseye" aria-hidden="true"></i> Motivo</h4>
+                        <label class="post-ajuste-ayuda" for="motivo">¿Por qué quieres este rol?</label>
+                        <textarea id="motivo" maxlength="1500" rows="5" required></textarea>
+                        <div class="post-contador" data-de="motivo" aria-live="polite"></div>
+                    </section>
+                    <section class="post-ajuste ancho form-group">
+                        <h4><i class="fa-solid fa-briefcase" aria-hidden="true"></i> Experiencia</h4>
+                        <label class="post-ajuste-ayuda" for="experiencia">En ToroHax, otras comunidades, moderación, etc.</label>
+                        <textarea id="experiencia" maxlength="1500" rows="5" required></textarea>
+                        <div class="post-contador" data-de="experiencia" aria-live="polite"></div>
+                    </section>
                 </div>
-                <div class="post-fila3">
-                    <div class="form-group">
-                        <label for="fNick">Nick</label>
-                        <input type="text" id="fNick" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="fId">ID</label>
-                        <input type="text" id="fId" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label for="fDiscord">Discord</label>
-                        <input type="text" id="fDiscord" readonly>
-                    </div>
+                <div class="post-panel-pie">
+                    <button type="submit" class="btn-estandar btn-abrir" id="btnEnviar"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Enviar postulación</button>
                 </div>
-                <div class="form-group">
-                    <label for="edad">Edad</label>
-                    <input type="number" id="edad" min="13" max="99" step="1" inputmode="numeric" required>
-                </div>
-                <div class="form-group">
-                    <label for="motivo">¿Por qué quieres este rol?</label>
-                    <textarea id="motivo" maxlength="1500" rows="5" required></textarea>
-                    <div class="post-contador" data-de="motivo" aria-live="polite"></div>
-                </div>
-                <div class="form-group">
-                    <label for="experiencia">Tu experiencia (en ToroHax, otras comunidades, moderación, etc.)</label>
-                    <textarea id="experiencia" maxlength="1500" rows="5" required></textarea>
-                    <div class="post-contador" data-de="experiencia" aria-live="polite"></div>
-                </div>
-                <button type="submit" class="btn-estandar btn-abrir" id="btnEnviar" style="margin: 0 auto;"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i> Enviar postulación</button>
             </form>
         </div>
 
-        <div class="box" id="secMia" hidden>
-            <h3>Mi postulación</h3>
-            <div class="post-datos">
+        <div class="box post-panel" id="secMia" hidden>
+            <div class="post-panel-cab">
+                <h3><i class="fa-solid fa-clipboard-check" aria-hidden="true"></i> Mi postulación</h3>
                 <span class="post-estado" id="miEstado"></span>
-                <span>Rol: <strong id="miTipo"></strong></span>
-                <span>Enviada: <strong id="miFecha"></strong></span>
             </div>
-            <div class="post-bloque" id="miMensajeBloque" hidden>
-                <h4>Mensaje del staff</h4>
+            <div class="post-ficha" style="--cols: 2;">
+                <div class="post-dato"><span><i class="fa-solid fa-user-tag" aria-hidden="true"></i> Rol</span><strong id="miTipo"></strong></div>
+                <div class="post-dato"><span><i class="fa-regular fa-calendar" aria-hidden="true"></i> Enviada</span><strong id="miFecha"></strong></div>
+            </div>
+
+            <section class="post-seccion" id="miMensajeBloque" hidden>
+                <h4><i class="fa-solid fa-envelope-open-text" aria-hidden="true"></i> Mensaje del staff</h4>
                 <p class="post-texto" id="miMensaje"></p>
-            </div>
-            <div class="post-bloque">
-                <h4>Motivo</h4>
-                <p class="post-texto" id="miMotivo"></p>
-            </div>
-            <div class="post-bloque">
-                <h4>Experiencia</h4>
-                <p class="post-texto" id="miExperiencia"></p>
-            </div>
-            <hr class="post-separador">
-            <div class="post-bloque">
-                <h4>Comentarios</h4>
+            </section>
+
+            <section class="post-seccion">
+                <h4><i class="fa-solid fa-file-lines" aria-hidden="true"></i> Postulación</h4>
+                <div class="post-bloque">
+                    <h5>Motivo</h5>
+                    <p class="post-texto" id="miMotivo"></p>
+                </div>
+                <div class="post-bloque">
+                    <h5>Experiencia</h5>
+                    <p class="post-texto" id="miExperiencia"></p>
+                </div>
+            </section>
+
+            <section class="post-seccion">
+                <h4><i class="fa-solid fa-comments" aria-hidden="true"></i> Comentarios</h4>
+                <p class="post-ajuste-ayuda" id="miAyudaHilo"></p>
                 <ul class="post-hilo" id="miHilo"></ul>
+                <!-- Una sola caja de respuesta: se mueve debajo del comentario que se responde -->
                 <form id="formComentario" hidden>
                     <div class="form-group">
-                        <label for="comentario">Responder al staff</label>
+                        <label for="comentario" id="etiquetaComentario">Tu respuesta</label>
                         <textarea id="comentario" maxlength="500" rows="3" required></textarea>
                         <div class="post-contador" data-de="comentario" aria-live="polite"></div>
                     </div>
-                    <button type="submit" class="btn-estandar btn-primary" id="btnComentar"><i class="fa-solid fa-reply" aria-hidden="true"></i> Responder</button>
+                    <div class="post-acciones">
+                        <button type="submit" class="btn-estandar btn-primary" id="btnComentar"><i class="fa-solid fa-reply" aria-hidden="true"></i> Responder</button>
+                        <button type="button" class="btn-estandar btn-secundario" id="btnCancelarRespuesta"><i class="fa-solid fa-xmark" aria-hidden="true"></i> Cancelar</button>
+                    </div>
                 </form>
-            </div>
+            </section>
         </div>
     </main>
 
@@ -131,9 +148,14 @@
         const loggedId = localStorage.getItem('toroHaxLoggedId');
         const token = localStorage.getItem('toroHaxToken');
         const ROL_AUTOR = { admin_lider: 'Admin Líder', owner: 'Owner', postulante: 'Postulante' };
+        const ROLES_RESPONDIBLES = ['admin_lider', 'owner'];   // el postulante solo responde a ellos, una vez por comentario (bot.js)
         const ESTADO = { pendiente: 'Pendiente', aceptada: 'Aceptada', rechazada: 'Rechazada' };
+        const ESTADO_ICONO = { pendiente: 'fa-clock', aceptada: 'fa-circle-check', rechazada: 'fa-circle-xmark' };
         const fecha = f => f ? new Date(f).toLocaleString('es-CL', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
-        let miPostulacion = null;
+        const avisar = (tone, texto) => ThUI.alert(texto, { tone });
+        const icono = clase => { const i = document.createElement('i'); i.className = 'fa-solid ' + clase; i.setAttribute('aria-hidden', 'true'); return i; };
+        const formComentario = document.getElementById('formComentario');   // se mueve dentro del hilo: guardarlo antes
+        let miPostulacion = null, botonActivo = null;
 
         function mostrar(...ids) {
             for (const s of ['secCargando', 'secSinSesion', 'secCerrado', 'secFormulario', 'secMia'])
@@ -148,47 +170,92 @@
             pintar();
         });
 
-        function pintarHilo(ul, comentarios) {
+        // Hilo: la respuesta del postulante (respondeA = id del comentario) va debajo del comentario que responde. Igual en postulaciones.html
+        function comentario(c) {
+            const li = document.createElement('li');
+            li.className = 'post-comentario ' + c.rolAutor;
+            const cab = document.createElement('div');
+            cab.className = 'post-comentario-cab';
+            const nick = document.createElement('strong');
+            nick.textContent = c.autorNick;
+            const rol = document.createElement('span');
+            rol.className = 'post-comentario-rol';
+            rol.textContent = ROL_AUTOR[c.rolAutor] || '';
+            const cuando = document.createElement('span');
+            cuando.textContent = fecha(c.fecha);
+            cab.append(nick, rol, cuando);
+            const p = document.createElement('p');
+            p.textContent = c.texto;
+            li.append(cab, p);
+            return li;
+        }
+
+        function pintarHilo(comentarios, pendiente) {
+            const ul = document.getElementById('miHilo');
+            cerrarRespuesta();
             ul.replaceChildren();
+            const respuestas = new Map(comentarios.filter(c => c.respondeA != null).map(c => [c.respondeA, c]));
+            let porResponder = 0;
+            for (const c of comentarios) {
+                if (c.respondeA != null && comentarios[c.respondeA]) continue;
+                const li = comentario(c);
+                if (respuestas.has(c.id)) {
+                    const sub = document.createElement('ul');
+                    sub.className = 'post-respuestas';
+                    sub.appendChild(comentario(respuestas.get(c.id)));
+                    li.appendChild(sub);
+                } else if (pendiente && ROLES_RESPONDIBLES.includes(c.rolAutor)) {
+                    porResponder++;
+                    const b = document.createElement('button');
+                    b.type = 'button';
+                    b.className = 'post-responder';
+                    b.append(icono('fa-reply'), 'Responder');
+                    b.addEventListener('click', () => abrirRespuesta(c, li, b));
+                    li.appendChild(b);
+                }
+                ul.appendChild(li);
+            }
             if (!comentarios.length) {
                 const li = document.createElement('li');
                 li.className = 'vacio';
                 li.textContent = 'Todavía no hay comentarios.';
-                return ul.appendChild(li);
-            }
-            for (const c of comentarios) {
-                const li = document.createElement('li');
-                li.className = 'post-comentario ' + c.rolAutor;
-                const cab = document.createElement('div');
-                cab.className = 'post-comentario-cab';
-                const nick = document.createElement('strong');
-                nick.textContent = c.autorNick;
-                const rol = document.createElement('span');
-                rol.className = 'post-comentario-rol';
-                rol.textContent = ROL_AUTOR[c.rolAutor] || '';
-                const cuando = document.createElement('span');
-                cuando.textContent = fecha(c.fecha);
-                cab.append(nick, rol, cuando);
-                const p = document.createElement('p');
-                p.textContent = c.texto;
-                li.append(cab, p);
                 ul.appendChild(li);
             }
+            document.getElementById('miAyudaHilo').textContent = !pendiente ? 'Tu postulación ya fue resuelta: no se pueden agregar respuestas.'
+                : porResponder ? 'Puedes responder una vez cada comentario del Admin Líder o del Owner.'
+                : comentarios.some(c => ROLES_RESPONDIBLES.includes(c.rolAutor)) ? 'Ya respondiste todos los comentarios. Si el Admin Líder o el Owner te dejan otro, podrás responderlo aquí.'
+                : 'Cuando el Admin Líder o el Owner te dejen un comentario, podrás responderlo aquí.';
         }
+
+        function abrirRespuesta(c, li, boton) {
+            cerrarRespuesta();
+            botonActivo = boton;
+            boton.hidden = true;
+            formComentario.dataset.respondeA = c.id;
+            document.getElementById('etiquetaComentario').textContent = 'Tu respuesta a ' + c.autorNick;
+            li.appendChild(formComentario);
+            formComentario.hidden = false;
+            document.getElementById('comentario').focus();
+        }
+        function cerrarRespuesta() {
+            if (botonActivo) botonActivo.hidden = false;
+            botonActivo = null;
+            formComentario.hidden = true;
+        }
+        document.getElementById('btnCancelarRespuesta').addEventListener('click', cerrarRespuesta);
 
         function pintarMia(p) {
             miPostulacion = p;
             const estado = document.getElementById('miEstado');
             estado.className = 'post-estado ' + p.estado;
-            estado.textContent = ESTADO[p.estado] || p.estado;
+            estado.replaceChildren(icono(ESTADO_ICONO[p.estado] || 'fa-clock'), ESTADO[p.estado] || p.estado);
             document.getElementById('miTipo').textContent = p.tipoNombre;
             document.getElementById('miFecha').textContent = fecha(p.fechaCreacion);
             document.getElementById('miMotivo').textContent = p.motivo;
             document.getElementById('miExperiencia').textContent = p.experiencia;
             document.getElementById('miMensajeBloque').hidden = !p.mensaje;
             document.getElementById('miMensaje').textContent = p.mensaje || '';
-            pintarHilo(document.getElementById('miHilo'), p.comentarios || []);
-            document.getElementById('formComentario').hidden = p.estado !== 'pendiente';
+            pintarHilo(p.comentarios || [], p.estado === 'pendiente');
         }
 
         function pintarFormulario(e) {
@@ -200,12 +267,13 @@
                 o.textContent = e.tipos[t] || t;
                 select.appendChild(o);
             }
-            document.getElementById('fNick').value = e.yo.nick || '';
-            document.getElementById('fId').value = '#' + e.yo.numericId;
-            document.getElementById('fDiscord').value = e.yo.discordId ? (e.yo.discordUser || 'Vinculado') : 'Sin vincular';
+            ThUI.select(select);
+            document.getElementById('fNick').textContent = e.yo.nick || '—';
+            document.getElementById('fId').textContent = '#' + e.yo.numericId;
+            document.getElementById('fDiscord').textContent = e.yo.discordId ? (e.yo.discordUser || 'Vinculado') : 'Sin vincular';
             document.getElementById('avisoDiscord').hidden = !!e.yo.discordId;
             document.getElementById('btnEnviar').disabled = !e.yo.discordId;
-            document.getElementById('notaPeriodo').textContent = `Postulaciones abiertas hasta el ${fecha(e.fechaFin)}. Solo puedes enviar una postulación por periodo, así que revísala bien antes de enviarla.`;
+            document.getElementById('periodoEstado').replaceChildren(icono('fa-clock'), `Abiertas hasta el ${fecha(e.fechaFin)}`);
         }
 
         async function cargar() {
@@ -236,8 +304,8 @@
             const edad = Number(document.getElementById('edad').value);
             const motivo = document.getElementById('motivo').value.trim();
             const experiencia = document.getElementById('experiencia').value.trim();
-            if (!Number.isInteger(edad) || edad < 13 || edad > 99) return ThUI.alert('⚠️ Escribe tu edad: un número entre 13 y 99.');
-            if (!motivo || !experiencia) return ThUI.alert('⚠️ Completa el motivo y tu experiencia.');
+            if (!Number.isInteger(edad) || edad < 13 || edad > 99) return avisar('warn', 'Escribe tu edad: un número entre 13 y 99.');
+            if (!motivo || !experiencia) return avisar('warn', 'Completa el motivo y tu experiencia.');
             const tipo = document.getElementById('tipo').value;
             const nombreTipo = document.getElementById('tipo').selectedOptions[0]?.textContent || tipo;
             if (!await ThUI.confirm(`¿Enviar tu postulación a ${nombreTipo}? Solo puedes enviar una por periodo.`, { title: 'Enviar postulación', okText: 'Enviar' })) return;
@@ -250,17 +318,17 @@
                     body: JSON.stringify({ numericId: loggedId, token, tipo, edad, motivo, experiencia })
                 });
                 const d = await r.json();
-                if (!d.success) { btn.disabled = false; return ThUI.alert('❌ ' + (d.message || 'No se pudo enviar.')); }
-                await ThUI.alert('✅ ¡Postulación enviada! El staff la revisará y te avisaremos aquí con el resultado.');
+                if (!d.success) { btn.disabled = false; return avisar('error', d.message || 'No se pudo enviar.'); }
+                await avisar('success', '¡Postulación enviada! El staff la revisará y te avisaremos aquí con el resultado.');
                 pintarMia(d.postulacion);
                 mostrar('secMia');
             } catch (err) {
                 btn.disabled = false;
-                ThUI.alert('❌ No se pudo conectar con el servidor.');
+                avisar('error', 'No se pudo conectar con el servidor.');
             }
         });
 
-        document.getElementById('formComentario').addEventListener('submit', async ev => {
+        formComentario.addEventListener('submit', async ev => {
             ev.preventDefault();
             const campo = document.getElementById('comentario');
             const texto = campo.value.trim();
@@ -270,17 +338,18 @@
             try {
                 const r = await fetch(`${API}/${encodeURIComponent(miPostulacion.id)}/comentarios`, {
                     method: 'POST', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ numericId: loggedId, token, texto })
+                    body: JSON.stringify({ numericId: loggedId, token, texto, respondeA: Number(formComentario.dataset.respondeA) })
                 });
                 const d = await r.json();
-                if (!d.success) ThUI.alert('❌ ' + (d.message || 'No se pudo enviar el comentario.'));
+                if (!d.success) avisar('error', d.message || 'No se pudo enviar la respuesta.');
                 else {
                     campo.value = '';
                     campo.dispatchEvent(new Event('input'));
-                    pintarHilo(document.getElementById('miHilo'), d.comentarios);
+                    miPostulacion.comentarios = d.comentarios;
+                    pintarHilo(d.comentarios, miPostulacion.estado === 'pendiente');
                 }
             } catch (err) {
-                ThUI.alert('❌ No se pudo conectar con el servidor.');
+                avisar('error', 'No se pudo conectar con el servidor.');
             }
             btn.disabled = false;
         });

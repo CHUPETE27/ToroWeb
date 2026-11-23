@@ -8,6 +8,7 @@
      ThUI.alert('Texto', { title: 'Título', tone: 'error' });
      ThUI.confirm('¿Banear a este jugador?', { danger: true, okText: 'Banear' });
      await ThUI.open({ tone: 'info', title: 'Resumen', html: ThUI.rows([['Producto', 'VIP'], ['Total', '$690', 'total']]) });
+     ThUI.select(document.getElementById('miSelect'));   // lista desplegable con el diseño de la web
 
    - El texto se muestra como texto plano. Para usar HTML pasa { html: '...' } y escapa lo que venga de usuarios con ThUI.esc().
    - Un emoji al inicio del mensaje (✅ ❌ ⚠️ ⏳ ℹ️ 🚫) define el color y el ícono, y se quita del texto.
@@ -168,7 +169,75 @@
         return open(o);
     }
 
-    window.ThUI = { open, alert: alertDialog, confirm: confirmDialog, rows, esc };
+    // Lista desplegable con el diseño de la web (styles.css, 8.2), también con teclado: ThUI.select(elSelect).
+    // El <select> sigue siendo el dueño del valor y avisa con 'change'. Llamarla otra vez tras cambiar sus opciones las repinta.
+    // Su caja no debe tener overflow: hidden, o la lista sale cortada.
+    function cerrarSelects(menos) {
+        document.querySelectorAll('.custom-select-wrapper.open[data-th-select]').forEach(w => {   // solo las de ThUI: otras páginas cierran las suyas
+            if (w === menos) return;
+            w.classList.remove('open', 'open-up');
+            w.firstChild.setAttribute('aria-expanded', 'false');
+        });
+    }
+    document.addEventListener('click', () => cerrarSelects());
+
+    function select(sel) {
+        if (sel._thPintar) return sel._thPintar();
+        const wrapper = document.createElement('div');
+        wrapper.className = 'custom-select-wrapper';
+        wrapper.dataset.thSelect = '';
+        const trigger = document.createElement('div');
+        trigger.className = 'custom-select-trigger';
+        trigger.tabIndex = 0;
+        trigger.setAttribute('role', 'combobox');
+        trigger.setAttribute('aria-haspopup', 'listbox');
+        trigger.setAttribute('aria-expanded', 'false');
+        const etiqueta = sel.id && document.querySelector('label[for="' + sel.id + '"]');
+        if (etiqueta) trigger.setAttribute('aria-label', etiqueta.textContent.trim());
+        trigger.innerHTML = '<span></span><i class="fa-solid fa-chevron-down" aria-hidden="true"></i>';
+        const lista = document.createElement('div');
+        lista.className = 'custom-select-options';
+        lista.setAttribute('role', 'listbox');
+        const abrir = si => {
+            cerrarSelects(wrapper);
+            if (si) {   // hacia arriba solo si abajo no cabe y arriba hay más espacio
+                const r = wrapper.getBoundingClientRect(), abajo = innerHeight - r.bottom;
+                wrapper.classList.toggle('open-up', abajo < Math.min(lista.scrollHeight, 250) && r.top > abajo);
+            }
+            wrapper.classList.toggle('open', si);
+            trigger.setAttribute('aria-expanded', String(si));
+        };
+        const pintar = () => {
+            trigger.firstChild.textContent = sel.options[sel.selectedIndex] ? sel.options[sel.selectedIndex].text : '';
+            lista.replaceChildren(...[...sel.options].map((o, i) => {
+                const d = document.createElement('div');
+                d.className = 'custom-option' + (i === sel.selectedIndex ? ' selected' : '');
+                d.setAttribute('role', 'option');
+                d.setAttribute('aria-selected', String(i === sel.selectedIndex));
+                d.textContent = o.text;
+                d.addEventListener('click', () => { elegir(i); abrir(false); trigger.focus(); });
+                return d;
+            }));
+        };
+        const elegir = i => {
+            if (i < 0 || i >= sel.options.length || i === sel.selectedIndex) return;
+            sel.selectedIndex = i;
+            pintar();
+            sel.dispatchEvent(new Event('change'));
+        };
+        trigger.addEventListener('click', e => { e.stopPropagation(); abrir(!wrapper.classList.contains('open')); });
+        trigger.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); abrir(!wrapper.classList.contains('open')); }
+            else if (e.key === 'Escape') abrir(false);
+            else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); elegir(sel.selectedIndex + (e.key === 'ArrowDown' ? 1 : -1)); }
+        });
+        sel._thPintar = pintar;
+        pintar();
+        wrapper.append(trigger, lista);
+        sel.before(wrapper);   // styles.css esconde el <select> que queda justo después
+    }
+
+    window.ThUI = { open, alert: alertDialog, confirm: confirmDialog, rows, esc, select };
 
     // Los campos numéricos no deben cambiar de valor al girar la rueda del mouse por encima
     document.addEventListener('wheel', () => {
