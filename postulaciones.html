@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- Sin marcos: otra página no puede mostrar el panel bajo botones falsos (clickjacking). GitHub Pages no deja mandar X-Frame-Options -->
+    <style id="sinMarco">html { display: none; }</style>
+    <script>if (self === top) document.getElementById('sinMarco').remove(); else top.location = self.location;</script>
     <!-- Google Tag Manager -->
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -171,6 +174,12 @@
                     </div>
                     <button type="submit" class="btn-estandar btn-primary" id="btnComentar"><i class="fa-solid fa-comment" aria-hidden="true"></i> Comentar</button>
                 </form>
+            </section>
+
+            <section class="post-seccion" id="dBorrar" hidden>
+                <h4><i class="fa-solid fa-trash-can" aria-hidden="true"></i> Borrar postulación</h4>
+                <p class="post-ajuste-ayuda">Se borra con sus votos y comentarios, y no se puede deshacer. Si las postulaciones siguen abiertas, el jugador podrá volver a postular.</p>
+                <button type="button" class="btn-estandar btn-danger" id="btnBorrar"><i class="fa-solid fa-trash-can" aria-hidden="true"></i> Borrar postulación</button>
             </section>
         </div>
     </div>
@@ -366,6 +375,7 @@
             document.getElementById('dMensaje').dispatchEvent(new Event('input'));
             pintarHilo(document.getElementById('dHilo'), p.comentarios || []);
             document.getElementById('formComentario').hidden = !esLider() || propia;
+            document.getElementById('dBorrar').hidden = rol !== 'owner';   // borrar: solo el Owner (bot.js lo vuelve a revisar)
         }
 
         async function abrirDetalle(id) {
@@ -412,6 +422,19 @@
         }
         document.getElementById('btnAceptar').addEventListener('click', () => resolver('aceptada'));
         document.getElementById('btnRechazar').addEventListener('click', () => resolver('rechazada'));
+
+        document.getElementById('btnBorrar').addEventListener('click', async () => {
+            if (!detalle) return;
+            if (!await ThUI.confirm(`¿Borrar la postulación de ${detalle.nick}? Se borra con sus votos y comentarios, y no se puede deshacer.`, { title: 'Borrar postulación', okText: 'Borrar', danger: true })) return;
+            const btn = document.getElementById('btnBorrar');
+            btn.disabled = true;
+            try {
+                const d = await api('/' + encodeURIComponent(detalle.id), 'DELETE');
+                if (!d.success) avisar('error', (d.message || 'No se pudo borrar la postulación.'));
+                else { cerrarDetalle(); cargarLista(); avisar('success', 'Postulación borrada.'); }
+            } catch (e) { avisar('error', 'No se pudo conectar con el servidor.'); }
+            btn.disabled = false;
+        });
 
         document.getElementById('formComentario').addEventListener('submit', async ev => {
             ev.preventDefault();

@@ -433,10 +433,11 @@
         let currentMode = 'futsal';
         let predioInterval = null;
 
+        // Como texto, nunca como HTML (los mensajes del servidor pueden traer nombres)
         const showCustomAlert = (title, msg, isSuccess = false) =>
-            ThUI.open({ tone: isSuccess ? 'success' : 'error', title, html: '<p>' + msg + '</p>', okText: 'Aceptar', cancelText: null });
+            ThUI.open({ tone: isSuccess ? 'success' : 'error', title, text: msg, okText: 'Aceptar', cancelText: null });
         const showCustomConfirm = (title, msg) =>
-            ThUI.confirm('', { title, html: '<p>' + msg + '</p>', tone: 'info', okText: 'Sí, continuar', cancelText: 'Cancelar' });
+            ThUI.confirm(msg, { title, tone: 'info', okText: 'Sí, continuar', cancelText: 'Cancelar' });
 
         function copiarDato(id, tipo, btn) {
             const el = document.getElementById(id);

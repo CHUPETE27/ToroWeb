@@ -263,10 +263,11 @@
         let currentBot = 'juegantodos';
         let statusInterval = null;
 
+        // Como texto, nunca como HTML: llevan nicks de jugadores, y uno con HTML correría código con la sesión del Owner
         const showCustomAlert = (title, msg, isSuccess = false) =>
-            ThUI.open({ tone: isSuccess ? 'success' : 'error', title, html: '<p>' + msg + '</p>', okText: 'Aceptar', cancelText: null });
+            ThUI.open({ tone: isSuccess ? 'success' : 'error', title, text: msg, okText: 'Aceptar', cancelText: null });
         const showCustomConfirm = (title, msg, isDestructive = true) =>
-            ThUI.confirm('', { title, html: '<p>' + msg + '</p>', tone: isDestructive ? 'warn' : 'info', danger: isDestructive, okText: 'Confirmar', cancelText: 'Cancelar' });
+            ThUI.confirm(msg, { title, tone: isDestructive ? 'warn' : 'info', danger: isDestructive, okText: 'Confirmar', cancelText: 'Cancelar' });
 
         if (loggedId !== '1' || !token) {
             window.location.href = 'index.html';
