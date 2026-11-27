@@ -3278,8 +3278,10 @@ html .terms-check.invalid input { border-color: var(--red-light); }
 .post-comentario form { margin-top: 12px; }
 .post-comentario form .form-group { margin-bottom: 10px; }
 
-.post-acciones { display: flex; flex-wrap: wrap; gap: 10px; }
-.post-acciones .btn-estandar { flex: 1 1 180px; width: auto; margin: 0; }
+.post-acciones { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.post-acciones .btn-estandar { flex: 0 1 260px; margin: 0; }
+/* Botones sueltos de los paneles: 260 px y centrados, como en el resto de la web */
+.post-panel .btn-estandar, .post-seccion > .btn-estandar, .post-seccion form > .btn-estandar { margin-left: auto; margin-right: auto; }
 
 /* --- Lista de postulaciones (postulaciones.html) --- */
 .post-filtros { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 15px; }
@@ -3317,9 +3319,9 @@ html .terms-check.invalid input { border-color: var(--red-light); }
 .post-lista .vacio { padding: 20px; text-align: center; color: var(--text-muted); }
 
 /* Votos del detalle */
-.post-votar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+.post-votar { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 10px; }
 .post-votar button {
-    flex: 1 1 140px;
+    flex: 0 1 200px;
     padding: 10px;
     border-radius: 8px;
     border: 2px solid #555;
@@ -3363,8 +3365,8 @@ html .terms-check.invalid input { border-color: var(--red-light); }
 .post-roles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .post-dos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .post-dos .form-group { margin: 0; }
-.post-panel-pie { display: flex; justify-content: flex-end; margin-top: 18px; }
-.post-panel-pie .btn-estandar { width: auto; margin: 0; }
+.post-panel-pie { display: flex; justify-content: center; margin-top: 18px; }
+.post-panel-pie .btn-estandar { margin: 0; }
 .post-filtros label i { color: var(--gold); margin-right: 4px; }
 
 /* Ficha del detalle */
