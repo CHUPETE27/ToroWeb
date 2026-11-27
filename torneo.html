@@ -273,30 +273,35 @@
         /* Salas ToroCup */
         #modalSalas .modal-content { max-width: 560px; }
         #modalDivisiones .modal-content { max-width: 640px; }
-        .sala-card { display: none; flex-direction: column; gap: 10px; min-width: 0; }
+        /* Misma línea que "Gestión del Estadio" de seleccion.html (status-light, copy-btn y btn-token-link en styles.css) */
+        .sala-card { display: none; flex-direction: column; align-items: center; gap: 14px; min-width: 0; text-align: center; }
         .sala-card.active { display: flex; }
         .sala-punto { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #555; margin-left: 6px; vertical-align: middle; }
         .sala-punto.on { background: var(--mint); }
         .sala-punto.wait { background: var(--gold); }
-        .sala-accesos { background: rgba(0,0,0,0.35); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 6px 10px; align-items: center; font-size: 0.9rem; }
+        .sala-estado-box { width: 100%; box-sizing: border-box; padding: 20px; border-radius: 10px; background: rgba(0,0,0,0.5); border: 1px solid #333; }
+        .sala-estado { font-size: 1.6rem; color: #7d7d7d; display: flex; align-items: center; justify-content: center; text-transform: uppercase; }
+        .sala-estado.on { color: var(--mint); }
+        .sala-estado.wait { color: var(--gold); }
+        .sala-estado .status-light { width: 18px; height: 18px; flex-shrink: 0; }
+        .sala-desc { color: #bdc3c7; font-size: 0.95rem; margin: 8px 0 0; }
+        .sala-accesos { margin-top: 18px; background: #111; padding: 16px; border-radius: 8px; border: 1px solid var(--cyan); display: flex; flex-direction: column; gap: 12px; }
         .sala-accesos:empty { display: none; }
-        .sala-accesos > span:nth-child(3n+1) { color: var(--text-soft); }
-        .sala-accesos code, .sala-accesos a { color: var(--cyan); overflow-wrap: anywhere; }
+        .sala-fila { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px; color: #bdc3c7; min-width: 0; }
+        .sala-fila a { color: var(--cyan); font-weight: bold; text-decoration: none; overflow-wrap: anywhere; }
+        .sala-fila code { color: var(--gold); font-family: monospace; font-size: 1.1rem; background: rgba(0,0,0,0.5); padding: 4px 10px; border-radius: 5px; border: 1px solid #444; overflow-wrap: anywhere; }
+        .sala-fila code.admin { color: var(--mint); }
         .sala-titulo { color: var(--gold); font-weight: bold; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        .sala-cab { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-        .sala-estado { font-size: 0.8rem; font-weight: bold; padding: 2px 10px; border-radius: 12px; background: #333; color: var(--text-soft); white-space: nowrap; }
-        .sala-estado.on { background: rgba(var(--mint-rgb, 46, 204, 113), 0.18); color: var(--mint); }
-        .sala-estado.wait { background: rgba(var(--gold-rgb), 0.15); color: var(--gold); }
-        .sala-info { display: flex; flex-direction: column; gap: 4px; font-size: 0.88rem; color: var(--text-soft); overflow-wrap: anywhere; }
+        .sala-info { font-size: 0.9rem; color: var(--text-soft); overflow-wrap: anywhere; }
+        .sala-info:empty { display: none; }
         .sala-info b { color: #fff; }
-        .sala-info code { color: var(--cyan); }
-        .sala-info a, #modalSalas .ayuda a { color: var(--cyan); }
-        .sala-copiar { background: none; border: 0; color: var(--text-soft); cursor: pointer; padding: 0 4px; }
-        .sala-copiar:hover { color: var(--gold); }
-        .sala-tipo { display: flex; gap: 16px; flex-wrap: wrap; }
+        .sala-partido { width: 100%; display: flex; flex-direction: column; gap: 10px; }
+        .sala-tipo { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
         .sala-card select.select-torohax { min-width: 0; width: 100%; }
-        .sala-acciones { display: flex; flex-direction: column; gap: 8px; }
-        .sala-acciones .modal-btn { width: 100%; margin: 0; }
+        .sala-acciones { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 12px; padding-top: 16px; border-top: 1px solid #444; }
+        .sala-acciones input { width: 100%; margin: 0; font-family: monospace; text-align: center; }
+        .sala-acciones .btn-token-link { margin: 0; }
+        .sala-acciones .btn-estandar { width: auto; margin: 0; padding: 12px 26px; font-size: 1rem; }
         .switch-modo { display: inline-flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.5); border: 1px solid var(--border); border-radius: 25px; padding: 6px 14px; color: var(--text-muted); font: inherit; font-weight: bold; cursor: pointer; }
         .switch-modo .lbl-a { color: var(--gold); }
         .switch-modo[aria-checked="true"] .lbl-a { color: var(--text-muted); }
@@ -559,7 +564,7 @@
         <div class="modal-content">
             <div class="close-modal" role="button" aria-label="Cerrar" onclick="cerrarModal('modalSalas')"><i class="fa-solid fa-xmark"></i></div>
             <h3><i class="fa-solid fa-gamepad"></i> Salas ToroCup</h3>
-            <p class="ayuda">Dos salas privadas para los partidos. Elige el partido y enciéndela con un token de <a href="https://www.haxball.com/headlesstoken" target="_blank" rel="noopener noreferrer">haxball.com/headlesstoken</a>. Los jugadores firman en la sala con !firmar y confirman en Discord.</p>
+            <p class="ayuda">Dos salas privadas para los partidos. Elige el partido y enciéndela con un token de HaxBall. Los jugadores firman en la sala con !firmar y confirman en Discord.</p>
             <div class="tabs mp-tabs" id="salasTabs" role="tablist"></div>
             <div id="salasLista"></div>
         </div>
@@ -747,6 +752,9 @@
     </footer>
 
     <script src="torohax-ui.js"></script>
+    <!-- Solo por ToroKitRender.desplegables: todo <select> de la página (también los que se arman con JS) abre la lista con el diseño de ToroHax -->
+    <script src="kit-render.js"></script>
+    <script>ToroKitRender.desplegables(document);</script>
     <script src="header.js"></script>
     <script src="sidebar.js"></script>
     <script src="diseñador_bola.js"></script>
@@ -1483,7 +1491,14 @@
 
         // ---------- Salas ToroCup (script_liga/torocup.js): se encienden y reciben el partido desde aquí ----------
         const SALAS = [['torocup1', 'Sala 1'], ['torocup2', 'Sala 2']];
-        const ESTADO_SALA = { offline: ['Apagada', ''], starting: ['Encendiendo...', 'wait'], online: ['En línea', 'on'], stop_pending: ['Apagando...', 'wait'], error: ['Sin conexión', ''] };
+        // [texto, clase del punto, luz de styles.css, descripción]
+        const ESTADO_SALA = {
+            offline: ['Apagada', '', 'light-off', 'La sala está apagada. Elige el partido y enciéndela.'],
+            starting: ['Encendiendo...', 'wait', 'light-starting', 'Esperando a que la laptop abra la sala...'],
+            online: ['En línea', 'on', 'light-on', 'La sala está abierta. Comparte el enlace con los jugadores.'],
+            stop_pending: ['Apagando...', 'wait', 'light-stopping', 'Cerrando la sala...'],
+            error: ['Sin conexión', '', 'light-off', 'No se pudo consultar el estado de la sala.']
+        };
         const salasEstado = {};
         let salasTimer = null;
 
@@ -1494,16 +1509,21 @@
                 `<button type="button" class="tab" role="tab" data-tab="${bot}" onclick="tabSala('${bot}')">${titulo}<span class="sala-punto" id="pt_${bot}"></span></button>`).join('');
             $('salasLista').innerHTML = SALAS.map(([bot, titulo]) => `
                 <div class="sala-card" id="card_${bot}" role="tabpanel">
-                    <div class="sala-cab"><span class="sala-titulo">Estado</span><span class="sala-estado" id="est_${bot}">...</span></div>
-                    <div class="sala-accesos" id="acs_${bot}"></div>
-                    <div class="sala-info" id="info_${bot}"></div>
-                    <span class="sala-titulo">Partido</span>
-                    <div class="sala-tipo">
-                        <label class="th-option"><input type="radio" name="tipo_${bot}" value="liga" checked> Liga</label>
-                        <label class="th-option"><input type="radio" name="tipo_${bot}" value="eliminatoria"> Eliminatoria</label>
+                    <div class="sala-estado-box">
+                        <h4 class="sala-estado" id="est_${bot}"><span class="status-light light-off"></span> ...</h4>
+                        <p class="sala-desc" id="desc_${bot}">Verificando estado de la sala...</p>
+                        <div class="sala-accesos" id="acs_${bot}"></div>
                     </div>
-                    <select class="select-torohax sl-local" aria-label="Equipo local">${opciones}</select>
-                    <select class="select-torohax sl-visita" aria-label="Equipo visitante">${opciones}</select>
+                    <div class="sala-info" id="info_${bot}"></div>
+                    <div class="sala-partido">
+                        <span class="sala-titulo">Partido</span>
+                        <div class="sala-tipo">
+                            <label class="th-option"><input type="radio" name="tipo_${bot}" value="liga" checked> Liga</label>
+                            <label class="th-option"><input type="radio" name="tipo_${bot}" value="eliminatoria"> Eliminatoria</label>
+                        </div>
+                        <select class="select-torohax sl-local" aria-label="Equipo local">${opciones}</select>
+                        <select class="select-torohax sl-visita" aria-label="Equipo visitante">${opciones}</select>
+                    </div>
                     <div class="sala-acciones modal-form" id="acc_${bot}"></div>
                 </div>`).join('');
             SALAS.forEach(([bot]) => { $('card_' + bot).querySelector('.sl-local').options[0].textContent = 'Local'; $('card_' + bot).querySelector('.sl-visita').options[0].textContent = 'Visita'; });
@@ -1537,16 +1557,17 @@
         function actualizarSala(bot, rellenar) {
             const e = salasEstado[bot] || { estado: 'error' }, card = $('card_' + bot);
             if (!card) return;
-            const [texto, clase] = ESTADO_SALA[e.estado] || ESTADO_SALA.error;
-            $('est_' + bot).textContent = texto;
+            const [texto, clase, luz, desc] = ESTADO_SALA[e.estado] || ESTADO_SALA.error;
+            $('est_' + bot).innerHTML = `<span class="status-light ${luz}"></span> ${texto}` + (clase === 'wait' ? ' <i class="fa-solid fa-spinner fa-spin" style="font-size:0.8em; margin-left:10px;"></i>' : '');
             $('est_' + bot).className = 'sala-estado ' + clase;
+            $('desc_' + bot).textContent = desc;
             $('pt_' + bot).className = 'sala-punto ' + clase;
-            const copiar = v => `<button type="button" class="sala-copiar" data-accion="copiar" data-id="${escapeHtml(v)}" aria-label="Copiar"><i class="fa-solid fa-copy"></i></button>`;
-            const fila = (nombre, valor, html) => `<span>${nombre}</span><span>${html || `<code>${escapeHtml(valor)}</code>`}</span>${copiar(valor)}`;
+            const copiar = v => `<button type="button" class="copy-btn" data-accion="copiar" data-id="${escapeHtml(v)}" aria-label="Copiar"><i class="fa-regular fa-copy"></i></button>`;
+            const fila = (icono, nombre, valor, html) => `<div class="sala-fila">${icono} <strong>${nombre}:</strong> ${html || `<code>${escapeHtml(valor)}</code>`} ${copiar(valor)}</div>`;
             $('acs_' + bot).innerHTML = e.estado !== 'online' ? '' : [
-                e.link && fila('Enlace', e.link, `<a href="${escapeHtml(e.link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(e.link)}</a>`),
-                e.pass && fila('Contraseña', e.pass),
-                e.adminPass && fila('Admin', '!admin ' + e.adminPass)
+                e.link && fila('🌐', 'Link', e.link, `<a href="${escapeHtml(e.link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(e.link)}</a>`),
+                e.pass && fila('🔑', 'Ingreso', e.pass),
+                e.adminPass && fila('👔', 'Admin (!admin)', '!admin ' + e.adminPass, `<code class="admin">${escapeHtml(e.adminPass)}</code>`)
             ].filter(Boolean).join('');
             $('info_' + bot).innerHTML = e.partido ? `<span>En juego: <b>${escapeHtml(e.partido.local)} vs ${escapeHtml(e.partido.visita)}</b> (${e.partido.tipo === 'eliminatoria' ? 'eliminatoria' : 'liga'}) · ${e.partido.firmas} firmas</span>` : '';
             if (rellenar && e.partido) {
@@ -1556,13 +1577,15 @@
             }
             const acc = $('acc_' + bot);
             if (e.estado === 'offline') {
-                acc.innerHTML = `<input type="text" id="tok_${bot}" placeholder="Token de headless (thr1...)" aria-label="Token de headless">` +
-                    `<button type="button" class="modal-btn submit" onclick="encenderSala('${bot}')"><i class="fa-solid fa-power-off"></i> Encender</button>`;
+                acc.innerHTML = `<label class="sala-titulo" for="tok_${bot}">Token de HaxBall</label>` +
+                    `<a href="https://www.haxball.com/headlesstoken" target="_blank" rel="noopener noreferrer" class="btn-token-link"><i class="fa-solid fa-key"></i> Generar Token</a>` +
+                    `<input type="text" id="tok_${bot}" placeholder="Pega el token aquí...">` +
+                    `<button type="button" class="btn-estandar btn-primary" onclick="encenderSala('${bot}')"><i class="fa-solid fa-power-off"></i> Encender Sala</button>`;
             } else if (e.estado === 'online') {
-                acc.innerHTML = `<button type="button" class="modal-btn btn-gris" onclick="guardarPartidoSala('${bot}')"><i class="fa-solid fa-rotate"></i> Cambiar partido</button>` +
-                    `<button type="button" class="modal-btn cancel" onclick="apagarSala('${bot}')"><i class="fa-solid fa-power-off"></i> Apagar</button>`;
+                acc.innerHTML = `<button type="button" class="btn-estandar btn-secundario" onclick="guardarPartidoSala('${bot}')"><i class="fa-solid fa-rotate"></i> Cambiar partido</button>` +
+                    `<button type="button" class="btn-estandar btn-danger" onclick="apagarSala('${bot}')"><i class="fa-solid fa-stop"></i> Apagar Sala</button>`;
             } else {
-                acc.innerHTML = `<button type="button" class="modal-btn btn-gris" onclick="refrescarSalas(false)"><i class="fa-solid fa-rotate"></i> Actualizar</button>`;
+                acc.innerHTML = `<button type="button" class="btn-estandar btn-secundario" onclick="refrescarSalas(false)"><i class="fa-solid fa-rotate"></i> Actualizar</button>`;
             }
         }
 

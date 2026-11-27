@@ -31,7 +31,6 @@
     <!-- End Google Tag Manager (noscript) -->
     <header></header>
 
-    <!-- Estilos: styles.css, sección 18. Permisos: los revisa bot.js; aquí solo se esconde lo que no aplica -->
     <main class="post-wrapper">
         <h1 class="post-titulo"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i> Postulaciones</h1>
 
@@ -197,7 +196,6 @@
         const ESTADO_ICONO = { pendiente: 'fa-clock', aceptada: 'fa-circle-check', rechazada: 'fa-circle-xmark' };
         const NIVEL = { usuario: 0, admin: 1, admin_lider: 2, owner: 3 };
         const fecha = f => f ? new Date(f).toLocaleString('es-CL', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
-        // datetime-local trabaja en hora local sin zona; el servidor guarda ISO
         const aLocal = iso => { if (!iso) return ''; const d = new Date(iso); return new Date(d - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16); };
         const aIso = v => v ? new Date(v).toISOString() : null;
         let rol = 'usuario', tipos = {}, detalle = null;
@@ -224,9 +222,7 @@
             pintar();
         });
 
-        // ----- Periodo (Admin Líder y Owner) -----
         function pintarPeriodo(c) {
-            // [color de .post-estado, ícono, texto]
             const [tono, clase, texto] = c.activa ? ['aceptada', 'fa-circle-check', `Activas hasta el ${fecha(c.fechaFin)}`]
                 : c.abierta && c.fechaInicio && new Date(c.fechaInicio) > Date.now() ? ['pendiente', 'fa-clock', `Programadas: abren el ${fecha(c.fechaInicio)}`]
                 : c.abierta ? ['pendiente', 'fa-triangle-exclamation', 'Abiertas, pero la fecha de fin ya pasó']
@@ -256,7 +252,6 @@
             btn.disabled = false;
         });
 
-        // ----- Lista -----
         function celda(clase, texto) { const s = document.createElement('span'); s.className = clase; s.textContent = texto; return s; }
         function votos(p) {
             const s = document.createElement('span');
@@ -299,8 +294,6 @@
         document.getElementById('fEstado').addEventListener('change', cargarLista);
         document.getElementById('fTipo').addEventListener('change', cargarLista);
 
-        // ----- Detalle -----
-        // Hilo: la respuesta del postulante (respondeA = id del comentario) va debajo del comentario que responde. Igual en postular.html
         function comentario(c) {
             const li = document.createElement('li');
             li.className = 'post-comentario ' + c.rolAutor;
@@ -370,12 +363,12 @@
                 ? `${ESTADO[p.estado]} por ${p.resueltoPor ? p.resueltoPor.nick : '—'} el ${fecha(p.fechaResolucion)}.` + (p.mensaje ? `\nMensaje: ${p.mensaje}` : '')
                 : '';
             const propia = p.numericId === parseInt(loggedId);
-            document.getElementById('dResolver').hidden = resuelta || rol !== 'owner' || propia;   // aceptar o rechazar: solo el Owner
+            document.getElementById('dResolver').hidden = resuelta || rol !== 'owner' || propia;
             document.getElementById('dMensaje').value = '';
             document.getElementById('dMensaje').dispatchEvent(new Event('input'));
             pintarHilo(document.getElementById('dHilo'), p.comentarios || []);
             document.getElementById('formComentario').hidden = !esLider() || propia;
-            document.getElementById('dBorrar').hidden = rol !== 'owner';   // borrar: solo el Owner (bot.js lo vuelve a revisar)
+            document.getElementById('dBorrar').hidden = rol !== 'owner';
         }
 
         async function abrirDetalle(id) {
@@ -401,7 +394,7 @@
             try {
                 const d = await api(`/${encodeURIComponent(detalle.id)}/voto`, 'POST', { valor });
                 if (!d.success) avisar('error', (d.message || 'No se pudo votar.'));
-                const r = await api('/' + encodeURIComponent(detalle.id));   // la lista de votantes actualizada
+                const r = await api('/' + encodeURIComponent(detalle.id));
                 if (r.success) pintarDetalle(r.postulacion);
                 cargarLista();
             } catch (e) { avisar('error', 'No se pudo conectar con el servidor.'); pintarVotos(detalle); }
@@ -451,7 +444,6 @@
             btn.disabled = false;
         });
 
-        // ----- Inicio -----
         (async () => {
             try {
                 const e = await api('/estado');
@@ -477,7 +469,7 @@
                 if (esLider()) { pintarPeriodo(e); mostrar('secPeriodo', 'secLista'); }
                 else mostrar('secLista');
                 await cargarLista();
-                const id = new URLSearchParams(location.search).get('id');   // owner.html abre la ficha directo
+                const id = new URLSearchParams(location.search).get('id');
                 if (id) abrirDetalle(id);
             } catch (err) {
                 document.getElementById('textoBloqueado').textContent = 'No se pudo conectar con el servidor. Inténtalo de nuevo en unos minutos.';
