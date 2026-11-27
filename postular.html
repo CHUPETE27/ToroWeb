@@ -25,7 +25,6 @@
     <!-- End Google Tag Manager (noscript) -->
     <header></header>
 
-    <!-- Estilos: styles.css, sección 18. Todo lo que escribe un usuario se pone con textContent -->
     <main class="post-wrapper">
         <h1 class="post-titulo"><i class="fa-solid fa-user-plus" aria-hidden="true"></i> Postúlate</h1>
 
@@ -71,7 +70,7 @@
                     </section>
                     <section class="post-ajuste form-group">
                         <h4><i class="fa-solid fa-cake-candles" aria-hidden="true"></i> Edad</h4>
-                        <label class="post-ajuste-ayuda" for="edad">Tu edad, entre 13 y 99 años.</label>
+                        <label class="post-ajuste-ayuda" for="edad">Tu edad</label>
                         <input type="number" id="edad" min="13" max="99" step="1" inputmode="numeric" required>
                     </section>
                     <section class="post-ajuste ancho form-group">
@@ -124,7 +123,7 @@
                 <h4><i class="fa-solid fa-comments" aria-hidden="true"></i> Comentarios</h4>
                 <p class="post-ajuste-ayuda" id="miAyudaHilo"></p>
                 <ul class="post-hilo" id="miHilo"></ul>
-                <!-- Una sola caja de respuesta: se mueve debajo del comentario que se responde -->
+
                 <form id="formComentario" hidden>
                     <div class="form-group">
                         <label for="comentario" id="etiquetaComentario">Tu respuesta</label>
@@ -148,13 +147,13 @@
         const loggedId = localStorage.getItem('toroHaxLoggedId');
         const token = localStorage.getItem('toroHaxToken');
         const ROL_AUTOR = { admin_lider: 'Admin Líder', owner: 'Owner', postulante: 'Postulante' };
-        const ROLES_RESPONDIBLES = ['admin_lider', 'owner'];   // el postulante solo responde a ellos, una vez por comentario (bot.js)
+        const ROLES_RESPONDIBLES = ['admin_lider', 'owner'];
         const ESTADO = { pendiente: 'Pendiente', aceptada: 'Aceptada', rechazada: 'Rechazada' };
         const ESTADO_ICONO = { pendiente: 'fa-clock', aceptada: 'fa-circle-check', rechazada: 'fa-circle-xmark' };
         const fecha = f => f ? new Date(f).toLocaleString('es-CL', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
         const avisar = (tone, texto) => ThUI.alert(texto, { tone });
         const icono = clase => { const i = document.createElement('i'); i.className = 'fa-solid ' + clase; i.setAttribute('aria-hidden', 'true'); return i; };
-        const formComentario = document.getElementById('formComentario');   // se mueve dentro del hilo: guardarlo antes
+        const formComentario = document.getElementById('formComentario');
         let miPostulacion = null, botonActivo = null;
 
         function mostrar(...ids) {
@@ -162,7 +161,6 @@
                 document.getElementById(s).hidden = !ids.includes(s);
         }
 
-        // Contador de caracteres de cada textarea
         document.querySelectorAll('.post-contador').forEach(c => {
             const t = document.getElementById(c.dataset.de);
             const pintar = () => { c.textContent = `${t.value.length} / ${t.maxLength}`; c.classList.toggle('lleno', t.value.length >= t.maxLength); };
@@ -170,7 +168,6 @@
             pintar();
         });
 
-        // Hilo: la respuesta del postulante (respondeA = id del comentario) va debajo del comentario que responde. Igual en postulaciones.html
         function comentario(c) {
             const li = document.createElement('li');
             li.className = 'post-comentario ' + c.rolAutor;
@@ -286,7 +283,6 @@
                 if (e.miPostulacion) pintarMia(e.miPostulacion);
                 if (e.activa && !e.yaPostulo) {
                     pintarFormulario(e);
-                    // Una postulación de un periodo anterior se sigue viendo debajo del formulario
                     return e.miPostulacion ? mostrar('secFormulario', 'secMia') : mostrar('secFormulario');
                 }
                 if (e.miPostulacion) return mostrar('secMia');
