@@ -40,9 +40,12 @@
         rombos: 'Rombos', triangulos: 'Triángulos', hexagonos: 'Hexágonos (3 tonos)', panal: 'Panal', cubos: 'Cubos 3D',
         escamas: 'Escamas', lunares: 'Lunares', estrellas: 'Estrellas', texto: 'Texto repetido', degradado: 'Degradado multicolor',
         degradado_radial: 'Degradado radial (2 colores)', degradado_lineal: 'Degradado lineal (2 colores)', particulas: 'Partículas',
-        grietas: 'Suelo agrietado (desierto)', militar: 'Camuflaje militar'
+        grietas: 'Suelo agrietado (desierto)', militar: 'Camuflaje militar', liquido: 'Líquido viscoso', peludo: 'Peludo',
+        mandala: 'Mandala', relampagos: 'Rayos eléctricos', tigre: 'Tigre', fuego: 'Fuego', manchado: 'Manchado', borroso: 'Borroso'
     };
-    const CON_SEMILLA = ['particulas', 'grietas', 'militar']; // dibujos al azar: guardan su semilla
+    // dibujos al azar: guardan su semilla
+    const CON_SEMILLA = ['particulas', 'grietas', 'militar', 'liquido', 'peludo', 'relampagos', 'tigre', 'fuego', 'manchado', 'borroso'];
+    const CON_DENSIDAD = ['particulas', 'manchado']; // con "Cantidad"
     const CON_COLORES = ['degradado', 'militar']; // llevan la lista colores (2 a MAX_COLORES_DEGRADADO)
     const ESTILOS_DEGRADADO = { lineal: 'Lineal', radial: 'Radial', conico: 'Cónico' };
     const MAX_PUNTOS = 32, MAX_COLORES_DEGRADADO = 6;
@@ -357,6 +360,14 @@
             case 'particulas': particulas(ctx, c, s, n, c1, c2); break;
             case 'grietas': grietas(ctx, c, s, L, c1, c2); break;
             case 'militar': militar(ctx, c, s, L); break;
+            case 'liquido': liquido(ctx, c, s, L, c1, c2); break;
+            case 'peludo': peludo(ctx, c, s, L, c1, c2); break;
+            case 'mandala': mandala(ctx, s, L, c1, c2); break;
+            case 'relampagos': relampagos(ctx, c, s, L, c1, c2); break;
+            case 'tigre': tigre(ctx, c, s, L, c1, c2); break;
+            case 'fuego': fuego(ctx, c, s, L, c1, c2); break;
+            case 'manchado': manchado(ctx, c, s, L, c1, c2); break;
+            case 'borroso': borroso(ctx, c, s, L, c1, c2); break;
             case 'chevrones': { // franjas en V, una sobre otra
                 const p = s * 1.5, a = s * 1.5, h = s, t = s * 0.6; // separación, medio ancho y alto de la V, grosor
                 const k0 = -Math.ceil(L / a) - 1, k1 = -k0;
@@ -664,6 +675,241 @@
         return d + 'Z';
     }
 
+    // Patrones nuevos de noviembre de 2026. Los de azar dependen de la semilla y de la celda, como las partículas, y se arman
+    // una vez como texto SVG (como placasSuelo): guardado(clave, armar) guarda un trazo por color. Cada uno pone un tamaño
+    // mínimo a sus celdas según L: dentro de una figura (L = 110) y a escala 0,25 eran decenas de miles de trazos.
+    const cacheDibujos = new Map();
+    function guardado(clave, armar) {
+        let p = cacheDibujos.get(clave);
+        if (p) return p;
+        p = armar().map(t => (typeof Path2D !== 'undefined' ? new Path2D(t.d) : t.d)); // sin Path2D (pruebas en Node) queda el texto
+        if (cacheDibujos.size >= 96) cacheDibujos.delete(cacheDibujos.keys().next().value); // el más viejo
+        cacheDibujos.set(clave, p);
+        return p;
+    }
+    const semillaDe = c => num(c.semilla, 1) | 0;
+    function circuloSvg(t, x, y, r) {
+        t.d += `M${f2(x + r)} ${f2(y)}A${f2(r)} ${f2(r)} 0 1 0 ${f2(x - r)} ${f2(y)}A${f2(r)} ${f2(r)} 0 1 0 ${f2(x + r)} ${f2(y)}Z`;
+    }
+
+    // Líquido viscoso: filas de una capa espesa que chorrea (color), cada gota con la punta hinchada y un brillo (secundario)
+    function liquido(ctx, c, s, L, c1, c2) {
+        const u = Math.max(s, L / 14), p = u * 3.5, sem = semillaDe(c);
+        const [cuerpo, brillo] = guardado(`liquido|${sem}|${u}|${L}`, () => {
+            const t = trazoSvg(), b = trazoSvg(), filas = Math.ceil(L / p) + 1, ancho = L + 2 * u;
+            for (let j = -filas - 1; j <= filas; j++) {
+                const r = azar(sem, j, 11), y0 = j * p, y1 = y0 + u * (0.6 + 0.5 * r());
+                const gotas = []; // de izquierda a derecha; el borde de abajo se recorre al revés
+                for (let x = -ancho; x < ancho;) {
+                    const w = u * (0.35 + 0.5 * r()), f = w * 0.5, cx = x + f + w / 2 + u * (0.1 + 0.7 * r());
+                    const rb = w / 2 * (1.15 + 0.3 * r());
+                    gotas.push([cx, w, f, rb, y1 + Math.max(f + rb * 0.6 + 0.2, u * (0.2 + 2.6 * r() * r()))]); // casi todas cortas
+                    x = cx + w / 2 + f;
+                }
+                t.moveTo(-ancho, y0); t.lineTo(ancho, y0); t.lineTo(ancho, y1);
+                for (let k = gotas.length - 1; k >= 0; k--) {
+                    const [cx, w, f, rb, yb] = gotas[k], de = cx + w / 2, iz = cx - w / 2;
+                    t.lineTo(de + f, y1);
+                    t.quadraticCurveTo(de, y1, de, y1 + f); // la gota nace con una curva, como algo espeso
+                    t.lineTo(de, yb - rb * 0.6);
+                    t.quadraticCurveTo(cx + rb, yb - rb * 0.3, cx + rb, yb + rb * 0.2);
+                    t.quadraticCurveTo(cx + rb, yb + rb * 1.1, cx, yb + rb * 1.1);
+                    t.quadraticCurveTo(cx - rb, yb + rb * 1.1, cx - rb, yb + rb * 0.2);
+                    t.quadraticCurveTo(cx - rb, yb - rb * 0.3, iz, yb - rb * 0.6);
+                    t.lineTo(iz, y1 + f);
+                    t.quadraticCurveTo(iz, y1, iz - f, y1);
+                    circuloSvg(b, cx - rb * 0.35, yb + rb * 0.15, rb * 0.28);
+                }
+                t.lineTo(-ancho, y1); t.closePath();
+            }
+            return [t, b];
+        });
+        ctx.fillStyle = c1; rellenar(ctx, cuerpo);
+        ctx.fillStyle = c2; rellenar(ctx, brillo);
+    }
+
+    // Peludo: el pelaje (color) cubierto de pelos cortos y curvos, casi todos hacia abajo, en el secundario y en la mezcla de los dos
+    function peludo(ctx, c, s, L, c1, c2) {
+        const u = Math.max(s * 0.55, L / 40), sem = semillaDe(c);
+        const [mezclados, mechones] = guardado(`peludo|${sem}|${u}|${L}`, () => {
+            const t = [trazoSvg(), trazoSvg()], n = Math.ceil(L / u) + 1;
+            for (let i = -n; i <= n; i++) for (let j = -n; j <= n; j++) {
+                const r = azar(sem, i, j);
+                for (let k = 0; k < 2; k++) {
+                    const x = (i + r()) * u, y = (j + r()) * u, a = Math.PI / 2 + (r() - 0.5) * 1.1, l = u * (1.2 + 1.2 * r()), cv = (r() - 0.5) * l * 0.7;
+                    const ex = x + Math.cos(a) * l, ey = y + Math.sin(a) * l, tr = t[r() < 0.5 ? 0 : 1];
+                    tr.moveTo(x, y);
+                    tr.quadraticCurveTo((x + ex) / 2 - Math.sin(a) * cv, (y + ey) / 2 + Math.cos(a) * cv, ex, ey);
+                }
+            }
+            return t;
+        });
+        ctx.fillRect(-L, -L, 2 * L, 2 * L);
+        ctx.lineCap = 'round';
+        ctx.lineWidth = Math.max(0.3, u * 0.16);
+        ctx.strokeStyle = mezcla(c1.slice(1), c2.slice(1)); ctx.stroke(mezclados);
+        ctx.strokeStyle = c2; ctx.stroke(mechones);
+    }
+
+    // Mandala: anillos alrededor del centro que se turnan entre pétalos (color, con otro más chico en el secundario adentro),
+    // puntos (secundario) y puntas (color). La escala cambia el ancho de los anillos.
+    function mandala(ctx, s, L, c1, c2) {
+        const paso = Math.max(s * 1.6, L / 24);
+        const [a, b] = guardado(`mandala|${paso}|${L}`, () => {
+            const t = trazoSvg(), u = trazoSvg();
+            circuloSvg(u, 0, 0, paso * 0.4);
+            for (let i = 0, r = paso; r - paso / 2 < L * 1.45; i++, r += paso) {
+                const k = Math.min(64, 8 + 4 * i), h = paso * 0.45, ancho = Math.min(paso * 0.32, Math.PI * r / k * 0.85);
+                for (let q = 0; q < k; q++) {
+                    const ang = (q + (i & 1) * 0.5) / k * Math.PI * 2, cs = Math.cos(ang), sn = Math.sin(ang);
+                    const P = (rr, lado) => [cs * rr - sn * lado, sn * rr + cs * lado]; // a rr del centro y "lado" de costado
+                    if (i % 3 === 0) { petalo(t, P, r - h, r + h, ancho); petalo(u, P, r - h * 0.5, r + h * 0.6, ancho * 0.45); }
+                    else if (i % 3 === 1) { const [x, y] = P(r, 0); circuloSvg(u, x, y, Math.min(paso * 0.18, ancho * 0.6)); }
+                    else { const [x0, y0] = P(r - h, -ancho), [x1, y1] = P(r + h, 0), [x2, y2] = P(r - h, ancho); t.moveTo(x0, y0); t.lineTo(x1, y1); t.lineTo(x2, y2); t.closePath(); }
+                }
+            }
+            return [t, u];
+        });
+        ctx.fillStyle = c1; rellenar(ctx, a);
+        ctx.fillStyle = c2; rellenar(ctx, b);
+    }
+    function petalo(t, P, ini, fin, ancho) { // almendra de ini a fin (distancias al centro), más ancha al medio
+        const [x0, y0] = P(ini, 0), [x1, y1] = P(fin, 0), m = (ini + fin) / 2, [ax, ay] = P(m, ancho * 2), [bx, by] = P(m, -ancho * 2);
+        t.moveTo(x0, y0); t.quadraticCurveTo(ax, ay, x1, y1); t.quadraticCurveTo(bx, by, x0, y0); t.closePath();
+    }
+
+    // Rayos eléctricos: zigzag hacia abajo con ramas, en el color, con un brillo alrededor en el secundario
+    function relampagos(ctx, c, s, L, c1, c2) {
+        const u = Math.max(s * 3.2, L / 16), sem = semillaDe(c);
+        const [rayos] = guardado(`relampagos|${sem}|${u}|${L}`, () => {
+            const t = trazoSvg(), n = Math.ceil(L / u) + 1;
+            for (let i = -n; i <= n; i++) for (let j = -n; j <= n; j++) {
+                const r = azar(sem, i, j);
+                if (r() > 0.55) continue;
+                let x = (i + 0.2 + 0.6 * r()) * u, y = (j + 0.1 * r()) * u;
+                const pasos = 6 + ((r() * 4) | 0), dy = u * (1.2 + 0.8 * r()) / pasos, deriva = (r() - 0.5) * 0.8;
+                t.moveTo(x, y);
+                for (let k = 1; k <= pasos; k++) {
+                    x += (deriva + (r() - 0.5) * 1.6) * dy; y += dy;
+                    t.lineTo(x, y);
+                    if (k < pasos - 1 && r() < 0.3) { // una rama hacia un costado y de vuelta al rayo
+                        let bx = x, by = y;
+                        const lado = r() < 0.5 ? -1 : 1;
+                        for (let q = 0, m = 2 + ((r() * 2) | 0); q < m; q++) { bx += lado * dy * (0.5 + 0.5 * r()); by += dy * (0.6 + 0.4 * r()); t.lineTo(bx, by); }
+                        t.moveTo(x, y);
+                    }
+                }
+            }
+            return [t];
+        });
+        const a = ctx.globalAlpha;
+        ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+        ctx.strokeStyle = c2;
+        ctx.globalAlpha = a * 0.35; ctx.lineWidth = u * 0.22; ctx.stroke(rayos);
+        ctx.globalAlpha = a * 0.7; ctx.lineWidth = u * 0.11; ctx.stroke(rayos);
+        ctx.globalAlpha = a; ctx.strokeStyle = c1; ctx.lineWidth = Math.max(0.4, u * 0.045); ctx.stroke(rayos);
+    }
+
+    // Tigre: el pelaje (secundario) con rayas onduladas que se afinan en las puntas (color), algunas con una horqueta
+    function tigre(ctx, c, s, L, c1, c2) {
+        const u = Math.max(s * 1.8, L / 24), sem = semillaDe(c);
+        const [rayas] = guardado(`tigre|${sem}|${u}|${L}`, () => {
+            const t = trazoSvg(), filas = Math.ceil(L / u) + 1, ancho = L + u;
+            for (let j = -filas; j <= filas; j++) {
+                const r = azar(sem, j, 3), base = j * u + (r() - 0.5) * u * 0.3, fase = r() * 6.3, w = Math.PI * 2 / (u * (2.5 + 2 * r()));
+                const onda = x => base + u * 0.28 * Math.sin(x * w + fase);
+                for (let x = -ancho - u * 2 * r(); x < ancho;) {
+                    const largo = u * (1.6 + 2.8 * r()), grueso = u * (0.14 + 0.14 * r());
+                    raya(t, x, largo, grueso, onda);
+                    if (r() < 0.35) { // horqueta: una raya más corta que se abre hacia un lado
+                        const x0 = x + largo * (0.25 + 0.3 * r()), lado = r() < 0.5 ? -0.5 : 0.5;
+                        raya(t, x0, largo * 0.45, grueso * 0.7, xx => onda(xx) + lado * (xx - x0));
+                    }
+                    x += largo + u * (0.3 + 1.2 * r());
+                }
+            }
+            return [t];
+        });
+        ctx.fillStyle = c2; ctx.fillRect(-L, -L, 2 * L, 2 * L);
+        ctx.fillStyle = c1; rellenar(ctx, rayas);
+    }
+    function raya(t, x0, largo, grueso, centro) { // a lo largo de x, más gruesa hacia el comienzo y en punta en los dos extremos
+        const m = 10, arriba = [], abajo = [];
+        for (let q = 0; q <= m; q++) {
+            const v = q / m, x = x0 + v * largo, y = centro(x), g = grueso * Math.pow(Math.sin(Math.PI * Math.pow(v, 0.75)), 0.7);
+            arriba.push([x, y - g]); abajo.push([x, y + g]);
+        }
+        arriba.concat(abajo.reverse()).forEach(([x, y], i) => (i ? t.lineTo(x, y) : t.moveTo(x, y)));
+        t.closePath();
+    }
+
+    // Fuego: filas de llamas que suben, cada una (secundario) con su centro más claro (color)
+    function fuego(ctx, c, s, L, c1, c2) {
+        const u = Math.max(s, L / 20), p = u * 2.6, sem = semillaDe(c);
+        const [fuera, dentro] = guardado(`fuego|${sem}|${u}|${L}`, () => {
+            const t = trazoSvg(), d = trazoSvg(), filas = Math.ceil(L / p) + 2, ancho = L + 2 * u;
+            for (let j = -filas; j <= filas; j++) {
+                const r = azar(sem, j, 5), yb = j * p;
+                // la brasa de abajo une las bases de las llamas (sin ella se veían triángulos de la camiseta entre una y otra)
+                t.moveTo(-ancho, yb - u * 0.3); t.lineTo(ancho, yb - u * 0.3); t.lineTo(ancho, yb + u * 0.45); t.lineTo(-ancho, yb + u * 0.45); t.closePath();
+                for (let x = -ancho - u * r(); x < ancho;) {
+                    // más bajas que la separación entre filas: entre las puntas se ve la camiseta (con más altas solo quedaban triangulitos)
+                    const w = u * (0.7 + 0.6 * r()), h = p * (0.6 + 0.45 * r()), inclina = (r() - 0.5) * w * 2;
+                    llama(t, x, yb, w, h, inclina);
+                    llama(d, x + inclina * 0.1, yb, w * 0.5, h * (0.45 + 0.15 * r()), inclina * 0.5);
+                    x += w * (1 + 0.4 * r());
+                }
+            }
+            return [t, d];
+        });
+        ctx.fillStyle = c2; rellenar(ctx, fuera);
+        ctx.fillStyle = c1; rellenar(ctx, dentro);
+    }
+    function llama(t, x, yb, w, h, inclina) { // base en (x, yb) y la punta arriba, corrida "inclina"
+        const px = x + inclina, py = yb - h;
+        t.moveTo(x - w, yb);
+        t.quadraticCurveTo(x - w * 1.15, yb - h * 0.45, x - w * 0.35 + inclina * 0.5, yb - h * 0.7);
+        t.quadraticCurveTo(px - w * 0.1, py + h * 0.12, px, py);
+        t.quadraticCurveTo(x + w * 0.55 + inclina * 0.6, yb - h * 0.55, x + w * 0.85, yb - h * 0.3);
+        t.quadraticCurveTo(x + w * 1.1, yb - h * 0.12, x + w, yb);
+        t.quadraticCurveTo(x, yb + w * 0.5, x - w, yb);
+        t.closePath();
+    }
+
+    // Manchado: manchas suaves de muchos tamaños al azar (como un dálmata o una vaca), casi todas en el color y algunas en el secundario
+    function manchado(ctx, c, s, L, c1, c2) {
+        const u = Math.max(s * 1.6, L / 30), sem = semillaDe(c), dens = Math.max(0, Math.min(1, num(c.densidad, 0.6)));
+        const [a, b] = guardado(`manchado|${sem}|${dens}|${u}|${L}`, () => {
+            const t = [trazoSvg(), trazoSvg()], n = Math.ceil(L / u) + 1;
+            for (let i = -n; i <= n; i++) for (let j = -n; j <= n; j++) {
+                const r = azar(sem, i, j);
+                if (r() > dens) continue;
+                const tr = t[r() < 0.75 ? 0 : 1], x = (i + r()) * u, y = (j + r()) * u, g = r() * Math.PI * 2;
+                const tam = u * (0.22 + 0.45 * r() * r()) * (r() < 0.15 ? 1.9 : 1); // de vez en cuando una grande
+                piedra(tr, r, tam, x, y, Math.cos(g), Math.sin(g), 0.55 + 0.45 * r(), true);
+                if (r() < 0.4) { // una manchita al lado
+                    const ga = r() * Math.PI * 2, dd = tam * (1.1 + 0.6 * r());
+                    piedra(tr, r, tam * (0.25 + 0.2 * r()), x + Math.cos(ga) * dd, y + Math.sin(ga) * dd, 1, 0, 1, true);
+                }
+            }
+            return t;
+        });
+        ctx.fillStyle = c1; rellenar(ctx, a);
+        ctx.fillStyle = c2; rellenar(ctx, b);
+    }
+
+    // Borroso: manchas desenfocadas de los dos colores que se desvanecen hacia el borde y se funden con las vecinas
+    function borroso(ctx, c, s, L, c1, c2) {
+        const u = Math.max(s * 2.4, L / 16), sem = semillaDe(c), n = Math.ceil(L / u) + 1;
+        for (let i = -n; i <= n; i++) for (let j = -n; j <= n; j++) {
+            const r = azar(sem, i, j), x = (i + r()) * u, y = (j + r()) * u, R = u * (0.7 + 0.6 * r()), col = r() < 0.5 ? c1 : c2;
+            const g = ctx.createRadialGradient(x, y, 0, x, y, R);
+            g.addColorStop(0, col); g.addColorStop(0.35, col); g.addColorStop(1, col.slice(0, 7) + '00');
+            ctx.fillStyle = g;
+            ctx.beginPath(); ctx.arc(x, y, R, 0, Math.PI * 2); ctx.fill();
+        }
+    }
+
     function imagen(ctx, c, img) {
         if (!img || !img.width || !img.height) return;
         const k = 40 / Math.max(img.width, img.height);
@@ -852,6 +1098,8 @@
     // Reconstruye cada kit campo a campo con los límites del formato (CLAUDE.md 4.6). main.js lo aplica al
     // leer y al escribir kits.json: lo que va en el instalador nunca trae campos sueltos ni valores fuera de rango.
     const IMG_PREFIJOS = ['data:image/png;base64,', 'data:image/webp;base64,', 'data:image/jpeg;base64,'];
+    // Diseños en kits.json (también el tope del Taller). Sin imágenes pesan ~2 KB cada uno; con 60 se llenó en noviembre de 2026
+    const MAX_KITS = 200;
     function sanear(lista) {
         const str = (v, n) => String(v ?? '').slice(0, n);
         const nm = (v, min, max, def) => { const n = (typeof v === 'number' || typeof v === 'string') && v !== '' ? Number(v) : NaN; return Number.isFinite(n) ? Math.min(max, Math.max(min, n)) : def; };
@@ -882,7 +1130,7 @@
                 r.intensidad = nm(c.intensidad, 0, 1, 1);
             }
             if (CON_SEMILLA.includes(c.patron)) r.semilla = Math.round(nm(c.semilla, 0, 999999, 1));
-            if (c.patron === 'particulas') r.densidad = nm(c.densidad, 0.05, 1, 0.6);
+            if (CON_DENSIDAD.includes(c.patron)) r.densidad = nm(c.densidad, 0.05, 1, 0.6);
             if (c.patron === 'texto') Object.assign(r, letra(c));
             return r;
         };
@@ -915,7 +1163,7 @@
         const ids = new Set();
         const kits = [];
         (Array.isArray(lista) ? lista : []).forEach((k, i) => {
-            if (kits.length >= 60 || !k || typeof k !== 'object') return;
+            if (kits.length >= MAX_KITS || !k || typeof k !== 'object') return;
             const a = (k.asignacion && typeof k.asignacion === 'object') ? k.asignacion : {};
             const f = (a.firma && typeof a.firma === 'object') ? a.firma : {};
             const colores = (Array.isArray(f.colores) ? f.colores : []).map(c => color(c, null)).filter(Boolean).slice(0, 3);
@@ -995,6 +1243,21 @@
         if (!c || (c.tipo !== 'lluvia' && c.tipo !== 'tormenta')) return null;
         if (c.tipo === 'tormenta') return 'tormenta';
         return c.intensidad >= 90 ? 'lluvia-potente' : c.intensidad >= 60 ? 'lluvia-fuerte' : c.intensidad >= 30 ? 'lluvia-normal' : 'lluvia-leve';
+    }
+
+    // FPS automático (programa, config.fpsMax -2): en partido corre sin límite, como Ilimitados (motor.js), y solo cambia la
+    // calidad visual. Una medición de ~2 s del motor: p95 = ms que tarda en dibujarse el 95 % de los cuadros; vistos = cuadros
+    // por segundo que recibió la pantalla. Si la pantalla no recibe el 90 % de sus cuadros dos mediciones seguidas, baja un
+    // escalón (1 menos partículas, 2 lienzos de la hinchada a 15 FPS, 3 sin clima ni papel picado) y vuelve de a uno tras 5
+    // mediciones con el 98 % de los cuadros y el p95 bajo el 60 % del cuadro. Antes además subía y bajaba un límite de FPS
+    // (2x, 3x, 4x la pantalla): el limitador por software daba menos FPS que Ilimitados (432 de límite, ~341 reales); se quitó.
+    function pasoFpsAuto(e, { hz, p95, vistos }) {
+        const s = Object.assign({ calidad: 0, malas: 0, buenas: 0 }, e);
+        s.malas = vistos < hz * 0.9 ? s.malas + 1 : 0;
+        s.buenas = s.calidad > 0 && vistos >= hz * 0.98 && p95 < 1000 / hz * 0.6 ? s.buenas + 1 : 0;
+        if (s.malas >= 2 && s.calidad < 3) Object.assign(s, { calidad: s.calidad + 1, malas: 0 });
+        else if (s.buenas >= 5) Object.assign(s, { calidad: s.calidad - 1, buenas: 0 });
+        return s;
     }
 
     // Impacto de un gol para su sonido (programa): 'bajo' (sin sonido), 'alto' o 'medio'. goles: el marcador ya con el gol;
@@ -1585,9 +1848,9 @@ select.toro-abierto.toro-arriba { border-top-left-radius: 0 !important; border-t
     }
 
     raiz.ToroKitRender = {
-        claveEscudo, SILUETA_ESCUDO, codigoDe, equiposDeFirmas, gruposDelPartido, leerAdicion, ordenRanking, sortearClima, sonidoClima, impactoGol, textoToroMatch, pintarEscudo, MARCADOR_CSS, crearMarcador, dibujarMarcadorLienzo, fijarPosicion, fijarApariencia, nuevaTanda, anotarPenal, vistaTanda, tandaSigue, TANDA_RELOJ_MAX, RE_INICIO_TANDA, RE_FIN_TANDA,
-        FUENTES, URL_FUENTES, FUENTE_GOOGLE, CLAVE_FUENTE, FORMAS, CON_GROSOR, PATRONES, CON_SEMILLA, MAX_CONTENIDO, ESTILOS_DEGRADADO, MAX_PUNTOS, MAX_COLORES_DEGRADADO, SALAS,
-        hex, anguloInterno, gradosDeInterno, coincideFirma, firmasDeEquipo, coincideKit, aVector, sanear,
+        claveEscudo, SILUETA_ESCUDO, codigoDe, equiposDeFirmas, gruposDelPartido, leerAdicion, ordenRanking, sortearClima, sonidoClima, impactoGol, pasoFpsAuto, textoToroMatch, pintarEscudo, MARCADOR_CSS, crearMarcador, dibujarMarcadorLienzo, fijarPosicion, fijarApariencia, nuevaTanda, anotarPenal, vistaTanda, tandaSigue, TANDA_RELOJ_MAX, RE_INICIO_TANDA, RE_FIN_TANDA,
+        FUENTES, URL_FUENTES, FUENTE_GOOGLE, CLAVE_FUENTE, FORMAS, CON_GROSOR, PATRONES, CON_SEMILLA, CON_DENSIDAD, MAX_CONTENIDO, ESTILOS_DEGRADADO, MAX_PUNTOS, MAX_COLORES_DEGRADADO, SALAS,
+        hex, anguloInterno, gradosDeInterno, coincideFirma, firmasDeEquipo, coincideKit, aVector, sanear, MAX_KITS,
         base, capas, buscable, codigoDeEnlace, esEmoji, letrasDe, texto, textoHaxball, renderizar, lienzo, lienzoCapas, cargarImagenes, cargarFuenteGoogle, cargarFuenteArchivo, desplegables
     };
 })(typeof window !== 'undefined' ? window : globalThis);
