@@ -155,11 +155,142 @@
             margin-top: 10px;
         }
 
-        .action-icons { width: 50px; display: flex; gap: 10px; justify-content: center; margin-left: 0; flex-shrink: 0;}
+        /* --- Partidos (próximos e historial): mismo diseño que el historial de toromatch.html;
+               .mode-col y .mode-badge salen de styles.css (6.1) --- */
+        .sel-partido {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            font-size: 1.05rem;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .res-w { color: var(--mint); text-shadow: 0 0 8px rgba(var(--mint-rgb), 0.4); }
+        .res-d { color: var(--gold); text-shadow: 0 0 8px rgba(var(--gold-rgb), 0.4); }
+        .res-l { color: var(--red-light); text-shadow: 0 0 8px rgba(231, 76, 60, 0.4); }
+        .res-prox { color: var(--cyan); font-size: 1.2rem; text-shadow: 0 0 8px rgba(var(--cyan-rgb), 0.4); }
+
+        .sel-marcador { flex: 1; min-width: 0; display: flex; justify-content: center; align-items: center; }
+        .sel-equipo { flex: 1; min-width: 0; text-align: left; line-height: 1.2; overflow-wrap: anywhere; }
+        .sel-equipo.local { text-align: right; }
+        .sel-goles {
+            margin: 0 10px;
+            flex-shrink: 0;
+            white-space: nowrap;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 4px 12px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #fff;
+        }
+        .sel-goles.vs { color: var(--text-muted); font-size: 0.9rem; }
+
+        .sel-fecha { width: 90px; flex-shrink: 0; text-align: center; color: var(--text-muted); font-size: 0.9rem; }
+        .sel-tipo {
+            width: 80px; flex-shrink: 0;
+            padding: 0 10px;
+            border-left: 1px solid #444;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--text-soft);
+            overflow-wrap: anywhere;
+        }
+
+        .sel-acciones { display: flex; gap: 12px; flex-shrink: 0; }
+        .sel-acciones:empty { display: none; }
+        .sel-icono { background: none; border: 0; padding: 4px; cursor: pointer; font-size: 1rem; color: #3498db; transition: 0.2s; }
+        .sel-icono:hover { color: #5dade2; }
+        .sel-icono.borrar { color: var(--red); }
+        .sel-icono.borrar:hover { color: #ff4d4d; }
+
+        @media (max-width: 600px) {
+            .sel-partido { flex-direction: column; gap: 8px; padding: 15px; }
+            .sel-partido .mode-col { width: 100%; }
+            .sel-fecha, .sel-tipo { width: 100%; border-left: none; padding: 0; }
+            .sel-fecha { border-top: 1px solid #444; padding-top: 8px; font-size: 0.85rem; }
+            .sel-acciones { width: 100%; justify-content: center; padding-top: 8px; border-top: 1px solid #444; }
+        }
+
+        /* --- Panel del estadio: todo en una columna del mismo ancho --- */
+        .estadio-col {
+            width: 100%;
+            max-width: 560px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin: 10px auto 0;
+        }
+        .estadio-estado {
+            padding: 22px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid var(--border);
+        }
+        #predio-status-text {
+            color: var(--text-muted);
+            font-size: 1.6rem;
+            margin: 0 0 6px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #predio-status-desc { color: var(--text-soft); margin: 0; }
+        #predio-status-text .status-light { width: 16px; height: 16px; }
+
+        .estadio-datos {
+            display: none;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 10px 12px;
+            margin-top: 18px;
+            padding-top: 18px;
+            border-top: 1px solid var(--border);
+            text-align: left;
+        }
+        .estadio-datos .etq { color: var(--text-muted); font-size: 0.9rem; white-space: nowrap; }
+        .estadio-datos .etq i { width: 18px; text-align: center; margin-right: 6px; }
+        .estadio-datos .valor {
+            font-family: monospace;
+            font-size: 1rem;
+            padding: 8px 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            text-decoration: none;
+        }
+        .estadio-datos .copy-btn { height: 100%; }
+
+        .estadio-token { display: flex; gap: 10px; }
+        .estadio-token input {
+            flex: 1; min-width: 0;
+            background: #111; border: 1px solid #444; color: #fff;
+            padding: 12px; border-radius: 8px; outline: none;
+            font-family: monospace; text-align: center; transition: 0.3s;
+        }
+        .estadio-token .btn-token-link { margin: 0; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
+
+        .estadio-col .btn-estandar { width: 100%; margin: 0; padding: 14px; }
+        .estadio-col .cmd-row { margin: 0; }
+        .estadio-col .btn-cmd { min-height: 46px; }
+        .estadio-col .btn-transmit { margin: 0; }
+        .estadio-sep { border: 0; border-top: 1px solid var(--border); margin: 4px 0; width: 100%; }
+        #room-commands-container { display: none; flex-direction: column; gap: 12px; }
+
+        @media (max-width: 600px) {
+            .estadio-col .cmd-row.grid-2,
+            .estadio-col .cmd-row.grid-4 { grid-template-columns: repeat(2, 1fr); }
+            .estadio-col .cmd-row.grid-3 { grid-template-columns: repeat(3, 1fr); }
+            .estadio-col .btn-cmd { padding: 10px 6px; font-size: 0.9rem; }
+            .estadio-token { flex-direction: column; }
+            .estadio-token .btn-token-link { justify-content: center; }
+        }
 
         @media (max-width: 480px) {
-            .action-icons { flex-direction: row; justify-content: center; padding-top: 10px; border-top: 1px solid #444; width: 100%;}
-
             #editModal .form-row-doble {
                 flex-direction: column !important;
                 gap: 10px !important;
@@ -287,65 +418,58 @@
             <div class="box" style="width: 100%; text-align: center; display: flex; flex-direction: column; align-items: center;">
                 <h3><i class="fa-solid fa-server"></i> Gestión del Estadio</h3>
                 
-                <div style="padding: 25px; margin: 15px 0; border-radius: 10px; background: rgba(0,0,0,0.5); border: 1px solid #333; width: 70%;">
-                    <h2 id="predio-status-text" style="color: #7d7d7d; font-size: 2.2rem; margin-top: 0; display: flex; align-items: center; justify-content: center;">
-                        <span class="status-light light-off"></span> APAGADO
-                    </h2>
-                    <p id="predio-status-desc" style="color: #bdc3c7; font-size: 1.1rem;">Verificando estado del servidor...</p>
-                    
-                    <div id="predio-info" style="display:none; margin-top: 25px; background: #111; padding: 20px; border-radius: 8px; border: 1px solid #5dc8e8; text-align: center;">
-                        <div style="margin:8px 0; color:#bdc3c7; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;">
-                            🌐 <strong>Link:</strong> <a id="predio-link" href="#" target="_blank" style="color:#5dc8e8; font-weight: bold; text-decoration: none; word-break: break-all;">...</a>
-                            <button class="copy-btn" onclick="copiarDato('predio-link', 'link', this)" title="Copiar Link"><i class="fa-regular fa-copy"></i></button>
-                        </div>
-                        <div style="margin:15px 0 8px 0; color:#bdc3c7; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;">
-                            🔑 <strong>Ingreso:</strong> <span id="predio-pass" style="color:#e1bc56; font-family:monospace; font-size:1.2rem; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px; border: 1px solid #444;">...</span>
-                            <button class="copy-btn" onclick="copiarDato('predio-pass', 'texto', this)" title="Copiar Clave"><i class="fa-regular fa-copy"></i></button>
-                        </div>
-                        <div style="margin:15px 0 8px 0; color:#bdc3c7; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 10px;">
-                            👔 <strong>Admin (!admin):</strong> <span id="predio-adminpass" style="color:#2df2c1; font-family:monospace; font-size:1.2rem; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px; border: 1px solid #444;">...</span>
-                            <button class="copy-btn" onclick="copiarDato('predio-adminpass', 'texto', this)" title="Copiar Clave Admin"><i class="fa-regular fa-copy"></i></button>
+                <div class="estadio-col">
+                    <div class="estadio-estado">
+                        <h2 id="predio-status-text"><span class="status-light light-off"></span> APAGADO</h2>
+                        <p id="predio-status-desc">Verificando estado del servidor...</p>
+
+                        <div id="predio-info" class="estadio-datos">
+                            <span class="etq"><i class="fa-solid fa-link"></i>Link</span>
+                            <a id="predio-link" class="valor" href="#" target="_blank" rel="noopener noreferrer" style="color: var(--cyan);">...</a>
+                            <button class="copy-btn" onclick="copiarDato('predio-link', 'link', this)" title="Copiar Link" aria-label="Copiar Link"><i class="fa-regular fa-copy"></i></button>
+
+                            <span class="etq"><i class="fa-solid fa-key"></i>Ingreso</span>
+                            <span id="predio-pass" class="valor" style="color: var(--gold);">...</span>
+                            <button class="copy-btn" onclick="copiarDato('predio-pass', 'texto', this)" title="Copiar Clave" aria-label="Copiar Clave"><i class="fa-regular fa-copy"></i></button>
+
+                            <span class="etq"><i class="fa-solid fa-user-shield"></i>Admin</span>
+                            <span id="predio-adminpass" class="valor" style="color: var(--mint);">...</span>
+                            <button class="copy-btn" onclick="copiarDato('predio-adminpass', 'texto', this)" title="Copiar Clave Admin" aria-label="Copiar Clave Admin"><i class="fa-regular fa-copy"></i></button>
                         </div>
                     </div>
-                </div>
 
-                <div id="predio-interactive-area" style="display:none; flex-direction:column; align-items:center; width: 100%; max-width: 600px;">
-                    
-                    <div id="tokenContainer" style="width: 100%; text-align: center; margin-top: 10px;">
-                        <label style="color:#bdc3c7; font-size:0.9rem; font-weight:bold; margin-bottom:12px; display:block;">Token de HaxBall:</label>
-                        <a href="https://www.haxball.com/headlesstoken" target="_blank" class="btn-token-link"><i class="fa-solid fa-key"></i> Generar Token</a>
-                        <input type="text" id="haxballTokenInput" placeholder="Pega el token aquí..." style="width:80%; background:#111; border:1px solid #444; color:white; padding:12px; border-radius:8px; outline:none; font-family:monospace; justify-content: center; text-align: center; transition: 0.3s;">
-                    </div>
-                    <button class="btn-estandar btn-primary" style="width:auto; font-size: 1.1rem; padding: 15px 30px; margin-top: 20px;" onclick="controlarPredio('start')" id="btnStartPredio"><i class="fa-solid fa-power-off"></i> Encender Estadio</button>
+                    <div id="predio-interactive-area" style="display:none; flex-direction:column; gap: 14px;">
+                        <div id="tokenContainer" class="estadio-token">
+                            <input type="text" id="haxballTokenInput" placeholder="Pega el token aquí..." aria-label="Token de HaxBall">
+                            <a href="https://www.haxball.com/headlesstoken" target="_blank" rel="noopener noreferrer" class="btn-token-link"><i class="fa-solid fa-key"></i> Generar Token</a>
+                        </div>
+                        <button class="btn-estandar btn-primary" onclick="controlarPredio('start')" id="btnStartPredio"><i class="fa-solid fa-power-off"></i> Encender Estadio</button>
 
-                    <div id="room-commands-container" style="display:none; width: 80%; margin-top: 20px; padding-top: 20px; border-top: 1px solid #444;">
-                        <h3 style="color: #bdc3c7; font-size: 1.1rem; margin-bottom: 15px;"><i class="fa-solid fa-gamepad"></i> Panel de Control</h3>
-                        
-                        <div class="cmd-row grid-2">
-                            <button class="btn-cmd play" onclick="enviarComandoWeb('!go')"><i class="fa-solid fa-play"></i> Start (!go)</button>
-                            <button class="btn-cmd" onclick="enviarComandoWeb('!segundo')"><i class="fa-solid fa-rotate"></i> 2do Tiempo</button>
-                        </div>
-                        
-                        <div class="cmd-row grid-4">
-                            <button class="btn-cmd" onclick="enviarComandoWeb('!train')">🏟️ Entrenamiento</button>
-                            <button class="btn-cmd" onclick="enviarComandoWeb('!previa')">⚽ Previa</button>
-                            <button class="btn-cmd" onclick="enviarComandoWeb('!x5')">🏟️ x5</button>
-                            <button class="btn-cmd" onclick="enviarComandoWeb('!x7')">🏟️ x7</button>
-                        </div>
-                        
-                        <div class="cmd-row grid-3">
-                            <button class="btn-cmd warning" onclick="enviarComandoWeb('!rr')">⏱️ Reiniciar tiempo</button>
-                            <button class="btn-cmd danger" onclick="enviarComandoWeb('!rrpartido')">⏪ Reiniciar partido</button>
-                            <button class="btn-cmd danger" onclick="enviarComandoWeb('!rrtotal')">☢️ Reiniciar sala</button>
-                        </div>
-                        
-                        <div class="cmd-row grid-1">
+                        <div id="room-commands-container">
+                            <div class="cmd-row grid-2">
+                                <button class="btn-cmd play" onclick="enviarComandoWeb('!go')"><i class="fa-solid fa-play"></i> Start</button>
+                                <button class="btn-cmd" onclick="enviarComandoWeb('!segundo')"><i class="fa-solid fa-rotate"></i> 2do Tiempo</button>
+                            </div>
+
+                            <div class="cmd-row grid-4">
+                                <button class="btn-cmd" onclick="enviarComandoWeb('!train')"><i class="fa-solid fa-person-running"></i> Entreno</button>
+                                <button class="btn-cmd" onclick="enviarComandoWeb('!previa')"><i class="fa-solid fa-futbol"></i> Previa</button>
+                                <button class="btn-cmd" onclick="enviarComandoWeb('!x5')"><i class="fa-solid fa-users"></i> x5</button>
+                                <button class="btn-cmd" onclick="enviarComandoWeb('!x7')"><i class="fa-solid fa-users"></i> x7</button>
+                            </div>
+
+                            <div class="cmd-row grid-3">
+                                <button class="btn-cmd warning" onclick="enviarComandoWeb('!rr')"><i class="fa-solid fa-stopwatch"></i> Tiempo</button>
+                                <button class="btn-cmd danger" onclick="enviarComandoWeb('!rrpartido')"><i class="fa-solid fa-backward"></i> Partido</button>
+                                <button class="btn-cmd danger" onclick="enviarComandoWeb('!rrtotal')"><i class="fa-solid fa-radiation"></i> Sala</button>
+                            </div>
+
                             <button class="btn-transmit" onclick="solicitarTransmision()" id="btnTransmision"><i class="fa-solid fa-video"></i> Solicitar Transmisión en Discord</button>
                         </div>
-                    </div>
-                    
-                    <button class="btn-estandar btn-danger" style="width:auto; font-size: 1.1rem; padding: 15px 30px; margin-top: 20px;" onclick="controlarPredio('stop')" id="btnStopPredio"><i class="fa-solid fa-stop"></i> Apagar Estadio</button>
 
+                        <hr class="estadio-sep" id="estadioSep" style="display:none;">
+                        <button class="btn-estandar btn-danger" onclick="controlarPredio('stop')" id="btnStopPredio" style="display:none;"><i class="fa-solid fa-stop"></i> Apagar Estadio</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -432,6 +556,12 @@
         let editingId = null;
         let currentMode = 'futsal';
         let predioInterval = null;
+        let partidosPorId = {};
+
+        function editarDesdeLista(id) {
+            const m = partidosPorId[id];
+            if (m) abrirModalEditar(m._id, !!m.isHistory, m.rival || '', m.golesLocal || 0, m.golesVisita || 0, m.matchType || '', m.date || '');
+        }
 
         // Como texto, nunca como HTML (los mensajes del servidor pueden traer nombres)
         const showCustomAlert = (title, msg, isSuccess = false) =>
@@ -486,10 +616,10 @@
                     statusText.innerHTML = '<span class="status-light light-on"></span> ESTADIO ACTIVO';
                     statusText.style.color = '#2df2c1';
                     statusDesc.innerText = 'El servidor está corriendo y listo para usarse.';
-                    infoBox.style.display = 'block';
+                    infoBox.style.display = 'grid';
                     
                     tokenBox.style.display = 'none';
-                    if(isManager) cmdsContainer.style.display = 'block';
+                    if(isManager) cmdsContainer.style.display = 'flex';
                     
                     document.getElementById('predio-link').href = data.link || '#';
                     document.getElementById('predio-link').innerText = data.link || 'Esperando enlace...';
@@ -497,7 +627,8 @@
                     document.getElementById('predio-adminpass').innerText = data.adminPass || 'No generada';
                     
                     if (btnStart) btnStart.style.display = 'none';
-                    if (btnStop) { btnStop.style.display = 'block'; btnStop.innerHTML = txtStop; btnStop.disabled = false; }
+                    if (btnStop) { btnStop.style.display = 'flex'; btnStop.innerHTML = txtStop; btnStop.disabled = false; }
+                    document.getElementById('estadioSep').style.display = 'block';
                 } 
                 else if (data.estado === 'starting') {
                     statusText.innerHTML = '<span class="status-light light-starting"></span> ENCENDIENDO... <i class="fa-solid fa-spinner fa-spin" style="font-size:0.8em; margin-left:10px;"></i>';
@@ -509,6 +640,7 @@
                     cmdsContainer.style.display = 'none';
                     if (btnStart) btnStart.style.display = 'none';
                     if (btnStop) btnStop.style.display = 'none';
+                    document.getElementById('estadioSep').style.display = 'none';
                 } 
                 else if (data.estado === 'stop_pending') {
                     statusText.innerHTML = '<span class="status-light light-stopping"></span> APAGANDO... <i class="fa-solid fa-spinner fa-spin" style="font-size:0.8em; margin-left:10px;"></i>';
@@ -520,6 +652,7 @@
                     cmdsContainer.style.display = 'none';
                     if (btnStart) btnStart.style.display = 'none';
                     if (btnStop) btnStop.style.display = 'none';
+                    document.getElementById('estadioSep').style.display = 'none';
                 }
                 else {
                     statusText.innerHTML = '<span class="status-light light-off"></span> APAGADO';
@@ -528,10 +661,11 @@
                     infoBox.style.display = 'none';
                     
                     cmdsContainer.style.display = 'none';
-                    tokenBox.style.display = 'block';
+                    tokenBox.style.display = '';
 
-                    if (btnStart) { btnStart.style.display = 'block'; btnStart.innerHTML = txtStart; btnStart.disabled = false; }
+                    if (btnStart) { btnStart.style.display = 'flex'; btnStart.innerHTML = txtStart; btnStart.disabled = false; }
                     if (btnStop) btnStop.style.display = 'none';
+                    document.getElementById('estadioSep').style.display = 'none';
                 }
             } catch (e) {
                 console.error("Error cargando estado:", e);
@@ -730,6 +864,7 @@
                         return dateStr;
                     };
 
+                    partidosPorId = {};
                     data.matches.forEach(m => {
                         const fechaPartido = m.date ? new Date(m.date + 'T00:00:00') : new Date(0);
                         
@@ -743,41 +878,36 @@
                             return;
                         }
 
-                        const safeRival = (m.rival || '').replace(/'/g, "\\'");
-                        const safeType = (m.matchType || '').replace(/'/g, "\\'");
-                        const safeDate = (m.date || '').replace(/'/g, "\\'");
+                        // Los datos del partido van al modal por id, nunca dentro del onclick (rival y tipo son texto libre)
+                        partidosPorId[m._id] = m;
+                        const id = ThUI.esc(String(m._id));
+                        const esc = ThUI.esc;
 
                         const acciones = isManager ? `
-                            <div class="action-icons">
-                                <i class="fa-solid fa-pen edit-action-icon" onclick="abrirModalEditar('${m._id}', ${m.isHistory}, '${safeRival}', ${m.golesLocal || 0}, ${m.golesVisita || 0}, '${safeType}', '${safeDate}')"></i>
-                                <i class="fa-solid fa-trash delete-icon" onclick="borrarPartido('${m._id}')"></i>
-                            </div>` : '';
-                        
-                        if (m.isHistory) {
-                            let resultClass = "d"; let resultText = "D";
-                            if (m.golesLocal > m.golesVisita) { resultClass = "w"; resultText = "W"; }
-                            else if (m.golesLocal < m.golesVisita) { resultClass = "l"; resultText = "L"; }
+                            <button type="button" class="sel-icono" onclick="editarDesdeLista('${id}')" title="Editar" aria-label="Editar"><i class="fa-solid fa-pen"></i></button>
+                            <button type="button" class="sel-icono borrar" onclick="borrarPartido('${id}')" title="Borrar" aria-label="Borrar"><i class="fa-solid fa-trash"></i></button>` : '';
 
-                            histDiv.innerHTML += `
-                                <div class="match-row">
-                                    <div class="match-result ${resultClass}">(${resultText})</div> 
-                                    <div class="match-teams">ToroHax ${m.golesLocal || 0} - ${m.golesVisita || 0} ${m.rival || 'Rival'}</div>
-                                    <div class="match-type">${m.matchType || 'Amistoso'}</div>
-                                    <div class="match-date">${formatFecha(m.date)}</div>
-                                    ${acciones}
-                                </div>
-                            `;
-                        } else {
-                            proxDiv.innerHTML += `
-                                <div class="match-row">
-                                    <div class="match-result" style="width: 0px; margin: 0;"></div> 
-                                    <div class="match-teams">ToroHax vs ${m.rival || 'Rival'}</div>
-                                    <div class="match-type">${m.matchType || 'Amistoso'}</div>
-                                    <div class="match-date">${formatFecha(m.date)}</div>
-                                    ${acciones}
-                                </div>
-                            `;
+                        let clase = 'prox', letra = '<i class="fa-regular fa-calendar"></i>', centro = 'VS';
+                        if (m.isHistory) {
+                            const gl = Number(m.golesLocal) || 0, gv = Number(m.golesVisita) || 0;
+                            clase = gl > gv ? 'w' : gl < gv ? 'l' : 'd';
+                            letra = clase.toUpperCase();
+                            centro = `${gl} - ${gv}`;
                         }
+
+                        const fila = `
+                            <div class="sel-partido">
+                                <div class="mode-col"><span class="mode-badge res-${clase}">${letra}</span></div>
+                                <div class="sel-marcador">
+                                    <span class="sel-equipo local">ToroHax</span>
+                                    <span class="sel-goles${m.isHistory ? '' : ' vs'}">${centro}</span>
+                                    <span class="sel-equipo">${esc(m.rival || 'Rival')}</span>
+                                </div>
+                                <div class="sel-fecha">${esc(formatFecha(m.date))}</div>
+                                <div class="sel-tipo">${esc(m.matchType || 'Amistoso')}</div>
+                                <div class="sel-acciones">${acciones}</div>
+                            </div>`;
+                        if (m.isHistory) histDiv.innerHTML += fila; else proxDiv.innerHTML += fila;
                     });
 
                     if (proxDiv.innerHTML === '') proxDiv.innerHTML = '<p style="text-align:center; color:#7d7d7d;">No hay partidos programados.</p>';
